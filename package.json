@@ -1,0 +1,22 @@
+{
+  "name": "sveltekit-vercel-draft-auth",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.json"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-vercel": "^5.3.1",
+    "@sveltejs/kit": "^2.7.0",
+    "@sveltejs/vite-plugin-svelte": "^3.1.2",
+    "svelte": "^4.2.17",
+    "svelte-check": "^3.8.6",
+    "tslib": "^2.6.3",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.2"
+  }
+}

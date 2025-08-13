@@ -1,0 +1,10 @@
+{
+	"runtime": "nodejs22.x",
+	"handler": ".svelte-kit/vercel-tmp/index.js",
+	"launcherType": "Nodejs",
+	"experimentalResponseStreaming": false,
+	"framework": {
+		"slug": "sveltekit",
+		"version": "2.28.0"
+	}
+}
