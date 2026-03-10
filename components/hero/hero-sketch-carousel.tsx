@@ -35,6 +35,7 @@ const SWIPE_THRESHOLD = 48;
 export function HeroSketchCarousel() {
   const [index, setIndex] = useState(0);
   const startXRef = useRef<number | null>(null);
+  const pointerIdRef = useRef<number | null>(null);
 
   const activeSketch = SKETCHES[index];
   const ActiveComponent = activeSketch.Component;
@@ -45,12 +46,21 @@ export function HeroSketchCarousel() {
 
   const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     startXRef.current = event.clientX;
+    pointerIdRef.current = event.pointerId;
+    event.currentTarget.setPointerCapture(event.pointerId);
   };
 
   const onPointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (pointerIdRef.current !== event.pointerId) return;
+
     if (startXRef.current === null) return;
     const delta = event.clientX - startXRef.current;
     startXRef.current = null;
+    pointerIdRef.current = null;
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
 
     if (Math.abs(delta) < SWIPE_THRESHOLD) return;
     if (delta < 0) go(1);
@@ -59,6 +69,12 @@ export function HeroSketchCarousel() {
 
   const onPointerCancel = () => {
     startXRef.current = null;
+    pointerIdRef.current = null;
+  };
+
+  const onPointerLeave = () => {
+    startXRef.current = null;
+    pointerIdRef.current = null;
   };
 
   return (
@@ -67,6 +83,7 @@ export function HeroSketchCarousel() {
       onPointerDown={onPointerDown}
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerCancel}
+      onPointerLeave={onPointerLeave}
     >
       <ActiveComponent key={activeSketch.id} />
 
