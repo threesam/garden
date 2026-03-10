@@ -8,15 +8,59 @@ import { useAudioReactive } from "@/components/audio/audio-reactive-provider";
 const VERTEX_SHADER = `
   uniform float uTime;
   uniform float uAudio;
-  attribute float aTerrain;
+  uniform float uTravel;
+  uniform vec2 uSeedA;
+  uniform vec2 uSeedB;
   varying float vHeight;
+
+  float hash(vec2 p) {
+    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+  }
+
+  float noise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    vec2 u = f * f * (3.0 - 2.0 * f);
+
+    float a = hash(i + vec2(0.0, 0.0));
+    float b = hash(i + vec2(1.0, 0.0));
+    float c = hash(i + vec2(0.0, 1.0));
+    float d = hash(i + vec2(1.0, 1.0));
+
+    return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
+  }
 
   void main() {
     vec3 p = position;
+    vec2 streamPos = vec2(
+      p.x * 0.92 + uSeedA.x,
+      (p.y + uTravel * 1.35) * 1.05 + uSeedA.y
+    );
+
+    vec2 warp = vec2(
+      noise(streamPos * 0.55 + uSeedB),
+      noise(streamPos * 0.55 - uSeedB)
+    );
+    streamPos += (warp - 0.5) * 1.2;
+
+    float ridge = abs(noise(streamPos * 1.08) - 0.5) * 2.0;
+    float n1 = noise(streamPos * 0.62 + vec2(17.4, -3.2));
+    float n2 = noise(streamPos * 1.68 + vec2(-2.7, 9.4));
+    float h = ridge * 0.9 + n1 * 0.42 + n2 * 0.2;
+
+    // Keep mountain forms asymmetric across the field.
+    float sideBias = mix(
+      0.72,
+      1.34,
+      smoothstep(-3.2, 3.2, p.x + (noise(vec2(streamPos.y * 0.25, uSeedA.x)) - 0.5) * 2.2)
+    );
+    h = pow(h, 1.24) * sideBias;
+
+    float centered = h - 0.58;
+    float faceted = floor(centered * 12.0) / 12.0;
     float audioScale = 0.25 + uAudio * 1.85;
 
     // Faceting preserves the minimal geometric look.
-    float faceted = floor((aTerrain + 1.0) * 14.0) / 14.0 - 0.5;
     p.z += faceted * audioScale;
     p.x += faceted * uAudio * 0.08;
 
@@ -90,15 +134,17 @@ export default function MountainCanvas() {
     container.appendChild(renderer.domElement);
 
     const geometry = new THREE.PlaneGeometry(7.6, 7.6, 96, 96);
-    const positionAttribute = geometry.getAttribute(
-      "position",
-    ) as THREE.BufferAttribute;
-    const terrain = buildTerrainField(positionAttribute);
-    geometry.setAttribute("aTerrain", new THREE.BufferAttribute(terrain, 1));
 
     const uniforms = {
       uTime: { value: 0 },
       uAudio: { value: 0 },
+      uTravel: { value: 0 },
+      uSeedA: {
+        value: new THREE.Vector2(randomBetween(-12, 12), randomBetween(-12, 12)),
+      },
+      uSeedB: {
+        value: new THREE.Vector2(randomBetween(-8, 8), randomBetween(-8, 8)),
+      },
     };
     const material = new THREE.ShaderMaterial({
       uniforms,
@@ -126,6 +172,7 @@ export default function MountainCanvas() {
 
       uniforms.uTime.value = t;
       uniforms.uAudio.value = Math.min(1.8, smoothedAudio);
+      uniforms.uTravel.value = t * 0.14;
 
       mesh.rotation.z = Math.sin(t * 0.08) * 0.08;
 
@@ -159,60 +206,6 @@ export default function MountainCanvas() {
   return <div ref={mountRef} className="absolute inset-0" aria-hidden />;
 }
 
-function buildTerrainField(positionAttribute: THREE.BufferAttribute) {
-  const count = positionAttribute.count;
-  const terrain = new Float32Array(count);
-  const ridgeCount = 9;
-  const ridges = Array.from({ length: ridgeCount }, () => ({
-    cx: randomBetween(-3.1, 3.1),
-    cy: randomBetween(-3.1, 3.1),
-    amp: randomBetween(0.35, 1.25),
-    sx: randomBetween(0.6, 2.1),
-    sy: randomBetween(0.65, 2.25),
-    skew: randomBetween(-0.55, 0.55),
-  }));
-
-  let min = Number.POSITIVE_INFINITY;
-  let max = Number.NEGATIVE_INFINITY;
-
-  for (let i = 0; i < count; i += 1) {
-    const x = positionAttribute.getX(i);
-    const y = positionAttribute.getY(i);
-    let h = 0;
-
-    for (const ridge of ridges) {
-      const dx = (x - ridge.cx) / ridge.sx;
-      const dy = (y - ridge.cy) / ridge.sy;
-      const skewedDx = dx + dy * ridge.skew;
-      const peak = Math.exp(-(skewedDx * skewedDx + dy * dy));
-      h += peak * ridge.amp;
-    }
-
-    // Lightweight deterministic noise adds local irregularity.
-    const noise =
-      (hash2D(x * 0.45, y * 0.45) - 0.5) * 0.26 +
-      (hash2D(x * 1.1 + 11.7, y * 1.1 + 2.3) - 0.5) * 0.12;
-    h += noise;
-    terrain[i] = h;
-    min = Math.min(min, h);
-    max = Math.max(max, h);
-  }
-
-  const span = Math.max(0.0001, max - min);
-  for (let i = 0; i < count; i += 1) {
-    const normalized = ((terrain[i] - min) / span) * 2 - 1;
-    terrain[i] =
-      Math.sign(normalized) * Math.pow(Math.abs(normalized), 1.16);
-  }
-
-  return terrain;
-}
-
 function randomBetween(min: number, max: number) {
   return min + Math.random() * (max - min);
-}
-
-function hash2D(x: number, y: number) {
-  const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453123;
-  return s - Math.floor(s);
 }
