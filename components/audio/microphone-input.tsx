@@ -78,32 +78,26 @@ export function MicrophoneInput() {
   }, [stopMicrophone]);
 
   return (
-    <div className="space-y-4 rounded-xl border border-white/10 bg-black/35 p-5">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h3 className="font-mono text-sm uppercase tracking-[0.2em] text-zinc-300">
-            live microphone
-          </h3>
-          <p className="mt-2 text-sm text-zinc-400">
-            Route ambient sound to the generative particle field.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => void (isMicActive ? stopMicrophone() : startMicrophone())}
-          className="rounded-md border border-white/20 px-4 py-2 text-xs uppercase tracking-[0.18em] text-zinc-200 hover:border-white/40"
-        >
-          {isMicActive ? "stop mic" : "start mic"}
-        </button>
+    <>
+      <button
+        type="button"
+        onClick={() => void (isMicActive ? stopMicrophone() : startMicrophone())}
+        className="fixed right-4 top-1/2 z-40 -translate-y-1/2 rounded-md border border-white/25 bg-black/60 px-4 py-2 text-xs text-zinc-200 shadow-lg backdrop-blur-md transition hover:border-white/50 md:right-6"
+      >
+        {isMicActive ? "live mic: on" : "live mic: off"}
+      </button>
+
+      <div className="fixed bottom-4 left-4 z-30 w-64 rounded-xl border border-white/10 bg-black/55 p-3 backdrop-blur-md md:bottom-6 md:left-6 md:w-72">
+        <p className="title-up mb-2 font-mono text-[10px] tracking-[0.16em] text-zinc-400">
+          mic visualizer
+        </p>
+        <AudioVisualizer
+          analyser={analyser}
+          isActive={isMicActive}
+          onEnergySample={setMicEnergy}
+        />
+        {error ? <p className="mt-2 text-xs text-amber-300">{error}</p> : null}
       </div>
-
-      <AudioVisualizer
-        analyser={analyser}
-        isActive={isMicActive}
-        onEnergySample={setMicEnergy}
-      />
-
-      {error ? <p className="text-xs text-amber-300">{error}</p> : null}
-    </div>
+    </>
   );
 }

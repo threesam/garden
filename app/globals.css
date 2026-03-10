@@ -33,3 +33,11 @@ a {
   background: var(--panel);
   backdrop-filter: blur(8px);
 }
+
+.copy-lower {
+  text-transform: lowercase;
+}
+
+.title-up {
+  text-transform: uppercase;
+}

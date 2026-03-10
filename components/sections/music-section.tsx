@@ -1,4 +1,3 @@
-import { MicrophoneInput } from "@/components/audio/microphone-input";
 import { ReactiveControls } from "@/components/audio/reactive-controls";
 import { MusicPlayer } from "@/components/audio/music-player";
 
@@ -10,12 +9,10 @@ export function MusicSection() {
       </h2>
       <p className="mt-3 mb-5 max-w-3xl text-sm leading-7 text-zinc-400 md:text-base">
         Local audio, direct Web Audio analysis, and a visualizer pipeline that
-        can drive the generative system in real time.
+        can drive the generative system in real time. Live mic control is fixed
+        at the right edge; mic visualizer is fixed bottom-left.
       </p>
       <MusicPlayer />
-      <div className="mt-4">
-        <MicrophoneInput />
-      </div>
       <div className="mt-4">
         <ReactiveControls />
       </div>

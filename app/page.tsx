@@ -1,4 +1,5 @@
 import { AudioReactiveProvider } from "@/components/audio/audio-reactive-provider";
+import { MicrophoneInput } from "@/components/audio/microphone-input";
 import { CounterOverview } from "@/components/counters/counter-overview";
 import { VisitorTracker } from "@/components/counters/visitor-tracker";
 import { GenerativeHero } from "@/components/hero/generative-hero";
@@ -11,7 +12,8 @@ export default function Home() {
   return (
     <AudioReactiveProvider>
       <VisitorTracker />
-      <main className="pb-16">
+      <MicrophoneInput />
+      <main className="copy-lower pb-16">
         <GenerativeHero />
         <BioSection />
         <MusicSection />
