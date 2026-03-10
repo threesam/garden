@@ -42,7 +42,7 @@ const VERTEX_SHADER = `
       noise(streamPos * 0.55 + uSeedB),
       noise(streamPos * 0.55 - uSeedB)
     );
-    streamPos += (warp - 0.5) * 1.2;
+    streamPos += (warp - 0.5) * 0.72;
 
     float ridge = abs(noise(streamPos * 1.08) - 0.5) * 2.0;
     float n1 = noise(streamPos * 0.62 + vec2(17.4, -3.2));
@@ -51,18 +51,18 @@ const VERTEX_SHADER = `
 
     // Keep mountain forms asymmetric across the field.
     float sideBias = mix(
-      0.72,
-      1.34,
-      smoothstep(-3.2, 3.2, p.x + (noise(vec2(streamPos.y * 0.25, uSeedA.x)) - 0.5) * 2.2)
+      0.84,
+      1.16,
+      smoothstep(-3.2, 3.2, p.x + (noise(vec2(streamPos.y * 0.25, uSeedA.x)) - 0.5) * 1.45)
     );
     h = pow(h, 1.24) * sideBias;
 
     // Staggered per-cell peaks create more random mountain heights.
-    vec2 cell = floor(streamPos * 0.42 + vec2(uStepJitter * 9.3, -uStepJitter * 6.7));
+    vec2 cell = floor(streamPos * 0.42 + vec2(uStepJitter * 3.2, -uStepJitter * 2.2));
     float peakRand = hash(cell + uSeedB * 0.31);
     float spikeRand = hash(cell * 1.63 + vec2(8.2, -4.9) + uSeedA * 0.2);
-    float peakScale = mix(0.62, 1.95, pow(peakRand, 1.32));
-    peakScale += step(0.88, spikeRand) * 0.55;
+    float peakScale = mix(0.82, 1.35, pow(peakRand, 1.32));
+    peakScale += step(0.93, spikeRand) * 0.22;
     h *= peakScale;
 
     float centered = h - 0.58;
@@ -176,10 +176,10 @@ export default function MountainCanvas() {
       // Staggered sample-and-hold response instead of smooth reaction.
       if (t >= nextStepAt) {
         const quantized = Math.floor(baseInput * 12) / 12;
-        const burst = baseInput > 0.16 ? randomBetween(0, 0.55) : 0;
+        const burst = baseInput > 0.16 ? randomBetween(0, 0.24) : 0;
         staggeredAudio = Math.min(2.4, quantized + burst);
-        uniforms.uStepJitter.value = Math.random() * 10;
-        nextStepAt = t + randomBetween(0.06, 0.2);
+        uniforms.uStepJitter.value = Math.random() * 4;
+        nextStepAt = t + randomBetween(0.08, 0.2);
       } else {
         staggeredAudio *= 0.996;
       }

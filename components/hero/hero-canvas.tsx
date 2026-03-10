@@ -12,23 +12,30 @@ const VERTEX_SHADER = `
   uniform float uWasmMod;
   attribute float aSeed;
   varying float vIntensity;
+  varying float vAudio;
+  varying float vSeed;
 
   void main() {
     vec3 p = position;
+    float audioNorm = clamp(uAudio / 1.8, 0.0, 1.0);
     float wave = sin((p.x * 1.8) + (p.y * 1.4) + uTime * 0.7 + aSeed * 6.2831) * 0.24;
     float ring = sin(length(p.xy) * 5.0 - uTime * 1.2 + aSeed * 2.0) * 0.18;
     p.z += wave + ring * (0.6 + (uAudio * 1.5)) + (uWasmMod * 0.45);
-    p.xy *= 1.0 + (uAudio * 0.06);
+    p.xy *= mix(1.0, 3.0, audioNorm);
 
     vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
     gl_Position = projectionMatrix * mvPosition;
     gl_PointSize = (1.2 + (uAudio * 3.0)) * (150.0 / max(30.0, -mvPosition.z));
     vIntensity = clamp(0.3 + uAudio + abs(p.z) * 0.5, 0.0, 2.0);
+    vAudio = audioNorm;
+    vSeed = aSeed;
   }
 `;
 
 const FRAGMENT_SHADER = `
   varying float vIntensity;
+  varying float vAudio;
+  varying float vSeed;
 
   void main() {
     vec2 cxy = 2.0 * gl_PointCoord - 1.0;
@@ -37,14 +44,18 @@ const FRAGMENT_SHADER = `
 
     float rim = smoothstep(1.0, 0.0, r);
     float heat = clamp(vIntensity * 0.68, 0.0, 1.0);
-    float alpha = rim * (0.62 + heat * 0.45);
+    float alpha = rim * (0.55 + heat * 0.45);
 
-    vec3 ember = vec3(0.43, 0.07, 0.02);
-    vec3 copper = vec3(0.82, 0.25, 0.06);
-    vec3 flame = vec3(1.0, 0.69, 0.28);
+    vec3 neutral = vec3(0.58, 0.58, 0.60);
+    float spectrum = fract(vSeed * 6.7 + heat * 0.24);
+    vec3 warmA = vec3(0.54, 0.17, 0.06);
+    vec3 warmB = vec3(0.88, 0.40, 0.12);
+    vec3 warmC = vec3(1.0, 0.79, 0.36);
+    vec3 warm = mix(warmA, warmB, smoothstep(0.0, 0.68, spectrum));
+    warm = mix(warm, warmC, smoothstep(0.68, 1.0, spectrum));
 
-    vec3 color = mix(ember, copper, rim);
-    color = mix(color, flame, heat);
+    vec3 color = mix(neutral, warm, pow(vAudio, 0.82));
+    color = mix(color, warmC, heat * vAudio * 0.5);
     gl_FragColor = vec4(color, alpha);
   }
 `;

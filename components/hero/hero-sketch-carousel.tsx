@@ -41,23 +41,29 @@ const SKETCHES = [
 ] as const;
 
 const SWIPE_THRESHOLD = 48;
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
 export function HeroSketchCarousel() {
   const [index, setIndex] = useState(0);
   const startXRef = useRef<number | null>(null);
   const pointerIdRef = useRef<number | null>(null);
+  const availableSketches = IS_PRODUCTION ? SKETCHES.slice(0, 1) : SKETCHES;
 
-  const activeSketch = SKETCHES[index];
+  const activeSketch = availableSketches[index] ?? availableSketches[0];
   const ActiveComponent = activeSketch.Component;
 
   const go = (direction: 1 | -1) => {
-    setIndex((prev) => (prev + direction + SKETCHES.length) % SKETCHES.length);
+    setIndex(
+      (prev) =>
+        (prev + direction + availableSketches.length) % availableSketches.length,
+    );
   };
   const goTo = (target: number) => {
-    setIndex((target + SKETCHES.length) % SKETCHES.length);
+    setIndex((target + availableSketches.length) % availableSketches.length);
   };
 
   const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (availableSketches.length < 2) return;
     startXRef.current = event.clientX;
     pointerIdRef.current = event.pointerId;
     event.currentTarget.setPointerCapture(event.pointerId);
@@ -100,29 +106,31 @@ export function HeroSketchCarousel() {
     >
       <ActiveComponent key={activeSketch.id} />
 
-      <div className="pointer-events-none absolute bottom-24 left-1/2 -translate-x-1/2">
-        <div className="pointer-events-auto flex items-center gap-1 rounded-full border border-white/15 bg-black/35 px-2 py-1.5 backdrop-blur-md">
-          {SKETCHES.map((sketch, sketchIndex) => {
-            const active = sketchIndex === index;
-            return (
-              <button
-                key={sketch.id}
-                type="button"
-                onClick={() => goTo(sketchIndex)}
-                className={`rounded-full px-2.5 py-1 font-mono text-[10px] tracking-[0.16em] transition ${
-                  active
-                    ? "bg-amber-200/20 text-amber-100"
-                    : "text-zinc-300 hover:bg-white/10 hover:text-zinc-100"
-                }`}
-                aria-label={`show ${sketch.label} sketch`}
-                aria-current={active}
-              >
-                {String(sketchIndex + 1).padStart(2, "0")} {sketch.label}
-              </button>
-            );
-          })}
+      {!IS_PRODUCTION && availableSketches.length > 1 ? (
+        <div className="pointer-events-none absolute bottom-24 left-1/2 -translate-x-1/2">
+          <div className="pointer-events-auto flex items-center gap-1 rounded-full border border-white/15 bg-black/35 px-2 py-1.5 backdrop-blur-md">
+            {availableSketches.map((sketch, sketchIndex) => {
+              const active = sketchIndex === index;
+              return (
+                <button
+                  key={sketch.id}
+                  type="button"
+                  onClick={() => goTo(sketchIndex)}
+                  className={`rounded-full px-2.5 py-1 font-mono text-[10px] tracking-[0.16em] transition ${
+                    active
+                      ? "bg-amber-200/20 text-amber-100"
+                      : "text-zinc-300 hover:bg-white/10 hover:text-zinc-100"
+                  }`}
+                  aria-label={`show ${sketch.label} sketch`}
+                  aria-current={active}
+                >
+                  {String(sketchIndex + 1).padStart(2, "0")} {sketch.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      ) : null}
     </div>
   );
 }
