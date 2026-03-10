@@ -9,6 +9,7 @@ art, music, engineering, and discipline.
 - Tailwind CSS
 - Three.js (WebGL hero rendering)
 - Web Audio API (player + analyser + visualizer + live microphone input)
+- Live reaction tuning controls (sensitivity + smoothing)
 - Rust -> WASM support (lazy-loaded with fallback)
 - Serverless API routes for counters
 

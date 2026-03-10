@@ -1,4 +1,5 @@
 import { MicrophoneInput } from "@/components/audio/microphone-input";
+import { ReactiveControls } from "@/components/audio/reactive-controls";
 import { MusicPlayer } from "@/components/audio/music-player";
 
 export function MusicSection() {
@@ -14,6 +15,9 @@ export function MusicSection() {
       <MusicPlayer />
       <div className="mt-4">
         <MicrophoneInput />
+      </div>
+      <div className="mt-4">
+        <ReactiveControls />
       </div>
     </section>
   );

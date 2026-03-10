@@ -48,11 +48,21 @@ const ART_VIEW_KEY = "threesam-art-view-v1";
 export default function HeroCanvas() {
   const mountRef = useRef<HTMLDivElement>(null);
   const energyRef = useRef(0);
-  const { energy } = useAudioReactive();
+  const sensitivityRef = useRef(1.3);
+  const smoothingRef = useRef(0.88);
+  const { energy, sensitivity, smoothing } = useAudioReactive();
 
   useEffect(() => {
     energyRef.current = energy;
   }, [energy]);
+
+  useEffect(() => {
+    sensitivityRef.current = sensitivity;
+  }, [sensitivity]);
+
+  useEffect(() => {
+    smoothingRef.current = smoothing;
+  }, [smoothing]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -144,9 +154,15 @@ export default function HeroCanvas() {
       if (!active) return;
 
       const t = clock.getElapsedTime();
-      smoothedAudio = smoothedAudio * 0.9 + energyRef.current * 0.1;
+      const smoothingFactor = Math.max(0, Math.min(0.98, smoothingRef.current));
+      const targetAudio = Math.max(
+        0,
+        Math.min(2.2, energyRef.current * sensitivityRef.current),
+      );
+      smoothedAudio =
+        smoothedAudio * smoothingFactor + targetAudio * (1 - smoothingFactor);
       uniforms.uTime.value = t;
-      uniforms.uAudio.value = smoothedAudio;
+      uniforms.uAudio.value = Math.min(1.8, smoothedAudio);
 
       if (wasmWave) {
         const wasmSample =
