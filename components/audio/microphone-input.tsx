@@ -87,7 +87,7 @@ export function MicrophoneInput() {
         {isMicActive ? "live mic: on" : "live mic: off"}
       </button>
 
-      <div className="fixed bottom-4 left-4 z-30 w-64 rounded-xl border border-white/10 bg-black/55 p-3 backdrop-blur-md md:bottom-6 md:left-6 md:w-72">
+      <div className="fixed top-4 left-4 z-30 w-64 rounded-xl border border-white/10 bg-black/55 p-3 backdrop-blur-md md:top-6 md:left-6 md:w-72">
         <p className="title-up mb-2 font-mono text-[10px] tracking-[0.16em] text-zinc-400">
           mic visualizer
         </p>
