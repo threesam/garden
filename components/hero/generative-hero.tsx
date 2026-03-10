@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 
 import { MicrophoneInput } from "@/components/audio/microphone-input";
+import { AsciiVideoOverlay } from "@/components/hero/ascii-video-overlay";
 import { useAudioReactive } from "@/components/audio/audio-reactive-provider";
 import { HeroSketchCarousel } from "@/components/hero/hero-sketch-carousel";
 
@@ -28,6 +29,7 @@ export function GenerativeHero() {
   return (
     <section className="relative h-screen w-full overflow-hidden border-b border-white/10">
       <HeroSketchCarousel />
+      <AsciiVideoOverlay />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,153,87,0.22),transparent_40%),radial-gradient(circle_at_70%_60%,rgba(196,58,34,0.22),transparent_45%)]" />
       <MicrophoneInput />
       <div className="absolute bottom-8 left-6 right-6 font-mono text-xs tracking-[0.22em] text-zinc-300 md:left-10 md:right-10">

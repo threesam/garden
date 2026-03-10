@@ -8,6 +8,7 @@ art, music, engineering, and discipline.
 - Next.js (App Router) + TypeScript
 - Tailwind CSS
 - Three.js (hero sketch carousel: particles, mountains, forest; production locks to particles)
+- optional webcam capture button overlays live video as ASCII over hero particles
 - Web Audio API (player + analyser + visualizer + live microphone input)
 - Live reaction tuning controls (sensitivity + smoothing)
 - Rust -> WASM support (lazy-loaded with fallback)
