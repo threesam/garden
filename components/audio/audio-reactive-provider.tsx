@@ -18,6 +18,8 @@ interface AudioReactiveContextValue {
 
 const AudioReactiveContext = createContext<AudioReactiveContextValue | null>(null);
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
+const PRODUCTION_SENSITIVITY = 0.3;
+const PRODUCTION_SMOOTHING = 1;
 
 export function AudioReactiveProvider({
   children,
@@ -27,20 +29,20 @@ export function AudioReactiveProvider({
   const [musicEnergy, setMusicEnergy] = useState(0);
   const [micEnergy, setMicEnergy] = useState(0);
   const [sensitivityState, setSensitivityState] = useState(
-    IS_PRODUCTION ? 1 : 1.3,
+    IS_PRODUCTION ? PRODUCTION_SENSITIVITY : 1.3,
   );
   const [smoothingState, setSmoothingState] = useState(
-    IS_PRODUCTION ? 1 : 0.88,
+    IS_PRODUCTION ? PRODUCTION_SMOOTHING : 0.88,
   );
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMicActive, setIsMicActive] = useState(false);
   const energy = Math.max(musicEnergy, micEnergy);
 
   const setSensitivity = useCallback((value: number) => {
-    setSensitivityState(IS_PRODUCTION ? 1 : value);
+    setSensitivityState(IS_PRODUCTION ? PRODUCTION_SENSITIVITY : value);
   }, []);
   const setSmoothing = useCallback((value: number) => {
-    setSmoothingState(IS_PRODUCTION ? 1 : value);
+    setSmoothingState(IS_PRODUCTION ? PRODUCTION_SMOOTHING : value);
   }, []);
 
   const value = useMemo(
