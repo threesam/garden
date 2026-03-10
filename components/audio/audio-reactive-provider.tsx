@@ -18,9 +18,9 @@ interface AudioReactiveContextValue {
 
 const AudioReactiveContext = createContext<AudioReactiveContextValue | null>(null);
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
-const PRODUCTION_SENSITIVITY = 0.75;
+const PRODUCTION_SENSITIVITY = 2;
 const PRODUCTION_SMOOTHING = 1;
-const DEFAULT_SENSITIVITY = 0.75;
+const DEFAULT_SENSITIVITY = 2;
 const DEFAULT_SMOOTHING = 0.94;
 
 export function AudioReactiveProvider({
