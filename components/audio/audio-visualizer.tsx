@@ -34,6 +34,7 @@ export function AudioVisualizer({
     let rafId = 0;
     const fftBuffer = new Uint8Array(analyser.frequencyBinCount);
     const timeDomainBuffer = new Uint8Array(analyser.fftSize);
+    let smoothedEnergy = 0;
 
     const draw = () => {
       analyser.getByteFrequencyData(fftBuffer);
@@ -85,7 +86,10 @@ export function AudioVisualizer({
       }
 
       const normalizedEnergy = energyAccumulator / Math.max(1, weightSum);
-      onEnergySample(Math.min(2.3, normalizedEnergy * energyBoost));
+      const gatedEnergy =
+        normalizedEnergy < 0.1 ? 0 : (normalizedEnergy - 0.1) / 0.9;
+      smoothedEnergy = smoothedEnergy * 0.9 + gatedEnergy * 0.1;
+      onEnergySample(Math.min(2.3, smoothedEnergy * energyBoost));
       rafId = window.requestAnimationFrame(draw);
     };
 

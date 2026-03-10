@@ -164,8 +164,7 @@ export default function HeroCanvas() {
 
       const t = clock.getElapsedTime();
       const smoothingSetting = Math.max(0, Math.min(1, smoothingRef.current));
-      const smoothingFactor =
-        smoothingSetting >= 0.999 ? 0 : Math.min(0.98, smoothingSetting);
+      const smoothingFactor = Math.min(0.995, smoothingSetting);
       const targetAudio = Math.max(
         0,
         Math.min(2.2, energyRef.current * sensitivityRef.current),

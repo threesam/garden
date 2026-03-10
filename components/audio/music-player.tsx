@@ -49,7 +49,7 @@ export function MusicPlayer() {
     const context = new window.AudioContext();
     const analyserNode = context.createAnalyser();
     analyserNode.fftSize = 1024;
-    analyserNode.smoothingTimeConstant = 0.62;
+    analyserNode.smoothingTimeConstant = 0.84;
 
     const sourceNode = context.createMediaElementSource(audioRef.current);
     sourceNode.connect(analyserNode);
@@ -137,7 +137,7 @@ export function MusicPlayer() {
         analyser={analyser}
         isActive={isPlaying}
         onEnergySample={setMusicEnergy}
-        energyBoost={2.2}
+        energyBoost={1.6}
       />
 
       {error ? <p className="text-xs text-amber-300">{error}</p> : null}

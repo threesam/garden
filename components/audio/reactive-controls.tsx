@@ -36,8 +36,8 @@ export function ReactiveControls() {
         <input
           type="range"
           min={0.5}
-          max={0.98}
-          step={0.01}
+          max={0.995}
+          step={0.005}
           value={smoothing}
           onChange={(event) => setSmoothing(Number(event.target.value))}
           className="w-full accent-red-500"
@@ -47,8 +47,8 @@ export function ReactiveControls() {
       <button
         type="button"
         onClick={() => {
-          setSensitivity(1.3);
-          setSmoothing(0.88);
+          setSensitivity(0.95);
+          setSmoothing(0.94);
         }}
         className="rounded-md border border-white/20 px-3 py-2 text-[11px] uppercase tracking-[0.16em] text-zinc-300 hover:border-white/40"
       >
