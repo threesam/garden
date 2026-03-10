@@ -220,9 +220,33 @@ export function AsciiVideoOverlay() {
       <button
         type="button"
         onClick={() => void (isActive ? stopCapture() : startCapture())}
-        className="absolute right-20 top-4 z-40 rounded-full border border-amber-200/35 bg-[#24120c]/75 px-3 py-1.5 font-mono text-[10px] tracking-[0.16em] text-amber-100/90 backdrop-blur-md transition hover:border-amber-200/65 md:right-24 md:top-6"
+        title={isActive ? "stop video capture" : "grab video"}
+        aria-label={isActive ? "stop video capture" : "grab video capture"}
+        className={`absolute right-20 top-4 z-40 grid h-11 w-11 place-items-center rounded-full border backdrop-blur-md transition md:right-24 md:top-6 ${
+          isActive
+            ? "border-[#7f0f1b] bg-[#2a0408]/90 text-amber-100 shadow-[0_0_24px_rgba(90,0,10,0.45)]"
+            : "border-amber-200/40 bg-[#24120c]/70 text-amber-100/90 hover:border-amber-200/70"
+        } ${error ? "border-amber-400/70 text-amber-200" : ""}`}
       >
-        {isActive ? "stop video" : "grab video"}
+        <svg
+          viewBox="0 0 24 24"
+          className="h-5 w-5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden
+        >
+          <rect x="3.5" y="7" width="13" height="10" rx="2.2" />
+          <path d="M16.5 10.2 21 7.8v8.4l-4.5-2.4" />
+          <circle
+            cx="10"
+            cy="12"
+            r="2.2"
+            fill={isActive ? "currentColor" : "none"}
+          />
+        </svg>
       </button>
 
       {error ? (
