@@ -6,6 +6,13 @@ import * as THREE from "three";
 import { useAudioReactive } from "@/components/audio/audio-reactive-provider";
 import { loadGardenMathApi } from "@/lib/wasm/garden-math";
 
+interface ParticleFlowDetail {
+  spread: number;
+  phaseX: number;
+  phaseY: number;
+  rotZ: number;
+}
+
 const VERTEX_SHADER = `
   uniform float uTime;
   uniform float uAudio;
@@ -180,6 +187,18 @@ export default function HeroCanvas() {
       points.rotation.z = t * 0.07;
       points.rotation.x = Math.sin(t * 0.22) * 0.14;
 
+      const flowDetail: ParticleFlowDetail = {
+        spread: Math.min(1, uniforms.uAudio.value / 1.8),
+        phaseX: Math.sin(t * 0.5 + uniforms.uWasmMod.value),
+        phaseY: Math.cos(t * 0.4 - uniforms.uWasmMod.value * 0.6),
+        rotZ: points.rotation.z,
+      };
+      window.dispatchEvent(
+        new CustomEvent("threesam:particle-flow", {
+          detail: flowDetail,
+        }),
+      );
+
       renderer.render(scene, camera);
       rafId = window.requestAnimationFrame(render);
     };
@@ -206,6 +225,11 @@ export default function HeroCanvas() {
       if (renderer.domElement.parentNode === container) {
         container.removeChild(renderer.domElement);
       }
+      window.dispatchEvent(
+        new CustomEvent("threesam:particle-flow", {
+          detail: { spread: 0, phaseX: 0, phaseY: 0, rotZ: 0 } as ParticleFlowDetail,
+        }),
+      );
     };
   }, []);
 

@@ -4,6 +4,20 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const ASCII_RAMP = " .,:-~+*=#%@";
 
+interface ParticleFlowDetail {
+  spread: number;
+  phaseX: number;
+  phaseY: number;
+  rotZ: number;
+}
+
+const DEFAULT_FLOW: ParticleFlowDetail = {
+  spread: 0,
+  phaseX: 0,
+  phaseY: 0,
+  rotZ: 0,
+};
+
 export function AsciiVideoOverlay() {
   const [isActive, setIsActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -15,6 +29,7 @@ export function AsciiVideoOverlay() {
   const rafRef = useRef(0);
   const runningRef = useRef(false);
   const lastDrawTimeRef = useRef(0);
+  const particleFlowRef = useRef<ParticleFlowDetail>(DEFAULT_FLOW);
 
   const ensureSampleCanvas = () => {
     if (!sampleCanvasRef.current) {
@@ -71,6 +86,7 @@ export function AsciiVideoOverlay() {
     const cellW = width / cols;
     const cellH = height / rows;
     const fontSize = Math.max(8, Math.floor(cellH * 1.02));
+    const flow = particleFlowRef.current;
 
     ctx.clearRect(0, 0, width, height);
     ctx.font = `${fontSize}px ui-monospace, SFMono-Regular, Menlo, monospace`;
@@ -87,13 +103,29 @@ export function AsciiVideoOverlay() {
         const idx = Math.floor((1 - luminance) * (ASCII_RAMP.length - 1));
         const glyph = ASCII_RAMP[idx] ?? " ";
         if (glyph === " ") continue;
+        if (luminance > 0.62 && (x + y) % 2 === 1) continue;
+
+        const nx = x / Math.max(1, cols - 1) - 0.5;
+        const ny = y / Math.max(1, rows - 1) - 0.5;
+        const swirlX =
+          Math.sin(ny * 7.3 + flow.phaseX * 4.6 + flow.rotZ * 3.5) *
+          flow.spread *
+          cellW *
+          2.6;
+        const driftY =
+          Math.cos(nx * 8.1 + flow.phaseY * 4.4 - flow.rotZ * 2.1) *
+          flow.spread *
+          cellH *
+          2.2;
+        const drawX = x * cellW + swirlX + nx * flow.spread * 14;
+        const drawY = y * cellH + driftY;
 
         const warm = Math.floor(124 + luminance * 120);
-        const alpha = 0.18 + luminance * 0.55;
+        const alpha = 0.11 + luminance * 0.36;
         ctx.fillStyle = `rgba(${warm}, ${Math.floor(warm * 0.78)}, ${Math.floor(
           warm * 0.52,
         )}, ${alpha})`;
-        ctx.fillText(glyph, x * cellW, y * cellH);
+        ctx.fillText(glyph, drawX, drawY);
       }
     }
 
@@ -150,8 +182,16 @@ export function AsciiVideoOverlay() {
   }, [drawFrame]);
 
   useEffect(() => {
+    const onParticleFlow = (event: Event) => {
+      const customEvent = event as CustomEvent<ParticleFlowDetail>;
+      if (!customEvent.detail) return;
+      particleFlowRef.current = customEvent.detail;
+    };
+    window.addEventListener("threesam:particle-flow", onParticleFlow);
+
     return () => {
       void stopCapture(false);
+      window.removeEventListener("threesam:particle-flow", onParticleFlow);
     };
   }, [stopCapture]);
 
@@ -176,7 +216,7 @@ export function AsciiVideoOverlay() {
       {isActive ? (
         <canvas
           ref={canvasRef}
-          className="pointer-events-none absolute inset-0 z-20 h-full w-full mix-blend-screen"
+          className="pointer-events-none absolute inset-0 z-10 h-full w-full opacity-60 mix-blend-screen"
           aria-hidden
         />
       ) : null}
