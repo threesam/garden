@@ -61,7 +61,11 @@ export function AsciiVideoOverlay() {
       return;
     }
 
+    sampleCtx.save();
+    sampleCtx.translate(cols, 0);
+    sampleCtx.scale(-1, 1);
     sampleCtx.drawImage(video, 0, 0, cols, rows);
+    sampleCtx.restore();
     const imageData = sampleCtx.getImageData(0, 0, cols, rows).data;
 
     const cellW = width / cols;
