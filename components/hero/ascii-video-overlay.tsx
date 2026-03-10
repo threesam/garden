@@ -79,15 +79,15 @@ export function AsciiVideoOverlay() {
     const grainTarget = clamp((energyRef.current - 0.05) / 1.25, 0, 1);
     grainRef.current = grainRef.current * 0.9 + grainTarget * 0.1;
 
-    // Default is 2x previous resolution; louder sound makes grains larger.
-    const resolutionScale = 2 - grainRef.current * 1.35;
+    // Default uses baseline resolution; max sound makes grains ~2x smaller.
+    const resolutionScale = 1 + grainRef.current * 1.0;
     const cols = Math.max(
-      64,
-      Math.min(220, Math.floor((width / 8) * resolutionScale)),
+      48,
+      Math.min(280, Math.floor((width / 8) * resolutionScale)),
     );
     const rows = Math.max(
-      32,
-      Math.min(132, Math.floor((height / 12) * resolutionScale)),
+      24,
+      Math.min(168, Math.floor((height / 12) * resolutionScale)),
     );
     sampleCanvas.width = cols;
     sampleCanvas.height = rows;
