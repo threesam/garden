@@ -39,6 +39,7 @@ export function AsciiVideoOverlay() {
   const particleFlowRef = useRef<ParticleFlowDetail>(DEFAULT_FLOW);
   const energyRef = useRef(0);
   const toneRef = useRef(0);
+  const grainRef = useRef(0);
 
   useEffect(() => {
     energyRef.current = energy;
@@ -75,8 +76,19 @@ export function AsciiVideoOverlay() {
     }
 
     const sampleCanvas = ensureSampleCanvas();
-    const cols = Math.max(48, Math.min(140, Math.floor(width / 8)));
-    const rows = Math.max(24, Math.min(84, Math.floor(height / 12)));
+    const grainTarget = clamp((energyRef.current - 0.05) / 1.25, 0, 1);
+    grainRef.current = grainRef.current * 0.9 + grainTarget * 0.1;
+
+    // Default is 2x previous resolution; louder sound makes grains larger.
+    const resolutionScale = 2 - grainRef.current * 1.35;
+    const cols = Math.max(
+      64,
+      Math.min(220, Math.floor((width / 8) * resolutionScale)),
+    );
+    const rows = Math.max(
+      32,
+      Math.min(132, Math.floor((height / 12) * resolutionScale)),
+    );
     sampleCanvas.width = cols;
     sampleCanvas.height = rows;
 
