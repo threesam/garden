@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { useAudioReactive } from "@/components/audio/audio-reactive-provider";
+
 const ASCII_RAMP = " .,:-~+*=#%@";
 
 interface ParticleFlowDetail {
@@ -25,6 +27,7 @@ function clamp(value: number, min: number, max: number) {
 export function AsciiVideoOverlay() {
   const [isActive, setIsActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { energy } = useAudioReactive();
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -34,6 +37,12 @@ export function AsciiVideoOverlay() {
   const runningRef = useRef(false);
   const lastDrawTimeRef = useRef(0);
   const particleFlowRef = useRef<ParticleFlowDetail>(DEFAULT_FLOW);
+  const energyRef = useRef(0);
+  const toneRef = useRef(0);
+
+  useEffect(() => {
+    energyRef.current = energy;
+  }, [energy]);
 
   const ensureSampleCanvas = () => {
     if (!sampleCanvasRef.current) {
@@ -91,6 +100,9 @@ export function AsciiVideoOverlay() {
     const cellH = height / rows;
     const fontSize = Math.max(8, Math.floor(cellH * 1.02));
     const flow = particleFlowRef.current;
+    const toneTarget = clamp((energyRef.current - 0.08) / 1.35, 0, 1);
+    toneRef.current = toneRef.current * 0.9 + toneTarget * 0.1;
+    const warmMix = toneRef.current;
 
     ctx.clearRect(0, 0, width, height);
     ctx.font = `${fontSize}px ui-monospace, SFMono-Regular, Menlo, monospace`;
@@ -125,11 +137,17 @@ export function AsciiVideoOverlay() {
         const drawX = x * cellW + swirlX + nx * flow.spread * 14;
         const drawY = y * cellH + driftY;
 
-        const warm = Math.floor(112 + (1 - contrastLum) * 152);
+        const gray = Math.floor(100 + (1 - contrastLum) * 120);
+        const warm = Math.floor(112 + (1 - contrastLum) * 120);
         const alpha = 0.26 + Math.pow(1 - contrastLum, 0.7) * 0.62;
-        ctx.fillStyle = `rgba(${warm}, ${Math.floor(warm * 0.72)}, ${Math.floor(
-          warm * 0.45,
-        )}, ${alpha})`;
+        const rMix = Math.floor(gray * (1 - warmMix) + warm * warmMix);
+        const gMix = Math.floor(
+          gray * (1 - warmMix) + Math.floor(warm * 0.72) * warmMix,
+        );
+        const bMix = Math.floor(
+          gray * (1 - warmMix) + Math.floor(warm * 0.45) * warmMix,
+        );
+        ctx.fillStyle = `rgba(${rMix}, ${gMix}, ${bMix}, ${alpha})`;
         ctx.fillText(glyph, drawX, drawY);
       }
     }
