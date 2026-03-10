@@ -16,7 +16,9 @@ export function WorkCard({ title, category, summary, href }: WorkCardProps) {
       <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-400">
         {category}
       </div>
-      <h3 className="mt-3 text-lg font-semibold text-zinc-100">{title}</h3>
+      <h3 className="title-up mt-3 text-lg font-semibold tracking-[0.06em] text-zinc-100">
+        {title}
+      </h3>
       <p className="mt-2 text-sm leading-6 text-zinc-400">{summary}</p>
       <span className="mt-4 inline-block text-xs text-zinc-300 group-hover:text-zinc-100">
         open study →

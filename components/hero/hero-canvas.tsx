@@ -6,66 +6,95 @@ import * as THREE from "three";
 import { useAudioReactive } from "@/components/audio/audio-reactive-provider";
 import { loadGardenMathApi } from "@/lib/wasm/garden-math";
 
+interface ParticleFlowDetail {
+  spread: number;
+  phaseX: number;
+  phaseY: number;
+  rotZ: number;
+}
+
 const VERTEX_SHADER = `
   uniform float uTime;
   uniform float uAudio;
   uniform float uWasmMod;
   attribute float aSeed;
   varying float vIntensity;
+  varying float vAudio;
+  varying float vSeed;
 
   void main() {
     vec3 p = position;
+    float audioNorm = clamp(uAudio / 1.8, 0.0, 1.0);
     float wave = sin((p.x * 1.8) + (p.y * 1.4) + uTime * 0.7 + aSeed * 6.2831) * 0.24;
     float ring = sin(length(p.xy) * 5.0 - uTime * 1.2 + aSeed * 2.0) * 0.18;
     p.z += wave + ring * (0.6 + (uAudio * 1.5)) + (uWasmMod * 0.45);
-    p.xy *= 1.0 + (uAudio * 0.06);
+    p.xy *= mix(1.0, 3.0, audioNorm);
 
     vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
     gl_Position = projectionMatrix * mvPosition;
     gl_PointSize = (1.2 + (uAudio * 3.0)) * (150.0 / max(30.0, -mvPosition.z));
     vIntensity = clamp(0.3 + uAudio + abs(p.z) * 0.5, 0.0, 2.0);
+    vAudio = audioNorm;
+    vSeed = aSeed;
   }
 `;
 
 const FRAGMENT_SHADER = `
+  uniform float uVideoMode;
   varying float vIntensity;
+  varying float vAudio;
+  varying float vSeed;
 
   void main() {
     vec2 cxy = 2.0 * gl_PointCoord - 1.0;
     float r = dot(cxy, cxy);
     if (r > 1.0) discard;
 
-    float alpha = (1.0 - r) * 0.8;
-    vec3 base = vec3(0.15, 0.45, 1.0);
-    vec3 pulse = vec3(0.95, 0.35, 1.0);
-    vec3 color = mix(base, pulse, clamp(vIntensity * 0.65, 0.0, 1.0));
+    float rim = smoothstep(1.0, 0.0, r);
+    float heat = clamp(vIntensity * 0.68, 0.0, 1.0);
+    float alpha = rim * (0.55 + heat * 0.45);
+
+    vec3 neutral = vec3(0.58, 0.58, 0.60);
+    float spectrum = fract(vSeed * 6.7 + heat * 0.24);
+    vec3 warmA = vec3(0.54, 0.17, 0.06);
+    vec3 warmB = vec3(0.88, 0.40, 0.12);
+    vec3 warmC = vec3(1.0, 0.79, 0.36);
+    vec3 warm = mix(warmA, warmB, smoothstep(0.0, 0.68, spectrum));
+    warm = mix(warm, warmC, smoothstep(0.68, 1.0, spectrum));
+
+    vec3 color = mix(neutral, warm, pow(vAudio, 0.82));
+    color = mix(color, warmC, heat * vAudio * 0.5);
+
+    vec3 darkA = vec3(0.09, 0.09, 0.10);
+    vec3 darkB = vec3(0.20, 0.20, 0.22);
+    float darkMix = clamp(rim * 0.65 + fract(vSeed * 3.1) * 0.35, 0.0, 1.0);
+    vec3 darkGradient = mix(darkA, darkB, darkMix);
+
+    color = mix(color, darkGradient, uVideoMode);
+    alpha *= mix(1.0, 0.14, uVideoMode);
     gl_FragColor = vec4(color, alpha);
   }
 `;
 
-const ART_VIEW_KEY = "threesam-art-view-v1";
-
 export default function HeroCanvas() {
   const mountRef = useRef<HTMLDivElement>(null);
   const energyRef = useRef(0);
-  const { energy } = useAudioReactive();
+  const sensitivityRef = useRef(1.3);
+  const smoothingRef = useRef(0.88);
+  const asciiVideoActiveRef = useRef(false);
+  const { energy, sensitivity, smoothing } = useAudioReactive();
 
   useEffect(() => {
     energyRef.current = energy;
   }, [energy]);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const hasViewed = window.localStorage.getItem(ART_VIEW_KEY);
-    if (hasViewed) return;
+    sensitivityRef.current = sensitivity;
+  }, [sensitivity]);
 
-    window.localStorage.setItem(ART_VIEW_KEY, "1");
-    void fetch("/api/counters", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: "artView" }),
-    });
-  }, []);
+  useEffect(() => {
+    smoothingRef.current = smoothing;
+  }, [smoothing]);
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -83,6 +112,7 @@ export default function HeroCanvas() {
     let rafId = 0;
     let active = true;
     let smoothedAudio = 0;
+    let videoMode = 0;
     const clock = new THREE.Clock();
 
     const renderer = new THREE.WebGLRenderer({
@@ -118,6 +148,7 @@ export default function HeroCanvas() {
       uTime: { value: 0 },
       uAudio: { value: 0 },
       uWasmMod: { value: 0 },
+      uVideoMode: { value: 0 },
     };
 
     const material = new THREE.ShaderMaterial({
@@ -132,6 +163,12 @@ export default function HeroCanvas() {
     const points = new THREE.Points(geometry, material);
     scene.add(points);
 
+    const onAsciiVideoActive = (event: Event) => {
+      const customEvent = event as CustomEvent<{ active?: boolean }>;
+      asciiVideoActiveRef.current = Boolean(customEvent.detail?.active);
+    };
+    window.addEventListener("threesam:ascii-video-active", onAsciiVideoActive);
+
     let wasmWave:
       | ((x: number, y: number, time: number, audioLevel: number) => number)
       | null = null;
@@ -144,9 +181,19 @@ export default function HeroCanvas() {
       if (!active) return;
 
       const t = clock.getElapsedTime();
-      smoothedAudio = smoothedAudio * 0.9 + energyRef.current * 0.1;
+      const smoothingSetting = Math.max(0, Math.min(1, smoothingRef.current));
+      const smoothingFactor = Math.min(0.995, smoothingSetting);
+      const targetAudio = Math.max(
+        0,
+        Math.min(2.2, energyRef.current * sensitivityRef.current),
+      );
+      smoothedAudio =
+        smoothedAudio * smoothingFactor + targetAudio * (1 - smoothingFactor);
       uniforms.uTime.value = t;
-      uniforms.uAudio.value = smoothedAudio;
+      uniforms.uAudio.value = Math.min(1.8, smoothedAudio);
+      const targetVideoMode = asciiVideoActiveRef.current ? 1 : 0;
+      videoMode = videoMode * 0.88 + targetVideoMode * 0.12;
+      uniforms.uVideoMode.value = videoMode;
 
       if (wasmWave) {
         const wasmSample =
@@ -159,6 +206,18 @@ export default function HeroCanvas() {
 
       points.rotation.z = t * 0.07;
       points.rotation.x = Math.sin(t * 0.22) * 0.14;
+
+      const flowDetail: ParticleFlowDetail = {
+        spread: Math.min(1, uniforms.uAudio.value / 1.8),
+        phaseX: Math.sin(t * 0.5 + uniforms.uWasmMod.value),
+        phaseY: Math.cos(t * 0.4 - uniforms.uWasmMod.value * 0.6),
+        rotZ: points.rotation.z,
+      };
+      window.dispatchEvent(
+        new CustomEvent("threesam:particle-flow", {
+          detail: flowDetail,
+        }),
+      );
 
       renderer.render(scene, camera);
       rafId = window.requestAnimationFrame(render);
@@ -180,12 +239,18 @@ export default function HeroCanvas() {
       active = false;
       window.cancelAnimationFrame(rafId);
       window.removeEventListener("resize", handleResize);
+      window.removeEventListener("threesam:ascii-video-active", onAsciiVideoActive);
       geometry.dispose();
       material.dispose();
       renderer.dispose();
       if (renderer.domElement.parentNode === container) {
         container.removeChild(renderer.domElement);
       }
+      window.dispatchEvent(
+        new CustomEvent("threesam:particle-flow", {
+          detail: { spread: 0, phaseX: 0, phaseY: 0, rotZ: 0 } as ParticleFlowDetail,
+        }),
+      );
     };
   }, []);
 

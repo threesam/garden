@@ -11,7 +11,7 @@ export default function Home() {
   return (
     <AudioReactiveProvider>
       <VisitorTracker />
-      <main className="pb-16">
+      <main className="copy-lower pb-16">
         <GenerativeHero />
         <BioSection />
         <MusicSection />

@@ -65,7 +65,7 @@ export function StepDashboard({ entries }: StepDashboardProps) {
             return (
               <div key={month.month} className="flex w-full flex-col items-center gap-1">
                 <div
-                  className="w-full rounded-sm bg-gradient-to-t from-cyan-500/70 to-violet-400/90"
+                  className="w-full rounded-sm bg-gradient-to-t from-orange-600/70 to-amber-300/90"
                   style={{ height: `${height}px` }}
                   title={`${month.month}: ${month.total.toLocaleString()} steps`}
                 />
@@ -82,10 +82,10 @@ export function StepDashboard({ entries }: StepDashboardProps) {
 }
 
 function intensityClass(steps: number) {
-  if (steps > 14000) return "bg-cyan-300";
-  if (steps > 11000) return "bg-cyan-400/90";
-  if (steps > 8500) return "bg-cyan-500/80";
-  if (steps > 6000) return "bg-cyan-700/70";
-  if (steps > 0) return "bg-cyan-900/60";
+  if (steps > 14000) return "bg-amber-300";
+  if (steps > 11000) return "bg-orange-300/90";
+  if (steps > 8500) return "bg-orange-400/80";
+  if (steps > 6000) return "bg-orange-700/70";
+  if (steps > 0) return "bg-red-950/65";
   return "bg-white/5";
 }

@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
 :root {
-  --background: #050508;
-  --foreground: #e8eaed;
-  --muted: #8a8f98;
-  --panel: rgba(12, 14, 20, 0.72);
-  --border: rgba(255, 255, 255, 0.12);
+  --background: #0f0806;
+  --foreground: #f4e9dc;
+  --muted: #b79b85;
+  --panel: rgba(28, 16, 12, 0.72);
+  --border: rgba(255, 207, 170, 0.2);
 }
 
 @theme inline {
@@ -32,4 +32,12 @@ a {
   border: 1px solid var(--border);
   background: var(--panel);
   backdrop-filter: blur(8px);
+}
+
+.copy-lower {
+  text-transform: lowercase;
+}
+
+.title-up {
+  text-transform: uppercase;
 }
