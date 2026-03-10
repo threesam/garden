@@ -4,9 +4,12 @@ import { createContext, useContext, useMemo, useState } from "react";
 
 interface AudioReactiveContextValue {
   energy: number;
-  setEnergy: (value: number) => void;
+  setMusicEnergy: (value: number) => void;
+  setMicEnergy: (value: number) => void;
   isPlaying: boolean;
   setIsPlaying: (value: boolean) => void;
+  isMicActive: boolean;
+  setIsMicActive: (value: boolean) => void;
 }
 
 const AudioReactiveContext = createContext<AudioReactiveContextValue | null>(null);
@@ -16,12 +19,23 @@ export function AudioReactiveProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [energy, setEnergy] = useState(0);
+  const [musicEnergy, setMusicEnergy] = useState(0);
+  const [micEnergy, setMicEnergy] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isMicActive, setIsMicActive] = useState(false);
+  const energy = Math.max(musicEnergy, micEnergy);
 
   const value = useMemo(
-    () => ({ energy, setEnergy, isPlaying, setIsPlaying }),
-    [energy, isPlaying],
+    () => ({
+      energy,
+      setMusicEnergy,
+      setMicEnergy,
+      isPlaying,
+      setIsPlaying,
+      isMicActive,
+      setIsMicActive,
+    }),
+    [energy, isPlaying, isMicActive],
   );
 
   return (

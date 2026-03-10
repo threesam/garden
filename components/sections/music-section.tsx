@@ -1,3 +1,4 @@
+import { MicrophoneInput } from "@/components/audio/microphone-input";
 import { MusicPlayer } from "@/components/audio/music-player";
 
 export function MusicSection() {
@@ -11,6 +12,9 @@ export function MusicSection() {
         can drive the generative system in real time.
       </p>
       <MusicPlayer />
+      <div className="mt-4">
+        <MicrophoneInput />
+      </div>
     </section>
   );
 }

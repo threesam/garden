@@ -14,7 +14,7 @@ const HeroCanvas = dynamic(() => import("@/components/hero/hero-canvas"), {
 });
 
 export function GenerativeHero() {
-  const { energy, isPlaying } = useAudioReactive();
+  const { energy, isPlaying, isMicActive } = useAudioReactive();
 
   return (
     <section className="relative h-screen w-full overflow-hidden border-b border-white/10">
@@ -23,7 +23,7 @@ export function GenerativeHero() {
       <div className="absolute bottom-8 left-6 right-6 font-mono text-xs uppercase tracking-[0.22em] text-zinc-300 md:left-10 md:right-10">
         <div>threesam // personal laboratory</div>
         <div className="mt-2 text-[10px] tracking-[0.18em] text-zinc-400">
-          audio-link: {isPlaying ? "active" : "idle"} · reactive-energy:{" "}
+          audio-link: {isPlaying || isMicActive ? "active" : "idle"} · reactive-energy:{" "}
           {energy.toFixed(2)}
         </div>
       </div>

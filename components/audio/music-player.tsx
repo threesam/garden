@@ -24,7 +24,7 @@ export function MusicPlayer() {
   const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [counters, setCounters] = useState<CountersState>(initialCounters);
-  const { setEnergy, setIsPlaying, isPlaying } = useAudioReactive();
+  const { setMusicEnergy, setIsPlaying, isPlaying } = useAudioReactive();
 
   const fetchCounters = useCallback(async () => {
     const response = await fetch("/api/counters", { cache: "no-store" });
@@ -73,13 +73,13 @@ export function MusicPlayer() {
 
   useEffect(() => {
     return () => {
-      setEnergy(0);
+      setMusicEnergy(0);
       setIsPlaying(false);
       if (audioContextRef.current) {
         void audioContextRef.current.close();
       }
     };
-  }, [setEnergy, setIsPlaying]);
+  }, [setMusicEnergy, setIsPlaying]);
 
   const onPlay = async () => {
     setError(null);
@@ -97,7 +97,7 @@ export function MusicPlayer() {
 
   const onPause = () => {
     setIsPlaying(false);
-    setEnergy(0);
+    setMusicEnergy(0);
   };
 
   return (
@@ -136,7 +136,7 @@ export function MusicPlayer() {
       <AudioVisualizer
         analyser={analyser}
         isActive={isPlaying}
-        onEnergySample={setEnergy}
+        onEnergySample={setMusicEnergy}
       />
 
       {error ? <p className="text-xs text-amber-300">{error}</p> : null}
