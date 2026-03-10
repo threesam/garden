@@ -8,18 +8,20 @@ import { useAudioReactive } from "@/components/audio/audio-reactive-provider";
 const VERTEX_SHADER = `
   uniform float uTime;
   uniform float uAudio;
+  attribute float aTerrain;
   varying float vHeight;
 
   void main() {
     vec3 p = position;
-    float waveA = sin((p.x * 1.9) + uTime * 0.48);
-    float waveB = cos((p.y * 1.7) - uTime * 0.42);
-    float ridge = sin((p.x + p.y) * 1.35 - uTime * 0.35);
-    float mixed = waveA * 0.44 + waveB * 0.31 + ridge * 0.25;
+    float audioScale = 0.25 + uAudio * 1.85;
 
-    // Quantization produces minimal geometric "mountains".
-    float faceted = floor((mixed + 1.0) * 7.0) / 7.0 - 0.5;
-    p.z += faceted * (0.22 + uAudio * 1.35);
+    // Faceting preserves the minimal geometric look.
+    float faceted = floor((aTerrain + 1.0) * 14.0) / 14.0 - 0.5;
+    p.z += faceted * audioScale;
+    p.x += faceted * uAudio * 0.08;
+
+    // Slight drift keeps the surface alive at low volume.
+    p.z += sin((p.x * 0.7 + p.y * 0.4) + uTime * 0.22) * 0.02;
     vHeight = p.z;
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
@@ -87,7 +89,13 @@ export default function MountainCanvas() {
     renderer.setSize(container.clientWidth, container.clientHeight);
     container.appendChild(renderer.domElement);
 
-    const geometry = new THREE.PlaneGeometry(7.6, 7.6, 120, 120);
+    const geometry = new THREE.PlaneGeometry(7.6, 7.6, 96, 96);
+    const positionAttribute = geometry.getAttribute(
+      "position",
+    ) as THREE.BufferAttribute;
+    const terrain = buildTerrainField(positionAttribute);
+    geometry.setAttribute("aTerrain", new THREE.BufferAttribute(terrain, 1));
+
     const uniforms = {
       uTime: { value: 0 },
       uAudio: { value: 0 },
@@ -103,18 +111,6 @@ export default function MountainCanvas() {
     mesh.rotation.x = -Math.PI / 2.5;
     mesh.position.y = -1.2;
     scene.add(mesh);
-
-    const wireframe = new THREE.LineSegments(
-      new THREE.WireframeGeometry(geometry),
-      new THREE.LineBasicMaterial({
-        color: new THREE.Color("#ffd8a8"),
-        transparent: true,
-        opacity: 0.22,
-      }),
-    );
-    wireframe.rotation.x = mesh.rotation.x;
-    wireframe.position.copy(mesh.position);
-    scene.add(wireframe);
 
     const render = () => {
       if (!active) return;
@@ -132,7 +128,6 @@ export default function MountainCanvas() {
       uniforms.uAudio.value = Math.min(1.8, smoothedAudio);
 
       mesh.rotation.z = Math.sin(t * 0.08) * 0.08;
-      wireframe.rotation.z = mesh.rotation.z;
 
       renderer.render(scene, camera);
       rafId = window.requestAnimationFrame(render);
@@ -154,8 +149,6 @@ export default function MountainCanvas() {
       window.removeEventListener("resize", handleResize);
       geometry.dispose();
       material.dispose();
-      (wireframe.material as THREE.Material).dispose();
-      (wireframe.geometry as THREE.BufferGeometry).dispose();
       renderer.dispose();
       if (renderer.domElement.parentNode === container) {
         container.removeChild(renderer.domElement);
@@ -164,4 +157,62 @@ export default function MountainCanvas() {
   }, []);
 
   return <div ref={mountRef} className="absolute inset-0" aria-hidden />;
+}
+
+function buildTerrainField(positionAttribute: THREE.BufferAttribute) {
+  const count = positionAttribute.count;
+  const terrain = new Float32Array(count);
+  const ridgeCount = 9;
+  const ridges = Array.from({ length: ridgeCount }, () => ({
+    cx: randomBetween(-3.1, 3.1),
+    cy: randomBetween(-3.1, 3.1),
+    amp: randomBetween(0.35, 1.25),
+    sx: randomBetween(0.6, 2.1),
+    sy: randomBetween(0.65, 2.25),
+    skew: randomBetween(-0.55, 0.55),
+  }));
+
+  let min = Number.POSITIVE_INFINITY;
+  let max = Number.NEGATIVE_INFINITY;
+
+  for (let i = 0; i < count; i += 1) {
+    const x = positionAttribute.getX(i);
+    const y = positionAttribute.getY(i);
+    let h = 0;
+
+    for (const ridge of ridges) {
+      const dx = (x - ridge.cx) / ridge.sx;
+      const dy = (y - ridge.cy) / ridge.sy;
+      const skewedDx = dx + dy * ridge.skew;
+      const peak = Math.exp(-(skewedDx * skewedDx + dy * dy));
+      h += peak * ridge.amp;
+    }
+
+    // Lightweight deterministic noise adds local irregularity.
+    const noise =
+      (hash2D(x * 0.45, y * 0.45) - 0.5) * 0.26 +
+      (hash2D(x * 1.1 + 11.7, y * 1.1 + 2.3) - 0.5) * 0.12;
+    h += noise;
+    terrain[i] = h;
+    min = Math.min(min, h);
+    max = Math.max(max, h);
+  }
+
+  const span = Math.max(0.0001, max - min);
+  for (let i = 0; i < count; i += 1) {
+    const normalized = ((terrain[i] - min) / span) * 2 - 1;
+    terrain[i] =
+      Math.sign(normalized) * Math.pow(Math.abs(normalized), 1.16);
+  }
+
+  return terrain;
+}
+
+function randomBetween(min: number, max: number) {
+  return min + Math.random() * (max - min);
+}
+
+function hash2D(x: number, y: number) {
+  const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453123;
+  return s - Math.floor(s);
 }
