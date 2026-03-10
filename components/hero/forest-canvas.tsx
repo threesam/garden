@@ -15,9 +15,12 @@ interface TreeState {
   growth: number;
   seed: number;
   thickness: number;
+  canopyReady: boolean;
 }
 
 const MAX_TREES = 22;
+const GREEN_THRESHOLD = 0.42;
+const GREEN_HOLD_MS = 1000;
 
 export default function ForestCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -26,6 +29,7 @@ export default function ForestCanvas() {
   const treesRef = useRef<TreeState[]>([]);
   const cooldownRef = useRef(0);
   const lastSpawnRef = useRef(0);
+  const greenHoldMsRef = useRef(0);
   const rafRef = useRef(0);
 
   const { energy, sensitivity } = useAudioReactive();
@@ -77,6 +81,7 @@ export default function ForestCanvas() {
         growth: 0,
         seed: Math.random() * 10000,
         thickness: randomBetween(1.1, 2.4),
+        canopyReady: false,
       });
 
       if (treesRef.current.length > MAX_TREES) {
@@ -97,6 +102,16 @@ export default function ForestCanvas() {
       const energyValue = Math.min(2.7, energyRef.current * sensitivityRef.current * 2.25);
       cooldownRef.current = Math.max(0, cooldownRef.current - dt);
 
+      if (energyValue >= GREEN_THRESHOLD) {
+        greenHoldMsRef.current = Math.min(
+          GREEN_HOLD_MS + 250,
+          greenHoldMsRef.current + dt,
+        );
+      } else {
+        greenHoldMsRef.current = 0;
+      }
+      const canSproutGreen = greenHoldMsRef.current >= GREEN_HOLD_MS;
+
       if (
         energyValue > 0.18 &&
         cooldownRef.current <= 0 &&
@@ -112,11 +127,12 @@ export default function ForestCanvas() {
 
       for (let i = 0; i < treesRef.current.length; i += 1) {
         const tree = treesRef.current[i];
+        if (canSproutGreen) tree.canopyReady = true;
+
         tree.growth += 0.005 + energyValue * 0.0045;
         const visibleGrowth = Math.min(1.45, tree.growth);
         const opacity = Math.max(0, Math.min(1, 1.3 - (visibleGrowth - 1)));
 
-        ctx.strokeStyle = `rgba(255, 196, 132, ${0.22 * opacity})`;
         drawBranch({
           ctx,
           x: tree.x,
@@ -130,6 +146,8 @@ export default function ForestCanvas() {
           lean: tree.lean,
           thickness: tree.thickness,
           seed: tree.seed,
+          canopyReady: tree.canopyReady,
+          opacity,
         });
       }
 
@@ -164,6 +182,8 @@ function drawBranch(params: {
   lean: number;
   thickness: number;
   seed: number;
+  canopyReady: boolean;
+  opacity: number;
 }) {
   const {
     ctx,
@@ -178,8 +198,11 @@ function drawBranch(params: {
     lean,
     thickness,
     seed,
+    canopyReady,
+    opacity,
   } = params;
   if (depth > maxDepth) return;
+  if (depth >= 2 && !canopyReady) return;
 
   const segmentGrowth = clamp(growth * (maxDepth + 1) - depth, 0, 1);
   if (segmentGrowth <= 0) return;
@@ -188,6 +211,28 @@ function drawBranch(params: {
   const x2 = x + Math.cos(angle) * localLength;
   const y2 = y + Math.sin(angle) * localLength;
 
+  const gradient = ctx.createLinearGradient(x, y, x2, y2);
+  if (depth <= 1) {
+    const brownA = depth === 0 ? "70, 33, 17" : "98, 48, 21";
+    const brownB = depth === 0 ? "146, 74, 32" : "178, 101, 52";
+    gradient.addColorStop(0, `rgba(${brownA}, ${0.78 * opacity})`);
+    gradient.addColorStop(1, `rgba(${brownB}, ${0.66 * opacity})`);
+  } else {
+    const greenShift = randomFromSeed(seed + depth * 5.9, 0, 26);
+    gradient.addColorStop(
+      0,
+      `rgba(${28 + greenShift}, ${88 + greenShift}, ${34 + greenShift * 0.35}, ${
+        0.72 * opacity
+      })`,
+    );
+    gradient.addColorStop(
+      1,
+      `rgba(${78 + greenShift * 0.45}, ${176 + greenShift}, ${78 + greenShift * 0.3}, ${
+        0.62 * opacity
+      })`,
+    );
+  }
+  ctx.strokeStyle = gradient;
   ctx.lineWidth = Math.max(0.5, thickness * Math.pow(0.72, depth));
   ctx.beginPath();
   ctx.moveTo(x, y);
@@ -218,6 +263,8 @@ function drawBranch(params: {
       lean,
       thickness,
       seed: seed + i * 2.31,
+      canopyReady,
+      opacity,
     });
   }
 }
