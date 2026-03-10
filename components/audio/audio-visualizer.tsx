@@ -6,12 +6,16 @@ interface AudioVisualizerProps {
   analyser: AnalyserNode | null;
   isActive: boolean;
   onEnergySample: (value: number) => void;
+  drawBackground?: boolean;
+  className?: string;
 }
 
 export function AudioVisualizer({
   analyser,
   isActive,
   onEnergySample,
+  drawBackground = true,
+  className,
 }: AudioVisualizerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -37,8 +41,10 @@ export function AudioVisualizer({
       canvas.height = height;
 
       ctx.clearRect(0, 0, width, height);
-      ctx.fillStyle = "rgba(8, 10, 16, 0.9)";
-      ctx.fillRect(0, 0, width, height);
+      if (drawBackground) {
+        ctx.fillStyle = "rgba(8, 10, 16, 0.9)";
+        ctx.fillRect(0, 0, width, height);
+      }
 
       const barCount = 56;
       const step = Math.max(1, Math.floor(fftBuffer.length / barCount));
@@ -67,12 +73,12 @@ export function AudioVisualizer({
       window.cancelAnimationFrame(rafId);
       onEnergySample(0);
     };
-  }, [analyser, isActive, onEnergySample]);
+  }, [analyser, isActive, onEnergySample, drawBackground]);
 
   return (
     <canvas
       ref={canvasRef}
-      className="h-36 w-full rounded-xl border border-white/10 bg-black/40"
+      className={className ?? "h-36 w-full rounded-xl border border-white/10 bg-black/40"}
     />
   );
 }

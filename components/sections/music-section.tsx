@@ -9,8 +9,8 @@ export function MusicSection() {
       </h2>
       <p className="mt-3 mb-5 max-w-3xl text-sm leading-7 text-zinc-400 md:text-base">
         Local audio, direct Web Audio analysis, and a visualizer pipeline that
-        can drive the generative system in real time. Live mic control is fixed
-        at the right edge; mic visualizer is fixed bottom-left.
+        can drive the generative system in real time. mic overlays are anchored
+        directly inside the hero system.
       </p>
       <MusicPlayer />
       <div className="mt-4">

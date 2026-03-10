@@ -82,22 +82,36 @@ export function MicrophoneInput() {
       <button
         type="button"
         onClick={() => void (isMicActive ? stopMicrophone() : startMicrophone())}
-        className="fixed right-4 top-1/2 z-40 -translate-y-1/2 rounded-md border border-white/25 bg-black/60 px-4 py-2 text-xs text-zinc-200 shadow-lg backdrop-blur-md transition hover:border-white/50 md:right-6"
+        title={error ?? "toggle live microphone"}
+        aria-label={isMicActive ? "stop live microphone" : "start live microphone"}
+        className={`absolute right-4 top-4 z-40 grid h-11 w-11 place-items-center rounded-full border backdrop-blur-md transition md:right-6 md:top-6 ${
+          isMicActive
+            ? "border-[#7f0f1b] bg-[#2a0408]/90 shadow-[0_0_24px_rgba(90,0,10,0.45)]"
+            : "border-white/30 bg-black/45 hover:border-white/55"
+        } ${error ? "border-amber-400/70" : ""}`}
       >
-        {isMicActive ? "live mic: on" : "live mic: off"}
+        <span
+          className={`h-3.5 w-3.5 rounded-full transition ${
+            isMicActive
+              ? "bg-[#b10016] shadow-[0_0_12px_rgba(177,0,22,0.9)]"
+              : "bg-zinc-300/80"
+          }`}
+        />
       </button>
 
-      <div className="fixed top-4 left-4 z-30 w-64 rounded-xl border border-white/10 bg-black/55 p-3 backdrop-blur-md md:top-6 md:left-6 md:w-72">
-        <p className="title-up mb-2 font-mono text-[10px] tracking-[0.16em] text-zinc-400">
-          mic visualizer
-        </p>
-        <AudioVisualizer
-          analyser={analyser}
-          isActive={isMicActive}
-          onEnergySample={setMicEnergy}
-        />
-        {error ? <p className="mt-2 text-xs text-amber-300">{error}</p> : null}
-      </div>
+      {isMicActive ? (
+        <div className="pointer-events-none absolute top-4 left-4 z-30 w-64 md:top-6 md:left-6 md:w-72">
+          <div className="bg-gradient-to-t from-black/80 via-black/30 to-transparent">
+            <AudioVisualizer
+              analyser={analyser}
+              isActive={isMicActive}
+              onEnergySample={setMicEnergy}
+              drawBackground={false}
+              className="h-36 w-full bg-transparent"
+            />
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }
