@@ -4,52 +4,43 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
 import { useAudioReactive } from "@/components/audio/audio-reactive-provider";
-import { loadGardenMathApi } from "@/lib/wasm/garden-math";
 
 const VERTEX_SHADER = `
   uniform float uTime;
   uniform float uAudio;
-  uniform float uWasmMod;
-  attribute float aSeed;
-  varying float vIntensity;
+  varying float vHeight;
 
   void main() {
     vec3 p = position;
-    float wave = sin((p.x * 1.8) + (p.y * 1.4) + uTime * 0.7 + aSeed * 6.2831) * 0.24;
-    float ring = sin(length(p.xy) * 5.0 - uTime * 1.2 + aSeed * 2.0) * 0.18;
-    p.z += wave + ring * (0.6 + (uAudio * 1.5)) + (uWasmMod * 0.45);
-    p.xy *= 1.0 + (uAudio * 0.06);
+    float waveA = sin((p.x * 1.9) + uTime * 0.48);
+    float waveB = cos((p.y * 1.7) - uTime * 0.42);
+    float ridge = sin((p.x + p.y) * 1.35 - uTime * 0.35);
+    float mixed = waveA * 0.44 + waveB * 0.31 + ridge * 0.25;
 
-    vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
-    gl_Position = projectionMatrix * mvPosition;
-    gl_PointSize = (1.2 + (uAudio * 3.0)) * (150.0 / max(30.0, -mvPosition.z));
-    vIntensity = clamp(0.3 + uAudio + abs(p.z) * 0.5, 0.0, 2.0);
+    // Quantization produces minimal geometric "mountains".
+    float faceted = floor((mixed + 1.0) * 7.0) / 7.0 - 0.5;
+    p.z += faceted * (0.22 + uAudio * 1.35);
+    vHeight = p.z;
+
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
   }
 `;
 
 const FRAGMENT_SHADER = `
-  varying float vIntensity;
+  varying float vHeight;
 
   void main() {
-    vec2 cxy = 2.0 * gl_PointCoord - 1.0;
-    float r = dot(cxy, cxy);
-    if (r > 1.0) discard;
-
-    float rim = smoothstep(1.0, 0.0, r);
-    float heat = clamp(vIntensity * 0.68, 0.0, 1.0);
-    float alpha = rim * (0.62 + heat * 0.45);
-
-    vec3 ember = vec3(0.43, 0.07, 0.02);
-    vec3 copper = vec3(0.82, 0.25, 0.06);
-    vec3 flame = vec3(1.0, 0.69, 0.28);
-
-    vec3 color = mix(ember, copper, rim);
-    color = mix(color, flame, heat);
-    gl_FragColor = vec4(color, alpha);
+    float h = clamp(vHeight + 0.35, 0.0, 1.0);
+    vec3 low = vec3(0.20, 0.06, 0.03);
+    vec3 mid = vec3(0.58, 0.18, 0.07);
+    vec3 high = vec3(1.00, 0.74, 0.35);
+    vec3 color = mix(low, mid, smoothstep(0.05, 0.55, h));
+    color = mix(color, high, smoothstep(0.48, 0.95, h));
+    gl_FragColor = vec4(color, 0.95);
   }
 `;
 
-export default function HeroCanvas() {
+export default function MountainCanvas() {
   const mountRef = useRef<HTMLDivElement>(null);
   const energyRef = useRef(0);
   const sensitivityRef = useRef(1.3);
@@ -74,12 +65,13 @@ export default function HeroCanvas() {
     const container = mountRef.current;
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
-      58,
+      52,
       container.clientWidth / Math.max(1, container.clientHeight),
       0.1,
       100,
     );
-    camera.position.z = 5;
+    camera.position.set(0, 2.4, 5.8);
+    camera.lookAt(0, -0.4, 0);
 
     let rafId = 0;
     let active = true;
@@ -91,55 +83,38 @@ export default function HeroCanvas() {
       alpha: true,
       powerPreference: "high-performance",
     });
-
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(container.clientWidth, container.clientHeight);
     container.appendChild(renderer.domElement);
 
-    const particleCount = 12000;
-    const positions = new Float32Array(particleCount * 3);
-    const seeds = new Float32Array(particleCount);
-
-    for (let i = 0; i < particleCount; i += 1) {
-      const radius = Math.pow(Math.random(), 0.45) * 2.2 + 0.2;
-      const angle = Math.random() * Math.PI * 2;
-      const spread = (Math.random() - 0.5) * 1.2;
-      const offset = i * 3;
-      positions[offset] = Math.cos(angle) * radius;
-      positions[offset + 1] = Math.sin(angle) * radius;
-      positions[offset + 2] = spread;
-      seeds[i] = Math.random();
-    }
-
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    geometry.setAttribute("aSeed", new THREE.BufferAttribute(seeds, 1));
-
+    const geometry = new THREE.PlaneGeometry(7.6, 7.6, 120, 120);
     const uniforms = {
       uTime: { value: 0 },
       uAudio: { value: 0 },
-      uWasmMod: { value: 0 },
     };
-
     const material = new THREE.ShaderMaterial({
       uniforms,
       vertexShader: VERTEX_SHADER,
       fragmentShader: FRAGMENT_SHADER,
+      side: THREE.DoubleSide,
       transparent: true,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
     });
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.rotation.x = -Math.PI / 2.5;
+    mesh.position.y = -1.2;
+    scene.add(mesh);
 
-    const points = new THREE.Points(geometry, material);
-    scene.add(points);
-
-    let wasmWave:
-      | ((x: number, y: number, time: number, audioLevel: number) => number)
-      | null = null;
-
-    void loadGardenMathApi().then((api) => {
-      wasmWave = api.wave;
-    });
+    const wireframe = new THREE.LineSegments(
+      new THREE.WireframeGeometry(geometry),
+      new THREE.LineBasicMaterial({
+        color: new THREE.Color("#ffd8a8"),
+        transparent: true,
+        opacity: 0.22,
+      }),
+    );
+    wireframe.rotation.x = mesh.rotation.x;
+    wireframe.position.copy(mesh.position);
+    scene.add(wireframe);
 
     const render = () => {
       if (!active) return;
@@ -148,31 +123,22 @@ export default function HeroCanvas() {
       const smoothingFactor = Math.max(0, Math.min(0.98, smoothingRef.current));
       const targetAudio = Math.max(
         0,
-        Math.min(2.2, energyRef.current * sensitivityRef.current),
+        Math.min(2.3, energyRef.current * sensitivityRef.current),
       );
       smoothedAudio =
         smoothedAudio * smoothingFactor + targetAudio * (1 - smoothingFactor);
+
       uniforms.uTime.value = t;
       uniforms.uAudio.value = Math.min(1.8, smoothedAudio);
 
-      if (wasmWave) {
-        const wasmSample =
-          (wasmWave(0.17, 0.53, t, smoothedAudio) +
-            wasmWave(0.42, 0.31, t, smoothedAudio) +
-            wasmWave(0.88, 0.22, t, smoothedAudio)) /
-          3;
-        uniforms.uWasmMod.value = Math.max(-1, Math.min(1, wasmSample));
-      }
-
-      points.rotation.z = t * 0.07;
-      points.rotation.x = Math.sin(t * 0.22) * 0.14;
+      mesh.rotation.z = Math.sin(t * 0.08) * 0.08;
+      wireframe.rotation.z = mesh.rotation.z;
 
       renderer.render(scene, camera);
       rafId = window.requestAnimationFrame(render);
     };
 
     const handleResize = () => {
-      if (!container) return;
       camera.aspect = container.clientWidth / Math.max(1, container.clientHeight);
       camera.updateProjectionMatrix();
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -180,7 +146,6 @@ export default function HeroCanvas() {
     };
 
     window.addEventListener("resize", handleResize);
-
     render();
 
     return () => {
@@ -189,6 +154,8 @@ export default function HeroCanvas() {
       window.removeEventListener("resize", handleResize);
       geometry.dispose();
       material.dispose();
+      (wireframe.material as THREE.Material).dispose();
+      (wireframe.geometry as THREE.BufferGeometry).dispose();
       renderer.dispose();
       if (renderer.domElement.parentNode === container) {
         container.removeChild(renderer.domElement);

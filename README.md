@@ -7,7 +7,7 @@ art, music, engineering, and discipline.
 
 - Next.js (App Router) + TypeScript
 - Tailwind CSS
-- Three.js (WebGL hero rendering)
+- Three.js (WebGL hero rendering with swipeable sketch carousel)
 - Web Audio API (player + analyser + visualizer + live microphone input)
 - Live reaction tuning controls (sensitivity + smoothing)
 - Rust -> WASM support (lazy-loaded with fallback)
