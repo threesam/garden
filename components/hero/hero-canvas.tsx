@@ -35,10 +35,16 @@ const FRAGMENT_SHADER = `
     float r = dot(cxy, cxy);
     if (r > 1.0) discard;
 
-    float alpha = (1.0 - r) * 0.8;
-    vec3 base = vec3(0.95, 0.34, 0.12);
-    vec3 pulse = vec3(1.0, 0.77, 0.42);
-    vec3 color = mix(base, pulse, clamp(vIntensity * 0.65, 0.0, 1.0));
+    float rim = smoothstep(1.0, 0.0, r);
+    float heat = clamp(vIntensity * 0.68, 0.0, 1.0);
+    float alpha = rim * (0.62 + heat * 0.45);
+
+    vec3 ember = vec3(0.43, 0.07, 0.02);
+    vec3 copper = vec3(0.82, 0.25, 0.06);
+    vec3 flame = vec3(1.0, 0.69, 0.28);
+
+    vec3 color = mix(ember, copper, rim);
+    color = mix(color, flame, heat);
     gl_FragColor = vec4(color, alpha);
   }
 `;
