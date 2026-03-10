@@ -25,9 +25,19 @@ const MountainSketch = dynamic(
   },
 );
 
+const ForestSketch = dynamic(() => import("@/components/hero/forest-canvas"), {
+  ssr: false,
+  loading: () => (
+    <div className="absolute inset-0 flex items-center justify-center text-xs text-zinc-500">
+      loading sketch...
+    </div>
+  ),
+});
+
 const SKETCHES = [
   { id: "particles", label: "particles", Component: ParticleSketch },
   { id: "mountains", label: "mountains", Component: MountainSketch },
+  { id: "forest", label: "forest", Component: ForestSketch },
 ] as const;
 
 const SWIPE_THRESHOLD = 48;
@@ -42,6 +52,9 @@ export function HeroSketchCarousel() {
 
   const go = (direction: 1 | -1) => {
     setIndex((prev) => (prev + direction + SKETCHES.length) % SKETCHES.length);
+  };
+  const goTo = (target: number) => {
+    setIndex((target + SKETCHES.length) % SKETCHES.length);
   };
 
   const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -88,26 +101,26 @@ export function HeroSketchCarousel() {
       <ActiveComponent key={activeSketch.id} />
 
       <div className="pointer-events-none absolute bottom-24 left-1/2 -translate-x-1/2">
-        <div className="pointer-events-auto flex items-center gap-2 rounded-full border border-white/15 bg-black/35 px-3 py-1.5 backdrop-blur-md">
-          <button
-            type="button"
-            onClick={() => go(-1)}
-            className="text-xs text-zinc-300 hover:text-zinc-100"
-            aria-label="previous sketch"
-          >
-            ←
-          </button>
-          <span className="title-up font-mono text-[10px] tracking-[0.18em] text-zinc-300">
-            {activeSketch.label}
-          </span>
-          <button
-            type="button"
-            onClick={() => go(1)}
-            className="text-xs text-zinc-300 hover:text-zinc-100"
-            aria-label="next sketch"
-          >
-            →
-          </button>
+        <div className="pointer-events-auto flex items-center gap-1 rounded-full border border-white/15 bg-black/35 px-2 py-1.5 backdrop-blur-md">
+          {SKETCHES.map((sketch, sketchIndex) => {
+            const active = sketchIndex === index;
+            return (
+              <button
+                key={sketch.id}
+                type="button"
+                onClick={() => goTo(sketchIndex)}
+                className={`rounded-full px-2.5 py-1 font-mono text-[10px] tracking-[0.16em] transition ${
+                  active
+                    ? "bg-amber-200/20 text-amber-100"
+                    : "text-zinc-300 hover:bg-white/10 hover:text-zinc-100"
+                }`}
+                aria-label={`show ${sketch.label} sketch`}
+                aria-current={active}
+              >
+                {String(sketchIndex + 1).padStart(2, "0")} {sketch.label}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
