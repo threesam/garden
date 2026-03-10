@@ -40,6 +40,7 @@ const VERTEX_SHADER = `
 `;
 
 const FRAGMENT_SHADER = `
+  uniform float uVideoMode;
   varying float vIntensity;
   varying float vAudio;
   varying float vSeed;
@@ -63,6 +64,14 @@ const FRAGMENT_SHADER = `
 
     vec3 color = mix(neutral, warm, pow(vAudio, 0.82));
     color = mix(color, warmC, heat * vAudio * 0.5);
+
+    vec3 darkA = vec3(0.09, 0.09, 0.10);
+    vec3 darkB = vec3(0.20, 0.20, 0.22);
+    float darkMix = clamp(rim * 0.65 + fract(vSeed * 3.1) * 0.35, 0.0, 1.0);
+    vec3 darkGradient = mix(darkA, darkB, darkMix);
+
+    color = mix(color, darkGradient, uVideoMode);
+    alpha *= mix(1.0, 0.14, uVideoMode);
     gl_FragColor = vec4(color, alpha);
   }
 `;
@@ -103,6 +112,7 @@ export default function HeroCanvas() {
     let rafId = 0;
     let active = true;
     let smoothedAudio = 0;
+    let videoMode = 0;
     const clock = new THREE.Clock();
 
     const renderer = new THREE.WebGLRenderer({
@@ -138,6 +148,7 @@ export default function HeroCanvas() {
       uTime: { value: 0 },
       uAudio: { value: 0 },
       uWasmMod: { value: 0 },
+      uVideoMode: { value: 0 },
     };
 
     const material = new THREE.ShaderMaterial({
@@ -155,7 +166,6 @@ export default function HeroCanvas() {
     const onAsciiVideoActive = (event: Event) => {
       const customEvent = event as CustomEvent<{ active?: boolean }>;
       asciiVideoActiveRef.current = Boolean(customEvent.detail?.active);
-      points.visible = !asciiVideoActiveRef.current;
     };
     window.addEventListener("threesam:ascii-video-active", onAsciiVideoActive);
 
@@ -181,6 +191,9 @@ export default function HeroCanvas() {
         smoothedAudio * smoothingFactor + targetAudio * (1 - smoothingFactor);
       uniforms.uTime.value = t;
       uniforms.uAudio.value = Math.min(1.8, smoothedAudio);
+      const targetVideoMode = asciiVideoActiveRef.current ? 1 : 0;
+      videoMode = videoMode * 0.88 + targetVideoMode * 0.12;
+      uniforms.uVideoMode.value = videoMode;
 
       if (wasmWave) {
         const wasmSample =
@@ -193,7 +206,6 @@ export default function HeroCanvas() {
 
       points.rotation.z = t * 0.07;
       points.rotation.x = Math.sin(t * 0.22) * 0.14;
-      points.visible = !asciiVideoActiveRef.current;
 
       const flowDetail: ParticleFlowDetail = {
         spread: Math.min(1, uniforms.uAudio.value / 1.8),
