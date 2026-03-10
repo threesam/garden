@@ -18,6 +18,10 @@ const DEFAULT_FLOW: ParticleFlowDetail = {
   rotZ: 0,
 };
 
+function clamp(value: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, value));
+}
+
 export function AsciiVideoOverlay() {
   const [isActive, setIsActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -100,10 +104,11 @@ export function AsciiVideoOverlay() {
         const b = imageData[offset + 2];
 
         const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-        const idx = Math.floor((1 - luminance) * (ASCII_RAMP.length - 1));
+        const contrastLum = clamp((luminance - 0.5) * 1.75 + 0.5, 0, 1);
+        const idx = Math.floor((1 - contrastLum) * (ASCII_RAMP.length - 1));
         const glyph = ASCII_RAMP[idx] ?? " ";
         if (glyph === " ") continue;
-        if (luminance > 0.62 && (x + y) % 2 === 1) continue;
+        if (contrastLum > 0.86 && (x + y) % 2 === 1) continue;
 
         const nx = x / Math.max(1, cols - 1) - 0.5;
         const ny = y / Math.max(1, rows - 1) - 0.5;
@@ -120,10 +125,10 @@ export function AsciiVideoOverlay() {
         const drawX = x * cellW + swirlX + nx * flow.spread * 14;
         const drawY = y * cellH + driftY;
 
-        const warm = Math.floor(124 + luminance * 120);
-        const alpha = 0.11 + luminance * 0.36;
-        ctx.fillStyle = `rgba(${warm}, ${Math.floor(warm * 0.78)}, ${Math.floor(
-          warm * 0.52,
+        const warm = Math.floor(112 + (1 - contrastLum) * 152);
+        const alpha = 0.26 + Math.pow(1 - contrastLum, 0.7) * 0.62;
+        ctx.fillStyle = `rgba(${warm}, ${Math.floor(warm * 0.72)}, ${Math.floor(
+          warm * 0.45,
         )}, ${alpha})`;
         ctx.fillText(glyph, drawX, drawY);
       }
