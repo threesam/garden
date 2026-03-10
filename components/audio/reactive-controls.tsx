@@ -47,7 +47,7 @@ export function ReactiveControls() {
       <button
         type="button"
         onClick={() => {
-          setSensitivity(0.95);
+          setSensitivity(1.1);
           setSmoothing(0.94);
         }}
         className="rounded-md border border-white/20 px-3 py-2 text-[11px] uppercase tracking-[0.16em] text-zinc-300 hover:border-white/40"
