@@ -58,8 +58,8 @@ export function AudioVisualizer({
         const barHeight = value * (height - 8);
         const x = i * barWidth;
         const y = height - barHeight;
-        const hue = 205 + value * 120;
-        ctx.fillStyle = `hsla(${hue}, 90%, 65%, 0.8)`;
+        const hue = 10 + value * 36;
+        ctx.fillStyle = `hsla(${hue}, 92%, 64%, 0.82)`;
         ctx.fillRect(x, y, barWidth - 1.2, barHeight);
       }
 

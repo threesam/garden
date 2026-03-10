@@ -87,14 +87,14 @@ export function MicrophoneInput() {
         className={`absolute right-4 top-4 z-40 grid h-11 w-11 place-items-center rounded-full border backdrop-blur-md transition md:right-6 md:top-6 ${
           isMicActive
             ? "border-[#7f0f1b] bg-[#2a0408]/90 shadow-[0_0_24px_rgba(90,0,10,0.45)]"
-            : "border-white/30 bg-black/45 hover:border-white/55"
+            : "border-amber-200/40 bg-[#24120c]/70 hover:border-amber-200/70"
         } ${error ? "border-amber-400/70" : ""}`}
       >
         <span
           className={`h-3.5 w-3.5 rounded-full transition ${
             isMicActive
               ? "bg-[#b10016] shadow-[0_0_12px_rgba(177,0,22,0.9)]"
-              : "bg-zinc-300/80"
+              : "bg-amber-200/80"
           }`}
         />
       </button>

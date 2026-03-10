@@ -36,8 +36,8 @@ const FRAGMENT_SHADER = `
     if (r > 1.0) discard;
 
     float alpha = (1.0 - r) * 0.8;
-    vec3 base = vec3(0.15, 0.45, 1.0);
-    vec3 pulse = vec3(0.95, 0.35, 1.0);
+    vec3 base = vec3(0.95, 0.34, 0.12);
+    vec3 pulse = vec3(1.0, 0.77, 0.42);
     vec3 color = mix(base, pulse, clamp(vIntensity * 0.65, 0.0, 1.0));
     gl_FragColor = vec4(color, alpha);
   }

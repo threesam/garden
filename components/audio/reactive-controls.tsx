@@ -24,7 +24,7 @@ export function ReactiveControls() {
           step={0.05}
           value={sensitivity}
           onChange={(event) => setSensitivity(Number(event.target.value))}
-          className="w-full accent-cyan-400"
+          className="w-full accent-amber-400"
         />
       </label>
 
@@ -40,7 +40,7 @@ export function ReactiveControls() {
           step={0.01}
           value={smoothing}
           onChange={(event) => setSmoothing(Number(event.target.value))}
-          className="w-full accent-fuchsia-400"
+          className="w-full accent-red-500"
         />
       </label>
 
