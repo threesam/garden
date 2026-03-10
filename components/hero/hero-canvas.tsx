@@ -72,6 +72,7 @@ export default function HeroCanvas() {
   const energyRef = useRef(0);
   const sensitivityRef = useRef(1.3);
   const smoothingRef = useRef(0.88);
+  const asciiVideoActiveRef = useRef(false);
   const { energy, sensitivity, smoothing } = useAudioReactive();
 
   useEffect(() => {
@@ -151,6 +152,13 @@ export default function HeroCanvas() {
     const points = new THREE.Points(geometry, material);
     scene.add(points);
 
+    const onAsciiVideoActive = (event: Event) => {
+      const customEvent = event as CustomEvent<{ active?: boolean }>;
+      asciiVideoActiveRef.current = Boolean(customEvent.detail?.active);
+      points.visible = !asciiVideoActiveRef.current;
+    };
+    window.addEventListener("threesam:ascii-video-active", onAsciiVideoActive);
+
     let wasmWave:
       | ((x: number, y: number, time: number, audioLevel: number) => number)
       | null = null;
@@ -185,6 +193,7 @@ export default function HeroCanvas() {
 
       points.rotation.z = t * 0.07;
       points.rotation.x = Math.sin(t * 0.22) * 0.14;
+      points.visible = !asciiVideoActiveRef.current;
 
       const flowDetail: ParticleFlowDetail = {
         spread: Math.min(1, uniforms.uAudio.value / 1.8),
@@ -218,6 +227,7 @@ export default function HeroCanvas() {
       active = false;
       window.cancelAnimationFrame(rafId);
       window.removeEventListener("resize", handleResize);
+      window.removeEventListener("threesam:ascii-video-active", onAsciiVideoActive);
       geometry.dispose();
       material.dispose();
       renderer.dispose();

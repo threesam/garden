@@ -182,6 +182,14 @@ export function AsciiVideoOverlay() {
   }, [drawFrame]);
 
   useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent("threesam:ascii-video-active", {
+        detail: { active: isActive },
+      }),
+    );
+  }, [isActive]);
+
+  useEffect(() => {
     const onParticleFlow = (event: Event) => {
       const customEvent = event as CustomEvent<ParticleFlowDetail>;
       if (!customEvent.detail) return;
@@ -190,6 +198,11 @@ export function AsciiVideoOverlay() {
     window.addEventListener("threesam:particle-flow", onParticleFlow);
 
     return () => {
+      window.dispatchEvent(
+        new CustomEvent("threesam:ascii-video-active", {
+          detail: { active: false },
+        }),
+      );
       void stopCapture(false);
       window.removeEventListener("threesam:particle-flow", onParticleFlow);
     };
