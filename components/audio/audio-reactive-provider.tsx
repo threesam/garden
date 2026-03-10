@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
 
 interface AudioReactiveContextValue {
   energy: number;
@@ -17,6 +17,7 @@ interface AudioReactiveContextValue {
 }
 
 const AudioReactiveContext = createContext<AudioReactiveContextValue | null>(null);
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
 export function AudioReactiveProvider({
   children,
@@ -25,27 +26,38 @@ export function AudioReactiveProvider({
 }) {
   const [musicEnergy, setMusicEnergy] = useState(0);
   const [micEnergy, setMicEnergy] = useState(0);
-  const [sensitivity, setSensitivity] = useState(1.3);
-  const [smoothing, setSmoothing] = useState(0.88);
+  const [sensitivityState, setSensitivityState] = useState(
+    IS_PRODUCTION ? 1 : 1.3,
+  );
+  const [smoothingState, setSmoothingState] = useState(
+    IS_PRODUCTION ? 1 : 0.88,
+  );
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMicActive, setIsMicActive] = useState(false);
   const energy = Math.max(musicEnergy, micEnergy);
+
+  const setSensitivity = useCallback((value: number) => {
+    setSensitivityState(IS_PRODUCTION ? 1 : value);
+  }, []);
+  const setSmoothing = useCallback((value: number) => {
+    setSmoothingState(IS_PRODUCTION ? 1 : value);
+  }, []);
 
   const value = useMemo(
     () => ({
       energy,
       setMusicEnergy,
       setMicEnergy,
-      sensitivity,
+      sensitivity: sensitivityState,
       setSensitivity,
-      smoothing,
+      smoothing: smoothingState,
       setSmoothing,
       isPlaying,
       setIsPlaying,
       isMicActive,
       setIsMicActive,
     }),
-    [energy, isPlaying, isMicActive, sensitivity, smoothing],
+    [energy, isPlaying, isMicActive, sensitivityState, smoothingState, setSensitivity, setSmoothing],
   );
 
   return (

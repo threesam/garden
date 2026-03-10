@@ -1,6 +1,8 @@
 import { ReactiveControls } from "@/components/audio/reactive-controls";
 import { MusicPlayer } from "@/components/audio/music-player";
 
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
+
 export function MusicSection() {
   return (
     <section className="section-shell mx-auto mt-12 max-w-6xl rounded-2xl p-6 md:p-8">
@@ -13,9 +15,11 @@ export function MusicSection() {
         directly inside the hero system.
       </p>
       <MusicPlayer />
-      <div className="mt-4">
-        <ReactiveControls />
-      </div>
+      {!IS_PRODUCTION ? (
+        <div className="mt-4">
+          <ReactiveControls />
+        </div>
+      ) : null}
     </section>
   );
 }
