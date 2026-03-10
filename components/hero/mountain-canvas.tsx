@@ -9,6 +9,7 @@ const VERTEX_SHADER = `
   uniform float uTime;
   uniform float uAudio;
   uniform float uTravel;
+  uniform float uStepJitter;
   uniform vec2 uSeedA;
   uniform vec2 uSeedB;
   varying float vHeight;
@@ -56,6 +57,14 @@ const VERTEX_SHADER = `
     );
     h = pow(h, 1.24) * sideBias;
 
+    // Staggered per-cell peaks create more random mountain heights.
+    vec2 cell = floor(streamPos * 0.42 + vec2(uStepJitter * 9.3, -uStepJitter * 6.7));
+    float peakRand = hash(cell + uSeedB * 0.31);
+    float spikeRand = hash(cell * 1.63 + vec2(8.2, -4.9) + uSeedA * 0.2);
+    float peakScale = mix(0.62, 1.95, pow(peakRand, 1.32));
+    peakScale += step(0.88, spikeRand) * 0.55;
+    h *= peakScale;
+
     float centered = h - 0.58;
     float faceted = floor(centered * 12.0) / 12.0;
     float audioScale = 0.25 + uAudio * 1.85;
@@ -90,8 +99,7 @@ export default function MountainCanvas() {
   const mountRef = useRef<HTMLDivElement>(null);
   const energyRef = useRef(0);
   const sensitivityRef = useRef(1.3);
-  const smoothingRef = useRef(0.88);
-  const { energy, sensitivity, smoothing } = useAudioReactive();
+  const { energy, sensitivity } = useAudioReactive();
 
   useEffect(() => {
     energyRef.current = energy;
@@ -100,10 +108,6 @@ export default function MountainCanvas() {
   useEffect(() => {
     sensitivityRef.current = sensitivity;
   }, [sensitivity]);
-
-  useEffect(() => {
-    smoothingRef.current = smoothing;
-  }, [smoothing]);
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -121,7 +125,8 @@ export default function MountainCanvas() {
 
     let rafId = 0;
     let active = true;
-    let smoothedAudio = 0;
+    let staggeredAudio = 0;
+    let nextStepAt = 0;
     const clock = new THREE.Clock();
 
     const renderer = new THREE.WebGLRenderer({
@@ -139,6 +144,7 @@ export default function MountainCanvas() {
       uTime: { value: 0 },
       uAudio: { value: 0 },
       uTravel: { value: 0 },
+      uStepJitter: { value: Math.random() * 10 },
       uSeedA: {
         value: new THREE.Vector2(randomBetween(-12, 12), randomBetween(-12, 12)),
       },
@@ -162,16 +168,24 @@ export default function MountainCanvas() {
       if (!active) return;
 
       const t = clock.getElapsedTime();
-      const smoothingFactor = Math.max(0, Math.min(0.98, smoothingRef.current));
-      const targetAudio = Math.max(
+      const baseInput = Math.max(
         0,
-        Math.min(2.3, energyRef.current * sensitivityRef.current),
+        Math.min(2.8, energyRef.current * sensitivityRef.current * 2.4),
       );
-      smoothedAudio =
-        smoothedAudio * smoothingFactor + targetAudio * (1 - smoothingFactor);
+
+      // Staggered sample-and-hold response instead of smooth reaction.
+      if (t >= nextStepAt) {
+        const quantized = Math.floor(baseInput * 12) / 12;
+        const burst = baseInput > 0.16 ? randomBetween(0, 0.55) : 0;
+        staggeredAudio = Math.min(2.4, quantized + burst);
+        uniforms.uStepJitter.value = Math.random() * 10;
+        nextStepAt = t + randomBetween(0.06, 0.2);
+      } else {
+        staggeredAudio *= 0.996;
+      }
 
       uniforms.uTime.value = t;
-      uniforms.uAudio.value = Math.min(1.8, smoothedAudio);
+      uniforms.uAudio.value = Math.min(2.25, staggeredAudio);
       uniforms.uTravel.value = t * 0.14;
 
       mesh.rotation.z = Math.sin(t * 0.08) * 0.08;

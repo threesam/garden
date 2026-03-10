@@ -56,7 +56,7 @@ export function MicrophoneInput() {
       const context = new window.AudioContext();
       const analyserNode = context.createAnalyser();
       analyserNode.fftSize = 1024;
-      analyserNode.smoothingTimeConstant = 0.88;
+      analyserNode.smoothingTimeConstant = 0.58;
 
       const sourceNode = context.createMediaStreamSource(stream);
       sourceNode.connect(analyserNode);
@@ -108,6 +108,7 @@ export function MicrophoneInput() {
               onEnergySample={setMicEnergy}
               drawBackground={false}
               className="h-36 w-full bg-transparent"
+              energyBoost={2.45}
             />
           </div>
         </div>
