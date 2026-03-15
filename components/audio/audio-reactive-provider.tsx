@@ -1,9 +1,20 @@
 "use client";
 
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
+
+export interface AudioBands {
+  bass: number;     // ~0-200Hz — kicks, sub
+  mid: number;      // ~200-2kHz — vocals, snare body
+  high: number;     // ~2k-22kHz — hats, cymbals, air
+  onset: number;    // transient spike detection (0 or 1, decays)
+}
+
+const EMPTY_BANDS: AudioBands = { bass: 0, mid: 0, high: 0, onset: 0 };
 
 interface AudioReactiveContextValue {
   energy: number;
+  bands: AudioBands;
+  setBands: (bands: AudioBands) => void;
   setMusicEnergy: (value: number) => void;
   setMicEnergy: (value: number) => void;
   sensitivity: number;
@@ -17,9 +28,6 @@ interface AudioReactiveContextValue {
 }
 
 const AudioReactiveContext = createContext<AudioReactiveContextValue | null>(null);
-const IS_PRODUCTION = process.env.NODE_ENV === "production";
-const PRODUCTION_SENSITIVITY = 2;
-const PRODUCTION_SMOOTHING = 1;
 const DEFAULT_SENSITIVITY = 2;
 const DEFAULT_SMOOTHING = 0.94;
 
@@ -30,26 +38,30 @@ export function AudioReactiveProvider({
 }) {
   const [musicEnergy, setMusicEnergy] = useState(0);
   const [micEnergy, setMicEnergy] = useState(0);
-  const [sensitivityState, setSensitivityState] = useState(
-    IS_PRODUCTION ? PRODUCTION_SENSITIVITY : DEFAULT_SENSITIVITY,
-  );
-  const [smoothingState, setSmoothingState] = useState(
-    IS_PRODUCTION ? PRODUCTION_SMOOTHING : DEFAULT_SMOOTHING,
-  );
+  const [sensitivityState, setSensitivityState] = useState(DEFAULT_SENSITIVITY);
+  const [smoothingState, setSmoothingState] = useState(DEFAULT_SMOOTHING);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMicActive, setIsMicActive] = useState(false);
+  const bandsRef = useRef<AudioBands>(EMPTY_BANDS);
+  const [bands, setBandsState] = useState<AudioBands>(EMPTY_BANDS);
   const energy = Math.max(musicEnergy, micEnergy);
 
   const setSensitivity = useCallback((value: number) => {
-    setSensitivityState(IS_PRODUCTION ? PRODUCTION_SENSITIVITY : value);
+    setSensitivityState(value);
   }, []);
   const setSmoothing = useCallback((value: number) => {
-    setSmoothingState(IS_PRODUCTION ? PRODUCTION_SMOOTHING : value);
+    setSmoothingState(value);
+  }, []);
+  const setBands = useCallback((b: AudioBands) => {
+    bandsRef.current = b;
+    setBandsState(b);
   }, []);
 
   const value = useMemo(
     () => ({
       energy,
+      bands,
+      setBands,
       setMusicEnergy,
       setMicEnergy,
       sensitivity: sensitivityState,
@@ -61,7 +73,7 @@ export function AudioReactiveProvider({
       isMicActive,
       setIsMicActive,
     }),
-    [energy, isPlaying, isMicActive, sensitivityState, smoothingState, setSensitivity, setSmoothing],
+    [energy, bands, setBands, isPlaying, isMicActive, sensitivityState, smoothingState, setSensitivity, setSmoothing],
   );
 
   return (

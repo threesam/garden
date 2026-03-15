@@ -6,7 +6,11 @@ import { useAudioReactive } from "@/components/audio/audio-reactive-provider";
 import { AudioVisualizer } from "@/components/audio/audio-visualizer";
 import type { CountersState } from "@/types/counters";
 
-const AUDIO_SRC = "/audio/placeholder-track.mp3";
+const TRACKS = [
+  { src: "/audio/silent.mp3", title: "silent" },
+  { src: "/audio/natural_causes.mp3", title: "natural causes" },
+  { src: "/audio/identity_theft_is_not_a_joke.mp3", title: "identity theft is not a joke" },
+] as const;
 
 const initialCounters: CountersState = {
   totalVisitors: 0,
@@ -21,10 +25,12 @@ export function MusicPlayer() {
   const analyserRef = useRef<AnalyserNode | null>(null);
   const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
 
+  const [trackIndex, setTrackIndex] = useState(0);
   const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [counters, setCounters] = useState<CountersState>(initialCounters);
   const { setMusicEnergy, setIsPlaying, isPlaying } = useAudioReactive();
+  const track = TRACKS[trackIndex];
 
   const fetchCounters = useCallback(async () => {
     const response = await fetch("/api/counters", { cache: "no-store" });
@@ -100,6 +106,23 @@ export function MusicPlayer() {
     setMusicEnergy(0);
   };
 
+  const switchTrack = (index: number) => {
+    if (index === trackIndex) return;
+    const audio = audioRef.current;
+    const wasPlaying = audio && !audio.paused;
+    if (wasPlaying) {
+      audio.pause();
+    }
+    setTrackIndex(index);
+    setError(null);
+    // let React update src, then play if it was playing
+    if (wasPlaying) {
+      requestAnimationFrame(() => {
+        void audio?.play();
+      });
+    }
+  };
+
   return (
     <div className="space-y-4 rounded-xl border border-white/10 bg-black/35 p-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -107,9 +130,6 @@ export function MusicPlayer() {
           <h3 className="font-mono text-sm uppercase tracking-[0.2em] text-zinc-300">
             music interface
           </h3>
-          <p className="mt-2 text-sm text-zinc-400">
-            Local source: <span className="font-mono">{AUDIO_SRC}</span>
-          </p>
         </div>
         <div className="text-right text-sm text-zinc-300">
           <p>plays: {counters.musicPlays}</p>
@@ -117,18 +137,35 @@ export function MusicPlayer() {
         </div>
       </div>
 
+      <div className="flex flex-wrap gap-2">
+        {TRACKS.map((t, i) => (
+          <button
+            key={t.src}
+            type="button"
+            onClick={() => switchTrack(i)}
+            className={`rounded-full px-3 py-1.5 font-mono text-[10px] tracking-[0.12em] transition ${
+              i === trackIndex
+                ? "bg-amber-200/20 text-amber-100"
+                : "text-zinc-400 hover:bg-white/10 hover:text-zinc-200"
+            }`}
+          >
+            {t.title}
+          </button>
+        ))}
+      </div>
+
       <audio
         ref={audioRef}
         controls
         preload="metadata"
-        src={AUDIO_SRC}
+        src={track.src}
         className="w-full"
         onPlay={() => void onPlay()}
         onPause={onPause}
         onEnded={onPause}
         onError={() => {
           setError(
-            "Audio file missing. Drop a local track at /public/audio/placeholder-track.mp3",
+            `audio file missing — drop ${track.title}.mp3 in public/audio/`,
           );
         }}
       />

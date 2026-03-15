@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Nav } from "@/components/nav";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,9 +14,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "threesam // digital garden",
+  title: "threesam — signal. source. resonance.",
   description:
-    "Personal laboratory for generative art, music systems, engineering, and disciplined practice.",
+    "Artist-engineer creating at the intersection of sound, code, and human performance.",
+  openGraph: {
+    title: "threesam — signal. source. resonance.",
+    description:
+      "Artist-engineer creating at the intersection of sound, code, and human performance.",
+    siteName: "threesam",
+  },
 };
 
 export default function RootLayout({
@@ -28,6 +35,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <Nav />
         {children}
       </body>
     </html>
