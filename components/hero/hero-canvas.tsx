@@ -22,6 +22,7 @@ const VERTEX_SHADER = `
   uniform float uHigh;
   uniform float uOnset;
   uniform float uWasmMod;
+  uniform vec2 uCenter;
   attribute float aSeed;
   varying float vIntensity;
   varying float vAudio;
@@ -34,9 +35,10 @@ const VERTEX_SHADER = `
     vec3 p = position;
     float audioNorm = clamp(uAudio / 1.8, 0.0, 1.0);
 
-    // whirlpool: convert to polar, rotate based on distance from center
-    float radius = length(p.xy);
-    float angle = atan(p.y, p.x);
+    // whirlpool: polar coords relative to center point
+    vec2 rel = p.xy - uCenter;
+    float radius = length(rel);
+    float angle = atan(rel.y, rel.x);
 
     // spiral rotation — inner particles spin faster than outer
     float spinSpeed = 0.6 + uBass * 0.3;
@@ -50,9 +52,9 @@ const VERTEX_SHADER = `
     // bass pulls particles inward (tightens the whirlpool)
     radius *= 1.0 - uBass * 0.08;
 
-    // convert back to cartesian
-    p.x = cos(angle) * radius;
-    p.y = sin(angle) * radius;
+    // convert back to cartesian, offset by center
+    p.x = cos(angle) * radius + uCenter.x;
+    p.y = sin(angle) * radius + uCenter.y;
 
     // z-axis: wave motion + onset punch
     float wave = sin(radius * 5.0 - uTime * 1.2 + aSeed * 6.2831) * 0.2;
@@ -170,6 +172,28 @@ export default function HeroCanvas() {
     let rafId = 0;
     let active = true;
     let smoothedAudio = 0;
+
+    // mouse-follow state (in world units)
+    const mouseTarget = { x: 0, y: 0 };
+    const centerPos = { x: 0, y: 0 };
+
+    const onMouseMove = (e: MouseEvent) => {
+      const rect = container.getBoundingClientRect();
+      // normalize to [-1, 1] then scale to world units
+      const nx = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      const ny = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
+      // scale to match particle spread (~2.4 world units radius)
+      mouseTarget.x = nx * 2.4;
+      mouseTarget.y = ny * 2.4;
+    };
+
+    const onMouseLeave = () => {
+      mouseTarget.x = 0;
+      mouseTarget.y = 0;
+    };
+
+    container.addEventListener("mousemove", onMouseMove);
+    container.addEventListener("mouseleave", onMouseLeave);
     let smoothedBass = 0;
     let smoothedMid = 0;
     let smoothedHigh = 0;
@@ -187,12 +211,12 @@ export default function HeroCanvas() {
     renderer.setSize(container.clientWidth, container.clientHeight);
     container.appendChild(renderer.domElement);
 
-    const particleCount = 12000;
+    const particleCount = 40000;
     const positions = new Float32Array(particleCount * 3);
     const seeds = new Float32Array(particleCount);
 
     for (let i = 0; i < particleCount; i += 1) {
-      const radius = Math.pow(Math.random(), 0.45) * 2.2 + 0.2;
+      const radius = Math.pow(Math.random(), 0.35) * 8.0 + 0.1;
       const angle = Math.random() * Math.PI * 2;
       const spread = (Math.random() - 0.5) * 1.2;
       const offset = i * 3;
@@ -215,6 +239,7 @@ export default function HeroCanvas() {
       uOnset: { value: 0 },
       uWasmMod: { value: 0 },
       uVideoMode: { value: 0 },
+      uCenter: { value: new THREE.Vector2(0, 0) },
     };
 
     const material = new THREE.ShaderMaterial({
@@ -274,6 +299,12 @@ export default function HeroCanvas() {
         ? b.onset
         : smoothedOnset * 0.85;
 
+      // smooth lerp toward mouse target
+      const ease = 0.05;
+      centerPos.x += (mouseTarget.x - centerPos.x) * ease;
+      centerPos.y += (mouseTarget.y - centerPos.y) * ease;
+      uniforms.uCenter.value.set(centerPos.x, centerPos.y);
+
       uniforms.uTime.value = t;
       uniforms.uAudio.value = Math.min(0.35, smoothedAudio);
       uniforms.uBass.value = smoothedBass;
@@ -330,6 +361,8 @@ export default function HeroCanvas() {
       window.cancelAnimationFrame(rafId);
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("threesam:ascii-video-active", onAsciiVideoActive);
+      container.removeEventListener("mousemove", onMouseMove);
+      container.removeEventListener("mouseleave", onMouseLeave);
       geometry.dispose();
       material.dispose();
       renderer.dispose();
