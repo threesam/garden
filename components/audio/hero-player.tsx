@@ -18,7 +18,7 @@ export function HeroPlayer() {
   const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
   const scrubRef = useRef<HTMLDivElement>(null);
 
-  const [trackIndex, setTrackIndex] = useState(0);
+  const [trackIndex, setTrackIndex] = useState(1);
   const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
