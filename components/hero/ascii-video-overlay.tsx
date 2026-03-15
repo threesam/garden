@@ -252,7 +252,7 @@ export function AsciiVideoOverlay() {
         onClick={() => void (isActive ? stopCapture() : startCapture())}
         title={isActive ? "stop video capture" : "grab video"}
         aria-label={isActive ? "stop video capture" : "grab video capture"}
-        className={`absolute right-20 top-4 z-40 grid h-11 w-11 place-items-center rounded-full border backdrop-blur-md transition md:right-24 md:top-6 ${
+        className={`absolute bottom-20 right-6 z-40 grid h-8 w-8 place-items-center rounded-full border backdrop-blur-md transition md:bottom-20 md:right-10 ${
           isActive
             ? "border-[#7f0f1b] bg-[#2a0408]/90 text-amber-100 shadow-[0_0_24px_rgba(90,0,10,0.45)]"
             : "border-amber-200/40 bg-[#24120c]/70 text-amber-100/90 hover:border-amber-200/70"
@@ -260,7 +260,7 @@ export function AsciiVideoOverlay() {
       >
         <svg
           viewBox="0 0 24 24"
-          className="h-5 w-5"
+          className="h-3.5 w-3.5"
           fill="none"
           stroke="currentColor"
           strokeWidth="1.8"
@@ -280,7 +280,7 @@ export function AsciiVideoOverlay() {
       </button>
 
       {error ? (
-        <div className="pointer-events-none absolute right-20 top-13 z-40 font-mono text-[10px] text-amber-300 md:right-24 md:top-15">
+        <div className="pointer-events-none absolute bottom-16 right-6 z-40 font-mono text-[10px] text-amber-300 md:right-10">
           {error}
         </div>
       ) : null}

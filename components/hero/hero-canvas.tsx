@@ -34,28 +34,35 @@ const VERTEX_SHADER = `
     vec3 p = position;
     float audioNorm = clamp(uAudio / 1.8, 0.0, 1.0);
 
-    // bass pushes particles outward radially
-    float bassExpand = 1.0 + uBass * 0.12;
+    // whirlpool: convert to polar, rotate based on distance from center
+    float radius = length(p.xy);
+    float angle = atan(p.y, p.x);
 
-    // kick/onset punches z-depth
+    // spiral rotation — inner particles spin faster than outer
+    float spinSpeed = 0.6 + uBass * 0.3;
+    float spiralTwist = spinSpeed / (radius + 0.3);
+    angle += uTime * spiralTwist;
+
+    // radial breathing — particles drift in/out
+    float drift = sin(uTime * 0.4 + aSeed * 6.2831 + radius * 2.0) * 0.15;
+    radius += drift;
+
+    // bass pulls particles inward (tightens the whirlpool)
+    radius *= 1.0 - uBass * 0.08;
+
+    // convert back to cartesian
+    p.x = cos(angle) * radius;
+    p.y = sin(angle) * radius;
+
+    // z-axis: wave motion + onset punch
+    float wave = sin(radius * 5.0 - uTime * 1.2 + aSeed * 6.2831) * 0.2;
     float onsetPunch = uOnset * sin(aSeed * 12.566) * 0.07;
-
-    // high frequencies add shimmer/jitter
     float highJitter = uHigh * (fract(sin(aSeed * 43758.5453 + uTime * 3.0) * 43758.5453) - 0.5) * 0.06;
-
-    float wave = sin((p.x * 1.8) + (p.y * 1.4) + uTime * 0.7 + aSeed * 6.2831) * 0.24;
-    float ring = sin(length(p.xy) * 5.0 - uTime * 1.2 + aSeed * 2.0) * 0.18;
-    p.z += wave + ring * (0.6 + (uAudio * 0.2)) + (uWasmMod * 0.45) + onsetPunch + highJitter;
-    p.xy *= mix(1.0, 1.2, audioNorm) * bassExpand;
-
-    // mid-range drives rotation offset per particle
-    float midSwirl = uMid * sin(length(p.xy) * 3.0 + uTime * 1.5) * 0.03;
-    p.x += midSwirl;
+    p.z += wave + onsetPunch + highJitter + (uWasmMod * 0.3);
 
     vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
     gl_Position = projectionMatrix * mvPosition;
 
-    // onset makes particles momentarily larger
     float onsetSize = 1.0 + uOnset * 0.25;
     gl_PointSize = (1.2 + (uAudio * 0.4)) * onsetSize * (150.0 / max(30.0, -mvPosition.z));
 
@@ -287,9 +294,8 @@ export default function HeroCanvas() {
         uniforms.uWasmMod.value = Math.max(-1, Math.min(1, wasmSample));
       }
 
-      // bass pulses rotation speed
-      points.rotation.z = t * (0.07 + smoothedBass * 0.08);
-      points.rotation.x = Math.sin(t * 0.22) * (0.14 + smoothedMid * 0.1);
+      // slight tilt for depth — whirlpool handles spin in shader
+      points.rotation.x = Math.sin(t * 0.15) * 0.1;
 
       const flowDetail: ParticleFlowDetail = {
         spread: Math.min(1, uniforms.uAudio.value / 1.8),

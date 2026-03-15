@@ -84,14 +84,14 @@ export function MicrophoneInput() {
         onClick={() => void (isMicActive ? stopMicrophone() : startMicrophone())}
         title={error ?? "toggle live microphone"}
         aria-label={isMicActive ? "stop live microphone" : "start live microphone"}
-        className={`absolute right-4 top-4 z-40 grid h-11 w-11 place-items-center rounded-full border backdrop-blur-md transition md:right-6 md:top-6 ${
+        className={`absolute bottom-20 right-16 z-40 grid h-8 w-8 place-items-center rounded-full border backdrop-blur-md transition md:bottom-20 md:right-20 ${
           isMicActive
             ? "border-[#7f0f1b] bg-[#2a0408]/90 shadow-[0_0_24px_rgba(90,0,10,0.45)]"
             : "border-amber-200/40 bg-[#24120c]/70 hover:border-amber-200/70"
         } ${error ? "border-amber-400/70" : ""}`}
       >
         <span
-          className={`h-3.5 w-3.5 rounded-full transition ${
+          className={`h-2.5 w-2.5 rounded-full transition ${
             isMicActive
               ? "bg-[#b10016] shadow-[0_0_12px_rgba(177,0,22,0.9)]"
               : "bg-amber-200/80"
