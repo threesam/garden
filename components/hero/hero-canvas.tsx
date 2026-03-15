@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
 import { useAudioReactive } from "@/components/audio/audio-reactive-provider";
+import type { AudioBands } from "@/components/audio/audio-reactive-provider";
 import { loadGardenMathApi } from "@/lib/wasm/garden-math";
 
 interface ParticleFlowDetail {
@@ -16,33 +17,65 @@ interface ParticleFlowDetail {
 const VERTEX_SHADER = `
   uniform float uTime;
   uniform float uAudio;
+  uniform float uBass;
+  uniform float uMid;
+  uniform float uHigh;
+  uniform float uOnset;
   uniform float uWasmMod;
   attribute float aSeed;
   varying float vIntensity;
   varying float vAudio;
+  varying float vBass;
+  varying float vHigh;
+  varying float vOnset;
   varying float vSeed;
 
   void main() {
     vec3 p = position;
     float audioNorm = clamp(uAudio / 1.8, 0.0, 1.0);
+
+    // bass pushes particles outward radially
+    float bassExpand = 1.0 + uBass * 0.12;
+
+    // kick/onset punches z-depth
+    float onsetPunch = uOnset * sin(aSeed * 12.566) * 0.07;
+
+    // high frequencies add shimmer/jitter
+    float highJitter = uHigh * (fract(sin(aSeed * 43758.5453 + uTime * 3.0) * 43758.5453) - 0.5) * 0.06;
+
     float wave = sin((p.x * 1.8) + (p.y * 1.4) + uTime * 0.7 + aSeed * 6.2831) * 0.24;
     float ring = sin(length(p.xy) * 5.0 - uTime * 1.2 + aSeed * 2.0) * 0.18;
-    p.z += wave + ring * (0.6 + (uAudio * 1.5)) + (uWasmMod * 0.45);
-    p.xy *= mix(1.0, 3.0, audioNorm);
+    p.z += wave + ring * (0.6 + (uAudio * 0.2)) + (uWasmMod * 0.45) + onsetPunch + highJitter;
+    p.xy *= mix(1.0, 1.2, audioNorm) * bassExpand;
+
+    // mid-range drives rotation offset per particle
+    float midSwirl = uMid * sin(length(p.xy) * 3.0 + uTime * 1.5) * 0.03;
+    p.x += midSwirl;
 
     vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
     gl_Position = projectionMatrix * mvPosition;
-    gl_PointSize = (1.2 + (uAudio * 3.0)) * (150.0 / max(30.0, -mvPosition.z));
+
+    // onset makes particles momentarily larger
+    float onsetSize = 1.0 + uOnset * 0.25;
+    gl_PointSize = (1.2 + (uAudio * 0.4)) * onsetSize * (150.0 / max(30.0, -mvPosition.z));
+
     vIntensity = clamp(0.3 + uAudio + abs(p.z) * 0.5, 0.0, 2.0);
     vAudio = audioNorm;
+    vBass = uBass;
+    vHigh = uHigh;
+    vOnset = uOnset;
     vSeed = aSeed;
   }
 `;
 
 const FRAGMENT_SHADER = `
   uniform float uVideoMode;
+  uniform float uTime;
   varying float vIntensity;
   varying float vAudio;
+  varying float vBass;
+  varying float vHigh;
+  varying float vOnset;
   varying float vSeed;
 
   void main() {
@@ -56,14 +89,27 @@ const FRAGMENT_SHADER = `
 
     vec3 neutral = vec3(0.58, 0.58, 0.60);
     float spectrum = fract(vSeed * 6.7 + heat * 0.24);
-    vec3 warmA = vec3(0.54, 0.17, 0.06);
-    vec3 warmB = vec3(0.88, 0.40, 0.12);
-    vec3 warmC = vec3(1.0, 0.79, 0.36);
+
+    // color palette: bass = deep red/orange, mid = warm amber, high = white/blue
+    vec3 warmA = vec3(0.54, 0.17, 0.06);  // deep ember
+    vec3 warmB = vec3(0.88, 0.40, 0.12);  // orange
+    vec3 warmC = vec3(1.0, 0.79, 0.36);   // hot amber
+    vec3 coolTip = vec3(0.7, 0.85, 1.0);  // icy blue-white for highs
+
     vec3 warm = mix(warmA, warmB, smoothstep(0.0, 0.68, spectrum));
     warm = mix(warm, warmC, smoothstep(0.68, 1.0, spectrum));
 
+    // bass deepens toward red
+    warm = mix(warm, warmA, vBass * 0.4);
+    // highs push toward cool tips
+    warm = mix(warm, coolTip, vHigh * 0.3);
+
     vec3 color = mix(neutral, warm, pow(vAudio, 0.82));
     color = mix(color, warmC, heat * vAudio * 0.5);
+
+    // onset flash — bright white burst
+    color = mix(color, vec3(1.0, 0.95, 0.85), vOnset * 0.6);
+    alpha = min(1.0, alpha + vOnset * 0.3);
 
     vec3 darkA = vec3(0.09, 0.09, 0.10);
     vec3 darkB = vec3(0.20, 0.20, 0.22);
@@ -79,14 +125,19 @@ const FRAGMENT_SHADER = `
 export default function HeroCanvas() {
   const mountRef = useRef<HTMLDivElement>(null);
   const energyRef = useRef(0);
+  const bandsRef = useRef<AudioBands>({ bass: 0, mid: 0, high: 0, onset: 0 });
   const sensitivityRef = useRef(1.3);
   const smoothingRef = useRef(0.88);
   const asciiVideoActiveRef = useRef(false);
-  const { energy, sensitivity, smoothing } = useAudioReactive();
+  const { energy, bands, sensitivity, smoothing } = useAudioReactive();
 
   useEffect(() => {
     energyRef.current = energy;
   }, [energy]);
+
+  useEffect(() => {
+    bandsRef.current = bands;
+  }, [bands]);
 
   useEffect(() => {
     sensitivityRef.current = sensitivity;
@@ -112,6 +163,10 @@ export default function HeroCanvas() {
     let rafId = 0;
     let active = true;
     let smoothedAudio = 0;
+    let smoothedBass = 0;
+    let smoothedMid = 0;
+    let smoothedHigh = 0;
+    let smoothedOnset = 0;
     let videoMode = 0;
     const clock = new THREE.Clock();
 
@@ -147,6 +202,10 @@ export default function HeroCanvas() {
     const uniforms = {
       uTime: { value: 0 },
       uAudio: { value: 0 },
+      uBass: { value: 0 },
+      uMid: { value: 0 },
+      uHigh: { value: 0 },
+      uOnset: { value: 0 },
       uWasmMod: { value: 0 },
       uVideoMode: { value: 0 },
     };
@@ -189,8 +248,32 @@ export default function HeroCanvas() {
       );
       smoothedAudio =
         smoothedAudio * smoothingFactor + targetAudio * (1 - smoothingFactor);
+
+      // smooth the bands (fast attack, moderate release)
+      const b = bandsRef.current;
+      const bandAttack = 0.3;
+      const bandRelease = 0.92;
+      smoothedBass = b.bass > smoothedBass
+        ? smoothedBass * bandAttack + b.bass * (1 - bandAttack)
+        : smoothedBass * bandRelease + b.bass * (1 - bandRelease);
+      smoothedMid = b.mid > smoothedMid
+        ? smoothedMid * bandAttack + b.mid * (1 - bandAttack)
+        : smoothedMid * bandRelease + b.mid * (1 - bandRelease);
+      smoothedHigh = b.high > smoothedHigh
+        ? smoothedHigh * bandAttack + b.high * (1 - bandAttack)
+        : smoothedHigh * bandRelease + b.high * (1 - bandRelease);
+      // onset: fast attack, fast decay for punch
+      smoothedOnset = b.onset > smoothedOnset
+        ? b.onset
+        : smoothedOnset * 0.85;
+
       uniforms.uTime.value = t;
-      uniforms.uAudio.value = Math.min(1.8, smoothedAudio);
+      uniforms.uAudio.value = Math.min(0.35, smoothedAudio);
+      uniforms.uBass.value = smoothedBass;
+      uniforms.uMid.value = smoothedMid;
+      uniforms.uHigh.value = smoothedHigh;
+      uniforms.uOnset.value = smoothedOnset;
+
       const targetVideoMode = asciiVideoActiveRef.current ? 1 : 0;
       videoMode = videoMode * 0.88 + targetVideoMode * 0.12;
       uniforms.uVideoMode.value = videoMode;
@@ -204,8 +287,9 @@ export default function HeroCanvas() {
         uniforms.uWasmMod.value = Math.max(-1, Math.min(1, wasmSample));
       }
 
-      points.rotation.z = t * 0.07;
-      points.rotation.x = Math.sin(t * 0.22) * 0.14;
+      // bass pulses rotation speed
+      points.rotation.z = t * (0.07 + smoothedBass * 0.08);
+      points.rotation.x = Math.sin(t * 0.22) * (0.14 + smoothedMid * 0.1);
 
       const flowDetail: ParticleFlowDetail = {
         spread: Math.min(1, uniforms.uAudio.value / 1.8),

@@ -3,8 +3,8 @@ import Link from "next/link";
 export default function CroEcommerceSystemsPage() {
   return (
     <main className="mx-auto min-h-screen max-w-4xl px-6 py-14 md:px-8">
-      <Link href="/" className="text-xs text-zinc-400 hover:text-zinc-200">
-        ← back to garden
+      <Link href="/resonance" className="text-xs text-zinc-400 hover:text-zinc-200">
+        ← back to resonance
       </Link>
       <h1 className="mt-5 text-3xl font-semibold text-zinc-100">
         CRO &amp; Ecommerce Systems
