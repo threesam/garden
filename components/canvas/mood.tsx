@@ -11,7 +11,7 @@ interface MoodProps {
  */
 export function Mood({ title, children }: MoodProps) {
   return (
-    <section className="relative flex h-screen w-full items-end overflow-hidden">
+    <section className="relative flex h-dvh w-full items-end overflow-hidden">
       {/* Sketch / visual layer — passed as children */}
       {children && (
         <div className="absolute inset-0">{children}</div>

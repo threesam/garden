@@ -27,7 +27,7 @@ export function GenerativeHero() {
   }, []);
 
   return (
-    <section className="relative h-screen w-full overflow-hidden border-b border-white/10">
+    <section className="relative h-dvh w-full overflow-hidden border-b border-white/10">
       <HeroSketchCarousel />
       <AsciiVideoOverlay />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,153,87,0.22),transparent_40%),radial-gradient(circle_at_70%_60%,rgba(196,58,34,0.22),transparent_45%)]" />

@@ -9,7 +9,7 @@ export default async function CanvasPage({ params }: Props) {
 
   return (
     <>
-      <div className="relative h-[50vh] w-full overflow-hidden">
+      <div className="relative h-[50dvh] w-full overflow-hidden">
         <CloudCanvas invert />
       </div>
 
