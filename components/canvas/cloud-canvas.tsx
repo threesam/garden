@@ -1,24 +1,136 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { loadGardenMathApi, type GardenMathApi } from "@/lib/wasm/garden-math";
 
-const LAYERS = [
-  { id: 0, opacity: 0.3, color: [230, 100, 140] },   // pink
-  { id: 1, opacity: 0.4, color: [235, 150, 50] },    // orange
-  { id: 2, opacity: 0.5, color: [250, 220, 60] },    // yellow
-] as const;
+const VERTEX_SHADER = `
+  attribute vec2 aPosition;
+  varying vec2 vUv;
+  void main() {
+    vUv = aPosition * 0.5 + 0.5;
+    gl_Position = vec4(aPosition, 0.0, 1.0);
+  }
+`;
 
-function parseHex(hex: string) {
-  return [
-    parseInt(hex.slice(1, 3), 16),
-    parseInt(hex.slice(3, 5), 16),
-    parseInt(hex.slice(5, 7), 16),
-  ];
+const FRAGMENT_SHADER = `
+  precision highp float;
+
+  uniform float uTime;
+  uniform float uInvert;
+  uniform vec3 uTopColor;
+  uniform vec3 uBotColor;
+
+  varying vec2 vUv;
+
+  // --- hash & FBM ---
+
+  float hash(vec2 p) {
+    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+  }
+
+  float smoothNoise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    vec2 s = f * f * (3.0 - 2.0 * f);
+
+    float n00 = hash(i);
+    float n10 = hash(i + vec2(1.0, 0.0));
+    float n01 = hash(i + vec2(0.0, 1.0));
+    float n11 = hash(i + vec2(1.0, 1.0));
+
+    float nx0 = n00 + s.x * (n10 - n00);
+    float nx1 = n01 + s.x * (n11 - n01);
+
+    return nx0 + s.y * (nx1 - nx0);
+  }
+
+  float fbm(vec2 p, int octaves) {
+    float value = 0.0;
+    float amplitude = 0.5;
+    float frequency = 1.0;
+
+    for (int i = 0; i < 8; i++) {
+      if (i >= octaves) break;
+      value += amplitude * smoothNoise(p * frequency);
+      amplitude *= 0.5;
+      frequency *= 2.0;
+    }
+
+    return value;
+  }
+
+  float cloudDensity(vec2 uv, float time, float speed, float scale, float yScale, int octaves, float threshold, float seedX, float seedY) {
+    float drift = time * speed * scale;
+    vec2 p = vec2(uv.x * scale + drift + seedX, uv.y * yScale + seedY);
+    float n = fbm(p, octaves);
+    float shaped = clamp((n - threshold) * 3.0, 0.0, 1.0);
+    return shaped * shaped;
+  }
+
+  void main() {
+    vec2 uv = vec2(vUv.x, 1.0 - vUv.y);
+    float fade = uv.y;
+
+    float easedFade = uInvert > 0.5
+      ? 1.0 - (1.0 - fade) * (1.0 - fade)
+      : fade * fade;
+
+    vec3 base = mix(uTopColor, uBotColor, easedFade);
+    float cloudWindow = sin(fade * 3.14159265);
+    float cloudTime = uInvert > 0.5 ? -uTime : uTime;
+
+    float baseSpeed = 0.01;
+
+    // Layer 0: red, deep background (1x speed)
+    float d0 = cloudDensity(uv, cloudTime, baseSpeed, 2.0, 1.2, 6, 0.32, 0.0, 0.0);
+    float i0 = d0 * cloudWindow * 0.35;
+    vec3 col0 = vec3(190.0, 50.0, 60.0) / 255.0;
+    base = mix(base, col0, i0);
+
+    // Layer 1: pink (2x speed)
+    float d1 = cloudDensity(uv, cloudTime, baseSpeed * 2.0, 2.8, 1.6, 6, 0.32, 137.0, 241.0);
+    float i1 = d1 * cloudWindow * 0.35;
+    vec3 col1 = vec3(230.0, 100.0, 140.0) / 255.0;
+    base = mix(base, col1, i1);
+
+    // Layer 2: orange (3x speed)
+    float d2 = cloudDensity(uv, cloudTime, baseSpeed * 3.0, 3.8, 2.2, 6, 0.32, 274.0, 482.0);
+    float i2 = d2 * cloudWindow * 0.35;
+    vec3 col2 = vec3(235.0, 150.0, 50.0) / 255.0;
+    base = mix(base, col2, i2);
+
+    // Layer 3: yellow, foreground (4x speed)
+    float d3 = cloudDensity(uv, cloudTime, baseSpeed * 4.0, 5.0, 3.0, 6, 0.32, 411.0, 723.0);
+    float i3 = d3 * cloudWindow * 0.35;
+    vec3 col3 = vec3(250.0, 220.0, 60.0) / 255.0;
+    base = mix(base, col3, i3);
+
+    gl_FragColor = vec4(base, 1.0);
+  }
+`;
+
+function createShader(gl: WebGLRenderingContext, type: number, source: string) {
+  const shader = gl.createShader(type);
+  if (!shader) return null;
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
+  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    console.error("Shader compile error:", gl.getShaderInfoLog(shader));
+    gl.deleteShader(shader);
+    return null;
+  }
+  return shader;
 }
 
 interface CloudCanvasProps {
   invert?: boolean;
+}
+
+function parseHex(hex: string) {
+  return [
+    parseInt(hex.slice(1, 3), 16) / 255,
+    parseInt(hex.slice(3, 5), 16) / 255,
+    parseInt(hex.slice(5, 7), 16) / 255,
+  ];
 }
 
 export function CloudCanvas({ invert = false }: CloudCanvasProps) {
@@ -28,43 +140,70 @@ export function CloudCanvas({ invert = false }: CloudCanvasProps) {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    const gl = canvas.getContext("webgl", { antialias: false, alpha: false });
+    if (!gl) return;
 
-    let api: GardenMathApi | null = null;
     let raf: number;
     let visible = true;
     const startTime = performance.now();
 
-    const SCALE = 4;
-
     const style = getComputedStyle(canvas);
-    const [whiteR, whiteG, whiteB] = parseHex(
+    const whiteColor = parseHex(
       style.getPropertyValue("--white").trim() || "#f5f4f0",
     );
-    const [blackR, blackG, blackB] = parseHex(
+    const blackColor = parseHex(
       style.getPropertyValue("--black").trim() || "#1a1a14",
     );
 
-    const [topR, topG, topB] = invert
-      ? [blackR, blackG, blackB]
-      : [whiteR, whiteG, whiteB];
-    const [botR, botG, botB] = invert
-      ? [whiteR, whiteG, whiteB]
-      : [blackR, blackG, blackB];
+    const topColor = invert ? blackColor : whiteColor;
+    const botColor = invert ? whiteColor : blackColor;
+
+    // Compile shaders & link program
+    const vert = createShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER);
+    const frag = createShader(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER);
+    if (!vert || !frag) return;
+
+    const program = gl.createProgram()!;
+    gl.attachShader(program, vert);
+    gl.attachShader(program, frag);
+    gl.linkProgram(program);
+
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      console.error("Program link error:", gl.getProgramInfoLog(program));
+      return;
+    }
+
+    gl.useProgram(program);
+
+    // Full-screen quad
+    const quad = new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]);
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, quad, gl.STATIC_DRAW);
+
+    const aPosition = gl.getAttribLocation(program, "aPosition");
+    gl.enableVertexAttribArray(aPosition);
+    gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0);
+
+    // Uniforms
+    const uTime = gl.getUniformLocation(program, "uTime");
+    const uInvert = gl.getUniformLocation(program, "uInvert");
+    const uTopColor = gl.getUniformLocation(program, "uTopColor");
+    const uBotColor = gl.getUniformLocation(program, "uBotColor");
+
+    gl.uniform1f(uInvert, invert ? 1.0 : 0.0);
+    gl.uniform3fv(uTopColor, topColor);
+    gl.uniform3fv(uBotColor, botColor);
 
     function resize() {
       if (!canvas) return;
-      canvas.width = Math.ceil(canvas.offsetWidth / SCALE);
-      canvas.height = Math.ceil(canvas.offsetHeight / SCALE);
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+      gl!.viewport(0, 0, canvas.width, canvas.height);
     }
 
     resize();
     window.addEventListener("resize", resize);
-
-    loadGardenMathApi().then((a) => {
-      api = a;
-    });
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -76,55 +215,11 @@ export function CloudCanvas({ invert = false }: CloudCanvasProps) {
 
     function render(now: number) {
       raf = requestAnimationFrame(render);
+      if (!visible) return;
 
-      if (!visible || !canvas || !ctx) return;
-
-      const w = canvas.width;
-      const h = canvas.height;
       const time = (now - startTime) / 1000;
-      const cloudTime = invert ? -time : time;
-
-      const imageData = ctx.createImageData(w, h);
-      const data = imageData.data;
-
-      for (let y = 0; y < h; y++) {
-        const fade = y / h;
-        const easedFade = invert ? 1 - (1 - fade) * (1 - fade) : fade * fade;
-
-        const baseR = topR + (botR - topR) * easedFade;
-        const baseG = topG + (botG - topG) * easedFade;
-        const baseB = topB + (botB - topB) * easedFade;
-
-        const cloudWindow = Math.sin(fade * Math.PI);
-        const ny = y / h;
-
-        for (let x = 0; x < w; x++) {
-          const nx = x / w;
-
-          let r = baseR;
-          let g = baseG;
-          let b = baseB;
-
-          if (api) {
-            for (const layer of LAYERS) {
-              const density = api.cloud_density(nx, ny, cloudTime, layer.id);
-              const influence = density * cloudWindow * layer.opacity;
-
-              r += (layer.color[0] - r) * influence;
-              g += (layer.color[1] - g) * influence;
-              b += (layer.color[2] - b) * influence;
-            }
-          }
-
-          const i = (y * w + x) * 4;
-          data[i] = r;
-          data[i + 1] = g;
-          data[i + 2] = b;
-          data[i + 3] = 255;
-        }
-      }
-
-      ctx.putImageData(imageData, 0, 0);
+      gl!.uniform1f(uTime, time);
+      gl!.drawArrays(gl!.TRIANGLE_STRIP, 0, 4);
     }
 
     raf = requestAnimationFrame(render);
@@ -133,6 +228,10 @@ export function CloudCanvas({ invert = false }: CloudCanvasProps) {
       cancelAnimationFrame(raf);
       observer.disconnect();
       window.removeEventListener("resize", resize);
+      gl.deleteProgram(program);
+      gl.deleteShader(vert);
+      gl.deleteShader(frag);
+      gl.deleteBuffer(buf);
     };
   }, [invert]);
 
@@ -140,7 +239,6 @@ export function CloudCanvas({ invert = false }: CloudCanvasProps) {
     <canvas
       ref={canvasRef}
       className="absolute inset-0 h-full w-full"
-      style={{ imageRendering: "auto" }}
     />
   );
 }
