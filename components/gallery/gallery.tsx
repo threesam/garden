@@ -50,7 +50,8 @@ export function Gallery() {
       lastRef.current = now;
 
       // Smooth speed transitions
-      speedRef.current += (targetSpeedRef.current - speedRef.current) * 0.02;
+      const lerpRate = targetSpeedRef.current === 0 ? 0.1 : 0.02;
+      speedRef.current += (targetSpeedRef.current - speedRef.current) * lerpRate;
       if (Math.abs(speedRef.current) < 0.1) speedRef.current = 0;
 
       const drag = dragRef.current;
@@ -133,7 +134,7 @@ export function Gallery() {
   return (
     <section
       className="w-full cursor-grab overflow-hidden active:cursor-grabbing"
-      style={{ touchAction: "none" }}
+      style={{ touchAction: "none", paddingTop: CARD_GAP, paddingBottom: CARD_GAP }}
     >
       <div
         ref={stripRef}
@@ -155,27 +156,27 @@ export function Gallery() {
                 e.preventDefault();
                 window.location.href = `/canvas/${item.handle}`;
               }}
-              className="group relative shrink-0 rounded-2xl transition-colors duration-300"
+              className="group relative shrink-0 rounded-2xl transition-all duration-300"
               style={{
                 width: CARD_W,
                 height: CARD_W * (5 / 4),
                 backgroundColor: "var(--black)",
-                border: "1.5px solid transparent",
+                border: "3px solid var(--black)",
                 display: "block",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "var(--coin)";
-                e.currentTarget.style.borderColor = "var(--black)";
-                (e.currentTarget.firstElementChild as HTMLElement).style.color = "var(--black)";
+                e.currentTarget.style.borderColor = "var(--coin)";
+                e.currentTarget.style.transform = "rotate(-1.3deg)";
+                (e.currentTarget.firstElementChild as HTMLElement).style.color = "var(--coin)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "var(--black)";
-                e.currentTarget.style.borderColor = "transparent";
+                e.currentTarget.style.borderColor = "var(--black)";
+                e.currentTarget.style.transform = "rotate(0deg)";
                 (e.currentTarget.firstElementChild as HTMLElement).style.color = "var(--white)";
               }}
             >
               <span
-                className="absolute bottom-4 left-4 font-mono text-[10px] font-bold tracking-[0.3em] transition-colors duration-300"
+                className="absolute bottom-4 left-4 font-mono text-sm font-bold tracking-[0.3em] transition-colors duration-300"
                 style={{ color: "var(--white)" }}
               >
                 {item.label}
@@ -189,11 +190,11 @@ export function Gallery() {
                 width: CARD_W,
                 height: CARD_W * (5 / 4),
                 backgroundColor: "var(--black)",
-                border: "1.5px solid transparent",
+                border: "3px solid var(--black)",
               }}
             >
               <span
-                className="absolute bottom-4 left-4 font-mono text-[10px] font-bold tracking-[0.3em]"
+                className="absolute bottom-4 left-4 font-mono text-sm font-bold tracking-[0.3em]"
                 style={{ color: "var(--white)" }}
               >
                 {item.label}
