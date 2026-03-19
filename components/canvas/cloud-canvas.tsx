@@ -4,8 +4,9 @@ import { useEffect, useRef } from "react";
 import { loadGardenMathApi, type GardenMathApi } from "@/lib/wasm/garden-math";
 
 const LAYERS = [
-  { id: 0, opacity: 0.2 },
-  { id: 2, opacity: 0.4 },
+  { id: 0, opacity: 0.3, color: [230, 100, 140] },   // pink
+  { id: 1, opacity: 0.4, color: [235, 150, 50] },    // orange
+  { id: 2, opacity: 0.5, color: [250, 220, 60] },    // yellow
 ] as const;
 
 function parseHex(hex: string) {
@@ -35,7 +36,7 @@ export function CloudCanvas({ invert = false }: CloudCanvasProps) {
     let visible = true;
     const startTime = performance.now();
 
-    const SCALE = 14;
+    const SCALE = 4;
 
     const style = getComputedStyle(canvas);
     const [whiteR, whiteG, whiteB] = parseHex(
@@ -51,7 +52,6 @@ export function CloudCanvas({ invert = false }: CloudCanvasProps) {
     const [botR, botG, botB] = invert
       ? [whiteR, whiteG, whiteB]
       : [blackR, blackG, blackB];
-    const [cloudR, cloudG, cloudB] = [whiteR, whiteG, whiteB];
 
     function resize() {
       if (!canvas) return;
@@ -110,9 +110,9 @@ export function CloudCanvas({ invert = false }: CloudCanvasProps) {
               const density = api.cloud_density(nx, ny, cloudTime, layer.id);
               const influence = density * cloudWindow * layer.opacity;
 
-              r += (cloudR - r) * influence;
-              g += (cloudG - g) * influence;
-              b += (cloudB - b) * influence;
+              r += (layer.color[0] - r) * influence;
+              g += (layer.color[1] - g) * influence;
+              b += (layer.color[2] - b) * influence;
             }
           }
 
@@ -140,7 +140,7 @@ export function CloudCanvas({ invert = false }: CloudCanvasProps) {
     <canvas
       ref={canvasRef}
       className="absolute inset-0 h-full w-full"
-      style={{ imageRendering: "pixelated" }}
+      style={{ imageRendering: "auto" }}
     />
   );
 }

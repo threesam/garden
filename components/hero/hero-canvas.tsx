@@ -211,7 +211,7 @@ export default function HeroCanvas() {
     renderer.setSize(container.clientWidth, container.clientHeight);
     container.appendChild(renderer.domElement);
 
-    const particleCount = 40000;
+    const particleCount = 12000;
     const positions = new Float32Array(particleCount * 3);
     const seeds = new Float32Array(particleCount);
 

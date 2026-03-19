@@ -57,11 +57,11 @@ pub extern "C" fn cloud_density(x: f32, y: f32, time: f32, layer: u32) -> f32 {
     // Per-layer config: (speed, scale, y_scale, octaves, threshold, seed_offset)
     let (speed, scale, y_scale, octaves, threshold) = match layer {
         // Background: large, slow, soft
-        0 => (0.012, 2.5, 1.5, 6, 0.32),
+        0 => (0.02, 2.5, 1.5, 6, 0.32),
         // Middleground: medium
-        1 => (0.025, 3.5, 2.0, 5, 0.36),
+        1 => (0.08, 3.5, 2.0, 5, 0.36),
         // Foreground: smaller detail, fastest
-        _ => (0.045, 5.0, 3.0, 4, 0.40),
+        _ => (0.28, 5.0, 3.0, 4, 0.40),
     };
 
     // Seed offset so layers don't overlap

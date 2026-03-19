@@ -19,7 +19,7 @@ const jsFallback: GardenMathApi = {
     return (waveA + waveB) * (0.35 + audioLevel * 0.5);
   },
   cloud_density: (x, y, time, _layer) => {
-    const drift = time * 0.03;
+    const drift = time * 0.10;
     const n = Math.sin(x * 3 + drift) * Math.cos(y * 2) * 0.5 + 0.5;
     return Math.max(0, (n - 0.35) * 3.5) ** 2;
   },
