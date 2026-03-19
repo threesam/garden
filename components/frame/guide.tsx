@@ -13,6 +13,7 @@ const LINKS = [
 export function Guide() {
   const [open, setOpen] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const [navHover, setNavHover] = useState(false);
   const lockedRef = useRef(false);
   const coinRef = useRef<HTMLDivElement>(null);
 
@@ -135,12 +136,19 @@ export function Guide() {
 
       {/* Menu overlay */}
       <nav
-        className={`fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md transition-opacity duration-300 ${open ? "opacity-100" : "pointer-events-none opacity-0"}`}
-        style={{ backgroundColor: "var(--coin)" }}
+        className={`fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md transition-all duration-300 ${open ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        style={{ backgroundColor: navHover ? "var(--white)" : "var(--coin)" }}
       >
-        <span className="font-mono text-2xl font-bold tracking-[0.3em]" style={{ color: "var(--black)" }}>
+        <Link
+          href="/"
+          onClick={() => setOpen(false)}
+          onMouseEnter={() => setNavHover(true)}
+          onMouseLeave={() => setNavHover(false)}
+          className="font-mono text-2xl font-bold tracking-[0.3em]"
+          style={{ color: "var(--black)" }}
+        >
           THREESAM
-        </span>
+        </Link>
       </nav>
     </>
   );

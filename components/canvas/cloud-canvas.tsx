@@ -4,9 +4,8 @@ import { useEffect, useRef } from "react";
 import { loadGardenMathApi, type GardenMathApi } from "@/lib/wasm/garden-math";
 
 const LAYERS = [
-  { id: 0, opacity: 0.15 },
-  { id: 1, opacity: 0.25 },
-  { id: 2, opacity: 0.40 },
+  { id: 0, opacity: 0.2 },
+  { id: 2, opacity: 0.4 },
 ] as const;
 
 function parseHex(hex: string) {
@@ -18,7 +17,6 @@ function parseHex(hex: string) {
 }
 
 interface CloudCanvasProps {
-  /** false = white→black (anchor), true = black→white (hero) */
   invert?: boolean;
 }
 
@@ -34,9 +32,26 @@ export function CloudCanvas({ invert = false }: CloudCanvasProps) {
 
     let api: GardenMathApi | null = null;
     let raf: number;
+    let visible = true;
     const startTime = performance.now();
 
-    const SCALE = 8;
+    const SCALE = 14;
+
+    const style = getComputedStyle(canvas);
+    const [whiteR, whiteG, whiteB] = parseHex(
+      style.getPropertyValue("--white").trim() || "#f5f4f0",
+    );
+    const [blackR, blackG, blackB] = parseHex(
+      style.getPropertyValue("--black").trim() || "#1a1a14",
+    );
+
+    const [topR, topG, topB] = invert
+      ? [blackR, blackG, blackB]
+      : [whiteR, whiteG, whiteB];
+    const [botR, botG, botB] = invert
+      ? [whiteR, whiteG, whiteB]
+      : [blackR, blackG, blackB];
+    const [cloudR, cloudG, cloudB] = [whiteR, whiteG, whiteB];
 
     function resize() {
       if (!canvas) return;
@@ -51,33 +66,26 @@ export function CloudCanvas({ invert = false }: CloudCanvasProps) {
       api = a;
     });
 
-    function render() {
-      if (!canvas || !ctx) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        visible = entry.isIntersecting;
+      },
+      { threshold: 0 },
+    );
+    observer.observe(canvas);
+
+    function render(now: number) {
+      raf = requestAnimationFrame(render);
+
+      if (!visible || !canvas || !ctx) return;
+
       const w = canvas.width;
       const h = canvas.height;
-      const time = (performance.now() - startTime) / 1000;
+      const time = (now - startTime) / 1000;
+      const cloudTime = invert ? time : -time;
 
       const imageData = ctx.createImageData(w, h);
       const data = imageData.data;
-
-      const style = getComputedStyle(canvas);
-      const [whiteR, whiteG, whiteB] = parseHex(
-        style.getPropertyValue("--white").trim() || "#f5f4f0",
-      );
-      const [blackR, blackG, blackB] = parseHex(
-        style.getPropertyValue("--black").trim() || "#1a1a14",
-      );
-
-      // Top and bottom colors depend on direction
-      const [topR, topG, topB] = invert
-        ? [blackR, blackG, blackB]
-        : [whiteR, whiteG, whiteB];
-      const [botR, botG, botB] = invert
-        ? [whiteR, whiteG, whiteB]
-        : [blackR, blackG, blackB];
-
-      // Cloud color: always lighter (toward white)
-      const [cloudR, cloudG, cloudB] = [whiteR, whiteG, whiteB];
 
       for (let y = 0; y < h; y++) {
         const fade = y / h;
@@ -88,10 +96,10 @@ export function CloudCanvas({ invert = false }: CloudCanvasProps) {
         const baseB = topB + (botB - topB) * easedFade;
 
         const cloudWindow = Math.sin(fade * Math.PI);
+        const ny = y / h;
 
         for (let x = 0; x < w; x++) {
           const nx = x / w;
-          const ny = y / h;
 
           let r = baseR;
           let g = baseG;
@@ -99,7 +107,7 @@ export function CloudCanvas({ invert = false }: CloudCanvasProps) {
 
           if (api) {
             for (const layer of LAYERS) {
-              const density = api.cloud_density(nx, ny, time, layer.id);
+              const density = api.cloud_density(nx, ny, cloudTime, layer.id);
               const influence = density * cloudWindow * layer.opacity;
 
               r += (cloudR - r) * influence;
@@ -117,13 +125,13 @@ export function CloudCanvas({ invert = false }: CloudCanvasProps) {
       }
 
       ctx.putImageData(imageData, 0, 0);
-      raf = requestAnimationFrame(render);
     }
 
     raf = requestAnimationFrame(render);
 
     return () => {
       cancelAnimationFrame(raf);
+      observer.disconnect();
       window.removeEventListener("resize", resize);
     };
   }, [invert]);

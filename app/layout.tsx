@@ -30,9 +30,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Guide />
-        {children}
-        <Anchor />
+        <div style={{ background: "var(--white)" }}>
+          <Guide />
+          {children}
+          <Anchor />
+        </div>
       </body>
     </html>
   );

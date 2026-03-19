@@ -1,23 +1,13 @@
-import { Canvas } from "@/components/canvas/canvas";
-import { Mood } from "@/components/canvas/mood";
-import { Thoughts } from "@/components/canvas/thoughts";
-import { Breakout } from "@/components/canvas/breakout";
 import { CloudCanvas } from "@/components/canvas/cloud-canvas";
+import { Gallery } from "@/components/gallery/gallery";
 
 export default function Home() {
   return (
-    <Canvas>
-      <Mood title="garden">
+    <>
+      <section className="relative h-[50vh] w-full overflow-hidden">
         <CloudCanvas invert />
-      </Mood>
-
-      <Thoughts>
-        <p>placeholder.</p>
-
-        <Breakout>this is where it starts.</Breakout>
-
-        <p>placeholder.</p>
-      </Thoughts>
-    </Canvas>
+      </section>
+      <Gallery />
+    </>
   );
 }
