@@ -156,7 +156,7 @@ export function Gallery() {
                 e.preventDefault();
                 window.location.href = `/canvas/${item.handle}`;
               }}
-              className="group relative shrink-0 rounded-2xl transition-all duration-300"
+              className="group relative shrink-0 rounded-2xl transition-all duration-700"
               style={{
                 width: CARD_W,
                 height: CARD_W * (5 / 4),
@@ -170,6 +170,16 @@ export function Gallery() {
                 (e.currentTarget.firstElementChild as HTMLElement).style.color = "var(--coin)";
               }}
               onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "var(--black)";
+                e.currentTarget.style.transform = "rotate(0deg)";
+                (e.currentTarget.firstElementChild as HTMLElement).style.color = "var(--white)";
+              }}
+              onTouchStart={(e) => {
+                e.currentTarget.style.borderColor = "var(--coin)";
+                e.currentTarget.style.transform = "rotate(-1.3deg)";
+                (e.currentTarget.firstElementChild as HTMLElement).style.color = "var(--coin)";
+              }}
+              onTouchEnd={(e) => {
                 e.currentTarget.style.borderColor = "var(--black)";
                 e.currentTarget.style.transform = "rotate(0deg)";
                 (e.currentTarget.firstElementChild as HTMLElement).style.color = "var(--white)";
