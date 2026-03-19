@@ -82,7 +82,7 @@ export function CloudCanvas({ invert = false }: CloudCanvasProps) {
       const w = canvas.width;
       const h = canvas.height;
       const time = (now - startTime) / 1000;
-      const cloudTime = invert ? time : -time;
+      const cloudTime = invert ? -time : time;
 
       const imageData = ctx.createImageData(w, h);
       const data = imageData.data;
