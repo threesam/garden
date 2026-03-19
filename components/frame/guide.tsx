@@ -13,15 +13,29 @@ const LINKS = [
 export function Guide() {
   const [open, setOpen] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const lockedRef = useRef(false);
   const coinRef = useRef<HTMLDivElement>(null);
 
   return (
     <>
       {/* Coin — fixed top-right */}
       <button
-        onClick={() => setOpen((o) => !o)}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
+        onClick={() => {
+          setOpen((o) => {
+            if (o) {
+              setHovered(false);
+              lockedRef.current = true;
+            }
+            return !o;
+          });
+        }}
+        onMouseEnter={() => {
+          if (!lockedRef.current) setHovered(true);
+        }}
+        onMouseLeave={() => {
+          setHovered(false);
+          lockedRef.current = false;
+        }}
         aria-label="Menu"
         style={{
           border: "0",
@@ -41,29 +55,19 @@ export function Guide() {
             width: 40,
             height: 40,
             borderRadius: "50%",
-            backgroundColor: "#e8a317",
+            backgroundColor: "var(--coin)",
+            boxShadow: "inset 0 0 0 1.5px var(--black)",
             transformStyle: "preserve-3d",
-            transform: hovered
-              ? "perspective(300px) rotateX(-25deg)"
-              : "perspective(300px) rotateX(0deg)",
-            transition: "transform 500ms ease-out",
+            transform: open
+              ? "rotateY(180deg) rotate(45deg)"
+              : hovered
+                ? "rotateY(180deg)"
+                : "rotateY(0deg)",
+            transition: "transform 300ms ease-in-out",
             position: "relative",
           }}
         >
-          {/* Coin edge (visible on tilt) */}
-          <div
-            style={{
-              position: "absolute",
-              left: 0,
-              right: 0,
-              bottom: -3,
-              height: 4,
-              backgroundColor: "#b8800d",
-              borderRadius: "0 0 20px 20px",
-              transformOrigin: "top",
-            }}
-          />
-          {/* Hamburger lines */}
+          {/* Front face — hamburger */}
           <span
             style={{
               position: "absolute",
@@ -72,6 +76,7 @@ export function Guide() {
               width: 14,
               display: "block",
               transform: "translate(-50%, -50%)",
+              backfaceVisibility: "hidden",
             }}
           >
             <span
@@ -79,11 +84,8 @@ export function Guide() {
                 display: "block",
                 height: 1,
                 width: "100%",
-                backgroundColor: "rgba(90, 50, 0, 0.6)",
-                transition: "all 300ms",
-                transform: open
-                  ? "translateY(0.5px) rotate(45deg)"
-                  : "translateY(-3px)",
+                backgroundColor: "var(--black)",
+                transform: "translateY(-3px)",
               }}
             />
             <span
@@ -91,11 +93,40 @@ export function Guide() {
                 display: "block",
                 height: 1,
                 width: "100%",
-                backgroundColor: "rgba(90, 50, 0, 0.6)",
-                transition: "all 300ms",
-                transform: open
-                  ? "translateY(-0.5px) rotate(-45deg)"
-                  : "translateY(3px)",
+                backgroundColor: "var(--black)",
+                transform: "translateY(3px)",
+              }}
+            />
+          </span>
+          {/* Back face — plus */}
+          <span
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "50%",
+              width: 14,
+              display: "block",
+              transform: "translate(-50%, -50%) rotateY(180deg)",
+              backfaceVisibility: "hidden",
+            }}
+          >
+            <span
+              style={{
+                display: "block",
+                height: 1,
+                width: "100%",
+                backgroundColor: "var(--black)",
+              }}
+            />
+            <span
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                height: 14,
+                width: 1,
+                backgroundColor: "var(--black)",
+                transform: "translate(-50%, -50%)",
               }}
             />
           </span>
@@ -104,21 +135,12 @@ export function Guide() {
 
       {/* Menu overlay */}
       <nav
-        className={`fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-md transition-opacity duration-300 ${open ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md transition-opacity duration-300 ${open ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        style={{ backgroundColor: "var(--coin)" }}
       >
-        <ul className="flex flex-col items-center gap-8">
-          {LINKS.map((link) => (
-            <li key={link.href}>
-              <Link
-                href={link.href}
-                onClick={() => setOpen(false)}
-                className="font-mono text-sm tracking-[0.25em] text-foreground/50 transition hover:text-foreground"
-              >
-                {link.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <span className="font-mono text-2xl font-bold tracking-[0.3em]" style={{ color: "var(--black)" }}>
+          THREESAM
+        </span>
       </nav>
     </>
   );
