@@ -1,11 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0f0806;
-  --foreground: #f4e9dc;
-  --muted: #b79b85;
-  --panel: rgba(28, 16, 12, 0.72);
-  --border: rgba(255, 207, 170, 0.2);
+  --white: #f5f4f0;
+  --black: #1a1a14;
+  --background: var(--white);
+  --foreground: #1c1c18;
+  --muted: #7a7568;
+  --panel: rgba(245, 244, 240, 0.72);
+  --border: rgba(28, 28, 24, 0.1);
 }
 
 @theme inline {
@@ -13,6 +15,8 @@
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-panel: var(--panel);
+  --color-white: var(--white);
+  --color-black: var(--black);
   --color-border: var(--border);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);

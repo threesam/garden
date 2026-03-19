@@ -5,8 +5,11 @@ type WaveFunction = (
   audioLevel: number,
 ) => number;
 
+type CloudFunction = (x: number, y: number, time: number, layer: number) => number;
+
 export interface GardenMathApi {
   wave: WaveFunction;
+  cloud_density: CloudFunction;
 }
 
 const jsFallback: GardenMathApi = {
@@ -14,6 +17,11 @@ const jsFallback: GardenMathApi = {
     const waveA = Math.sin(x * 1.7 + time * 0.7);
     const waveB = Math.cos(y * 1.9 - time * 0.55);
     return (waveA + waveB) * (0.35 + audioLevel * 0.5);
+  },
+  cloud_density: (x, y, time, _layer) => {
+    const drift = time * 0.03;
+    const n = Math.sin(x * 3 + drift) * Math.cos(y * 2) * 0.5 + 0.5;
+    return Math.max(0, (n - 0.35) * 3.5) ** 2;
   },
 };
 
@@ -31,14 +39,17 @@ async function loadWasmApi(): Promise<GardenMathApi> {
   const { instance } = await WebAssembly.instantiate(bytes, {});
   const wasmExports = instance.exports as Record<string, unknown>;
   const wave = wasmExports.wave;
+  const cloud_density = wasmExports.cloud_density;
 
-  if (typeof wave !== "function") {
-    throw new Error("WASM export `wave` missing");
+  if (typeof wave !== "function" || typeof cloud_density !== "function") {
+    throw new Error("WASM exports missing");
   }
 
   return {
     wave: (x, y, time, audioLevel) =>
       Number((wave as CallableFunction)(x, y, time, audioLevel)),
+    cloud_density: (x, y, time, layer) =>
+      Number((cloud_density as CallableFunction)(x, y, time, layer)),
   };
 }
 
