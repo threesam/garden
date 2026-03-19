@@ -11,7 +11,7 @@ export function Nav() {
     <nav className="fixed top-0 right-0 z-50 flex items-center gap-1 p-4 md:gap-2 md:p-6">
       <Link
         href="/"
-        className="mr-2 font-mono text-xs tracking-[0.16em] text-zinc-300 transition hover:text-zinc-100 md:mr-4 md:text-sm"
+        className="mr-2 font-mono text-xs tracking-[0.16em] text-zinc-300 transition-transform duration-300 hover:scale-110 hover:duration-[4000ms] hover:ease-out md:mr-4 md:text-sm"
       >
         threesam
       </Link>
@@ -19,7 +19,7 @@ export function Nav() {
         <Link
           key={link.href}
           href={link.href}
-          className="rounded-full px-2.5 py-1 font-mono text-[10px] tracking-[0.16em] text-zinc-400 transition hover:bg-white/10 hover:text-zinc-100 md:text-xs"
+          className="rounded-full px-2.5 py-1 font-mono text-[10px] tracking-[0.16em] text-zinc-400 transition-transform duration-300 hover:scale-110 hover:duration-[4000ms] hover:ease-out md:text-xs"
         >
           {link.label}
         </Link>
@@ -28,7 +28,7 @@ export function Nav() {
         href="https://sixtom.com"
         target="_blank"
         rel="noopener noreferrer"
-        className="rounded-full px-2.5 py-1 font-mono text-[10px] tracking-[0.16em] text-zinc-400 transition hover:bg-white/10 hover:text-zinc-100 md:text-xs"
+        className="rounded-full px-2.5 py-1 font-mono text-[10px] tracking-[0.16em] text-zinc-400 transition-transform duration-300 hover:scale-110 hover:duration-[4000ms] hover:ease-out md:text-xs"
       >
         studio ↗
       </a>
