@@ -24,14 +24,18 @@ export default async function CanvasPage({ params }: Props) {
         ) : (
           <CloudCanvas invert />
         )}
-        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-          <span
-            className="font-mono text-2xl font-bold tracking-[0.3em]"
-            style={{ color: "var(--black)" }}
-          >
-            {handle.toUpperCase()}
-          </span>
-        </div>
+      </div>
+
+      <div
+        className="w-full px-6 py-4 text-center md:px-8 md:py-5"
+        style={{ backgroundColor: "var(--black)" }}
+      >
+        <h1
+          className="font-mono text-2xl font-bold tracking-[0.3em]"
+          style={{ color: "var(--white)" }}
+        >
+          {handle.toUpperCase()}
+        </h1>
       </div>
 
       {markdown && (

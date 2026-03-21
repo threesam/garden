@@ -69,32 +69,40 @@ const FRAGMENT_SHADER = `
     vec2 uv = vec2(vUv.x, 1.0 - vUv.y);
     float aspect = uResolution.x / uResolution.y;
 
-    vec2 p = vec2(uv.x * aspect, uv.y) * 7.0;
-    vec2 mouse = vec2(uMouse.x * aspect, uMouse.y) * 7.0;
+    vec2 p = vec2(uv.x * aspect, uv.y) * 4.0;
+    vec2 mouse = vec2(uMouse.x * aspect, uMouse.y) * 4.0;
 
     vec3 v1 = voronoi(p, mouse, uInfluence);
 
-    float edge1 = smoothstep(0.0, 0.08, v1.y - v1.x);
-    float cell1 = smoothstep(0.0, 0.6, v1.x);
+    float edge = smoothstep(0.0, 0.05, v1.y - v1.x);
+    float f1 = v1.x;
+    float f2 = v1.y;
 
-    // Monochromatic
-    vec3 light = uInvert > 0.5 ? uBotColor : uTopColor;
-    vec3 dark = uInvert > 0.5 ? uTopColor : uBotColor;
-    vec3 cellColor = mix(dark, light, cell1);
-    vec3 layer1 = mix(cellColor * 0.7, cellColor, edge1);
+    // Mirror surface
+    vec3 white = uInvert > 0.5 ? uBotColor : uTopColor;
+    vec3 shadow = vec3(0.75, 0.75, 0.77);
+    vec3 silver = mix(shadow, white, 0.5);
+    vec3 highlight = white;
 
-    // Background gradient
-    float fade = uv.y;
-    float easedFade = uInvert > 0.5
-      ? 1.0 - (1.0 - fade) * (1.0 - fade)
-      : fade * fade;
-    vec3 base = mix(uTopColor, uBotColor, easedFade);
+    // Fake environment reflection — bands based on cell normal
+    float envAngle = atan(f2 - f1, f1) + uv.y * 3.0;
+    float envReflect = smoothstep(-0.1, 0.1, sin(envAngle * 4.0));
 
-    float window = sin(fade * 3.14159265);
-    base = mix(base, layer1, window * 0.4);
+    // Specular — bright spot near cell center
+    float spec = pow(max(0.0, 1.0 - f1 * 3.0), 6.0);
 
-    float edgeLine = (1.0 - edge1) * 0.15;
-    base -= edgeLine * window;
+    // Fresnel — edges brighter (grazing angle)
+    float fresnel = pow(1.0 - edge, 2.0);
+
+    // Build mirror surface
+    vec3 base = mix(shadow, silver, edge);
+    base = mix(base, highlight, envReflect * 0.4);
+    base += spec * highlight * 0.5;
+    base += fresnel * silver * 0.2;
+
+    // Sharp dark edge lines between cells
+    float edgeLine = 1.0 - smoothstep(0.0, 0.03, f2 - f1);
+    base = mix(base, shadow * 0.5, edgeLine * 0.8);
 
     gl_FragColor = vec4(base, 1.0);
   }
