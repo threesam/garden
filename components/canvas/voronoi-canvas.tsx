@@ -14,9 +14,10 @@ const VERTEX_SHADER = `
 const FRAGMENT_SHADER = `
   precision highp float;
 
-  uniform float uTime;
   uniform float uInvert;
+  uniform float uInfluence;
   uniform vec2 uResolution;
+  uniform vec2 uMouse;
   uniform vec3 uTopColor;
   uniform vec3 uBotColor;
 
@@ -28,8 +29,7 @@ const FRAGMENT_SHADER = `
     return fract(sin(p) * 43758.5453123);
   }
 
-  // Returns (F1 distance, F2 distance, cell id)
-  vec3 voronoi(vec2 p) {
+  vec3 voronoi(vec2 p, vec2 mouse, float influence) {
     vec2 ip = floor(p);
     vec2 fp = fract(p);
 
@@ -41,8 +41,14 @@ const FRAGMENT_SHADER = `
       for (int x = -1; x <= 1; x++) {
         vec2 neighbor = vec2(float(x), float(y));
         vec2 o = hash2(ip + neighbor);
-        // Animate cell centers
-        o = 0.5 + 0.4 * sin(uTime * 0.4 + 6.2831 * o);
+
+        // Static cell centers — gently push away from mouse
+        vec2 cellWorld = ip + neighbor + o;
+        vec2 toMouse = cellWorld - mouse;
+        float mouseDist = length(toMouse);
+        float push = influence * smoothstep(5.0, 0.0, mouseDist) * 0.2;
+        o += normalize(toMouse + 0.001) * push;
+
         vec2 diff = neighbor + o - fp;
         float dist = length(diff);
 
@@ -63,20 +69,19 @@ const FRAGMENT_SHADER = `
     vec2 uv = vec2(vUv.x, 1.0 - vUv.y);
     float aspect = uResolution.x / uResolution.y;
 
-    // Scale UV for voronoi — more cells horizontally
-    vec2 p = vec2(uv.x * aspect, uv.y) * 5.0;
+    vec2 p = vec2(uv.x * aspect, uv.y) * 7.0;
+    vec2 mouse = vec2(uMouse.x * aspect, uMouse.y) * 7.0;
 
-    // Two layers at different scales for depth
-    vec3 v1 = voronoi(p);
-    vec3 v2 = voronoi(p * 2.0 + 50.0);
+    vec3 v1 = voronoi(p, mouse, uInfluence);
 
-    // Edge detection from F2 - F1
     float edge1 = smoothstep(0.0, 0.08, v1.y - v1.x);
-    float edge2 = smoothstep(0.0, 0.06, v2.y - v2.x);
-
-    // Cell shading from F1
     float cell1 = smoothstep(0.0, 0.6, v1.x);
-    float cell2 = smoothstep(0.0, 0.5, v2.x);
+
+    // Monochromatic
+    vec3 light = uInvert > 0.5 ? uBotColor : uTopColor;
+    vec3 dark = uInvert > 0.5 ? uTopColor : uBotColor;
+    vec3 cellColor = mix(dark, light, cell1);
+    vec3 layer1 = mix(cellColor * 0.7, cellColor, edge1);
 
     // Background gradient
     float fade = uv.y;
@@ -85,29 +90,10 @@ const FRAGMENT_SHADER = `
       : fade * fade;
     vec3 base = mix(uTopColor, uBotColor, easedFade);
 
-    // Color palette
-    vec3 warm1 = vec3(200.0, 60.0, 80.0) / 255.0;   // red-pink
-    vec3 warm2 = vec3(230.0, 130.0, 60.0) / 255.0;   // orange
-    vec3 warm3 = vec3(245.0, 210.0, 70.0) / 255.0;   // yellow
-
-    // Color cells by their id
-    float hue1 = fract(v1.z * 0.0671);
-    vec3 cellColor1 = mix(warm1, mix(warm2, warm3, smoothstep(0.3, 0.7, hue1)), smoothstep(0.0, 0.3, hue1));
-
-    float hue2 = fract(v2.z * 0.0671);
-    vec3 cellColor2 = mix(warm1, mix(warm2, warm3, smoothstep(0.3, 0.7, hue2)), smoothstep(0.0, 0.3, hue2));
-
-    // Compose: cells tinted, edges dark
-    vec3 layer1 = mix(cellColor1 * 0.3, cellColor1, edge1) * (0.6 + cell1 * 0.4);
-    vec3 layer2 = mix(cellColor2 * 0.3, cellColor2, edge2) * (0.6 + cell2 * 0.4);
-
-    // Blend layers onto background
     float window = sin(fade * 3.14159265);
     base = mix(base, layer1, window * 0.4);
-    base = mix(base, layer2, window * 0.2);
 
-    // Subtle edge lines
-    float edgeLine = (1.0 - edge1) * 0.15 + (1.0 - edge2) * 0.08;
+    float edgeLine = (1.0 - edge1) * 0.15;
     base -= edgeLine * window;
 
     gl_FragColor = vec4(base, 1.0);
@@ -151,7 +137,11 @@ export function VoronoiCanvas({ invert = false }: VoronoiCanvasProps) {
 
     let raf: number;
     let visible = true;
-    const startTime = performance.now();
+    let hovering = false;
+    let dragging = false;
+    let influence = 0;
+    const mouseUv = { x: -10, y: -10 };
+    const smoothMouse = { x: -10, y: -10 };
 
     const style = getComputedStyle(canvas);
     const whiteColor = parseHex(
@@ -189,15 +179,45 @@ export function VoronoiCanvas({ invert = false }: VoronoiCanvasProps) {
     gl.enableVertexAttribArray(aPosition);
     gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0);
 
-    const uTime = gl.getUniformLocation(program, "uTime");
     const uInvert = gl.getUniformLocation(program, "uInvert");
+    const uInfluence = gl.getUniformLocation(program, "uInfluence");
     const uResolution = gl.getUniformLocation(program, "uResolution");
+    const uMouse = gl.getUniformLocation(program, "uMouse");
     const uTopColor = gl.getUniformLocation(program, "uTopColor");
     const uBotColor = gl.getUniformLocation(program, "uBotColor");
 
     gl.uniform1f(uInvert, invert ? 1.0 : 0.0);
     gl.uniform3fv(uTopColor, topColor);
     gl.uniform3fv(uBotColor, botColor);
+
+    function updateMouseUv(e: MouseEvent | Touch) {
+      const rect = canvas!.getBoundingClientRect();
+      mouseUv.x = (e.clientX - rect.left) / rect.width;
+      mouseUv.y = 1.0 - (e.clientY - rect.top) / rect.height;
+    }
+
+    const onMouseEnter = () => { hovering = true; };
+    const onMouseLeave = () => { hovering = false; dragging = false; };
+    const onMouseMove = (e: MouseEvent) => updateMouseUv(e);
+    const onMouseDown = () => { dragging = true; };
+    const onMouseUp = () => { dragging = false; };
+    const onTouchStart = (e: TouchEvent) => {
+      hovering = true; dragging = true;
+      if (e.touches[0]) updateMouseUv(e.touches[0]);
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches[0]) updateMouseUv(e.touches[0]);
+    };
+    const onTouchEnd = () => { hovering = false; dragging = false; };
+
+    canvas.addEventListener("mouseenter", onMouseEnter);
+    canvas.addEventListener("mouseleave", onMouseLeave);
+    canvas.addEventListener("mousemove", onMouseMove);
+    canvas.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mouseup", onMouseUp);
+    canvas.addEventListener("touchstart", onTouchStart, { passive: true });
+    canvas.addEventListener("touchmove", onTouchMove, { passive: true });
+    canvas.addEventListener("touchend", onTouchEnd);
 
     function resize() {
       if (!canvas) return;
@@ -211,20 +231,37 @@ export function VoronoiCanvas({ invert = false }: VoronoiCanvasProps) {
     window.addEventListener("resize", resize);
 
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        visible = entry.isIntersecting;
-      },
+      ([entry]) => { visible = entry.isIntersecting; },
       { threshold: 0 },
     );
     observer.observe(canvas);
 
-    function render(now: number) {
+    let needsRender = true;
+
+    function render() {
       raf = requestAnimationFrame(render);
       if (!visible) return;
 
-      const time = (now - startTime) / 1000;
-      gl!.uniform1f(uTime, time);
-      gl!.drawArrays(gl!.TRIANGLE_STRIP, 0, 4);
+      const targetInfluence = (hovering || dragging) ? 1.0 : 0.0;
+      const prevInfluence = influence;
+      influence += (targetInfluence - influence) * 0.08;
+      if (Math.abs(influence) < 0.001) influence = 0;
+
+      const prevMx = smoothMouse.x;
+      const prevMy = smoothMouse.y;
+      smoothMouse.x += (mouseUv.x - smoothMouse.x) * 0.1;
+      smoothMouse.y += (mouseUv.y - smoothMouse.y) * 0.1;
+
+      const changed = Math.abs(influence - prevInfluence) > 0.0005
+        || Math.abs(smoothMouse.x - prevMx) > 0.0005
+        || Math.abs(smoothMouse.y - prevMy) > 0.0005;
+
+      if (changed || needsRender) {
+        needsRender = false;
+        gl!.uniform1f(uInfluence, influence);
+        gl!.uniform2f(uMouse, smoothMouse.x, smoothMouse.y);
+        gl!.drawArrays(gl!.TRIANGLE_STRIP, 0, 4);
+      }
     }
 
     raf = requestAnimationFrame(render);
@@ -233,6 +270,14 @@ export function VoronoiCanvas({ invert = false }: VoronoiCanvasProps) {
       cancelAnimationFrame(raf);
       observer.disconnect();
       window.removeEventListener("resize", resize);
+      window.removeEventListener("mouseup", onMouseUp);
+      canvas.removeEventListener("mouseenter", onMouseEnter);
+      canvas.removeEventListener("mouseleave", onMouseLeave);
+      canvas.removeEventListener("mousemove", onMouseMove);
+      canvas.removeEventListener("mousedown", onMouseDown);
+      canvas.removeEventListener("touchstart", onTouchStart);
+      canvas.removeEventListener("touchmove", onTouchMove);
+      canvas.removeEventListener("touchend", onTouchEnd);
       gl.deleteProgram(program);
       gl.deleteShader(vert);
       gl.deleteShader(frag);

@@ -1,5 +1,3 @@
-# sam d'angelo — self history (v1)
-
 i grew up in trenton, new jersey.
 
 not in a romantic way. just in it. i saw enough early on to understand that environment has weight. it presses on you. but i also had this underlying sense that it didn't get the final say, even if i couldn't articulate that yet.

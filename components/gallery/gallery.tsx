@@ -1,7 +1,12 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, type ReactNode } from "react";
 import Link from "next/link";
+import { VoronoiCanvas } from "@/components/canvas/voronoi-canvas";
+
+const HERO_MAP: Record<string, () => ReactNode> = {
+  self: () => <VoronoiCanvas invert />,
+};
 
 const ITEMS = [
   { id: 0, label: "self", handle: "self" },
@@ -141,8 +146,10 @@ export function Gallery() {
         className="flex"
         style={{ gap: CARD_GAP, willChange: "transform" }}
       >
-        {LOOPED.map((item, i) =>
-          item.handle ? (
+        {LOOPED.map((item, i) => {
+          const heroFn = item.handle ? HERO_MAP[item.handle] : undefined;
+
+          return item.handle ? (
             <Link
               key={`${item.id}-${i}`}
               href={`/canvas/${item.handle}`}
@@ -152,11 +159,10 @@ export function Gallery() {
                   e.preventDefault();
                   return;
                 }
-                // Explicitly navigate — ensures click works
                 e.preventDefault();
                 window.location.href = `/canvas/${item.handle}`;
               }}
-              className="group relative shrink-0 rounded-2xl transition-all duration-700"
+              className="group relative shrink-0 overflow-hidden rounded-2xl transition-all duration-700"
               style={{
                 width: CARD_W,
                 height: CARD_W * (5 / 4),
@@ -167,26 +173,34 @@ export function Gallery() {
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = "var(--coin)";
                 e.currentTarget.style.transform = "rotate(-1.3deg)";
-                (e.currentTarget.firstElementChild as HTMLElement).style.color = "var(--coin)";
+                const label = e.currentTarget.querySelector("[data-card-label]") as HTMLElement;
+                if (label) label.style.color = "var(--coin)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.borderColor = "var(--black)";
                 e.currentTarget.style.transform = "rotate(0deg)";
-                (e.currentTarget.firstElementChild as HTMLElement).style.color = "var(--white)";
+                const label = e.currentTarget.querySelector("[data-card-label]") as HTMLElement;
+                if (label) label.style.color = "var(--white)";
               }}
               onTouchStart={(e) => {
                 e.currentTarget.style.borderColor = "var(--coin)";
                 e.currentTarget.style.transform = "rotate(-1.3deg)";
-                (e.currentTarget.firstElementChild as HTMLElement).style.color = "var(--coin)";
+                const label = e.currentTarget.querySelector("[data-card-label]") as HTMLElement;
+                if (label) label.style.color = "var(--coin)";
               }}
               onTouchEnd={(e) => {
                 e.currentTarget.style.borderColor = "var(--black)";
                 e.currentTarget.style.transform = "rotate(0deg)";
-                (e.currentTarget.firstElementChild as HTMLElement).style.color = "var(--white)";
+                const label = e.currentTarget.querySelector("[data-card-label]") as HTMLElement;
+                if (label) label.style.color = "var(--white)";
               }}
             >
+              {heroFn && (
+                <div className="absolute inset-0">{heroFn()}</div>
+              )}
               <span
-                className="absolute bottom-4 left-4 font-mono text-sm font-bold tracking-[0.3em] transition-colors duration-300"
+                data-card-label
+                className="absolute bottom-4 left-4 z-10 font-mono text-sm font-bold tracking-[0.3em] transition-colors duration-300"
                 style={{ color: "var(--white)" }}
               >
                 {item.label}
@@ -210,8 +224,8 @@ export function Gallery() {
                 {item.label}
               </span>
             </div>
-          )
-        )}
+          );
+        })}
       </div>
     </section>
   );
