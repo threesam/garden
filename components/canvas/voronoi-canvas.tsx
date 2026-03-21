@@ -101,8 +101,9 @@ const FRAGMENT_SHADER = `
     base += fresnel * silver * 0.2;
 
     // Sharp dark edge lines between cells
-    float edgeLine = 1.0 - smoothstep(0.0, 0.03, f2 - f1);
-    base = mix(base, shadow * 0.5, edgeLine * 0.8);
+    float edgeLine = 1.0 - smoothstep(0.0, 0.08, f2 - f1);
+    vec3 black = uInvert > 0.5 ? uTopColor : uBotColor;
+    base = mix(base, black, edgeLine);
 
     gl_FragColor = vec4(base, 1.0);
   }
