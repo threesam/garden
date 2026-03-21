@@ -4,7 +4,7 @@ import { useRef, useEffect } from "react";
 import Link from "next/link";
 
 const ITEMS = [
-  { id: 0, label: "history", handle: "history" },
+  { id: 0, label: "self", handle: "self" },
   ...Array.from({ length: 6 }, (_, i) => ({
     id: i + 1,
     label: `${i + 2}`,
