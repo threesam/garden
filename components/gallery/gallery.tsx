@@ -5,7 +5,7 @@ import Link from "next/link";
 import { VoronoiCanvas } from "@/components/canvas/voronoi-canvas";
 
 const HERO_MAP: Record<string, () => ReactNode> = {
-  self: () => <VoronoiCanvas invert />,
+  self: () => <VoronoiCanvas invert showLetters={false} />,
 };
 
 const ITEMS = [
@@ -200,8 +200,8 @@ export function Gallery() {
               )}
               <span
                 data-card-label
-                className="absolute bottom-4 left-4 z-10 font-mono text-sm font-bold tracking-[0.3em] transition-colors duration-300"
-                style={{ color: "var(--white)" }}
+                className={`absolute z-10 font-mono font-bold tracking-[0.3em] transition-colors duration-300 ${heroFn ? "bottom-5 left-5 rounded-2xl px-4 py-2 text-3xl uppercase" : "bottom-4 left-4 text-sm"}`}
+                style={heroFn ? { backgroundColor: "var(--black)", color: "var(--white)" } : { color: "var(--white)" }}
               >
                 {item.label}
               </span>

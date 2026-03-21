@@ -2,6 +2,8 @@
 
 import { useEffect, useRef } from "react";
 
+const SCALE = 4.0;
+
 const VERTEX_SHADER = `
   attribute vec2 aPosition;
   varying vec2 vUv;
@@ -20,6 +22,10 @@ const FRAGMENT_SHADER = `
   uniform vec2 uMouse;
   uniform vec3 uTopColor;
   uniform vec3 uBotColor;
+  uniform vec2 uCell0;
+  uniform vec2 uCell1;
+  uniform vec2 uCell2;
+  uniform vec2 uCell3;
 
   varying vec2 vUv;
 
@@ -29,24 +35,72 @@ const FRAGMENT_SHADER = `
     return fract(sin(p) * 43758.5453123);
   }
 
-  vec3 voronoi(vec2 p, vec2 mouse, float influence) {
+  // Box SDF
+  float sdBox(vec2 p, vec2 b) {
+    vec2 d = abs(p) - b;
+    return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
+  }
+
+  float letterS(vec2 p) {
+    float d = 1e5;
+    d = min(d, sdBox(p - vec2(0.0, 0.55), vec2(0.3, 0.07)));
+    d = min(d, sdBox(p - vec2(-0.23, 0.32), vec2(0.07, 0.23)));
+    d = min(d, sdBox(p - vec2(0.0, 0.0), vec2(0.3, 0.07)));
+    d = min(d, sdBox(p - vec2(0.23, -0.32), vec2(0.07, 0.23)));
+    d = min(d, sdBox(p - vec2(0.0, -0.55), vec2(0.3, 0.07)));
+    return d;
+  }
+
+  float letterE(vec2 p) {
+    float d = 1e5;
+    d = min(d, sdBox(p - vec2(-0.23, 0.0), vec2(0.07, 0.62)));
+    d = min(d, sdBox(p - vec2(0.05, 0.55), vec2(0.28, 0.07)));
+    d = min(d, sdBox(p - vec2(0.0, 0.0), vec2(0.23, 0.07)));
+    d = min(d, sdBox(p - vec2(0.05, -0.55), vec2(0.28, 0.07)));
+    return d;
+  }
+
+  float letterL(vec2 p) {
+    float d = 1e5;
+    d = min(d, sdBox(p - vec2(-0.23, 0.0), vec2(0.07, 0.62)));
+    d = min(d, sdBox(p - vec2(0.05, -0.55), vec2(0.28, 0.07)));
+    return d;
+  }
+
+  float letterF(vec2 p) {
+    float d = 1e5;
+    d = min(d, sdBox(p - vec2(-0.23, 0.0), vec2(0.07, 0.62)));
+    d = min(d, sdBox(p - vec2(0.05, 0.55), vec2(0.28, 0.07)));
+    d = min(d, sdBox(p - vec2(0.0, 0.0), vec2(0.23, 0.07)));
+    return d;
+  }
+
+  void main() {
+    vec2 uv = vec2(vUv.x, 1.0 - vUv.y);
+    float aspect = uResolution.x / uResolution.y;
+
+    vec2 p = vec2(uv.x * aspect, uv.y) * ${SCALE.toFixed(1)};
+    vec2 mouse = vec2(uMouse.x * aspect, uMouse.y) * ${SCALE.toFixed(1)};
+
+    // Voronoi with cell center + grid tracking
     vec2 ip = floor(p);
     vec2 fp = fract(p);
 
     float d1 = 8.0;
     float d2 = 8.0;
-    float id = 0.0;
+    float cellId = 0.0;
+    vec2 nearestCenter = vec2(0.0);
+    vec2 nearestGrid = vec2(0.0);
 
     for (int y = -1; y <= 1; y++) {
       for (int x = -1; x <= 1; x++) {
         vec2 neighbor = vec2(float(x), float(y));
         vec2 o = hash2(ip + neighbor);
 
-        // Static cell centers — gently push away from mouse
         vec2 cellWorld = ip + neighbor + o;
         vec2 toMouse = cellWorld - mouse;
         float mouseDist = length(toMouse);
-        float push = influence * smoothstep(5.0, 0.0, mouseDist) * 0.2;
+        float push = uInfluence * smoothstep(5.0, 0.0, mouseDist) * 0.2;
         o += normalize(toMouse + 0.001) * push;
 
         vec2 diff = neighbor + o - fp;
@@ -55,28 +109,18 @@ const FRAGMENT_SHADER = `
         if (dist < d1) {
           d2 = d1;
           d1 = dist;
-          id = dot(ip + neighbor, vec2(7.0, 113.0));
+          cellId = dot(ip + neighbor, vec2(7.0, 113.0));
+          nearestCenter = ip + neighbor + o;
+          nearestGrid = ip + neighbor;
         } else if (dist < d2) {
           d2 = dist;
         }
       }
     }
 
-    return vec3(d1, d2, id);
-  }
-
-  void main() {
-    vec2 uv = vec2(vUv.x, 1.0 - vUv.y);
-    float aspect = uResolution.x / uResolution.y;
-
-    vec2 p = vec2(uv.x * aspect, uv.y) * 4.0;
-    vec2 mouse = vec2(uMouse.x * aspect, uMouse.y) * 4.0;
-
-    vec3 v1 = voronoi(p, mouse, uInfluence);
-
-    float edge = smoothstep(0.0, 0.05, v1.y - v1.x);
-    float f1 = v1.x;
-    float f2 = v1.y;
+    float f1 = d1;
+    float f2 = d2;
+    float edge = smoothstep(0.0, 0.05, f2 - f1);
 
     // Mirror surface
     vec3 white = uInvert > 0.5 ? uBotColor : uTopColor;
@@ -84,26 +128,47 @@ const FRAGMENT_SHADER = `
     vec3 silver = mix(shadow, white, 0.5);
     vec3 highlight = white;
 
-    // Fake environment reflection — bands based on cell normal
     float envAngle = atan(f2 - f1, f1) + uv.y * 3.0;
     float envReflect = smoothstep(-0.1, 0.1, sin(envAngle * 4.0));
 
-    // Specular — bright spot near cell center
     float spec = pow(max(0.0, 1.0 - f1 * 3.0), 6.0);
-
-    // Fresnel — edges brighter (grazing angle)
     float fresnel = pow(1.0 - edge, 2.0);
 
-    // Build mirror surface
     vec3 base = mix(shadow, silver, edge);
     base = mix(base, highlight, envReflect * 0.4);
     base += spec * highlight * 0.5;
     base += fresnel * silver * 0.2;
 
-    // Sharp dark edge lines between cells
+    // Cell strokes
     float edgeLine = 1.0 - smoothstep(0.0, 0.08, f2 - f1);
     vec3 black = uInvert > 0.5 ? uTopColor : uBotColor;
     base = mix(base, black, edgeLine);
+
+    // Letter rendering — check if current cell is a letter cell
+    int letterIdx = -1;
+    if (length(nearestGrid - uCell0) < 0.1) letterIdx = 0;
+    else if (length(nearestGrid - uCell1) < 0.1) letterIdx = 1;
+    else if (length(nearestGrid - uCell2) < 0.1) letterIdx = 2;
+    else if (length(nearestGrid - uCell3) < 0.1) letterIdx = 3;
+
+    if (letterIdx >= 0) {
+      vec2 lp = (p - nearestCenter) * vec2(2.8, -2.8);
+      float sd = 1e5;
+      if (letterIdx == 0) sd = letterS(lp);
+      else if (letterIdx == 1) sd = letterE(lp);
+      else if (letterIdx == 2) sd = letterL(lp);
+      else sd = letterF(lp);
+      float mask = 1.0 - smoothstep(0.0, 0.03, sd);
+      base = mix(base, black, mask);
+    }
+
+    // Edge fade
+    float edgeFade = smoothstep(0.0, 0.08, uv.x)
+                   * smoothstep(0.0, 0.08, 1.0 - uv.x)
+                   * smoothstep(0.0, 0.08, uv.y)
+                   * smoothstep(0.0, 0.08, 1.0 - uv.y);
+    vec3 bg = uInvert > 0.5 ? uTopColor : uBotColor;
+    base = mix(bg, base, edgeFade);
 
     gl_FragColor = vec4(base, 1.0);
   }
@@ -122,8 +187,62 @@ function createShader(gl: WebGLRenderingContext, type: number, source: string) {
   return shader;
 }
 
+// Replicate GLSL hash on CPU to find cell centers
+function jsHash2(px: number, py: number): [number, number] {
+  const ax = Math.sin(px * 127.1 + py * 311.7) * 43758.5453123;
+  const ay = Math.sin(px * 269.5 + py * 183.3) * 43758.5453123;
+  return [ax - Math.floor(ax), ay - Math.floor(ay)];
+}
+
+function findLetterCells(aspect: number, letterCount: number) {
+  const maxX = aspect * SCALE;
+  const maxY = SCALE;
+
+  const cells: { gx: number; gy: number; cx: number; cy: number }[] = [];
+
+  for (let iy = -1; iy <= Math.ceil(maxY) + 1; iy++) {
+    for (let ix = -1; ix <= Math.ceil(maxX) + 1; ix++) {
+      const [hx, hy] = jsHash2(ix, iy);
+      const cx = ix + hx;
+      const cy = iy + hy;
+      // Only cells well within visible area
+      if (cx > 0.5 && cx < maxX - 0.5 && cy > 0.5 && cy < maxY - 0.5) {
+        cells.push({ gx: ix, gy: iy, cx, cy });
+      }
+    }
+  }
+
+  // Pick one cell per horizontal section, closest to vertical center
+  const selected: typeof cells = [];
+  const sectionWidth = maxX / letterCount;
+
+  for (let i = 0; i < letterCount; i++) {
+    const targetX = sectionWidth * (i + 0.5);
+    const targetY = maxY / 2;
+
+    let best = cells[0];
+    let bestDist = Infinity;
+
+    for (const cell of cells) {
+      if (selected.some((s) => s.gx === cell.gx && s.gy === cell.gy)) continue;
+      const dx = cell.cx - targetX;
+      const dy = (cell.cy - targetY) * 2;
+      const dist = dx * dx + dy * dy;
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = cell;
+      }
+    }
+
+    selected.push(best);
+  }
+
+  return selected;
+}
+
 interface VoronoiCanvasProps {
   invert?: boolean;
+  showLetters?: boolean;
 }
 
 function parseHex(hex: string) {
@@ -134,7 +253,7 @@ function parseHex(hex: string) {
   ];
 }
 
-export function VoronoiCanvas({ invert = false }: VoronoiCanvasProps) {
+export function VoronoiCanvas({ invert = false, showLetters = true }: VoronoiCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -194,6 +313,10 @@ export function VoronoiCanvas({ invert = false }: VoronoiCanvasProps) {
     const uMouse = gl.getUniformLocation(program, "uMouse");
     const uTopColor = gl.getUniformLocation(program, "uTopColor");
     const uBotColor = gl.getUniformLocation(program, "uBotColor");
+    const uCell0 = gl.getUniformLocation(program, "uCell0");
+    const uCell1 = gl.getUniformLocation(program, "uCell1");
+    const uCell2 = gl.getUniformLocation(program, "uCell2");
+    const uCell3 = gl.getUniformLocation(program, "uCell3");
 
     gl.uniform1f(uInvert, invert ? 1.0 : 0.0);
     gl.uniform3fv(uTopColor, topColor);
@@ -228,12 +351,29 @@ export function VoronoiCanvas({ invert = false }: VoronoiCanvasProps) {
     canvas.addEventListener("touchmove", onTouchMove, { passive: true });
     canvas.addEventListener("touchend", onTouchEnd);
 
+    let needsRender = true;
+
     function resize() {
       if (!canvas) return;
       canvas.width = canvas.offsetWidth;
       canvas.height = canvas.offsetHeight;
       gl!.viewport(0, 0, canvas.width, canvas.height);
       gl!.uniform2f(uResolution, canvas.width, canvas.height);
+
+      if (showLetters) {
+        const aspect = canvas.width / canvas.height;
+        const cells = findLetterCells(aspect, 4);
+        gl!.uniform2f(uCell0, cells[0].gx, cells[0].gy);
+        gl!.uniform2f(uCell1, cells[1].gx, cells[1].gy);
+        gl!.uniform2f(uCell2, cells[2].gx, cells[2].gy);
+        gl!.uniform2f(uCell3, cells[3].gx, cells[3].gy);
+      } else {
+        gl!.uniform2f(uCell0, -999.0, -999.0);
+        gl!.uniform2f(uCell1, -999.0, -999.0);
+        gl!.uniform2f(uCell2, -999.0, -999.0);
+        gl!.uniform2f(uCell3, -999.0, -999.0);
+      }
+      needsRender = true;
     }
 
     resize();
@@ -244,8 +384,6 @@ export function VoronoiCanvas({ invert = false }: VoronoiCanvasProps) {
       { threshold: 0 },
     );
     observer.observe(canvas);
-
-    let needsRender = true;
 
     function render() {
       raf = requestAnimationFrame(render);
