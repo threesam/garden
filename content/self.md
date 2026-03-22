@@ -108,19 +108,21 @@ web development, JavaScript, frameworks, everything i could get my hands on.
 
 i committed hard.
 
-waking up at 5am every day before the house was up. tutorials, docs, forums, reddit threads. i found a mentor online, a senior designer/engineer, and took everything he gave me seriously.
+5am every day before the house was up. tutorials, docs, forums, reddit threads. i found a mentor online, a senior designer/engineer, and took everything he gave me seriously.
 
-six months of focused effort.
+but the mornings weren't enough. so i walked. four hours a day, every day, rain or shine, pushing the kids in the stroller and listening to podcasts and courses. it was the only way i could absorb anything while they were awake. i wore holes in the bottoms of my flip flops.
 
-not dabbling. not half in. all in.
+my father-in-law thought i was a forever student. he was asking his friends if i could work with them. he just wanted to know his daughter and grandkids would be taken care of. i get that now.
+
+six months of that.
 
 on Juniper's first birthday, i broke into tech.
 
-the first job was a shock in a good way. i said yes to everything, especially the things i didn't know how to do.
+first day, they asked me to decrypt a 30,000-person email list. i had no idea how. didn't know what it was encrypted with. asked around — nobody else knew either. eventually we figured out it was Base64. i wrote a script that decoded the whole thing and felt the biggest rush i'd had in years. addicted.
 
-asked more questions than i got answers for, learned more in a month than i had the previous year.
+i said yes to everything after that, especially the things i didn't know how to do. same thing i was learning at home with the kids — you don't get to opt out of the hard parts. you just sit in them until something gives.
 
-same thing i was learning at home with the kids — you don't get to opt out of the hard parts. you just sit in them until something gives.
+my father-in-law apologized. our relationship has never been better.
 
 ---
 
@@ -162,9 +164,15 @@ it reminded me of that room behind the velvet curtain. you don't have to play ev
 
 ---
 
-i used to think money was the problem. that wanting it meant you'd lost something.
+when Azalea was on the way, i started reading. a lot. forty books my first year. personal development, masculinity, responsibility, money. the kind of stuff i probably needed years earlier but wasn't ready for.
 
-now i have four kids and a wife and a life that costs what it costs. money isn't the thing. it's what lets you not think about the thing, so you can think about everything else.
+one idea stuck: money is technology. it's energy. if you treat it like a friend, it acts like one. if you walk around saying your "friend" is the root of all evil, that friend is going to want nothing to do with you.
+
+i grew up with a lot of love but not a lot of extravagance. so when i got a real job and took my wife out to a nice dinner, i felt guilty. like i didn't deserve it. like it somehow betrayed where i came from.
+
+but then i noticed the other side. i could hand a five to someone on the street without blinking. and i remembered Benny — who gave away damn near everything he made and received it all back tenfold.
+
+money isn't the thing. it's what lets you not think about the thing, so you can think about everything else.
 
 ---
 
