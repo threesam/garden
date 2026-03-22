@@ -20,14 +20,14 @@
   --color-white: var(--white);
   --color-black: var(--black);
   --color-border: var(--border);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-jost);
+  --font-mono: var(--font-jost);
 }
 
 body {
   background: var(--black);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-jost), Arial, Helvetica, sans-serif;
 }
 
 a {
