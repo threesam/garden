@@ -59,3 +59,15 @@ deana had to weather a shit ton of flak from her parents, she had to return to w
 ## the career
 
 my first job was at Rhone where Isaac, my first manager, took a chance on me and was one of the most kind people i had ever met while being in love with the work he was doing. he changed my life, and he's not with us anymore which is a travesty, more loss i've had to deal with. but after a year and half i switched roles and went to Made In Cookware, got a sizable bump in salary that helped support my growing family, and met Dan (our lead engineer) who was also self-taught like me and is brilliant. i learned so much from watching him work, he eventually left and i stepped up to lead thereafter and have grown into the role and beyond.
+
+## brookstone to recording
+
+Brookstone downsized and even though my store was one of the only ones profitable, it got closed down and i was laid off, i used my severence money to buy music equipment and started recording myself. i was looking for people to record and that's when i talked to valerie who indicated she might want to record some music but instead invited me to the open mic and said i needed to meet some guy (benny).
+
+## mom
+
+my mom helped me through school, was super nurturing and even though the city we lived in became more and more bleak, she remained a soft and consistence presence.
+
+## traveling and dad's death
+
+after Azalea was born and when i was at Made In, we started traveling a month at time in different cities (Asheville, NC. Joshua Tree, CA. Portland, OR. Midway, UT), sometime in that travel we realized the world was big and we wanted to explore more, but during our stay in Portland we got pregnant with Orion and my dad died. we returned back to Pennsylvania to have the baby and be with family. after a year we decided to move to Austin (which happens to be Made In's headquarters) and after moving here is when i had that chat with the AI guy

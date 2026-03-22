@@ -2,7 +2,9 @@ i grew up in Trenton, New Jersey.
 
 not in a romantic way. just in it. my parents got a house in a nice area near a nursing home. safe enough. but the city didn't grow with us — it just got more impoverished, more corrupted. when a city dies, it does so slowly. and i lived mostly inside my house. reclusive.
 
-i was in public school there until 5th grade. 6th grade i got into Princeton Day — private school, manicured lawns, the whole thing. i remember sitting with my dad waiting for the bus to come pick me up. it was weird going to this perfectly kept campus and then getting dropped off by my dad in the inner-city neighborhood i grew up in. culture shock that i eventually got used to.
+my mom helped me through it. even as the city got more bleak, she remained a soft and consistent presence. nurturing in a way that kept the walls from closing in completely.
+
+i was in public school there until 5th grade. 6th grade i got into Princeton Day — private school, manicured lawns, the whole thing. i remember sitting with my dad waiting for the bus to come pick me up. it was weird going to this perfectly kept campus and then getting dropped off back in the inner-city neighborhood i grew up in. culture shock that i eventually got used to.
 
 i was always confident academically. school made sense. inputs, outputs, clear rules. but socially, it was different. i didn't feel like i had a way in. at least, nothing that felt natural.
 
@@ -16,7 +18,7 @@ i went home and dug up the guitar i'd been given as a kid, but never got further
 
 ---
 
-i went through public school in Trenton, ended up at Princeton Day, then Rider U. loved learning about all of everything -- art, biology, ethics -- but was told my grants would evaporate if i didn't pick a lane in my junior year.
+after Princeton Day, Rider U. loved learning about all of everything — art, biology, ethics — but was told my grants would evaporate if i didn't pick a lane in my junior year.
 
 so i studied political science and global studies.
 
@@ -30,11 +32,11 @@ Brookstone sales manager, where, for a time, i was ranked number 1 (company wide
 
 but music kept pulling. writing, playing, all on my own. i thought that was independence. looking back, it was more like isolation.
 
-then a friend from college told me about an open mic in Trenton.
+then Brookstone downsized. even though my store was one of the only profitable ones, it got closed. i used my severance to buy music equipment and started recording myself. i was looking for people to record when i talked to this girl Valerie — 90 pounds, full of energy. she said she might want to record some music, but instead invited me to an open mic and told me i needed to meet some guy named Benny.
 
 i almost didn't go. i'd spent a lot of time trying to get away from Trenton, not lean into it. i'd seen enough growing up. gunshots, muggings. on my 17th birthday, i witnessed a shooting in front of my house. it didn't feel like a place where anything was building.
 
-but some 90 pound chick named Valerie seemed thrilled to go this hole-in-the-wall, so i went. she eventually dated Benny, though my friendship with her outlasted the romance — he had an uncanny ability to turn ex-lovers into friends.
+but Valerie seemed thrilled to go this hole-in-the-wall, so i went. she eventually dated Benny, though my friendship with her outlasted the romance — he had an uncanny ability to turn ex-lovers into friends.
 
 it was a small bar. normal enough when walking in: bartenders tapping kegs, uncorking wine bottles, concoting sangria. to the left, there was a velvet curtain. i walked through and into a different world.
 
@@ -62,7 +64,7 @@ music, bartending, late nights, building relationships.
 
 before we started our company, Benny had this thing called the Hive. a warehouse we transformed once a month into a stage — local bands played, artists live-painted murals, and the whole thing ran for 24 hours straight. that, along with the open mic, changed how i saw Trenton. the right people, even in a dying place, can turn a city around.
 
-then we started Six to Midnight. a studio we set up together, mostly in an effort to make cool shit. we took over a beautiful outdoor amphitheater in Trenton, got permits, put on an event with local music and snacks — very community-driven, even filmed a mini doc about it. we did a corporate event in suits and somehow kept the room warm. we did a wedding for one of Benny's ex-girlfriends on a farm and transformed the space with lights and music — Deana played DJ that night and got the room moving hard. we threw a private party at someone's house in Trenton where we supplied the alcohol, the music, the vibes, and it was one of the most electric rooms i've ever been in. even though the hosts got too drunk and had a public meltdown.
+then we started Six to Midnight. a studio we set up together, mostly in an effort to make cool shit. we took over a beautiful outdoor amphitheater in Trenton, got permits, put on an event with local music and snacks — very community-driven, even filmed a mini doc about it. we did a corporate event in suits and somehow kept the room warm. we did a wedding for one of Benny's ex-girlfriends on a farm and transformed the space with lights and music. we threw a private party at someone's house in Trenton where we supplied the alcohol, the music, the vibes, and it was one of the most electric rooms i've ever been in. even though the hosts got too drunk and had a public meltdown.
 
 the first thing i said to my future wife online was "hey, Blondie." i was definitely holding court at that point — finally had my stride in a thriving music community, talking to plenty of women. but after i started talking to Deana, i didn't want to talk to anyone else.
 
@@ -74,11 +76,11 @@ i remember the first time i met Deana's dad. he came home earlier than she expec
 
 her parents kept asking when we'd get married. we had a Quaker wedding a month before Phoenix was born.
 
-two kids, four adults, and a dog the parents didn't approve of but tolerated, all under one roof. it was cramped.
+us, her parents, and a dog they didn't approve of but tolerated, all under one roof. it was cramped.
 
 it all blurred together in a way that felt real, even if it was far from stable and even further from ideal.
 
-Phoenix changed everything, even if it took me a while to admit it. less time out, more time home. Deana working long hospital shifts. me trying to balance being present with still holding onto the life i had built around music and that scene.
+Phoenix changed everything, even if it took me a while to admit it. less time out, more time home. me trying to balance being present with still holding onto the life i had built around music and that scene.
 
 i was already feeling the tension. like i was straddling two paths that didn’t quite line up.
 
@@ -108,9 +110,9 @@ but we had each other. and we had Phoenix. that didn’t fix anything, but it me
 
 everything got tight after that. time, money, attention — all of it compressed.
 
-Deana weathered a lot. she went back to work after three months — only half paid — for both Phoenix and then Juniper. she wanted to breastfeed but pumping during shifts is hard, the stress mounts when you're the breadwinner, and eventually the supply dries up. we had enough to survive but not enough to breathe.
+Deana went back to work after three months — only half paid. she wanted to breastfeed but pumping during shifts is hard, the stress mounts when you're the breadwinner, and eventually the supply dries up. we had enough to survive but not enough to breathe.
 
-then we had Juniper. when she was five months old we got accepted into rent-controlled housing — so did Deana's parents — and that was when things started to loosen. less tension, more space, the relationship with her parents getting better.
+then we had Juniper. Deana went through it all again — three months, half paid, the same impossible math. when Juniper was five months old we got accepted into rent-controlled housing — so did Deana's parents — and that was when things finally started to loosen. less tension, more space, the relationship with her parents getting better.
 
 i was home more. bartending and music didn't map cleanly to the life my growing family needed.
 
@@ -146,11 +148,27 @@ my father-in-law apologized. our relationship has never been better.
 
 my first job was at Rhone. my manager Isaac took a chance on me — one of the kindest people i'd ever met, completely in love with the work he was doing. he changed my life. he's not with us anymore, which is a travesty. more loss i've had to deal with.
 
+when Azalea was on the way, i started reading. a lot. forty books my first year. personal development, masculinity, responsibility, money. the kind of stuff i probably needed years earlier but wasn't ready for.
+
+one idea stuck: money is technology. it's energy. if you treat it like a friend, it acts like one. if you walk around saying your "friend" is the root of all evil, that friend is going to want nothing to do with you.
+
+i grew up with a lot of love but not a lot of extravagance. so when i got a real job and took my wife out to a nice dinner, i felt guilty. like i didn't deserve it. like it somehow betrayed where i came from.
+
+but then i noticed the other side. i could hand a five to someone on the street without blinking. and i remembered Benny — who gave away damn near everything he made and received it all back tenfold.
+
+money isn't the thing. it's what lets you not think about the thing, so you can think about everything else.
+
 Azalea was born while i was still at Rhone. before she was two months old, i switched to Made In Cookware — sizable bump in salary that my growing family needed. sleepless nights with a newborn while ramping up to a new job. i met Dan, our lead engineer, self-taught like me and brilliant. i learned so much from watching him work.
 
-Dan eventually left and i spent a year trying to prove i could lead. when they gave me the title, Orion was on the way. the work kept getting bigger. harder problems. i got obsessed with doing things right — performance, accessibility, architecture. the kind of stuff most people skip over.
+Dan eventually left and i spent a year trying to prove i could lead. the work kept getting bigger. harder problems. i got obsessed with doing things right — performance, accessibility, architecture. the kind of stuff most people skip over.
 
 i wanted to understand every layer. every decision. if something broke, i wanted to know why before anyone else did.
+
+somewhere in there, we started traveling. a month at a time in different cities — Asheville, Joshua Tree, Portland, Midway. the world got bigger. we realized we wanted to keep exploring.
+
+but during our stay in Portland, we got pregnant with Orion. and my dad died.
+
+we came back to Pennsylvania to have the baby and be with family. after a year, we decided to move to Austin — which happens to be Made In's headquarters.
 
 that worked for a long time.
 
@@ -191,18 +209,6 @@ after two weeks i realized i'd cleared about a year's worth of nice-to-haves. th
 then my CEO started writing code. designers started shipping. people who had never built anything were building things. and i wasn't the bottleneck anymore.
 
 it reminded me of that room behind the velvet curtain. you don't have to play every instrument. you just have to know when to come in and when to let someone else take it.
-
----
-
-when Azalea was on the way, i started reading. a lot. forty books my first year. personal development, masculinity, responsibility, money. the kind of stuff i probably needed years earlier but wasn't ready for.
-
-one idea stuck: money is technology. it's energy. if you treat it like a friend, it acts like one. if you walk around saying your "friend" is the root of all evil, that friend is going to want nothing to do with you.
-
-i grew up with a lot of love but not a lot of extravagance. so when i got a real job and took my wife out to a nice dinner, i felt guilty. like i didn't deserve it. like it somehow betrayed where i came from.
-
-but then i noticed the other side. i could hand a five to someone on the street without blinking. and i remembered Benny — who gave away damn near everything he made and received it all back tenfold.
-
-money isn't the thing. it's what lets you not think about the thing, so you can think about everything else.
 
 ---
 
