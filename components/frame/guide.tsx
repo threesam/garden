@@ -56,14 +56,14 @@ export function Guide() {
             height: 40,
             borderRadius: "50%",
             backgroundColor: "var(--coin)",
-            boxShadow: "inset 0 0 0 1.5px var(--black)",
+            boxShadow: `inset 0 0 0 1.5px var(--black), ${hovered ? "0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)" : "0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1)"}`,
+            transition: "transform 300ms ease-in-out, box-shadow 300ms ease-in-out",
             transformStyle: "preserve-3d",
             transform: open
               ? "rotateY(180deg) rotate(45deg)"
               : hovered
                 ? "rotateY(180deg)"
                 : "rotateY(0deg)",
-            transition: "transform 300ms ease-in-out",
             position: "relative",
           }}
         >
@@ -82,7 +82,7 @@ export function Guide() {
             <span
               style={{
                 display: "block",
-                height: 1,
+                height: 2,
                 width: "100%",
                 backgroundColor: "var(--black)",
                 transform: "translateY(-3px)",
@@ -91,7 +91,7 @@ export function Guide() {
             <span
               style={{
                 display: "block",
-                height: 1,
+                height: 2,
                 width: "100%",
                 backgroundColor: "var(--black)",
                 transform: "translateY(3px)",
@@ -113,7 +113,7 @@ export function Guide() {
             <span
               style={{
                 display: "block",
-                height: 1,
+                height: 2,
                 width: "100%",
                 backgroundColor: "var(--black)",
               }}
@@ -124,7 +124,7 @@ export function Guide() {
                 top: "50%",
                 left: "50%",
                 height: 14,
-                width: 1,
+                width: 2,
                 backgroundColor: "var(--black)",
                 transform: "translate(-50%, -50%)",
               }}
