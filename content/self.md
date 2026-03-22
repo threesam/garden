@@ -18,11 +18,13 @@ i went home and dug up the guitar i'd been given as a kid, but never got further
 
 ---
 
-after Princeton Day, Rider U. loved learning about all of everything — art, biology, ethics — but was told my grants would evaporate if i didn't pick a lane in my junior year.
+after Princeton Day, Rider U -- the only college that offered me a full scholarship.
+
+loved learning about all of everything — art, biology, ethics — but was told my grants would evaporate if i didn't pick a lane in my junior year.
 
 so i studied political science and global studies.
 
-felt like the right mix of history and philosophy. systems, incentives, how things are supposed to work. but the real-world version felt off. messy in a way that didn't match the models.
+felt like a perfect synergy of history and philosophy. systems, incentives, how things are supposed to work. but the real-world version felt off. messy in a way that didn't match the models.
 
 i didn't want to operate inside that.
 
@@ -32,11 +34,11 @@ Brookstone sales manager, where, for a time, i was ranked number 1 (company wide
 
 but music kept pulling. writing, playing, all on my own. i thought that was independence. looking back, it was more like isolation.
 
-then Brookstone downsized. even though my store was one of the only profitable ones, it got closed. i used my severance to buy music equipment and started recording myself. i was looking for people to record when i talked to this girl Valerie — 90 pounds, full of energy. she said she might want to record some music, but instead invited me to an open mic and told me i needed to meet some guy named Benny.
+then Brookstone downsized. even though my store was one of the only profitable ones, it closed down and i was out of the job. luckily i got some severance and used it to buy music equipment and started recording myself. i was looking for people to record when i talked to my college bud, Valerie — 90 pounds, fun and full of energy. instead of taking me up on my offer to record her, she invited me to an open mic and told me i needed to meet some guy named Benny.
 
-i almost didn't go. i'd spent a lot of time trying to get away from Trenton, not lean into it. i'd seen enough growing up. gunshots, muggings. on my 17th birthday, i witnessed a shooting in front of my house. it didn't feel like a place where anything was building.
+i almost didn't go. i'd spent a lot of time trying to get away from Trenton, not lean into it. i'd seen enough growing up. gunshots, muggings. on my 17th birthday, i witnessed a shooting in front of my house. it didn't feel like a place where anything positive could happen.
 
-but Valerie seemed thrilled to go this hole-in-the-wall, so i went. she eventually dated Benny, though my friendship with her outlasted the romance — he had an uncanny ability to turn ex-lovers into friends.
+but Valerie seemed thrilled to go this hole-in-the-wall, so i went.
 
 it was a small bar. normal enough when walking in: bartenders tapping kegs, uncorking wine bottles, concoting sangria. to the left, there was a velvet curtain. i walked through and into a different world.
 
@@ -46,11 +48,11 @@ i remember just watching, trying to understand how it worked.
 
 then i met Benny.
 
-he was one of the most immediately magnetic people i'd ever met. no hesitation, no filtering. just fully himself. he'd had a hard life, was clean for over a decade, and had built up successful businesses brick by brick. he gave everyone a chance. was an incredible musician who could play anything. got excited about new bands, supported his friends' dreams, listened to an album all the way through before judging it. if he loved you he was all in — would turn over mountains to help get you where you needed to be. funniest human i've ever hung out with, and the most generous.
+he was one of the most immediately magnetic people i'd ever met. no hesitation, no filtering. just fully himself. he'd had a hard life as a high functioning addict. but he was clean for over a decade when i met him, and had built up successful businesses brick by brick. he gave everyone a chance. was an incredible musician who could play anything. got excited about anything new and fresh, supported his friends' dreams, listened to an album all the way through before judging it. if he loved you he was all in — would turn over mountains to help get you where you needed to be. funniest human i've ever hung out with, and the most generous.
 
-the open mic was his. he ran it with this philosophy — everyone gets their shot. not that he didn't shuffle things around to keep the show tight for the room, but nobody was turned away. the place was usually packed because Benny was excellent at promoting, snapping pics, making everyone feel like they were part of the magic even if they were just watching.
+the open mic was his. he ran it with this philosophy — everyone gets their shot. not that he didn't shuffle things around to keep the show tight for the room, but nobody was turned away. (well, almost nobody -- it was a bar in the hood after all). the place was usually packed because Benny was a god at promoting, snapping pics, making everyone feel like they were part of the magic even if they were just watching.
 
-i remember my first time on stage. i was solid performing solo, had been doing it alone for a while. i started playing one of my originals and about halfway through someone jumped on cajón. i think Benny hopped on bass and figured out my song in real time. by the end a saxophone was blaring, riffing on the final chorus. i didn't realize i could feel that alive.
+i remember my first time on stage. i was solid performing solo and had been doing it alone for a while. but this was different. i started playing one of my originals and about halfway through someone jumped on cajón. i think Benny hopped on bass and figured out my song in real time. by the end a saxophone was blaring, riffing on the final chorus. i learned what "being in the moment" actually meant.
 
 i was a mainstay after that. week after week, for years.
 
@@ -62,7 +64,7 @@ that period of my life was messy and alive.
 
 music, bartending, late nights, building relationships.
 
-before we started our company, Benny had this thing called the Hive. a warehouse we transformed once a month into a stage — local bands played, artists live-painted murals, and the whole thing ran for 24 hours straight. that, along with the open mic, changed how i saw Trenton. the right people, even in a dying place, can turn a city around.
+before we started our company, Benny had this thing he helped start called the Hive. a warehouse we transformed once a month into a stage — local bands played, artists live-painted murals, and the whole thing ran for 24 hours straight. that, along with the open mic, changed how i saw Trenton. the right people, even in a dying place, can turn a city around.
 
 then we started Six to Midnight. a studio we set up together, mostly in an effort to make cool shit. we took over a beautiful outdoor amphitheater in Trenton, got permits, put on an event with local music and snacks — very community-driven, even filmed a mini doc about it. we did a corporate event in suits and somehow kept the room warm. we did a wedding for one of Benny's ex-girlfriends on a farm and transformed the space with lights and music. we threw a private party at someone's house in Trenton where we supplied the alcohol, the music, the vibes, and it was one of the most electric rooms i've ever been in. even though the hosts got too drunk and had a public meltdown.
 
