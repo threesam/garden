@@ -1,6 +1,8 @@
 i grew up in Trenton, New Jersey.
 
-not in a romantic way. just in it. i saw enough early on to understand that environment has a weight. it presses on you. but i also had this underlying sense that it shouldn't get the final say, even if i couldn't articulate that yet.
+not in a romantic way. just in it. my parents got a house in a nice area near a nursing home. safe enough. but the city didn't grow with us — it just got more impoverished, more corrupted. when a city dies, it does so slowly. and i lived mostly inside my house. reclusive.
+
+i was in public school there until 5th grade. 6th grade i got into Princeton Day — private school, manicured lawns, the whole thing. i remember sitting with my dad waiting for the bus to come pick me up. it was weird going to this perfectly kept campus and then getting dropped off by my dad in the inner-city neighborhood i grew up in. culture shock that i eventually got used to.
 
 i was always confident academically. school made sense. inputs, outputs, clear rules. but socially, it was different. i didn't feel like i had a way in. at least, nothing that felt natural.
 
@@ -32,7 +34,7 @@ then a friend from college told me about an open mic in Trenton.
 
 i almost didn't go. i'd spent a lot of time trying to get away from Trenton, not lean into it. i'd seen enough growing up. gunshots, muggings. on my 17th birthday, i witnessed a shooting in front of my house. it didn't feel like a place where anything was building.
 
-but some 90 pound chick seemed thrilled to go this hole-in-the-wall, so i went.
+but some 90 pound chick named Valerie seemed thrilled to go this hole-in-the-wall, so i went. she eventually dated Benny, though my friendship with her outlasted the romance — he had an uncanny ability to turn ex-lovers into friends.
 
 it was a small bar. normal enough when walking in: bartenders tapping kegs, uncorking wine bottles, concoting sangria. to the left, there was a velvet curtain. i walked through and into a different world.
 
@@ -56,7 +58,11 @@ every night after our shift at the bar, we'd go back to Benny's house, smoke a j
 
 that period of my life was messy and alive.
 
-music, bartending, late nights, building relationships, co-founding Six to Midnight.
+music, bartending, late nights, building relationships.
+
+before we started our company, Benny had this thing called the Hive. a warehouse we transformed once a month into a stage — local bands played, artists live-painted murals, and the whole thing ran for 24 hours straight. that, along with the open mic, changed how i saw Trenton. the right people, even in a dying place, can turn a city around.
+
+then we started Six to Midnight. a studio we set up together, mostly in an effort to make cool shit. we took over a beautiful outdoor amphitheater in Trenton, got permits, put on an event with local music and snacks — very community-driven, even filmed a mini doc about it. we did a corporate event in suits and somehow kept the room warm. we did a wedding for one of Benny's ex-girlfriends on a farm and transformed the space with lights and music — Deana played DJ that night and got the room moving hard. we threw a private party at someone's house in Trenton where we supplied the alcohol, the music, the vibes, and it was one of the most electric rooms i've ever been in. even though the hosts got too drunk and had a public meltdown.
 
 the first thing i said to my future wife online was "hey, Blondie." i was definitely holding court at that point — finally had my stride in a thriving music community, talking to plenty of women. but after i started talking to Deana, i didn't want to talk to anyone else.
 
@@ -64,7 +70,11 @@ i invited her to the open mic. very public, easy. she showed up with her friend,
 
 the next week we hung out officially. i was bartending and Deana brought two friends with her, so i was basically on a date with three women our first time out. they felt comfortable enough to come back to Benny's house after the shift — our ritual — and listen as Benny and i brought them down into the basement studio, built some loops, and sang songs into the night. her friends were pretty and fun, but i knew i loved this girl from basically the first time i saw her. she was funny and had this cold Russian persona that i needed to crack. it didn't take long. we became inseparable, then official, and never looked back.
 
-her parents kept asking when we'd get married. we had a Quaker wedding a month before Phoenix was born. then moved in with my Russian in-laws, who barely spoke English and barely tolerated my existence.
+i remember the first time i met Deana's dad. he came home earlier than she expected. Deana, her friend, and i were just hanging out and this 6'5 tower of a human walked through the door and gracefully shook my hand. tense, but he was also okay. he's a pastor for a Russian Baptist church, presides over all of North America. me not being Christian and not married to his daughter was an obvious tension point. but he let me move in. looking back, that was significant grace when he didn't have to give it. we didn't speak the same language — i navigated mostly non-verbally. i'm respectful, i cook well, and i clean. that helped.
+
+her parents kept asking when we'd get married. we had a Quaker wedding a month before Phoenix was born.
+
+two kids, four adults, and a dog the parents didn't approve of but tolerated, all under one roof. it was cramped.
 
 it all blurred together in a way that felt real, even if it was far from stable and even further from ideal.
 
@@ -92,11 +102,15 @@ writing music felt contrived. like i was imitating something that had already en
 
 i had built my whole life around that room, those people, that rhythm. take it away and i didn’t know what was left.
 
-but i had my wife. and i had Phoenix. they didn’t fix anything, but they were there. and being there meant i couldn’t just disappear into it.
+Deana was hit hard too. we were all pseudo-family. this wasn’t just my loss.
+
+but we had each other. and we had Phoenix. that didn’t fix anything, but it meant i couldn’t just disappear into it.
 
 everything got tight after that. time, money, attention — all of it compressed.
 
-then we had Juniper.
+Deana weathered a lot. she went back to work after three months — only half paid — for both Phoenix and then Juniper. she wanted to breastfeed but pumping during shifts is hard, the stress mounts when you're the breadwinner, and eventually the supply dries up. we had enough to survive but not enough to breathe.
+
+then we had Juniper. when she was five months old we got accepted into rent-controlled housing — so did Deana's parents — and that was when things started to loosen. less tension, more space, the relationship with her parents getting better.
 
 i was home more. bartending and music didn't map cleanly to the life my growing family needed.
 
@@ -120,7 +134,7 @@ my father-in-law thought i was a forever student. he was asking his friends if i
 
 six months of that.
 
-on Juniper's first birthday, i broke into tech.
+the day after Juniper turned one, i started my first job. Deana tried to keep working too, but after three weeks i convinced her to stay home. she resisted hard — her identity had been wrapped up in working since before she knew me. it was her only form of freedom. it took time for her to realize that staying home didn't mean losing that.
 
 first day, they asked me to decrypt a 30,000-person email list. i had no idea how. didn't know what it was encrypted with. asked around — nobody else knew either. eventually we figured out it was Base64. i wrote a script that decoded the whole thing and felt the biggest rush i'd had in years. addicted.
 
@@ -130,9 +144,11 @@ my father-in-law apologized. our relationship has never been better.
 
 ---
 
-then Azalea. then Orion.
+my first job was at Rhone. my manager Isaac took a chance on me — one of the kindest people i'd ever met, completely in love with the work he was doing. he changed my life. he's not with us anymore, which is a travesty. more loss i've had to deal with.
 
-and the work kept getting bigger. better roles, harder problems. i got obsessed with doing things right — performance, accessibility, architecture. the kind of stuff most people skip over.
+Azalea was born while i was still at Rhone. before she was two months old, i switched to Made In Cookware — sizable bump in salary that my growing family needed. sleepless nights with a newborn while ramping up to a new job. i met Dan, our lead engineer, self-taught like me and brilliant. i learned so much from watching him work.
+
+Dan eventually left and i spent a year trying to prove i could lead. when they gave me the title, Orion was on the way. the work kept getting bigger. harder problems. i got obsessed with doing things right — performance, accessibility, architecture. the kind of stuff most people skip over.
 
 i wanted to understand every layer. every decision. if something broke, i wanted to know why before anyone else did.
 
