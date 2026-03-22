@@ -42,49 +42,53 @@ i remember just watching, trying to understand how it worked.
 
 then i met Benny.
 
-he was one of the most immediately magnetic people i'd ever met. no hesitation, no filtering. just fully himself.
+he was one of the most immediately magnetic people i'd ever met. no hesitation, no filtering. just fully himself. he'd had a hard life, was clean for over a decade, and had built up successful businesses brick by brick. he gave everyone a chance. was an incredible musician who could play anything. got excited about new bands, supported his friends' dreams, listened to an album all the way through before judging it. if he loved you he was all in — would turn over mountains to help get you where you needed to be. funniest human i've ever hung out with, and the most generous.
 
-i had found a new future best friend
+the open mic was his. he ran it with this philosophy — everyone gets their shot. not that he didn't shuffle things around to keep the show tight for the room, but nobody was turned away. the place was usually packed because Benny was excellent at promoting, snapping pics, making everyone feel like they were part of the magic even if they were just watching.
 
-and i became part of that scene.
+i remember my first time on stage. i was solid performing solo, had been doing it alone for a while. i started playing one of my originals and about halfway through someone jumped on cajón. i think Benny hopped on bass and figured out my song in real time. by the end a saxophone was blaring, riffing on the final chorus. i didn't realize i could feel that alive.
 
-i'd been doing everything alone up to that point. teaching myself, writing in isolation, calling it independence.
+i was a mainstay after that. week after week, for years.
 
-that room broke that. not with some big realization. just by showing me what it looked like when people actually built on each other. someone plays something, someone else answers it, and the thing that comes out is better than what either of them walked in with.
-
-after that, i couldn't go back to doing it alone.
+every night after our shift at the bar, we'd go back to Benny's house, smoke a joint, and talk for hours about our lives, our dreams. that became the ritual.
 
 ---
 
 that period of my life was messy and alive.
 
-music, bartending, late nights, building relationships, co-founding Six to Midnight, meeting my wife, and moving in with my Russian in-laws (barely spoke English and barely tolerated my existence).
+music, bartending, late nights, building relationships, co-founding Six to Midnight.
+
+the first thing i said to my future wife online was "hey, Blondie." i was definitely holding court at that point — finally had my stride in a thriving music community, talking to plenty of women. but after i started talking to Deana, i didn't want to talk to anyone else.
+
+i invited her to the open mic. very public, easy. she showed up with her friend, both of them wearing wigs. not that i would have necessarily noticed in that dark room — she wanted to see if i was a player. Benny, the shutterbug that he was, snapped a pic that showed we were three feet apart at one point and i didn't even notice.
+
+the next week we hung out officially. i was bartending and Deana brought two friends with her, so i was basically on a date with three women our first time out. they felt comfortable enough to come back to Benny's house after the shift — our ritual — and listen as Benny and i brought them down into the basement studio, built some loops, and sang songs into the night. her friends were pretty and fun, but i knew i loved this girl from basically the first time i saw her. she was funny and had this cold Russian persona that i needed to crack. it didn't take long. we became inseparable, then official, and never looked back.
+
+her parents kept asking when we'd get married. we had a Quaker wedding a month before Phoenix was born. then moved in with my Russian in-laws, who barely spoke English and barely tolerated my existence.
 
 it all blurred together in a way that felt real, even if it was far from stable and even further from ideal.
 
-but at 27, i became a dad to the most amazing little girl.
-
-that alone had already started shifting things. less time out, more time home. my wife working long hospital shifts. me trying to balance being present with still holding onto the life i had built around music and that scene.
+Phoenix changed everything, even if it took me a while to admit it. less time out, more time home. Deana working long hospital shifts. me trying to balance being present with still holding onto the life i had built around music and that scene.
 
 i was already feeling the tension. like i was straddling two paths that didn’t quite line up.
 
-then Benny died.
+then Benny relapsed.
+
+he’d given me all the leeway to become a dad, hooked me up with easy money. but secretly he was struggling. i only saw him a few times after Phoenix was born. i remember going to his house and he didn’t need to tell me — it was obvious. he was a shell of the person who had become my best friend, though underneath the struggle i could still see him in there.
+
+he was gone five months into me being a dad.
+
+when i found out he died, it was unexpected but not surprising. i had lost my role model, my friend, my business partner, the godfather to my kid.
+
+he didn’t have much family, and the ones he did have weren’t as familiar with the person i knew. they knew the addict he had been and returned to. my business relationship allowed me to keep many of his namesakes — his art, his instruments. specifically his acoustic guitars, the Taylors that he would put out every open mic so that even if people didn’t have the means to own a guitar, they had the option to play one. his legacy came to me.
 
 and whatever balance i thought i had just disappeared.
 
 it didn’t fade or taper off. it dropped out from under me.
 
-the community i'd thought was solid suddenly wasn't. the people were still there, but the thing that held it together was gone.
+i went back to the same bar, but it wasn’t the same place. same walls, same stage, same songs. but hollow.
 
-i went back to the same bar, but it wasn’t the same place.
-
-same walls, same stage, same songs. but hollow.
-
-writing music felt contrived. like i was imitating something that had already ended. recording for other people felt like a chore. just going through the motions.
-
-i remember thinking, what’s the point?
-
-it wasn’t just grief. it was disorientation.
+writing music felt contrived. like i was imitating something that had already ended. i remember thinking, what’s the point?
 
 i had built my whole life around that room, those people, that rhythm. take it away and i didn’t know what was left.
 
@@ -158,7 +162,9 @@ so i started letting go of the code. not the thinking — the grip.
 
 less writing every line. more shaping what came out. it felt wrong at first. like i was cheating on something i'd earned the hard way.
 
-but then my CEO started writing code. designers started shipping. people who had never built anything were building things. and i wasn't the bottleneck anymore.
+the first thing that felt really different was being able to talk to our data. we'd lost access to some important dashboards, and through CLIs i was able to mainline directly into our analytics provider, extract the lost data, and build a dashboard that was more complete and useful than the one we'd had — in about an hour. all the things i'd talked about wanting to do someday but knew i didn't have time for were suddenly getting done in a day or less. after two weeks i realized i'd cleared about a year's worth of nice-to-haves without any hit to my current workload.
+
+then my CEO started writing code. designers started shipping. people who had never built anything were building things. and i wasn't the bottleneck anymore.
 
 it reminded me of that room behind the velvet curtain. you don't have to play every instrument. you just have to know when to come in and when to let someone else take it.
 
