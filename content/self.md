@@ -162,7 +162,15 @@ so i started letting go of the code. not the thinking — the grip.
 
 less writing every line. more shaping what came out. it felt wrong at first. like i was cheating on something i'd earned the hard way.
 
-the first thing that felt really different was being able to talk to our data. we'd lost access to some important dashboards, and through CLIs i was able to mainline directly into our analytics provider, extract the lost data, and build a dashboard that was more complete and useful than the one we'd had — in about an hour. all the things i'd talked about wanting to do someday but knew i didn't have time for were suddenly getting done in a day or less. after two weeks i realized i'd cleared about a year's worth of nice-to-haves without any hit to my current workload.
+i remember the first real moment my brain broke was when i caught myself talking to our data. out loud. like it was a person.
+
+we'd lost access to some important dashboards. i sat down, asked the right questions, and rebuilt something better than what we'd had. in about an hour.
+
+am i really talking to data right now?
+
+the more i sat with it, the answer was yes. me and the machines were working together.
+
+after two weeks i realized i'd cleared about a year's worth of nice-to-haves. things i'd always talked about doing someday but never had time for. done. no hit to my current workload.
 
 then my CEO started writing code. designers started shipping. people who had never built anything were building things. and i wasn't the bottleneck anymore.
 
