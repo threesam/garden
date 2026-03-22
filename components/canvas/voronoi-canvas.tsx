@@ -2,7 +2,9 @@
 
 import { useEffect, useRef } from "react";
 
-const SCALE = 4.0;
+const SCALE_DESKTOP = 4.0;
+const SCALE_MOBILE = 5.6;
+const MOBILE_BREAK = 640;
 
 const VERTEX_SHADER = `
   attribute vec2 aPosition;
@@ -26,6 +28,7 @@ const FRAGMENT_SHADER = `
   uniform vec2 uCell1;
   uniform vec2 uCell2;
   uniform vec2 uCell3;
+  uniform float uScale;
 
   varying vec2 vUv;
 
@@ -79,8 +82,8 @@ const FRAGMENT_SHADER = `
     vec2 uv = vec2(vUv.x, 1.0 - vUv.y);
     float aspect = uResolution.x / uResolution.y;
 
-    vec2 p = vec2(uv.x * aspect, uv.y) * ${SCALE.toFixed(1)};
-    vec2 mouse = vec2(uMouse.x * aspect, uMouse.y) * ${SCALE.toFixed(1)};
+    vec2 p = vec2(uv.x * aspect, uv.y) * uScale;
+    vec2 mouse = vec2(uMouse.x * aspect, uMouse.y) * uScale;
 
     // Voronoi with cell center + grid tracking
     vec2 ip = floor(p);
@@ -197,9 +200,9 @@ function jsHash2(px: number, py: number): [number, number] {
   return [ax - Math.floor(ax), ay - Math.floor(ay)];
 }
 
-function findLetterCells(aspect: number, letterCount: number) {
-  const maxX = aspect * SCALE;
-  const maxY = SCALE;
+function findLetterCells(aspect: number, letterCount: number, scale: number) {
+  const maxX = aspect * scale;
+  const maxY = scale;
 
   const cells: { gx: number; gy: number; cx: number; cy: number }[] = [];
 
@@ -320,6 +323,7 @@ export function VoronoiCanvas({ invert = false, showLetters = true }: VoronoiCan
     const uCell1 = gl.getUniformLocation(program, "uCell1");
     const uCell2 = gl.getUniformLocation(program, "uCell2");
     const uCell3 = gl.getUniformLocation(program, "uCell3");
+    const uScale = gl.getUniformLocation(program, "uScale");
 
     gl.uniform1f(uInvert, invert ? 1.0 : 0.0);
     gl.uniform3fv(uTopColor, topColor);
@@ -363,9 +367,12 @@ export function VoronoiCanvas({ invert = false, showLetters = true }: VoronoiCan
       gl!.viewport(0, 0, canvas.width, canvas.height);
       gl!.uniform2f(uResolution, canvas.width, canvas.height);
 
+      const scale = canvas.offsetWidth < MOBILE_BREAK ? SCALE_MOBILE : SCALE_DESKTOP;
+      gl!.uniform1f(uScale, scale);
+
       if (showLetters) {
         const aspect = canvas.width / canvas.height;
-        const cells = findLetterCells(aspect, 4);
+        const cells = findLetterCells(aspect, 4, scale);
         gl!.uniform2f(uCell0, cells[0].gx, cells[0].gy);
         gl!.uniform2f(uCell1, cells[1].gx, cells[1].gy);
         gl!.uniform2f(uCell2, cells[2].gx, cells[2].gy);
