@@ -1,80 +1,110 @@
-i grew up in trenton, new jersey.
+i grew up in Trenton, New Jersey.
 
-not in a romantic way. just in it. i saw enough early on to understand that environment has weight. it presses on you. but i also had this underlying sense that it didn't get the final say, even if i couldn't articulate that yet.
+not in a romantic way. just in it. i saw enough early on to understand that environment has a weight. it presses on you. but i also had this underlying sense that it shouldn't get the final say, even if i couldn't articulate that yet.
 
-i was always confident academically. school made sense. inputs, outputs, clear rules. but socially, it was different. i didn't feel like i had a way in. nothing that felt natural.
+i was always confident academically. school made sense. inputs, outputs, clear rules. but socially, it was different. i didn't feel like i had a way in. at least, nothing that felt natural.
 
-when i was 16, i was at the beach and saw a guy playing guitar. nothing flashy, but there was a circle around him. people paying attention. girls leaning in, listening closely.
+when i was 16, i was at the beach and saw a guy playing guitar. can't remember what he was playing, if he was any good, but there was a circle around him. people paying attention. girls leaning in, listening closely.
 
-i remember thinking, *you can do that?*
+i remember thinking, _you can do that?_
 
 it felt like a cheat code. like you could bypass whatever social wiring you didn't have and still connect.
 
-i went home and dug up a guitar i'd been given as a kid. started playing. pretty quickly, it turned into writing. that part came naturally. it gave me a way to say things i wasn't saying anymore. before that, i don't think i was really expressing much at all. after that, everything had somewhere to go.
-
-music became the outlet, but more than that, it was the first time i felt like i could translate something internal into something real.
+i went home and dug up the guitar i'd been given as a kid, but never got further than a few half-hearted attempts at twinkle twinkle little star. i started playing. pretty quickly, it turned into writing. that part came quite naturally and gave me a way to say things i wasn't too keen on saying to anyone, let alone myself. before that, i don't think i was really expressing much at all. after that, everything had somewhere to go.
 
 ---
 
-i went through school, ended up at princeton day, then rider. studied political science and global studies.
+i went through public school in Trenton, ended up at Princeton Day, then Rider U. loved learning about all of everything -- art, biology, ethics -- but was told my grants would evaporate if i didn't pick a lane in my junior year.
 
-i liked the theory. systems, incentives, how things are supposed to work. but the real-world version felt off. messy in a way that didn't match the models.
+so i studied political science and global studies.
+
+felt like the right mix of history and philosophy. systems, incentives, how things are supposed to work. but the real-world version felt off. messy in a way that didn't match the models.
 
 i didn't want to operate inside that.
 
-music kept pulling.
+so when i graduated summa cum laude, i took my degree and went to work at the mall. obviously.
 
-after college, i was mostly in my own lane. writing, playing, learning on my own. i thought that was independence. looking back, it was more like isolation with a positive spin.
+Brookstone sales manager, where, for a time, i was ranked number 1 (company wide) in selling personal massagers.
 
-then a friend from college told me about an open mic in trenton.
+but music kept pulling. writing, playing, all on my own. i thought that was independence. looking back, it was more like isolation.
 
-i almost didn't go. i'd spent a lot of time trying to get away from trenton, not lean into it. i'd seen enough growing up. violence, instability. it didn't feel like a place where anything was building.
+then a friend from college told me about an open mic in Trenton.
 
-but she was going, so i went.
+i almost didn't go. i'd spent a lot of time trying to get away from Trenton, not lean into it. i'd seen enough growing up. gunshots, muggings. on my 17th birthday, i witnessed a shooting in front of my house. it didn't feel like a place where anything was building.
 
-it was a small bar. normal enough up front. then there was a velvet curtain. i walked through and it was a different world.
+but some 90 pound chick seemed thrilled to go this hole-in-the-wall, so i went.
 
-full room. live music, but not in the usual way. it wasn't one band, then another. it was fluid. drummer stays, bassist rotates, singers swap in and out every few minutes. pieces moving, but something consistent holding it together.
+it was a small bar. normal enough when walking in: bartenders tapping kegs, uncorking wine bottles, concoting sangria. to the left, there was a velvet curtain. i walked through and into a different world.
 
-i remember just watching it, trying to understand how it worked.
+full room. live music, but not in the usual way. it wasn't one band, then another. it was fluid. drummer stays, bassist rotates, singers swap in and out every few minutes. pieces moving, but something consistent gluing it all together.
 
-then i met benny.
+i remember just watching, trying to understand how it worked.
 
-he was one of the most immediately magnetic people i'd ever met. no hesitation, no filtering. just fully himself. we became close fast.
+then i met Benny.
 
-i became part of that scene.
+he was one of the most immediately magnetic people i'd ever met. no hesitation, no filtering. just fully himself.
 
-that's where something shifted.
+i had found a new future best friend
 
-i'd been doing everything alone up to that point. teaching myself, building in isolation, thinking that was strength.
+and i became part of that scene.
 
-being in that room showed me a different model. what happens when people build on each other instead of staying separate. when energy compounds instead of being contained.
+i'd been doing everything alone up to that point. teaching myself, writing in isolation, calling it independence.
 
-community stopped being optional after that. it wasn't just about playing music anymore. it was about being part of something that had momentum beyond any one person.
+that room broke that. not with some big realization. just by showing me what it looked like when people actually built on each other. someone plays something, someone else answers it, and the thing that comes out is better than what either of them walked in with.
+
+after that, i couldn't go back to doing it alone.
 
 ---
 
 that period of my life was messy and alive.
 
-music, bartending, late nights, building relationships, co-founding six to midnight, meeting my wife. it all blurred together in a way that felt real, even if it wasn't stable.
+music, bartending, late nights, building relationships, co-founding Six to Midnight, meeting my wife, and moving in with my Russian in-laws (barely spoke English and barely tolerated my existence).
 
-then i became a dad at 27.
+it all blurred together in a way that felt real, even if it was far from stable and even further from ideal.
 
-that was a hard shift.
+but at 27, i became a dad to the most amazing little girl.
 
-not emotional in a vague sense. structural. everything compressed. time, money, attention. there wasn't slack anymore.
+that alone had already started shifting things. less time out, more time home. my wife working long hospital shifts. me trying to balance being present with still holding onto the life i had built around music and that scene.
 
-my wife was working long hospital shifts. i was home more. bartending and music didn't map cleanly to the life we needed.
+i was already feeling the tension. like i was straddling two paths that didn’t quite line up.
+
+then Benny died.
+
+and whatever balance i thought i had just disappeared.
+
+it didn’t fade or taper off. it dropped out from under me.
+
+the community i'd thought was solid suddenly wasn't. the people were still there, but the thing that held it together was gone.
+
+i went back to the same bar, but it wasn’t the same place.
+
+same walls, same stage, same songs. but hollow.
+
+writing music felt contrived. like i was imitating something that had already ended. recording for other people felt like a chore. just going through the motions.
+
+i remember thinking, what’s the point?
+
+it wasn’t just grief. it was disorientation.
+
+i had built my whole life around that room, those people, that rhythm. take it away and i didn’t know what was left.
+
+but i had my wife. and i had Phoenix. they didn’t fix anything, but they were there. and being there meant i couldn’t just disappear into it.
+
+everything got tight after that. time, money, attention — all of it compressed.
+
+then we had Juniper.
+
+i was home more. bartending and music didn't map cleanly to the life my growing family needed.
 
 it became obvious pretty quickly that if i stayed on that path, we'd always be under pressure.
 
-i needed something that scaled. something i could control. something that let me build leverage instead of trading time directly.
+i needed something different. something that didn't depend on being in a room at 1am.
 
-i had already touched code a bit through generative art. playing with processing, trying to make visuals for shows. at some point, i wanted to put them onto a website so other people could see them.
+i had already touched code a bit through generative art. playing with [Processing](processing.org), trying to make groovy visuals for shows. at some point, i wanted to put them onto a website so other people could see them.
 
 that curiosity turned into a rabbit hole.
 
-web development, javascript, frameworks, everything i could get my hands on.
+web development, JavaScript, frameworks, everything i could get my hands on.
 
 i committed hard.
 
@@ -84,35 +114,29 @@ six months of focused effort.
 
 not dabbling. not half in. all in.
 
-i broke into tech.
+on Juniper's first birthday, i broke into tech.
 
 the first job was a shock in a good way. i said yes to everything, especially the things i didn't know how to do.
 
-that's where the real learning happened.
+asked more questions than i got answers for, learned more in a month than i had the previous year.
 
-i stopped seeing problems as things to avoid and started seeing them as the only way forward. you just stay in them long enough until something gives.
-
-that period built a different kind of confidence. not "i know this already," but "i can figure this out."
+same thing i was learning at home with the kids — you don't get to opt out of the hard parts. you just sit in them until something gives.
 
 ---
 
-from there, things compounded.
+then Azalea. then Orion.
 
-i moved up. better roles, more responsibility. modern stacks, bigger systems, more impact. i got into performance, accessibility, architecture. i cared about doing things right. clean, cohesive, scalable.
+and the work kept getting bigger. better roles, harder problems. i got obsessed with doing things right — performance, accessibility, architecture. the kind of stuff most people skip over.
 
-control mattered.
+i wanted to understand every layer. every decision. if something broke, i wanted to know why before anyone else did.
 
-understanding every layer, every decision. being able to reason about the system end to end.
-
-that mindset worked. it got me to where i am.
-
-but recently, something shifted again.
+that worked for a long time.
 
 ---
 
-we had a lunch and learn at work.
+we had a lunch and learn at work. some guy who'd built his whole business on AI.
 
-my ceo brought in a consultant who was running a successful, ai-driven business. he walked through his workflow. switching between tools, prompting, generating, iterating in real time.
+he was just sitting there, switching between tools, prompting, generating, iterating. not even thinking that hard about it.
 
 it was fast. loose. almost casual.
 
@@ -126,97 +150,28 @@ this looked like the opposite.
 
 but the results were undeniable.
 
-what clicked for me in that moment was that he wasn't focused on the code. he was focused on the outcome.
+and i realized he didn't care about the code. not like i did. he cared about what it got him.
 
-the code was just a means, not the craft itself.
+so i started letting go of the code. not the thinking — the grip.
 
-that required a different posture.
+less writing every line. more shaping what came out. it felt wrong at first. like i was cheating on something i'd earned the hard way.
 
-less control over implementation. more clarity on direction. better constraints. better judgment about what matters and what doesn't.
+but then my CEO started writing code. designers started shipping. people who had never built anything were building things. and i wasn't the bottleneck anymore.
 
-i started shifting how i worked almost immediately.
-
-less time writing every line. more time framing problems, setting guardrails, defining what "good" looks like. letting the system generate, then shaping it.
-
-my output increased.
-
-but more importantly, everyone else's output increased.
-
-non-engineers started building. my ceo is writing code. designers are shipping. i'm not the bottleneck anymore.
-
-i'm operating one layer up.
-
-if you look closely, the quality is still there. in some ways, it's better. because we can explore more paths, faster, and keep the ones that hold up.
-
-it feels similar to other moments in my life.
-
-playing music live. letting go enough to actually connect instead of trying to control every note.
-
-even psychedelic experiences, where the whole point is to stop resisting and let the thing unfold, then integrate it after.
-
-this feels like that, but applied to building. control doesn't disappear. it moves.
-
-from the hands to the frame.
+it reminded me of that room behind the velvet curtain. you don't have to play every instrument. you just have to know when to come in and when to let someone else take it.
 
 ---
 
-looking back, there's a pattern.
+i used to think money was the problem. that wanting it meant you'd lost something.
 
-i find an edge.
-
-something slightly uncomfortable, slightly out of reach.
-
-i step into it, usually before i feel ready.
-
-i compress the learning curve as much as possible.
-
-and at some point, i stop just participating and start operating at a higher level within that domain.
-
-music → expression
-open mic → community
-fatherhood → leverage
-ai → orchestration
-
-it's the same move, just applied in different contexts.
+now i have four kids and a wife and a life that costs what it costs. money isn't the thing. it's what lets you not think about the thing, so you can think about everything else.
 
 ---
 
-underneath all of it, i think i've been trying to do the same thing:
+i don't know what's next exactly.
 
-figure out how to live in a way that feels both free and responsible.
+i know it's less about doing everything myself. more about being useful to the people around me. not in a self-help way. in a practical way — someone has an idea, i can help them get it out of their head and into the world.
 
-to not be controlled by circumstance, but also not ignore reality.
+i'm still figuring that out. but i've been here before. the part where you can't see the shape yet but you know you're supposed to be walking toward it.
 
-to build enough leverage that i can support my family, create space, and still explore the things that matter to me.
-
-i used to have a bad relationship with money. saw it as something negative, something that corrupted.
-
-that's changed.
-
-now it feels more like a tool. if you care about anything beyond yourself, having resources matters.
-
-it lets you act.
-
----
-
-right now, it feels like another expansion point.
-
-less about doing everything myself.
-
-more about enabling, directing, connecting.
-
-helping ideas move. helping people move.
-
-not just building things, but helping people become the kind of person who can build things.
-
-still early in that. still figuring out what it looks like at scale.
-
-but the pattern is familiar enough that i trust it.
-
-find the edge.
-
-step in.
-
-stay long enough for it to change you.
-
-repeat.
+so that's what i'm doing.
