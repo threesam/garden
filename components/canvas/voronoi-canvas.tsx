@@ -120,7 +120,7 @@ const FRAGMENT_SHADER = `
 
     float f1 = d1;
     float f2 = d2;
-    float edge = smoothstep(0.0, 0.05, f2 - f1);
+    float edge = smoothstep(0.06, 0.10, f2 - f1);
 
     // Mirror surface
     vec3 white = uInvert > 0.5 ? uBotColor : uTopColor;
@@ -140,7 +140,7 @@ const FRAGMENT_SHADER = `
     base += fresnel * silver * 0.2;
 
     // Cell strokes
-    float edgeLine = 1.0 - smoothstep(0.0, 0.08, f2 - f1);
+    float edgeLine = 1.0 - smoothstep(0.04, 0.06, f2 - f1);
     vec3 black = uInvert > 0.5 ? uTopColor : uBotColor;
     base = mix(base, black, edgeLine);
 
@@ -152,6 +152,9 @@ const FRAGMENT_SHADER = `
     else if (length(nearestGrid - uCell3) < 0.1) letterIdx = 3;
 
     if (letterIdx >= 0) {
+      // Entire letter cell is solid black (including edges)
+      base = black;
+
       vec2 lp = (p - nearestCenter) * vec2(2.8, -2.8);
       float sd = 1e5;
       if (letterIdx == 0) sd = letterS(lp);
@@ -159,7 +162,7 @@ const FRAGMENT_SHADER = `
       else if (letterIdx == 2) sd = letterL(lp);
       else sd = letterF(lp);
       float mask = 1.0 - smoothstep(0.0, 0.03, sd);
-      base = mix(base, black, mask);
+      base = mix(base, shadow, mask);
     }
 
     // Edge fade
