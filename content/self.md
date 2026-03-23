@@ -1,10 +1,12 @@
 i grew up in Trenton, New Jersey.
 
-not in a romantic way. just in it. my parents got a house in a nice area near a nursing home. safe enough. but the city didn't grow with us — it just got more impoverished, more corrupted. when a city dies, it does so slowly. and i lived mostly inside my house. reclusive.
+not in a romantic way. just in it. my parents got a fixer upper in a nice area. it was near a nursing home. near my grandparents. it seemed safe enough. while we didn't intend to stay, life had other plans.
 
-my mom helped me through it. even as the city got more bleak, she remained a soft and consistent presence. nurturing in a way that kept the walls from closing in completely.
+always heard you're supposed to stay present, but you wouldn't see a dying city if you lived moment to moment. it happens slow. and i lived mostly inside my house so i hardly noticed.
 
-i was in public school there until 5th grade. 6th grade i got into Princeton Day — private school, manicured lawns, the whole thing. i remember sitting with my dad waiting for the bus to come pick me up. it was weird going to this perfectly kept campus and then getting dropped off back in the inner-city neighborhood i grew up in. culture shock that i eventually got used to.
+i was in public school there until 5th grade. my mom needed to give me all the options in life she felt she didn't have. so she got me interview ready and for 6th grade i got into Princeton Day — private school, manicured lawns, the whole thing. i remember sitting with my dad every morning waiting for the bus to come pick me up. it was weird going to this perfectly kept campus and then getting dropped off back in the inner-city neighborhood i grew up in.
+
+culture shock that i eventually got used to. kids are so blank canvas they can adapt to seamingly anything.
 
 i was always confident academically. school made sense. inputs, outputs, clear rules. but socially, it was different. i didn't feel like i had a way in. at least, nothing that felt natural.
 
@@ -14,49 +16,65 @@ i remember thinking, _you can do that?_
 
 it felt like a cheat code. like you could bypass whatever social wiring you didn't have and still connect.
 
-i went home and dug up the guitar i'd been given as a kid, but never got further than a few half-hearted attempts at twinkle twinkle little star. i started playing. pretty quickly, it turned into writing. that part came quite naturally and gave me a way to say things i wasn't too keen on saying to anyone, let alone myself. before that, i don't think i was really expressing much at all. after that, everything had somewhere to go.
+i went home and dug up the guitar i'd been given as a kid, but never got further than a few half-hearted attempts at twinkle twinkle little star.
+
+i started playing. pretty quickly, it turned into writing.
+
+that part came quite naturally and gave me a way to say things i wasn't too keen on saying to anyone, let alone myself. before that, i don't think i was really expressing much at all. after that, everything had somewhere to go.
 
 ---
 
 after Princeton Day, Rider U -- the only college that offered me a full scholarship.
 
-loved learning about all of everything — art, biology, ethics — but was told my grants would evaporate if i didn't pick a lane in my junior year.
+loved learning about all of everything — art, biology, ethics — but was told my grants would evaporate if i didn't pick a lane my junior year.
 
 so i studied political science and global studies.
 
 felt like a perfect synergy of history and philosophy. systems, incentives, how things are supposed to work. but the real-world version felt off. messy in a way that didn't match the models.
 
-i didn't want to operate inside that.
+so when i graduated summa cum laude, i took my degree and went to work at Quakerbridge Mall. obviously.
 
-so when i graduated summa cum laude, i took my degree and went to work at the mall. obviously.
+Brookstone sales manager, where, for a time, i was the slinging more personal massagers than anyone else at the company. felt more surreal than like success.
 
-Brookstone sales manager, where, for a time, i was ranked number 1 (company wide) in selling personal massagers.
+the irony of my store being shut down despite it being one of the only ones to beat all of it's sales goal, was infuriating at the time.
 
-but music kept pulling. writing, playing, all on my own. i thought that was independence. looking back, it was more like isolation.
+luckily, i got some severance + unemployment and used it all to buy music equipment and started recording myself. my parents were saints for putting up with my "dreams."
 
-then Brookstone downsized. even though my store was one of the only profitable ones, it closed down and i was out of the job. luckily i got some severance and used it to buy music equipment and started recording myself. i was looking for people to record when i talked to my college bud, Valerie — 90 pounds, fun and full of energy. instead of taking me up on my offer to record her, she invited me to an open mic and told me i needed to meet some guy named Benny.
+i was looking for people to record when i talked to my college bud, Valerie, who instead of taking me up on my offer to record her, invited me to an open mic. in Trenton, of all places.
 
-i almost didn't go. i'd spent a lot of time trying to get away from Trenton, not lean into it. i'd seen enough growing up. gunshots, muggings. on my 17th birthday, i witnessed a shooting in front of my house. it didn't feel like a place where anything positive could happen.
+i almost didn't go. i'd spent a lot of time trying to get away from Trenton, not lean into it. i'd seen enough dead bodies killed by drugs and/or bullets to feel like it wasn't a place where anything positive could happen.
 
-but Valerie seemed thrilled to go this hole-in-the-wall, so i went.
+but Valerie -- a 90 pound girl -- seemed so thrilled to go to this place she even picked my carless ass up to get me there.
 
-it was a small bar. normal enough when walking in: bartenders tapping kegs, uncorking wine bottles, concoting sangria. to the left, there was a velvet curtain. i walked through and into a different world.
+it was a small bar. normal enough when walking in: bartenders tapping kegs, uncorking wine bottles, concoting sangria. as we walked passed the bar, a deep growl started to rattle my ribs. there was a velvet curtain. i walked through and into a different world.
 
-full room. live music, but not in the usual way. it wasn't one band, then another. it was fluid. drummer stays, bassist rotates, singers swap in and out every few minutes. pieces moving, but something consistent gluing it all together.
+a room packed to the brim with every type of person i would never expect to see in my hometown. live music, but not in the usual way. no linear procession of bands. it was fluid. drummer stays, bassist rotates, a microphone used to amplify voices and then brass. a harmonica solo that lasts a bit too long. an unexpected distortion pedal at exactly the right time to cut through room as keys would echo into the rafters. pieces moving, but some muse secretly threading it all together.
 
 i remember just watching, trying to understand how it worked.
 
 then i met Benny.
 
-he was one of the most immediately magnetic people i'd ever met. no hesitation, no filtering. just fully himself. he'd had a hard life as a high functioning addict. but he was clean for over a decade when i met him, and had built up successful businesses brick by brick. he gave everyone a chance. was an incredible musician who could play anything. got excited about anything new and fresh, supported his friends' dreams, listened to an album all the way through before judging it. if he loved you he was all in — would turn over mountains to help get you where you needed to be. funniest human i've ever hung out with, and the most generous.
+he was one of the most immediately magnetic people i'd ever met. no hesitation, no filtering. just fully himself. an incredible musician who could pick up anything immediately by ear, with just about any instrument.
 
-the open mic was his. he ran it with this philosophy — everyone gets their shot. not that he didn't shuffle things around to keep the show tight for the room, but nobody was turned away. (well, almost nobody -- it was a bar in the hood after all). the place was usually packed because Benny was a god at promoting, snapping pics, making everyone feel like they were part of the magic even if they were just watching.
+the open mic was his. he ran it with this philosophy — the list is sacred. you sign up, you get to play -- not that he didn't shuffle things around to keep the show tight for the room, but you had to try _really_ hard to get turned away.
 
-i remember my first time on stage. i was solid performing solo and had been doing it alone for a while. but this was different. i started playing one of my originals and about halfway through someone jumped on cajón. i think Benny hopped on bass and figured out my song in real time. by the end a saxophone was blaring, riffing on the final chorus. i learned what "being in the moment" actually meant.
+he talked to every person who walked into the bar, snapped an impossible number of candids and posted the haul online every week. everyone was part of the experience.
 
-i was a mainstay after that. week after week, for years.
+i remember my first time on stage. i knew my way around a stage but this felt different. i started playing one of my originals and about halfway through someone jumped on cajón. i think Benny hopped on bass and figured out my song in real time. by the end a saxophone was blaring, riffing on the final chorus. i learned what "being in the moment" actually meant.
 
-every night after our shift at the bar, we'd go back to Benny's house, smoke a joint, and talk for hours about our lives, our dreams. that became the ritual.
+i was a fucking addicted after that. week after week, for years.
+
+eventually i helped him run the open mic.
+
+to make extra money, i started washing dishes, then waiting tables, then bartending.
+
+every night after our shift at the bar, we'd go back to Benny's corner brickhouse in a weirdly beautful part of town, smoke a joint, and talk for hours.
+
+usually about the dumb shit people do at a bar.
+
+but often Benny would tell me the most insane, terrifying, hilarious story from his days as an addict. the next day a story equally as insane -- the man lived more lives than seemed possible at 40. despite the trauma, he always was looking for a laugh and had hardly any issue pulling it from you.
+
+those nights became the ritual.
 
 ---
 
@@ -64,11 +82,11 @@ that period of my life was messy and alive.
 
 music, bartending, late nights, building relationships.
 
-before we started our company, Benny had this thing he helped start called the Hive. a warehouse we transformed once a month into a stage — local bands played, artists live-painted murals, and the whole thing ran for 24 hours straight. that, along with the open mic, changed how i saw Trenton. the right people, even in a dying place, can turn a city around.
+finally hitting my stride in a thriving music community, i was holding court — talking to women all day and hitting the apps every night.
 
-then we started Six to Midnight. a studio we set up together, mostly in an effort to make cool shit. we took over a beautiful outdoor amphitheater in Trenton, got permits, put on an event with local music and snacks — very community-driven, even filmed a mini doc about it. we did a corporate event in suits and somehow kept the room warm. we did a wedding for one of Benny's ex-girlfriends on a farm and transformed the space with lights and music. we threw a private party at someone's house in Trenton where we supplied the alcohol, the music, the vibes, and it was one of the most electric rooms i've ever been in. even though the hosts got too drunk and had a public meltdown.
+but after i started talking to Deana, i didn't want to talk to anyone else.
 
-the first thing i said to my future wife online was "hey, Blondie." i was definitely holding court at that point — finally had my stride in a thriving music community, talking to plenty of women. but after i started talking to Deana, i didn't want to talk to anyone else.
+the first thing i said to my future wife was "hey, Blondie."
 
 i invited her to the open mic. very public, easy. she showed up with her friend, both of them wearing wigs. not that i would have necessarily noticed in that dark room — she wanted to see if i was a player. Benny, the shutterbug that he was, snapped a pic that showed we were three feet apart at one point and i didn't even notice.
 
