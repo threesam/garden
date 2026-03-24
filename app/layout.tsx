@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Jost } from "next/font/google";
 import { Guide } from "@/components/frame/guide";
 import { Anchor } from "@/components/frame/anchor";
@@ -22,6 +23,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <Script
+        src="https://analytics.sixtom.com/script.js"
+        data-website-id="2a502ffa-58a1-4057-be13-e46f0354cfb7"
+        strategy="afterInteractive"
+      />
       <body
         className={`${jost.variable} antialiased`}
       >
