@@ -1,16 +1,18 @@
 i grew up in Trenton, New Jersey.
 
-not in a romantic way. just in it. my parents got a fixer upper in a nice area. it was near a nursing home. near my grandparents. it seemed safe enough. while we didn't intend to stay, life had other plans.
+not in a romantic way. just in it. my parents got a fixer upper in a nice area. it was near a nursing home. near my grandparents. seemed safe. while we didn't intend to stay, life had other plans.
 
-always heard you're supposed to stay present, but you wouldn't see a dying city if you lived moment to moment. it happens slow. and i lived mostly inside my house so i hardly noticed.
+always heard you're supposed to stay present, but you wouldn't recognize a dying city if you lived moment to moment. it happens slow. and i lived mostly inside my house so i hardly noticed.
 
-i was in public school there until 5th grade. my mom needed to give me all the options in life she felt she didn't have. so she got me interview ready and for 6th grade i got into Princeton Day — private school, manicured lawns, the whole thing. i remember sitting with my dad every morning waiting for the bus to come pick me up. it was weird going to this perfectly kept campus and then getting dropped off back in the inner-city neighborhood i grew up in.
+i was in public school there until 5th grade. my mom needed me to have all the options in life she felt she didn't have, so she got me interview ready and into Princeton Day — manicured lawns, amphitheaters, a fucking hockey rink.
 
-culture shock that i eventually got used to. kids are so blank canvas they can adapt to seamingly anything.
+i remember sitting with my dad every morning waiting for the bus to come pick me up. it was weird driving through enchanted forest to an elite private school and then getting dropped off back in the inner-city hood i grew up in.
 
-i was always confident academically. school made sense. inputs, outputs, clear rules. but socially, it was different. i didn't feel like i had a way in. at least, nothing that felt natural.
+culture shock that i eventually got used to. kids are so blank canvas they can adapt to basically anything.
 
-when i was 16, i was at the beach and saw a guy playing guitar. can't remember what he was playing, if he was any good, but there was a circle around him. people paying attention. girls leaning in, listening closely.
+it helped that i confident academically. school made sense. inputs, outputs, clear rules. but socially, it was different. not a damn thing felt natural.
+
+when i was 16, i was at the beach and saw a guy playing guitar. can't remember what he was playing, if he was any good, but there was a circle around him. attention was paid. girls were leaning in and listening closely.
 
 i remember thinking, _you can do that?_
 
@@ -20,7 +22,7 @@ i went home and dug up the guitar i'd been given as a kid, but never got further
 
 i started playing. pretty quickly, it turned into writing.
 
-that part came quite naturally and gave me a way to say things i wasn't too keen on saying to anyone, let alone myself. before that, i don't think i was really expressing much at all. after that, everything had somewhere to go.
+that part came quite naturally and gave me a way to say things i wasn't too keen on saying to anyone, let alone myself. before that, i don't think i was really expressing much at all. now, everything had somewhere to go.
 
 ---
 
@@ -88,13 +90,27 @@ but after i started talking to Deana, i didn't want to talk to anyone else.
 
 the first thing i said to my future wife was "hey, Blondie."
 
+corny as all hell. and not even true. more like blonde with a tint of fire, and eyes bluer than Russian ice she was born into.
+
 i invited her to the open mic. very public, easy. she showed up with her friend, both of them wearing wigs. not that i would have necessarily noticed in that dark room — she wanted to see if i was a player. Benny, the shutterbug that he was, snapped a pic that showed we were three feet apart at one point and i didn't even notice.
 
 the next week we hung out officially. i was bartending and Deana brought two friends with her, so i was basically on a date with three women our first time out. they felt comfortable enough to come back to Benny's house after the shift — our ritual — and listen as Benny and i brought them down into the basement studio, built some loops, and sang songs into the night. her friends were pretty and fun, but i knew i loved this girl from basically the first time i saw her. she was funny and had this cold Russian persona that i needed to crack. it didn't take long. we became inseparable, then official, and never looked back.
 
 i remember the first time i met Deana's dad. he came home earlier than she expected. Deana, her friend, and i were just hanging out and this 6'5 tower of a human walked through the door and gracefully shook my hand. tense, but he was also okay. he's a pastor for a Russian Baptist church, presides over all of North America. me not being Christian and not married to his daughter was an obvious tension point. but he let me move in. looking back, that was significant grace when he didn't have to give it. we didn't speak the same language — i navigated mostly non-verbally. i'm respectful, i cook well, and i clean. that helped.
 
-her parents kept asking when we'd get married. we had a Quaker wedding a month before Phoenix was born.
+her parents kept asking when we'd get married.
+
+they should have been asking if she was pregnant. oops.
+
+we didn't tell them until it was impossible to hide it.
+
+her skin tinged yellow from some combination of hormones and not even a hoodie could hide the absolutely adorable bump.
+
+they finally found out and were devastated she was as nervous to tell them.
+
+i knew were together but she started to joke about our kid taking her last name since she was doing all the work.
+
+we had a Quaker wedding on a grass covered rooftop in Philly a month before Phoenix was born.
 
 us, her parents, and a dog they didn't approve of but tolerated, all under one roof. it was cramped.
 
