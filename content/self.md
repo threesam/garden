@@ -28,17 +28,17 @@ that part came quite naturally and gave me a way to say things i wasn't too keen
 
 after Princeton Day, Rider U -- the only college that offered me a full scholarship.
 
-loved learning about all of everything — art, biology, ethics — but was told my grants would evaporate if i didn't pick a lane my junior year.
+loved learning about all of everything -- art, biology, ethics -- but was told my grants would evaporate if i didn't pick a lane my junior year.
 
 so i studied political science and global studies.
 
-felt like a perfect synergy of history and philosophy. systems, incentives, how things are supposed to work. but the real-world version felt off. messy in a way that didn't match the models.
+felt like a perfect synergy of history and philosophy. systems, incentives, how things are supposed to work. but the real-world version felt was messy in a way that didn't match the models.
 
 so when i graduated summa cum laude, i took my degree and went to work at Quakerbridge Mall. obviously.
 
-Brookstone sales manager, where, for a time, i was the slinging more personal massagers than anyone else at the company. felt more surreal than like success.
+worked my way up to a Brookstone sales manager, where, for a time, i was the slinging more personal massagers than anyone else at the company. felt more surreal than like success.
 
-the irony of my store being shut down despite it being one of the only ones to beat all of it's sales goal, was infuriating at the time.
+the irony of my store being shut down, despite it being one of the only to always crush sales goal, was beyond infuriating.
 
 luckily, i got some severance + unemployment and used it all to buy music equipment and started recording myself. my parents were saints for putting up with my "dreams."
 
@@ -90,13 +90,71 @@ but after i started talking to Deana, i didn't want to talk to anyone else.
 
 the first thing i said to my future wife was "hey, Blondie."
 
-corny as all hell. and not even true. more like blonde with a tint of fire, and eyes bluer than Russian ice she was born into.
+corny as all hell. and not even true. more like blonde with a tint of fire, and eyes bluer than the Russian ice she was born into.
 
-i invited her to the open mic. very public, easy. she showed up with her friend, both of them wearing wigs. not that i would have necessarily noticed in that dark room — she wanted to see if i was a player. Benny, the shutterbug that he was, snapped a pic that showed we were three feet apart at one point and i didn't even notice.
+i invited her to the open mic. very public, easy. she showed up with her friend, both of them wearing wigs. deceptive, but in the sexy way. not that i would have necessarily noticed in that dark room — she wanted to see if i was a player. Benny, the shutterbug that he was, snapped a pic that showed we were three feet apart at one point and i didn't even notice.
 
 the next week we hung out officially. i was bartending and Deana brought two friends with her, so i was basically on a date with three women our first time out. they felt comfortable enough to come back to Benny's house after the shift — our ritual — and listen as Benny and i brought them down into the basement studio, built some loops, and sang songs into the night. her friends were pretty and fun, but i knew i loved this girl from basically the first time i saw her. she was funny and had this cold Russian persona that i needed to crack. it didn't take long. we became inseparable, then official, and never looked back.
 
-i remember the first time i met Deana's dad. he came home earlier than she expected. Deana, her friend, and i were just hanging out and this 6'5 tower of a human walked through the door and gracefully shook my hand. tense, but he was also okay. he's a pastor for a Russian Baptist church, presides over all of North America. me not being Christian and not married to his daughter was an obvious tension point. but he let me move in. looking back, that was significant grace when he didn't have to give it. we didn't speak the same language — i navigated mostly non-verbally. i'm respectful, i cook well, and i clean. that helped.
+i remember the first time i met Deana's dad. he came home earlier than she expected. Deana, her friend, and i were just hanging out and this 6'5 tower of a human walked through the door and gracefully shook my hand. tense, but if he was pissed he didn't show it me. he's a pastor for a Russian Baptist church, presides over all of North America. like the whole fucking continent. me not being Christian and not married to his daughter was an obvious tension point. but he let me move in. looking back, that was significant grace when he didn't have to give it. we didn't speak the same language — i navigated mostly non-verbally. i'm respectful, i cook well, and i clean. that helped.
+
+i would still go work at the Trenton Social, and come back at 2am smelling like some combination of bleach, alcohol, and old smoke.
+
+one night i had finished my shift and Benny and me went back to his place, our ritual, and he mentioned that his one friend had brought over some golden teachers. "what?" they're equal parts smooth and potent magic mushrooms.
+
+ok.
+
+this launched me into what must have seemded like a speech i had planned for such an occassion.
+
+i explained that while shrooms are probably safe, i'd only ever consider using them later in life, maybe in a decade, after i have a steady career, success, family. after i'd already hit all the milestones.
+
+Benny side-eyed me, said "sure man" and jovially changed the subject. i never gave it a thought again.
+
+until the next morning when Deana woke up and said "i wanna do some drugs"
+
+what?
+
+when i asked what kind, she of course said "mushrooms"
+
+...
+
+this was so out of left field for her that i rolled my eyes at my own hypocrisy and called Benny to let him know i'd take an eigth.
+
+"sure man"
+
+we took the haul and drove to the Jersey shore, meeting at my friend's house in LBI.
+
+when the sun set, we portioned out 4 servings of the dried fungi and ate with bread and peanut butter because we obviously hated ourselves.
+
+nearly an hour in and the individual frames of our vision began to trail, color became more vivid, and the world was somehow more real.
+
+we stepped out onto the beach and felt the billion year old starlight falling on our faces.
+
+the sand, the waves, the cops patrolling the beach after curfew.
+
+even though we were well above the age allowed to roam, nope.
+
+we returned to the safe house and by some means of childlike communication decided to watch Plant Earth.
+
+the sound of David Attentenborough's voice is like a soothing hug, warm, though not enough to warm the penguins huddling during a blizzard.
+
+turns out when the horde breaks for even a second, that warmth bleeds out along the edges, they reshuffle to close the gap, often trampling those too youthful to move in step.
+
+nope.
+
+i left the room for solitude elsewhere in the house.
+
+Deana found me later and, even though we were experiencing this together for the first time, she offered the most sage advice effortlessly:
+
+"don't try and control it, just let it happen"
+
+i let her words transition me into the comedown and it felt like i understood myself, my place in the universe, the purpose of love -- all with the curiosity of a child and the conviction of a martyr.
+
+am i spiritual? maybe. call it a work in progress.
+
+am i hopelessly in love with this girl? definitely.
+
+---
 
 her parents kept asking when we'd get married.
 
