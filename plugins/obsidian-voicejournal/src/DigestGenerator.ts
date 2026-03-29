@@ -16,8 +16,10 @@ export class DigestGenerator {
   async generate(): Promise<void> {
     // 1. Collect journal entries from the last 7 days
     const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    // Normalize folder path: ensure trailing slash for reliable startsWith matching
+    const journalFolder = this.settings.journalFolder.replace(/\/?$/, '/');
     const files = this.app.vault.getFiles()
-      .filter(f => f.path.startsWith(this.settings.journalFolder))
+      .filter(f => f.path.startsWith(journalFolder))
       .filter(f => f.stat.mtime >= sevenDaysAgo);
 
     // 2. Filter to journal entries only using metadataCache
@@ -26,12 +28,13 @@ export class DigestGenerator {
       return cache?.frontmatter?.['type'] === 'journal-entry';
     });
 
-    // 3. Read each file's content
-    const entries: JournalEntry[] = await Promise.all(
+    // 3. Read each file's content (guard against cache invalidation between filter and map)
+    const entryResults = await Promise.all(
       journalFiles.map(async (f) => {
         const content = await this.app.vault.read(f);
-        const cache = this.app.metadataCache.getFileCache(f)!;
-        const fm = cache.frontmatter!;
+        const cache = this.app.metadataCache.getFileCache(f);
+        const fm = cache?.frontmatter;
+        if (!fm) return null; // cache was invalidated between filter and map
         return {
           title: String(fm['title'] ?? f.basename),
           date: String(fm['date'] ?? ''),
@@ -40,9 +43,10 @@ export class DigestGenerator {
           themes: Array.isArray(fm['themes']) ? fm['themes'] as string[] : [],
           fullContent: content,
           filePath: f.path,
-        };
+        } satisfies JournalEntry;
       })
     );
+    const entries = entryResults.filter((e): e is JournalEntry => e !== null);
 
     // 4. Bail early if no entries
     if (entries.length === 0) {
@@ -61,10 +65,11 @@ export class DigestGenerator {
     const noteContent = frontmatter + digestContent;
     const filename = `${dateStr}-weekly.md`;
 
-    // Ensure weeklyFolder exists
-    await this.ensureFolder(this.settings.weeklyFolder);
+    // Normalize weeklyFolder and ensure it exists
+    const weeklyFolder = this.settings.weeklyFolder.replace(/\/?$/, '/');
+    await this.ensureFolder(weeklyFolder);
 
-    const filePath = `${this.settings.weeklyFolder}${filename}`;
+    const filePath = `${weeklyFolder}${filename}`;
     const existing = this.app.vault.getFileByPath(filePath);
     if (existing) {
       await this.app.vault.modify(existing, noteContent);
@@ -85,8 +90,9 @@ export class DigestGenerator {
   private async ensureFolder(folderPath: string): Promise<void> {
     try {
       await this.app.vault.createFolder(folderPath);
-    } catch {
-      // Folder already exists — ignore
+    } catch (e) {
+      // Folder likely already exists — log for debugging but don't throw
+      console.debug('VoiceJournal: ensureFolder', folderPath, e);
     }
   }
 }

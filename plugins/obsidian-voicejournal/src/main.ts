@@ -50,9 +50,14 @@ export default class VoiceJournalPlugin extends Plugin {
 
     // Auto weekly digest on Sunday
     if (this.settings.autoWeeklyDigest && new Date().getDay() === 0) {
-      // Day 0 = Sunday
+      // Day 0 = Sunday — open panel and trigger digest after layout is ready
       this.app.workspace.onLayoutReady(() => {
-        this.activateView();
+        this.activateView().then(() => {
+          const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_JOURNAL);
+          if (leaves.length > 0) {
+            (leaves[0].view as JournalView).generateWeeklyDigest();
+          }
+        });
       });
     }
   }
