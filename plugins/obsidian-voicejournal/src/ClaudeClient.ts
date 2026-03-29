@@ -53,7 +53,11 @@ async function callClaude(
   }
 
   const data = await response.json() as ClaudeResponse;
-  return data.content[0].text;
+  const block = data.content.find((b) => b.type === 'text');
+  if (!block) {
+    throw new Error('Claude API error: no text content block in response');
+  }
+  return block.text;
 }
 
 export class ClaudeClient {
@@ -99,14 +103,23 @@ export class ClaudeClient {
       512,
     );
 
-    const parsed = JSON.parse(rawText) as ClassificationJson;
+    let parsed: ClassificationJson;
+    try {
+      parsed = JSON.parse(rawText) as ClassificationJson;
+    } catch {
+      throw new Error(`Claude classification returned invalid JSON: ${rawText.slice(0, 200)}`);
+    }
+
+    if (!Array.isArray(parsed.tags) || !Array.isArray(parsed.themes)) {
+      throw new Error('Claude classification returned malformed JSON: tags and themes must be arrays');
+    }
 
     return {
-      title: parsed.title,
+      title: parsed.title ?? '',
       tags: parsed.tags,
-      mood: parsed.mood,
+      mood: parsed.mood ?? '',
       themes: parsed.themes,
-      oneLineSummary: parsed.one_line_summary,
+      oneLineSummary: parsed.one_line_summary ?? '',
     };
   }
 
@@ -142,7 +155,7 @@ export class ClaudeClient {
       `---`,
     );
 
-    const userMessage = `Here are this week's journal entries:\n\n${entrySections.join('\n')}`;
+    const userMessage = `Here are this week's journal entries:\n\n${entrySections.join('\n\n')}`;
 
     return callClaude(
       system,

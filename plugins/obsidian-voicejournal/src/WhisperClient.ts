@@ -3,7 +3,7 @@ export class WhisperClient {
     const formData = new FormData();
     formData.append('file', blob, 'chunk.webm');
     formData.append('model', 'whisper-1');
-    formData.append('language', 'en');
+    formData.append('language', 'en'); // hardcoded; add to VoiceJournalSettings if multi-language needed
 
     const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
