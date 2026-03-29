@@ -158,7 +158,7 @@ am i spiritual? maybe. call it a work in progress.
 
 am i hopelessly in love with this girl? definitely.
 
-## the drop
+## fault lines
 
 her parents kept asking when we'd get married.
 
