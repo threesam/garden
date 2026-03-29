@@ -2,6 +2,7 @@
 export interface VoiceJournalSettings {
   openaiApiKey: string;
   whisperBaseUrl: string;      // default: 'http://localhost:8000' for faster-whisper-server
+  claudePath: string;          // absolute path to claude CLI (needed when Obsidian can't find it via PATH)
   journalFolder: string;       // default: 'journal/'
   weeklyFolder: string;        // default: 'journal/weekly/'
   silenceThreshold: number;    // dB level, default: -45
@@ -12,6 +13,7 @@ export interface VoiceJournalSettings {
 export const DEFAULT_SETTINGS: VoiceJournalSettings = {
   openaiApiKey: '',
   whisperBaseUrl: 'http://localhost:8000',
+  claudePath: 'claude',
   journalFolder: 'journal/',
   weeklyFolder: 'journal/weekly/',
   silenceThreshold: -45,

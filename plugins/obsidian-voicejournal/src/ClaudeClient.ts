@@ -14,10 +14,13 @@ interface ClassificationJson {
  * Uses --no-session-persistence so journal content is never saved to session history.
  * Uses --tools "" to disable all tools (pure text generation, faster).
  */
+let _claudePath = 'claude';
+export function setClaudePath(p: string) { _claudePath = p || 'claude'; }
+
 async function callClaude(system: string, userContent: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const child = spawn(
-      'claude',
+      _claudePath,
       [
         '--print',
         '--system-prompt', system,

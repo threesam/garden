@@ -42,10 +42,19 @@ export class VoiceJournalSettingsTab extends PluginSettingTab {
           })
       );
 
-    // 3. Claude — info only (uses Claude Code CLI, no API key needed)
+    // 3. Claude path
     new Setting(containerEl)
-      .setName('Claude (via Claude Code CLI)')
-      .setDesc('Follow-up questions and classification use your local `claude` install. No API key needed here.');
+      .setName('Claude CLI path')
+      .setDesc('Full path to the claude executable. Run `which claude` in terminal to find it.')
+      .addText((text) =>
+        text
+          .setPlaceholder('claude')
+          .setValue(this.plugin.settings.claudePath)
+          .onChange(async (value) => {
+            this.plugin.settings.claudePath = value.trim() || 'claude';
+            await this.plugin.saveSettings();
+          })
+      );
 
     // 4. Journal Folder
     new Setting(containerEl)

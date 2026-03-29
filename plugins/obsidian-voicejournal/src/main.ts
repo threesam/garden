@@ -2,12 +2,14 @@ import { Plugin } from 'obsidian';
 import { VoiceJournalSettings, DEFAULT_SETTINGS } from './types';
 import { VoiceJournalSettingsTab } from './SettingsTab';
 import { JournalView, VIEW_TYPE_JOURNAL } from './JournalView';
+import { setClaudePath } from './ClaudeClient';
 
 export default class VoiceJournalPlugin extends Plugin {
   settings: VoiceJournalSettings = { ...DEFAULT_SETTINGS };
 
   async onload() {
     await this.loadSettings();
+    setClaudePath(this.settings.claudePath);
 
     // Register the side panel view
     this.registerView(VIEW_TYPE_JOURNAL, (leaf) => new JournalView(leaf, this));
@@ -82,5 +84,6 @@ export default class VoiceJournalPlugin extends Plugin {
 
   async saveSettings(): Promise<void> {
     await this.saveData(this.settings);
+    setClaudePath(this.settings.claudePath);
   }
 }
