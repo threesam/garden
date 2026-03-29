@@ -4,17 +4,34 @@
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PLUGIN_DIR="$REPO_DIR/plugins/obsidian-voicejournal"
+
+# In a git worktree, .git is a file (not a dir) — resolve back to main repo root
+GIT_PATH="$REPO_DIR/.git"
+if [ -f "$GIT_PATH" ]; then
+  GITDIR="$(grep -oE '[^ ]+$' "$GIT_PATH")"          # e.g. /repo/.git/worktrees/branch
+  MAIN_REPO="$(cd "$GITDIR/../../.." && pwd)"         # 3 levels up → main repo
+else
+  MAIN_REPO="$REPO_DIR"
+fi
+
+# Find plugin dir — check main repo first, then any worktrees (init.sh may have run there)
+PLUGIN_DIR=""
+for candidate in \
+  "$MAIN_REPO/plugins/obsidian-voicejournal" \
+  "$MAIN_REPO"/.worktrees/*/plugins/obsidian-voicejournal
+do
+  if [ -f "$candidate/.venv/bin/uvicorn" ]; then
+    PLUGIN_DIR="$candidate"; break
+  fi
+done
+[ -n "$PLUGIN_DIR" ] || fail "Whisper venv not found. Run: cd plugins/obsidian-voicejournal && bash scripts/init.sh"
 UVICORN="$PLUGIN_DIR/.venv/bin/uvicorn"
 
 RED='\033[0;31m'; CYAN='\033[0;36m'; RESET='\033[0m'
 info() { echo -e "${CYAN}→${RESET} $*"; }
 fail() { echo -e "${RED}✗${RESET} $*" >&2; exit 1; }
 
-# ── preflight ──────────────────────────────────────────────────────────────────
-[ -f "$UVICORN" ] || fail "Whisper venv not found. Run: cd plugins/obsidian-voicejournal && bash scripts/init.sh"
-
-# Resolve claude binary (prefer CLAUDE_PATH env, then common locations)
+# ── resolve claude binary ────────────────────────────────────────────────────── (prefer CLAUDE_PATH env, then common locations)
 if [ -z "${CLAUDE_PATH:-}" ]; then
   for candidate in \
     "$HOME/.local/bin/claude" \
