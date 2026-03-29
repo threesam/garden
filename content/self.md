@@ -74,7 +74,7 @@ every night after our shift at the bar, we'd go back to Benny's corner brickhous
 
 usually about the dumb shit people do at a bar.
 
-but often Benny would tell me the most insane, terrifying, hilarious story from his days as an addict. the next day a story equally as insane -- the man lived more lives than seemed possible at 40. despite the trauma, he always was looking for a laugh and had hardly any issue pulling it from you.
+but often Benny would tell me the most insane, terrifying, hilarious story from his days as an addict. the next day a story equally as insane -- the man lived more lives than seemed possible at 40. despite the trauma, he always was looking for a laugh and had hardly any issue pulling it from your soul.
 
 those nights became the ritual.
 
