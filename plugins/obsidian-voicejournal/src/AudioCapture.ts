@@ -10,6 +10,8 @@ export class AudioCapture {
   private mediaRecorder: MediaRecorder | null = null;
   private intervalId: ReturnType<typeof setInterval> | null = null;
   private isChunking = false; // prevent double-trigger while onstop is in flight
+  // Tracks the async work of the current in-flight chunk (transcription + follow-up)
+  private chunkSettled: Promise<void> = Promise.resolve();
 
   constructor(settings: Pick<VoiceJournalSettings, 'silenceThreshold' | 'silenceDuration'>) {
     this.settings = settings;
@@ -116,22 +118,25 @@ export class AudioCapture {
         const recorderToStop = recorder;
         const chunksCopy = chunks;
 
-        // Stop the current recorder; wait for onstop, then process and restart
-        recorderToStop.onstop = async () => {
-          this.isChunking = false;
-          const blob = new Blob(chunksCopy, { type: mimeType });
+        // Stop the current recorder; wait for onstop, then process and restart.
+        // chunkSettled tracks the full async work so drain() can await it.
+        recorderToStop.onstop = () => {
+          this.chunkSettled = (async () => {
+            this.isChunking = false;
+            const blob = new Blob(chunksCopy, { type: mimeType });
 
-          if (blob.size > 0) {
-            await onSilence(blob);
-          }
+            if (blob.size > 0) {
+              await onSilence(blob);
+            }
 
-          // Restart only if we are still running (stop() not called)
-          if (this.intervalId !== null) {
-            const next = createRecorder();
-            recorder = next.recorder;
-            chunks = next.chunks;
-            this.mediaRecorder = recorder;
-          }
+            // Restart only if we are still running (stop() not called)
+            if (this.intervalId !== null) {
+              const next = createRecorder();
+              recorder = next.recorder;
+              chunks = next.chunks;
+              this.mediaRecorder = recorder;
+            }
+          })();
         };
 
         recorderToStop.stop();
@@ -185,5 +190,14 @@ export class AudioCapture {
     }
 
     this.isChunking = false;
+  }
+
+  /**
+   * Returns a promise that resolves when the current in-flight chunk (transcription +
+   * follow-up question) has fully settled. Call after stop() to avoid a race where the
+   * final spoken chunk's async processing completes after the caller has moved on.
+   */
+  drain(): Promise<void> {
+    return this.chunkSettled;
   }
 }

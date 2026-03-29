@@ -161,8 +161,9 @@ export class JournalView extends ItemView {
   private async stopSession(): Promise<void> {
     this.audioCapture.stop();
     this.updateStatus('listening');
-    // Give any in-flight onstop callback a moment to finish
-    await Promise.resolve();
+    // Wait for any in-flight chunk (transcription + follow-up) to fully settle
+    // before transitioning to idle — prevents Save being enabled prematurely.
+    await this.audioCapture.drain();
     this.updateStatus('idle'); // updateStatus handles btnSave.disabled
   }
 
@@ -204,6 +205,12 @@ export class JournalView extends ItemView {
       `---`;
 
     const noteContent = frontmatter + '\n\n' + fullTranscript;
+    const folder = this.plugin.settings.journalFolder.replace(/\/?$/, '/');
+    try {
+      await this.app.vault.createFolder(folder);
+    } catch {
+      // Folder already exists — expected on all non-first saves
+    }
     const filePath = await this.buildFilePath(today, classification.title);
 
     try {
