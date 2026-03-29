@@ -1,3 +1,5 @@
+## blank canvas
+
 i grew up in Trenton, New Jersey.
 
 not in a romantic way. just in it. my parents got a fixer upper in a nice area. it was near a nursing home. near my grandparents. seemed safe. while we didn't intend to stay, life had other plans.
@@ -8,7 +10,7 @@ i was in public school there until 5th grade. my mom needed me to have all the o
 
 i remember sitting with my dad every morning waiting for the bus to come pick me up. it was weird driving through enchanted forest to an elite private school and then getting dropped off back in the inner-city hood i grew up in.
 
-culture shock that i eventually got used to. kids are so blank canvas they can adapt to basically anything.
+culture shock that i eventually got used to. kids are so tabula rasa they can adapt to basically anything.
 
 it helped that i confident academically. school made sense. inputs, outputs, clear rules. but socially, it was different. not a damn thing felt natural.
 
@@ -24,7 +26,7 @@ i started playing. pretty quickly, it turned into writing.
 
 that part came quite naturally and gave me a way to say things i wasn't too keen on saying to anyone, let alone myself. before that, i don't think i was really expressing much at all. now, everything had somewhere to go.
 
----
+## the velvet door
 
 after Princeton Day, Rider U -- the only college that offered me a full scholarship.
 
@@ -78,7 +80,7 @@ but often Benny would tell me the most insane, terrifying, hilarious story from 
 
 those nights became the ritual.
 
----
+## blondie
 
 that period of my life was messy and alive.
 
@@ -118,8 +120,6 @@ what?
 
 when i asked what kind, she of course said "mushrooms" :mushroom:
 
-...
-
 this was so out of left field for her that i rolled my eyes at my own hypocrisy and called Benny to let him know i'd take an eigth.
 
 "sure man"
@@ -158,7 +158,7 @@ am i spiritual? maybe. call it a work in progress.
 
 am i hopelessly in love with this girl? definitely.
 
----
+## the drop
 
 her parents kept asking when we'd get married.
 
@@ -242,7 +242,7 @@ i said yes to everything after that, especially the things i didn't know how to 
 
 my father-in-law apologized. our relationship has never been better.
 
----
+## foundation
 
 my first job was at Rhone. my manager Isaac took a chance on me — one of the kindest people i'd ever met, completely in love with the work he was doing. he changed my life. he's not with us anymore, which is a travesty. more loss i've had to deal with.
 
@@ -270,7 +270,7 @@ we came back to Pennsylvania to have the baby and be with family. after a year, 
 
 that worked for a long time.
 
----
+## dissonance
 
 we had a lunch and learn at work. some guy who'd built his whole business on AI.
 
@@ -308,7 +308,7 @@ then my CEO started writing code. designers started shipping. people who had nev
 
 it reminded me of that room behind the velvet curtain. you don't have to play every instrument. you just have to know when to come in and when to let someone else take it.
 
----
+## work in progress
 
 i don't know what's next exactly.
 
