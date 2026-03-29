@@ -1,0 +1,9 @@
+{
+  "id": "voice-journal",
+  "name": "VoiceJournal",
+  "version": "1.0.0",
+  "minAppVersion": "1.4.0",
+  "description": "Voice journaling with Whisper transcription, Claude follow-up questions, and weekly digests.",
+  "author": "Sam",
+  "isDesktopOnly": true
+}
