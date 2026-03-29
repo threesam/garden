@@ -98,23 +98,25 @@ the next week we hung out officially. i was bartending and Deana brought two fri
 
 i remember the first time i met Deana's dad. he came home earlier than she expected. Deana, her friend, and i were just hanging out and this 6'5 tower of a human walked through the door and gracefully shook my hand. tense, but if he was pissed he didn't show it me. he's a pastor for a Russian Baptist church, presides over all of North America. like the whole fucking continent. me not being Christian and not married to his daughter was an obvious tension point. but he let me move in. looking back, that was significant grace when he didn't have to give it. we didn't speak the same language — i navigated mostly non-verbally. i'm respectful, i cook well, and i clean. that helped.
 
-i would still go work at the Trenton Social, and come back at 2am smelling like some combination of bleach, alcohol, and old smoke.
+i would still go work at the Trenton Social, and come back at 2am smelling like some combination of bleach, alcohol, and stale second-hand cigarellos.
 
-one night i had finished my shift and Benny and me went back to his place, our ritual, and he mentioned that his one friend had brought over some golden teachers. "what?" they're equal parts smooth and potent magic mushrooms.
+one night, Benny and me had finished just finished our shift and he mentioned that he just acquired some golden teachers. "what?" they're equal parts smooth and potent magic mushrooms.
 
 ok.
 
 this launched me into what must have seemded like a speech i had planned for such an occassion.
 
-i explained that while shrooms are probably safe, i'd only ever consider using them later in life, maybe in a decade, after i have a steady career, success, family. after i'd already hit all the milestones.
+i explained that while shrooms are probably safe, i'd only ever consider using them much later in life, maybe in a decade, after i have a steady career, success, family. after i'd already hit all the milestones.
 
-Benny side-eyed me, said "sure man" and jovially changed the subject. i never gave it a thought again.
+Benny side-eyed me, said "sure man" and jovially changed the subject.
+
+i never gave it a thought again.
 
 until the next morning when Deana woke up and said "i wanna do some drugs"
 
 what?
 
-when i asked what kind, she of course said "mushrooms"
+when i asked what kind, she of course said "mushrooms" :mushroom:
 
 ...
 
@@ -122,7 +124,9 @@ this was so out of left field for her that i rolled my eyes at my own hypocrisy 
 
 "sure man"
 
-we took the haul and drove to the Jersey shore, meeting at my friend's house in LBI.
+Deana and me drove to a festival called Leaperland to scoop our haul from Benny, briefly hanging around to recieve some tips for effective use and promptly drove to the Jersey shore.
+
+we met at my friend's house in LBI, 4 of us ready to face the unknown.
 
 when the sun set, we portioned out 4 servings of the dried fungi and ate with bread and peanut butter because we obviously hated ourselves.
 
