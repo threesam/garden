@@ -9,7 +9,7 @@ import type { SessionState, PluginStatus } from './types';
 export const VIEW_TYPE_JOURNAL = 'voice-journal-view';
 
 export class JournalView extends ItemView {
-  plugin: VoiceJournalPlugin;
+  private readonly plugin: VoiceJournalPlugin;
 
   private session: SessionState = {
     transcriptSegments: [],
@@ -91,6 +91,10 @@ export class JournalView extends ItemView {
   }
 
   async onClose(): Promise<void> {
+    if (this.errorHideTimer !== null) {
+      clearTimeout(this.errorHideTimer);
+      this.errorHideTimer = null;
+    }
     this.audioCapture.stop();
   }
 
@@ -159,9 +163,7 @@ export class JournalView extends ItemView {
     this.updateStatus('listening');
     // Give any in-flight onstop callback a moment to finish
     await Promise.resolve();
-    this.updateStatus('idle');
-    // Enable save if there's content
-    this.btnSave.disabled = this.session.transcriptSegments.length === 0;
+    this.updateStatus('idle'); // updateStatus handles btnSave.disabled
   }
 
   private async saveSession(): Promise<void> {
@@ -185,6 +187,8 @@ export class JournalView extends ItemView {
     }
 
     // Build YAML frontmatter
+    // Escape embedded double-quotes in LLM-generated string values to prevent malformed YAML
+    const escYaml = (s: string) => s.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
     const today = new Date().toISOString().slice(0, 10);
     const tagsYaml = classification.tags.map((t) => `  - ${t}`).join('\n');
     const themesYaml = classification.themes.map((t) => `  - ${t}`).join('\n');
@@ -192,11 +196,11 @@ export class JournalView extends ItemView {
       `---\n` +
       `type: journal-entry\n` +
       `date: ${today}\n` +
-      `title: "${classification.title}"\n` +
-      `mood: "${classification.mood}"\n` +
+      `title: "${escYaml(classification.title)}"\n` +
+      `mood: "${escYaml(classification.mood)}"\n` +
       `tags:\n${tagsYaml}\n` +
       `themes:\n${themesYaml}\n` +
-      `summary: "${classification.oneLineSummary}"\n` +
+      `summary: "${escYaml(classification.oneLineSummary)}"\n` +
       `---`;
 
     const noteContent = frontmatter + '\n\n' + fullTranscript;
@@ -265,9 +269,7 @@ export class JournalView extends ItemView {
 
   private appendTranscript(text: string): void {
     this.session.transcriptSegments.push(text);
-    const p = this.elTranscript.createEl('p', { text });
-    // Ensure the new paragraph is visible
-    void p;
+    this.elTranscript.createEl('p', { text });
     this.elTranscript.scrollTop = this.elTranscript.scrollHeight;
   }
 
@@ -293,7 +295,7 @@ export class JournalView extends ItemView {
     }, 5000);
   }
 
-  async buildFilePath(date: string, title: string): Promise<string> {
+  private async buildFilePath(date: string, title: string): Promise<string> {
     const folder = this.plugin.settings.journalFolder.replace(/\/?$/, '/');
     const safeName = title.replace(/[/\\?%*:|"<>]/g, '-');
     const base = `${date} - ${safeName}`;
