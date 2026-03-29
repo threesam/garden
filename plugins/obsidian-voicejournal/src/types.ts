@@ -25,7 +25,6 @@ export type PluginStatus = 'idle' | 'recording' | 'listening' | 'processing';
 export interface SessionState {
   transcriptSegments: string[];
   questionsAsked: string[];
-  isRecording: boolean;
   status: PluginStatus;
 }
 
@@ -35,13 +34,13 @@ export interface ClassificationResult {
   tags: string[];
   mood: string;
   themes: string[];
-  one_line_summary: string;
+  oneLineSummary: string;
 }
 
 // Journal entry metadata for digest queries
 export interface JournalEntry {
   title: string;
-  date: string;
+  date: string; // ISO 8601 format: YYYY-MM-DD
   tags: string[];
   mood: string;
   themes: string[];

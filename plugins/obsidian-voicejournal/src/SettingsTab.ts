@@ -97,7 +97,7 @@ export class VoiceJournalSettingsTab extends PluginSettingTab {
           .setValue(String(this.plugin.settings.silenceDuration))
           .onChange(async (value) => {
             const parsed = parseInt(value, 10);
-            if (!isNaN(parsed)) {
+            if (!isNaN(parsed) && parsed >= 100) {
               this.plugin.settings.silenceDuration = parsed;
               await this.plugin.saveSettings();
             }
