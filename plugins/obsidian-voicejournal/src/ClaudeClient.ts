@@ -1,22 +1,5 @@
+import { spawn } from 'child_process';
 import { ClassificationResult, JournalEntry } from './types';
-
-const CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages';
-const CLAUDE_MODEL = 'claude-sonnet-4-6';
-const ANTHROPIC_VERSION = '2023-06-01';
-
-interface ClaudeMessage {
-  role: 'user' | 'assistant';
-  content: string;
-}
-
-interface ClaudeContentBlock {
-  type: string;
-  text: string;
-}
-
-interface ClaudeResponse {
-  content: ClaudeContentBlock[];
-}
 
 interface ClassificationJson {
   title: string;
@@ -26,45 +9,51 @@ interface ClassificationJson {
   one_line_summary: string;
 }
 
-async function callClaude(
-  system: string,
-  messages: ClaudeMessage[],
-  apiKey: string,
-  maxTokens: number,
-): Promise<string> {
-  const response = await fetch(CLAUDE_API_URL, {
-    method: 'POST',
-    headers: {
-      'x-api-key': apiKey,
-      'anthropic-version': ANTHROPIC_VERSION,
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: CLAUDE_MODEL,
-      max_tokens: maxTokens,
-      system,
-      messages,
-    }),
+/**
+ * Calls the local `claude` CLI in non-interactive print mode.
+ * Uses --no-session-persistence so journal content is never saved to session history.
+ * Uses --tools "" to disable all tools (pure text generation, faster).
+ */
+async function callClaude(system: string, userContent: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(
+      'claude',
+      [
+        '--print',
+        '--system-prompt', system,
+        '--tools', '',
+        '--no-session-persistence',
+      ],
+      { stdio: ['pipe', 'pipe', 'pipe'] },
+    );
+
+    let stdout = '';
+    let stderr = '';
+
+    child.stdout.on('data', (chunk: Buffer) => { stdout += chunk.toString(); });
+    child.stderr.on('data', (chunk: Buffer) => { stderr += chunk.toString(); });
+
+    child.stdin.write(userContent);
+    child.stdin.end();
+
+    child.on('close', (code: number | null) => {
+      if (code === 0) {
+        resolve(stdout.trim());
+      } else {
+        reject(new Error(`claude CLI error (exit ${code ?? '?'}): ${stderr.slice(0, 300)}`));
+      }
+    });
+
+    child.on('error', (err: Error) => {
+      reject(new Error(`Could not spawn claude: ${err.message}. Ensure Claude Code is installed and in PATH.`));
+    });
   });
-
-  if (!response.ok) {
-    const errorText = await response.text().catch(() => response.statusText);
-    throw new Error(`Claude API error ${response.status}: ${errorText}`);
-  }
-
-  const data = await response.json() as ClaudeResponse;
-  const block = data.content.find((b) => b.type === 'text');
-  if (!block) {
-    throw new Error('Claude API error: no text content block in response');
-  }
-  return block.text;
 }
 
 export class ClaudeClient {
   async askFollowUp(
     fullTranscript: string,
     previousQuestions: string[],
-    apiKey: string,
   ): Promise<string> {
     const system =
       'You are a depth-focused journaling coach. Your only job is to ask \n' +
@@ -78,13 +67,10 @@ export class ClaudeClient {
       `Questions already asked this session:\n${previousQuestions.length > 0 ? previousQuestions.join('\n') : 'None'}\n\n` +
       `Ask the next question.`;
 
-    return callClaude(system, [{ role: 'user', content: userMessage }], apiKey, 1024);
+    return callClaude(system, userMessage);
   }
 
-  async classifyEntry(
-    transcript: string,
-    apiKey: string,
-  ): Promise<ClassificationResult> {
+  async classifyEntry(transcript: string): Promise<ClassificationResult> {
     const system =
       'Analyze this journal entry and return ONLY valid JSON. No markdown fences. \n' +
       'No explanation. JSON only. Use this exact shape:\n' +
@@ -96,16 +82,17 @@ export class ClaudeClient {
       '  "one_line_summary": "one honest plain-language sentence"\n' +
       '}';
 
-    const rawText = await callClaude(
-      system,
-      [{ role: 'user', content: transcript }],
-      apiKey,
-      512,
-    );
+    const rawText = await callClaude(system, transcript);
+
+    // Extract JSON object even if the model wraps it in surrounding text
+    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error(`Claude classification returned no JSON object: ${rawText.slice(0, 200)}`);
+    }
 
     let parsed: ClassificationJson;
     try {
-      parsed = JSON.parse(rawText) as ClassificationJson;
+      parsed = JSON.parse(jsonMatch[0]) as ClassificationJson;
     } catch {
       throw new Error(`Claude classification returned invalid JSON: ${rawText.slice(0, 200)}`);
     }
@@ -123,10 +110,7 @@ export class ClaudeClient {
     };
   }
 
-  async generateDigest(
-    entries: JournalEntry[],
-    apiKey: string,
-  ): Promise<string> {
+  async generateDigest(entries: JournalEntry[]): Promise<string> {
     const system =
       'You are analyzing a week of private journal entries. \n' +
       'Be specific — reference actual content, not generic summaries. \n' +
@@ -157,11 +141,6 @@ export class ClaudeClient {
 
     const userMessage = `Here are this week's journal entries:\n\n${entrySections.join('\n\n')}`;
 
-    return callClaude(
-      system,
-      [{ role: 'user', content: userMessage }],
-      apiKey,
-      2048,
-    );
+    return callClaude(system, userMessage);
   }
 }

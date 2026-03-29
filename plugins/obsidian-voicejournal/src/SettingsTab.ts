@@ -13,10 +13,10 @@ export class VoiceJournalSettingsTab extends PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
 
-    // 1. OpenAI API Key
+    // 1. OpenAI API Key (not needed for local Whisper server)
     new Setting(containerEl)
       .setName('OpenAI API Key')
-      .setDesc('Used for Whisper transcription')
+      .setDesc('Required for openai.com Whisper. Leave empty when using a local Whisper server.')
       .addText((text) => {
         text.inputEl.type = 'password';
         text
@@ -28,22 +28,26 @@ export class VoiceJournalSettingsTab extends PluginSettingTab {
           });
       });
 
-    // 2. Anthropic API Key
+    // 2. Whisper Base URL
     new Setting(containerEl)
-      .setName('Anthropic API Key')
-      .setDesc('Used for Claude follow-up questions and classification')
-      .addText((text) => {
-        text.inputEl.type = 'password';
+      .setName('Whisper Base URL')
+      .setDesc('OpenAI-compatible transcription endpoint. Use http://localhost:8000 for faster-whisper-server.')
+      .addText((text) =>
         text
-          .setPlaceholder('sk-ant-...')
-          .setValue(this.plugin.settings.anthropicApiKey)
+          .setPlaceholder('https://api.openai.com')
+          .setValue(this.plugin.settings.whisperBaseUrl)
           .onChange(async (value) => {
-            this.plugin.settings.anthropicApiKey = value;
+            this.plugin.settings.whisperBaseUrl = value.replace(/\/$/, '');
             await this.plugin.saveSettings();
-          });
-      });
+          })
+      );
 
-    // 3. Journal Folder
+    // 3. Claude — info only (uses Claude Code CLI, no API key needed)
+    new Setting(containerEl)
+      .setName('Claude (via Claude Code CLI)')
+      .setDesc('Follow-up questions and classification use your local `claude` install. No API key needed here.');
+
+    // 4. Journal Folder
     new Setting(containerEl)
       .setName('Journal Folder')
       .setDesc('Vault path for journal entries (default: journal/)')
@@ -57,7 +61,7 @@ export class VoiceJournalSettingsTab extends PluginSettingTab {
           })
       );
 
-    // 4. Weekly Digest Folder
+    // 5. Weekly Digest Folder
     new Setting(containerEl)
       .setName('Weekly Digest Folder')
       .setDesc('Vault path for weekly digests (default: journal/weekly/)')
@@ -71,7 +75,7 @@ export class VoiceJournalSettingsTab extends PluginSettingTab {
           })
       );
 
-    // 5. Silence Threshold (slider)
+    // 6. Silence Threshold (slider)
     new Setting(containerEl)
       .setName('Silence Threshold (dB)')
       .setDesc('dB level to detect silence')
@@ -86,7 +90,7 @@ export class VoiceJournalSettingsTab extends PluginSettingTab {
           })
       );
 
-    // 6. Silence Duration (number input)
+    // 7. Silence Duration (number input)
     new Setting(containerEl)
       .setName('Silence Duration (ms)')
       .setDesc('Milliseconds of silence before triggering transcription')
@@ -104,7 +108,7 @@ export class VoiceJournalSettingsTab extends PluginSettingTab {
           });
       });
 
-    // 7. Auto Weekly Digest (toggle)
+    // 8. Auto Weekly Digest (toggle)
     new Setting(containerEl)
       .setName('Auto Weekly Digest')
       .setDesc(

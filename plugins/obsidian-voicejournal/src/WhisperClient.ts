@@ -1,13 +1,21 @@
 export class WhisperClient {
-  async transcribe(blob: Blob, apiKey: string): Promise<string> {
+  /**
+   * @param baseUrl OpenAI-compatible base URL (default: https://api.openai.com).
+   *                Set to e.g. http://localhost:8000 for faster-whisper-server.
+   * @param apiKey  API key sent as Bearer token. Empty string is fine for local servers.
+   */
+  async transcribe(blob: Blob, apiKey: string, baseUrl = 'https://api.openai.com'): Promise<string> {
     const formData = new FormData();
     formData.append('file', blob, 'chunk.webm');
     formData.append('model', 'whisper-1');
     formData.append('language', 'en'); // hardcoded; add to VoiceJournalSettings if multi-language needed
 
-    const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+    const headers: Record<string, string> = {};
+    if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
+
+    const response = await fetch(`${baseUrl}/v1/audio/transcriptions`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${apiKey}` },
+      headers,
       body: formData,
     });
 

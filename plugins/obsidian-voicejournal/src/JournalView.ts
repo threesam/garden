@@ -114,10 +114,13 @@ export class JournalView extends ItemView {
       await this.audioCapture.start(
         async (blob: Blob) => {
           // onSilence — transcribe the chunk
-          const apiKey = this.plugin.settings.openaiApiKey;
           let text: string;
           try {
-            text = await this.whisperClient.transcribe(blob, apiKey);
+            text = await this.whisperClient.transcribe(
+              blob,
+              this.plugin.settings.openaiApiKey,
+              this.plugin.settings.whisperBaseUrl,
+            );
           } catch {
             this.showError('Transcription failed for this chunk');
             return;
@@ -127,14 +130,12 @@ export class JournalView extends ItemView {
 
           this.appendTranscript(text);
 
-          // Ask a follow-up question via Claude
+          // Ask a follow-up question via Claude CLI
           const fullTranscript = this.session.transcriptSegments.join(' ');
-          const anthropicKey = this.plugin.settings.anthropicApiKey;
           try {
             const question = await this.claudeClient.askFollowUp(
               fullTranscript,
               this.session.questionsAsked,
-              anthropicKey,
             );
             this.session.questionsAsked.push(question);
             this.showQuestion(question);
@@ -176,11 +177,10 @@ export class JournalView extends ItemView {
     this.updateStatus('processing');
 
     const fullTranscript = this.session.transcriptSegments.join(' ');
-    const apiKey = this.plugin.settings.anthropicApiKey;
 
     let classification;
     try {
-      classification = await this.claudeClient.classifyEntry(fullTranscript, apiKey);
+      classification = await this.claudeClient.classifyEntry(fullTranscript);
     } catch (err) {
       this.showError(err instanceof Error ? err.message : 'Classification failed');
       this.updateStatus('idle');

@@ -53,8 +53,8 @@ export class DigestGenerator {
       throw new Error('No journal entries found in the last 7 days.');
     }
 
-    // 5. Call Claude for digest
-    const digestContent = await this.claudeClient.generateDigest(entries, this.settings.anthropicApiKey);
+    // 5. Call Claude CLI for digest
+    const digestContent = await this.claudeClient.generateDigest(entries);
 
     // 6. Write the weekly note
     const today = new Date();

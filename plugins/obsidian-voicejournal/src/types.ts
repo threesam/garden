@@ -1,7 +1,7 @@
 // Plugin settings with defaults
 export interface VoiceJournalSettings {
   openaiApiKey: string;
-  anthropicApiKey: string;
+  whisperBaseUrl: string;      // default: 'https://api.openai.com' — set to local server URL for offline use
   journalFolder: string;       // default: 'journal/'
   weeklyFolder: string;        // default: 'journal/weekly/'
   silenceThreshold: number;    // dB level, default: -45
@@ -11,7 +11,7 @@ export interface VoiceJournalSettings {
 
 export const DEFAULT_SETTINGS: VoiceJournalSettings = {
   openaiApiKey: '',
-  anthropicApiKey: '',
+  whisperBaseUrl: 'https://api.openai.com',
   journalFolder: 'journal/',
   weeklyFolder: 'journal/weekly/',
   silenceThreshold: -45,
