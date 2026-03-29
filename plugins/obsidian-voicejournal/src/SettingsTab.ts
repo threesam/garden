@@ -34,7 +34,7 @@ export class VoiceJournalSettingsTab extends PluginSettingTab {
       .setDesc('OpenAI-compatible transcription endpoint. Use http://localhost:8000 for faster-whisper-server.')
       .addText((text) =>
         text
-          .setPlaceholder('https://api.openai.com')
+          .setPlaceholder('http://localhost:8000')
           .setValue(this.plugin.settings.whisperBaseUrl)
           .onChange(async (value) => {
             this.plugin.settings.whisperBaseUrl = value.replace(/\/$/, '');
