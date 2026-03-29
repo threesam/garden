@@ -5,8 +5,11 @@ export class AudioCapture {
 
   private stream: MediaStream | null = null;
   private audioContext: AudioContext | null = null;
+  private analyserNode: AnalyserNode | null = null;
+  private sourceNode: MediaStreamAudioSourceNode | null = null;
   private mediaRecorder: MediaRecorder | null = null;
   private intervalId: ReturnType<typeof setInterval> | null = null;
+  private isChunking = false; // prevent double-trigger while onstop is in flight
 
   constructor(settings: Pick<VoiceJournalSettings, 'silenceThreshold' | 'silenceDuration'>) {
     this.settings = settings;
@@ -16,6 +19,11 @@ export class AudioCapture {
     onSilence: (blob: Blob) => Promise<void>,
     onStatusChange: (status: 'recording' | 'listening') => void
   ): Promise<void> {
+    // Guard against calling start() while already running
+    if (this.stream !== null) {
+      throw new Error('AudioCapture is already running. Call stop() first.');
+    }
+
     // Request microphone — throws on permission denied / no device
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     this.stream = stream;
@@ -23,11 +31,15 @@ export class AudioCapture {
     // Set up Web Audio analysis chain
     const audioContext = new AudioContext();
     this.audioContext = audioContext;
+    // Resume in case browser created context in suspended state (common in Chrome without user gesture)
+    await audioContext.resume();
 
     const analyser = audioContext.createAnalyser();
     analyser.fftSize = 2048;
+    this.analyserNode = analyser;
 
     const source = audioContext.createMediaStreamSource(stream);
+    this.sourceNode = source;
     source.connect(analyser);
 
     // Determine supported MIME type
@@ -74,7 +86,10 @@ export class AudioCapture {
       const sum = dataArray.reduce((acc, val) => acc + val, 0);
       const avg = sum / bufferLength;
 
-      // Avoid log10(0) which would be -Infinity
+      // NOTE: This is not absolute dB SPL. getByteFrequencyData returns FFT magnitude
+      // values already mapped to 0–255 on the browser's internal dB scale. Averaging
+      // and applying log10 gives a relative energy level. The silenceThreshold in
+      // DEFAULT_SETTINGS (-45) is calibrated to this scale, not to dB SPL references.
       const db = avg > 0 ? 20 * Math.log10(avg / 255) : -Infinity;
 
       const isSilent = db < this.settings.silenceThreshold;
@@ -93,8 +108,9 @@ export class AudioCapture {
       }
 
       // silenceCounter * 100ms >= silenceDuration
-      if (silenceCounter * 100 >= this.settings.silenceDuration) {
+      if (!this.isChunking && silenceCounter * 100 >= this.settings.silenceDuration) {
         silenceCounter = 0;
+        this.isChunking = true;
 
         // Capture snapshot references before async work
         const recorderToStop = recorder;
@@ -102,6 +118,7 @@ export class AudioCapture {
 
         // Stop the current recorder; wait for onstop, then process and restart
         recorderToStop.onstop = async () => {
+          this.isChunking = false;
           const blob = new Blob(chunksCopy, { type: mimeType });
 
           if (blob.size > 0) {
@@ -149,6 +166,16 @@ export class AudioCapture {
       this.stream = null;
     }
 
+    // Disconnect audio nodes before closing context
+    if (this.sourceNode !== null) {
+      this.sourceNode.disconnect();
+      this.sourceNode = null;
+    }
+    if (this.analyserNode !== null) {
+      this.analyserNode.disconnect();
+      this.analyserNode = null;
+    }
+
     // Close the AudioContext
     if (this.audioContext !== null) {
       this.audioContext.close().catch(() => {
@@ -156,5 +183,7 @@ export class AudioCapture {
       });
       this.audioContext = null;
     }
+
+    this.isChunking = false;
   }
 }
