@@ -92,95 +92,113 @@ but after i started talking to Deana, i didn't want to talk to anyone else.
 
 the first thing i said to my future wife was "hey, Blondie."
 
-corny as all hell. and not even true. more like blonde with a tint of fire, and eyes bluer than the Russian ice she was born into.
+corny as all hell. and not even true. more like blonde with a tint of fire, and eyes bluer than the Russian ice that ripped through her veins.
 
-i invited her to the open mic. very public, easy. she showed up with her friend, both of them wearing wigs. deceptive, but in the sexy way. not that i would have necessarily noticed in that dark room — she wanted to see if i was a player. Benny, the shutterbug that he was, snapped a pic that showed we were three feet apart at one point and i didn't even notice.
+i invited her to the open mic. very public, easy. unbeknownst to me, she showed up with her friend.
 
-the next week we hung out officially. i was bartending and Deana brought two friends with her, so i was basically on a date with three women our first time out. they felt comfortable enough to come back to Benny's house after the shift — our ritual — and listen as Benny and i brought them down into the basement studio, built some loops, and sang songs into the night. her friends were pretty and fun, but i knew i loved this girl from basically the first time i saw her. she was funny and had this cold Russian persona that i needed to crack. it didn't take long. we became inseparable, then official, and never looked back.
+both of them wearing wigs.
 
-i remember the first time i met Deana's dad. he came home earlier than she expected. Deana, her friend, and i were just hanging out and this 6'5 tower of a human walked through the door and gracefully shook my hand. tense, but if he was pissed he didn't show it me. he's a pastor for a Russian Baptist church, presides over all of North America. like the whole fucking continent. me not being Christian and not married to his daughter was an obvious tension point. but he let me move in. looking back, that was significant grace when he didn't have to give it. we didn't speak the same language — i navigated mostly non-verbally. i'm respectful, i cook well, and i clean. that helped.
+wigs.
 
-i would still go work at the Trenton Social, and come back at 2am smelling like some combination of bleach, alcohol, and stale second-hand cigarellos.
+she wanted to see if i was a player.
 
-one night, Benny and me had finished just finished our shift and he mentioned that he just acquired some golden teachers. "what?" they're equal parts smooth and potent magic mushrooms.
+not that i could have noticed her in the darkness of that room, but at one point, we were three feet apart.
+
+i suppose i passed her test because the next week we hung out, officially.
+
+i was bartending and Deana brought two friends with her, so our first time out was a subtle interrogation. i felt comfortable enough to handle the ambush and they felt comfortable enough to come back to Benny's basement studio after the shift and listen as we sang songs into the night. her friends were pretty and fun, but i knew i loved this girl from basically the first time i saw her. we became inseparable, then official, and never looked back.
+
+i remember the first time i met Deana's dad. Deana, her friend, and i were just hanging out and this 6'5 tower of a human walked through the door and, in broken English, introduced himself and gracefully shook my hand. he came home earlier than she expected.
+
+fun fact about Andrey Savchenko: he's a pastor for a Russian Baptist church, and presides over all of North America.
+
+like the whole fucking continent.
+
+me not being Christian and not married to his daughter was an obvious and imediate tension point. but he let me move in even though he was in no way obligated to do so. we didn't speak the same language, but i know how to read a room. that helped.
+
+Deana getting a dog, regardless of his goofy demeanor, not so helpful. clearly, the rebel in our relationship, she would constantly push buttons and would wear her parents' ire like it was in style.
+
+even though i would come back from work at 2am smelling like some combination of bleach, alcohol, and stale second-hand cigarellos, i'm respectful, i cook well, and i take the trash out, without being asked.
+
+no one ever asked me to leave. though, did we really want to stay?
+
+we found infinite paths of escape.
+
+## the comedown
+
+one night after Benny and me had finished our shift, he mentioned that he just acquired some golden teachers. "what does that mean?" found out, they're equal parts smooth and potent magic mushrooms.
 
 ok.
 
-this launched me into what must have seemded like a speech i had planned for such an occassion.
+this launched me into what must have felt like a speech i had meticulously planned for such an occassion.
 
 i explained that while shrooms are probably safe, i'd only ever consider using them much later in life, maybe in a decade, after i have a steady career, success, family. after i'd already hit all the milestones.
 
-Benny side-eyed me, said "sure man" and jovially changed the subject.
-
-i never gave it a thought again.
+Benny side-eyed me, said "sure man" and i never gave it a thought again.
 
 until the next morning when Deana woke up and said "i wanna do some drugs"
 
-what?
-
 when i asked what kind, she of course said "mushrooms" :mushroom:
 
-this was so out of left field for her that i rolled my eyes at my own hypocrisy and called Benny to let him know i'd take an eigth.
+this was so out of left field for her that i rolled my eyes at my own hypocrisy and called Benny to let him know i'd take an eighth.
 
 "sure man"
 
-Deana and me drove to a festival called Leaperland to scoop our haul from Benny, briefly hanging around to recieve some tips for effective use and promptly drove to the Jersey shore.
+Deana and me met Benny at a tent-filled meadow of a festival, to which he was providing the entertainment, called Leaperland. grills, grunge, and fireworks abound, we briefly hung in to recieve some tips for effective use and promptly drove our haul to the Jersey shore.
 
 we met at my friend's house in LBI, 4 of us ready to face the unknown.
 
-when the sun set, we portioned out 4 servings of the dried fungi and ate with bread and peanut butter because we obviously hated ourselves.
+when the sun set, we portioned out 4 servings of the dried fungi and ate with bread and peanut butter because we obviously hated ourselves (advice: tea is a significant improvement).
 
 nearly an hour in and the individual frames of our vision began to trail, color became more vivid, and the world was somehow more real.
 
-we stepped out onto the beach and felt the billion year old starlight falling on our faces.
+we stepped out onto the beach and felt the billion year old starlight ripping through our faces.
 
-the sand, the waves, the cops patrolling the beach after curfew.
+the warm sand, the salty air misting from the waves.. the cops patrolling the beach after curfew.
 
 even though we were well above the age allowed to roam, nope.
 
-we returned to the safe house and by some means of childlike communication decided to watch Plant Earth.
+we returned to the safety of the house and by some means of discourse decided to watch Plant Earth.
 
-the sound of David Attentenborough's voice is like a soothing hug, warm, though not enough to warm the penguins huddling during a blizzard.
+the sound of David Attentenborough's voice is like a soothing hug, warm, though not enough to warm the penguins huddling during that goddamned blizzard.
 
-turns out when the horde breaks for even a second, that warmth bleeds out along the edges, they reshuffle to close the gap, often trampling those too youthful to move in step.
+turns out when the shivering horde breaks rank for even a second, that warmth bleeds out along the edges, they reshuffle to close the gap, often trampling those too inexperienced to move in step.
 
 nope.
 
-i left the room for solitude elsewhere in the house.
+i left the horrors of that room in search of solitude anywhere else in the house.
 
-Deana found me later and, even though we were experiencing this together for the first time, she offered the most sage advice effortlessly:
+Deana found me later and, even though we were experiencing this together for the first time, she showed me my stupidity without making me feel stupid:
 
-"don't try and control it, just let it happen"
+"don't try and control it, just let it happen."
 
-i let her words transition me into the comedown and it felt like i understood myself, my place in the universe, the purpose of love -- all with the curiosity of a child and the conviction of a martyr.
+delivered playfully, her words transitioned me into a comedown where i felt like i understood myself, my place in the universe, the purpose of love -- all with the curiosity of a child and the conviction of a martyr.
 
-am i spiritual? maybe. call it a work in progress.
+am i spiritual now? maybe. call it a work in progress.
 
-am i hopelessly in love with this girl? definitely.
+am i hopelessly in love? definitely.
 
 ## fault lines
 
 her parents kept asking when we'd get married.
 
-they should have been asking if she was pregnant. oops.
+but they should have been asking if she was pregnant. oops.
 
-we didn't tell them until it was impossible to hide it.
+her skin tinged yellow from some combination of hormones; her appetite impossible to satiate without an entire jar of dill pickles; and, eventually, not even her oversized hoodies could hide the cuteness of that little bump.
 
-her skin tinged yellow from some combination of hormones and not even a hoodie could hide the absolutely adorable bump.
+we didn't tell them until it was impossible to hide it, and they were devastated she was too fearful to tell them sooner.
 
-they finally found out and were devastated she was as nervous to tell them.
+even though it was no question that she was my person for always, Deana started to joke about our unborn kid taking her last name since she was doing all the work.
 
-i knew were together but she started to joke about our kid taking her last name since she was doing all the work.
-
-we had a Quaker wedding on a grass covered rooftop in Philly a month before Phoenix was born.
+immediately after scraping together enough extra cash to stroll into the mall and snag a perfect Alex + Ani ring, i proposed in the car in rush hour traffic. soo romantic. we had a Quaker wedding on a grass covered rooftop in Philly a month before Phoenix was born.
 
 us, her parents, and a dog they didn't approve of but tolerated, all under one roof. it was cramped.
 
-it all blurred together in a way that felt real, even if it was far from stable and even further from ideal.
+even if it was far from stable and even further from ideal, it was our life.
 
-Phoenix changed everything, even if it took me a while to admit it. less time out, more time home. me trying to balance being present with still holding onto the life i had built around music and that scene.
+Phoenix changed everything. less time out, more time home. me trying to balance being present with still holding onto the life i had built around music and that scene.
 
-i was already feeling the tension. like i was straddling two paths that didn’t quite line up.
+like trying to mix my weed oil and water, i was already feeling the tension.
 
 then Benny relapsed.
 
