@@ -2,15 +2,15 @@
 
 i grew up in Trenton, New Jersey.
 
-not in a romantic way. just in it. my parents got a fixer upper in a nice area. it was near a nursing home. near my grandparents. seemed safe. while we didn't intend to stay, life had other plans.
+not in a romantic way. just in it. my parents got a fixer upper in a nice area. it was near a nursing home which made it feel safe. near my grandparents, which made things feel comfortable. while we didn't intend to stay, life had other plans.
 
-always heard you're supposed to stay present, but you wouldn't recognize a dying city if you lived moment to moment. it happens slow. and i lived mostly inside my house so i hardly noticed.
+always heard you're supposed to stay present, but you can't recognize a dying city living moment to moment. it happens slow. and i lived mostly inside my house so i hardly noticed.
 
-i was in public school there until 5th grade. my mom needed me to have all the options in life she felt she didn't have, so she got me interview ready and into Princeton Day — manicured lawns, amphitheaters, a fucking hockey rink.
+i was in public school there until 5th grade. 6th grade represented move up to an infamous junior high. my mom believed i needed to have a more enriched experience, a real challenge, so she got me interview ready and into Princeton Day.
 
-i remember sitting with my dad every morning waiting for the bus to come pick me up. it was weird driving through enchanted forest to an elite private school and then getting dropped off back in the inner-city hood i grew up in.
+i remember sitting with my dad every morning waiting for the bus to come pick me up. once onboard, the Trenton crew would drift alongside industrial warehouses--long decommissioned with barely any windows still intact--and step-change to lush, preserved, and seemingly enchanted forest, manicured lawns, amphitheaters, and a fucking hockey rink. each day i would return to the hood that raised me.
 
-culture shock that i eventually got used to. kids are so tabula rasa they can adapt to basically anything.
+culture shock, sure. but impermanent. kids are so tabula rasa they can adapt to basically anything.
 
 it helped that i confident academically. school made sense. inputs, outputs, clear rules. but socially, it was different. not a damn thing felt natural.
 
