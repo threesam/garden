@@ -12,59 +12,63 @@ i remember sitting with my dad every morning waiting for the bus to come pick me
 
 culture shock, sure. but impermanent. kids are so tabula rasa they can adapt to basically anything.
 
-it helped that i confident academically. school made sense. inputs, outputs, clear rules. but socially, it was different. not a damn thing felt natural.
+it helped that i was confident academically. school made sense. inputs, outputs, distinct rules. but socially, it was an entirely different story. awkward. not a damn thing felt natural.
 
 when i was 16, i was at the beach and saw a guy playing guitar. can't remember what he was playing, if he was any good, but there was a circle around him. attention was paid. girls were leaning in and listening closely.
 
 i remember thinking, _you can do that?_
 
-it felt like a cheat code. like you could bypass whatever social wiring you didn't have and still connect.
+it felt like a cheat code. like you could bypass whatever social wiring was missing and still connect.
 
-i went home and dug up the guitar i'd been given as a kid, but never got further than a few half-hearted attempts at twinkle twinkle little star.
+so i went home and dug up the guitar i'd been given as a kid, but never got further than a few half-hearted attempts at twinkle twinkle little star.
 
 i started playing. pretty quickly, it turned into writing.
 
-that part came quite naturally and gave me a way to say things i wasn't too keen on saying to anyone, let alone myself. before that, i don't think i was really expressing much at all. now, everything had somewhere to go.
+that part came quite naturally. it gave me a way to say things i wasn't too keen on saying to anyone, let alone myself. before that, i don't think i was really expressing much at all. now, everything had somewhere to go.
 
 ## the velvet door
 
-after Princeton Day, Rider U -- the only college that offered me a full scholarship.
+after Princeton Day, Rider U -- the only college that offered my broke ass a full scholarship.
 
 loved learning about all of everything -- art, biology, ethics -- but was told my grants would evaporate if i didn't pick a lane my junior year.
 
 so i studied political science and global studies.
 
-felt like a perfect synergy of history and philosophy. systems, incentives, how things are supposed to work. but the real-world version felt was messy in a way that didn't match the models.
+felt like a perfect synergy of history and philosophy. systems, incentives, how things are supposed to work. but the real-world version felt messy in a way that didn't match the models.
 
 so when i graduated summa cum laude, i took my degree and went to work at Quakerbridge Mall. obviously.
 
-worked my way up to a Brookstone sales manager, where, for a time, i was the slinging more personal massagers than anyone else at the company. felt more surreal than like success.
+climbed my way up to a Brookstone sales manager, where, for a time, i was the slinging more personal massagers than anyone else at the company. is this peak success?
 
-the irony of my store being shut down, despite it being one of the only to always crush sales goal, was beyond infuriating.
+the irony of my store being shut down was that we may have been the only location to crush every sales goal they put in front of us.
 
-luckily, i got some severance + unemployment and used it all to buy music equipment and started recording myself. my parents were saints for putting up with my "dreams."
+luckily, i got some severance and after the unemployment hit my bank account _i used it all_ to buy equipment to start recording music. the parents were saints for putting up with my "dreams."
 
-i was looking for people to record when i talked to my college bud, Valerie, who instead of taking me up on my offer to record her, invited me to an open mic. in Trenton, of all places.
+i was looking for beta-testers in my beat laboratory i ended up chatting with my college bud, Valerie, who instead of taking me up on my offer, invited me to an open mic. in Trenton, of all places.
 
-i almost didn't go. i'd spent a lot of time trying to get away from Trenton, not lean into it. i'd seen enough dead bodies killed by drugs and/or bullets to feel like it wasn't a place where anything positive could happen.
+i almost didn't go.
 
-but Valerie -- a 90 pound girl -- seemed so thrilled to go to this place she even picked my carless ass up to get me there.
+i'd spent a lot of time trying to get away from Trenton. i'd seen enough dead bodies killed by drugs and/or bullets to feel like it wasn't a place where anything positive could happen.
 
-it was a small bar. normal enough when walking in: bartenders tapping kegs, uncorking wine bottles, concoting sangria. as we walked passed the bar, a deep growl started to rattle my ribs. there was a velvet curtain. i walked through and into a different world.
+but Valerie -- who couldn't have weighed more than 90 pounds -- was so thrilled to go to this place she even offered me a ride.
 
-a room packed to the brim with every type of person i would never expect to see in my hometown. live music, but not in the usual way. no linear procession of bands. it was fluid. drummer stays, bassist rotates, a microphone used to amplify voices and then brass. a harmonica solo that lasts a bit too long. an unexpected distortion pedal at exactly the right time to cut through room as keys would echo into the rafters. pieces moving, but some muse secretly threading it all together.
+so i went.
 
-i remember just watching, trying to understand how it worked.
+it was a small bar. normal enough when walking in: bartenders pouring perfectly foamed beers from the tap, decanting wine, concoting sangria. as we walked passed the bar, a deep growl started to rattle my ribs. there was a velvet curtain. i walked through and into a different world.
+
+i found a room packed to the brim with every type of person i would never expect to see in my hometown. live music, but not in the usual way. no linear procession of bands. it was fluid. drummer stays, bassist rotates, a microphone used first to amplify voices and then brass. a harmonica solo that lasts a bit too long. an unexpected distortion pedal at exactly the right time to cut through the room as keys echoed into the exposed rafters. pieces moving in every direction, but with some muse secretly threading it all together.
+
+i remember just watching. trying to understand how it worked.
 
 then i met Benny.
 
-he was one of the most immediately magnetic people i'd ever met. no hesitation, no filtering. just fully himself. an incredible musician who could pick up anything immediately by ear, with just about any instrument.
+within seconds, it was obvious he was one of the most immediately magnetic people on the planet. no hesitation, no filtering. just fully himself. a cosmically talented musician who could pick up anything immediately by ear, with just about any instrument, and riff -- always in service of the song, never himself.
 
-the open mic was his. he ran it with this philosophy — the list is sacred. you sign up, you get to play -- not that he didn't shuffle things around to keep the show tight for the room, but you had to try _really_ hard to get turned away.
+the open mic was his. he ran it with this philosophy — the list is sacred. you sign up, you get to play -- not that he didn't effortlessly shuffle things around to keep the show tight for the room. you had to try _really_ hard to get turned away.
 
 he talked to every person who walked into the bar, snapped an impossible number of candids and posted the haul online every week. everyone was part of the experience.
 
-i remember my first time on stage. i knew my way around a stage but this felt different. i started playing one of my originals and about halfway through someone jumped on cajón. i think Benny hopped on bass and figured out my song in real time. by the end a saxophone was blaring, riffing on the final chorus. i learned what "being in the moment" actually meant.
+i remember the first time i was called up. i knew my way around a stage but this felt different. i started playing one of my originals and about halfway through someone jumped on cajón. i think Benny hopped on bass and figured out my song in real time. by the end a saxophone was blaring, riffing on the final chorus. i learned what "being in the moment" actually meant.
 
 i was a fucking addicted after that. week after week, for years.
 
