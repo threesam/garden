@@ -68,19 +68,19 @@ the open mic was his. he ran it with this philosophy — the list is sacred. you
 
 he talked to every person who walked into the bar, snapped an impossible number of candids and posted the haul online every week. everyone was part of the experience.
 
-i remember the first time i was called up. i knew my way around a stage but this felt different. i started playing one of my originals and about halfway through someone jumped on cajón. i think Benny hopped on bass and figured out my song in real time. by the end a saxophone was blaring, riffing on the final chorus. i learned what "being in the moment" actually meant.
+i remember the first time i got called up. i knew my way around a stage but the energy here was special. i started playing one of my originals and about halfway through someone found the beat on a cajón while Benny hopped on bass. and by the end a saxophone was blaring, riffing a hautning solo all over the final chorus. i learned what "being in the moment" actually meant.
 
-i was a fucking addicted after that. week after week, for years.
+i was hooked after that. it didn't take long for Benny and me to buddy up and run the open mic together.
 
-eventually i helped him run the open mic.
+was definitely for the love of the game because it paid next to nothing. but there were other ways for the Trenton Social to pay the bills.
 
-to make extra money, i started washing dishes, then waiting tables, then bartending.
+i started washing dishes, then waiting tables, then figuring out how to balance the endless chatter of drunken government employees with the infinite pour of long islands while tending bar -- not really a challenge because i was never alone.
 
 every night after our shift at the bar, we'd go back to Benny's corner brickhouse in a weirdly beautful part of town, smoke a joint, and talk for hours.
 
 usually about the dumb shit people do at a bar.
 
-but often Benny would tell me the most insane, terrifying, hilarious story from his days as an addict. the next day a story equally as insane -- the man lived more lives than seemed possible at 40. despite the trauma, he always was looking for a laugh and had hardly any issue pulling it from your soul.
+but often Benny would tell me an insane, terrifying, hilarious story from his days as an addict. the next day a story equally as insane -- the man lived more lives than seemed possible at 40. far from random, his stories would fall somewhere between standup and a pressure valve for the life's curveballs.
 
 those nights became the ritual.
 
@@ -90,7 +90,7 @@ that period of my life was messy and alive.
 
 music, bartending, late nights, building relationships.
 
-finally hitting my stride in a thriving music community, i was holding court — talking to women all day and hitting the apps every night.
+finally hitting my stride in a thriving art community, i was holding court — talking to women all day and hitting the apps every night.
 
 but after i started talking to Deana, i didn't want to talk to anyone else.
 
@@ -98,31 +98,37 @@ the first thing i said to my future wife was "hey, Blondie."
 
 corny as all hell. and not even true. more like blonde with a tint of fire, and eyes bluer than the Russian ice that ripped through her veins.
 
-i invited her to the open mic. very public, easy. unbeknownst to me, she showed up with her friend.
+opening move: invite her to the open mic. very public, easy. unbeknownst to me, she showed up with her friend.
 
 both of them wearing wigs.
 
 wigs.
 
-she wanted to see if i was a player.
-
 not that i could have noticed her in the darkness of that room, but at one point, we were three feet apart.
+
+she wanted to see if i was a womanizer. not generally my style but she could have picked worse nights to observe.
 
 i suppose i passed her test because the next week we hung out, officially.
 
-i was bartending and Deana brought two friends with her, so our first time out was a subtle interrogation. i felt comfortable enough to handle the ambush and they felt comfortable enough to come back to Benny's basement studio after the shift and listen as we sang songs into the night. her friends were pretty and fun, but i knew i loved this girl from basically the first time i saw her. we became inseparable, then official, and never looked back.
+i was bartending and Deana brought two emotional-support friends, Alena and Taylor. safety in numbers.
 
-i remember the first time i met Deana's dad. Deana, her friend, and i were just hanging out and this 6'5 tower of a human walked through the door and, in broken English, introduced himself and gracefully shook my hand. he came home earlier than she expected.
+the conversation was effortless, we all got to know each other but she was quick as a whip, relentless, and immediately intoxicating. drank every word that left her lips like i had been dying of thirst my whole life.
+
+even though our first time out was a subtle interrogation, i felt comfortable enough to handle the ambush and they felt comfortable enough to come back to Benny's basement studio after we closed down the bar. sure, we all had fun together as they listened to us sing songs into the night. but the time i had in her presence that night was not nearly long enough. she felt the same. we became inseparable, then official, and never looked back.
+
+i remember the first time i met Deana's dad. Deana, her friend Alena, and i were lounging about when this 6'5 tower of a human walked through the door. obviously, home earlier than she expected. in broken English, managed to introduce himself and extend a massive mit to shake my hand.
+
+gracefully intimidated.
 
 fun fact about Andrey Savchenko: he's a pastor for a Russian Baptist church, and presides over all of North America.
 
 like the whole fucking continent.
 
-me not being Christian and not married to his daughter was an obvious and imediate tension point. but he let me move in even though he was in no way obligated to do so. we didn't speak the same language, but i know how to read a room. that helped.
+me not being Christian and not married to his daughter was...tense. but, he let me move in all the same. we didn't speak the same language, but i did learn how to read a room young. that helped.
 
-Deana getting a dog, regardless of his goofy demeanor, not so helpful. clearly, the rebel in our relationship, she would constantly push buttons and would wear her parents' ire like it was in style.
+Deana getting a dog, regardless of his goofy demeanor, not so helpful. clearly, the rebel in our relationship, she would constantly push buttons and would wear her parents' ire like it was fashionable.
 
-even though i would come back from work at 2am smelling like some combination of bleach, alcohol, and stale second-hand cigarellos, i'm respectful, i cook well, and i take the trash out, without being asked.
+even though i would come back from work at 2am smelling like some combination of bleach, alcohol, and stale second-hand cigarellos, i was respectful, i cooked well, and i took out the trash without being asked.
 
 no one ever asked me to leave. though, did we really want to stay?
 
@@ -130,13 +136,17 @@ we found infinite paths of escape.
 
 ## the comedown
 
-one night after Benny and me had finished our shift, he mentioned that he just acquired some golden teachers. "what does that mean?" found out, they're equal parts smooth and potent magic mushrooms.
+one night after Benny and me wrapped up another night with the drunks, he mentioned that he had just acquired some golden teachers.
+
+"what does that mean?"
+
+found out: they're equal parts smooth and potent magic mushrooms.
 
 ok.
 
 this launched me into what must have felt like a speech i had meticulously planned for such an occassion.
 
-i explained that while shrooms are probably safe, i'd only ever consider using them much later in life, maybe in a decade, after i have a steady career, success, family. after i'd already hit all the milestones.
+i explained that while shrooms are probably safe, i'd only ever consider using them much later in life, maybe in a decade, maybe, after i have a steady career, success, a family. after i'd already hit all the milestones.
 
 Benny side-eyed me, said "sure man" and i never gave it a thought again.
 
@@ -148,11 +158,11 @@ this was so out of left field for her that i rolled my eyes at my own hypocrisy 
 
 "sure man"
 
-Deana and me met Benny at a tent-filled meadow of a festival, to which he was providing the entertainment, called Leaperland. grills, grunge, and fireworks abound, we briefly hung in to recieve some tips for effective use and promptly drove our haul to the Jersey shore.
+Deana and me met Benny at a tent-filled meadow of a festival, to which he was providing the entertainment, called Leaperland. grills, grunge, and fireworks abound, we hung around long enough to recieve some tips for effective use. then we were on our way to the Jersey shore.
 
-we met at my friend's house in LBI, 4 of us ready to face the unknown.
+we met at my friend's house in Beach Haven, 4 of us ready to face the unknown.
 
-when the sun set, we portioned out 4 servings of the dried fungi and ate with bread and peanut butter because we obviously hated ourselves (advice: tea is a significant improvement).
+when the sun set, we portioned out 4 servings of the dried fungi and ate with bread and peanut butter because we clearly hated ourselves (advice: tea is a significant improvement).
 
 nearly an hour in and the individual frames of our vision began to trail, color became more vivid, and the world was somehow more real.
 
@@ -164,9 +174,9 @@ even though we were well above the age allowed to roam, nope.
 
 we returned to the safety of the house and by some means of discourse decided to watch Plant Earth.
 
-the sound of David Attentenborough's voice is like a soothing hug, warm, though not enough to warm the penguins huddling during that goddamned blizzard.
+the sound of David Attentenborough's voice is like a soothing hug, warm, though not enough to warm those penguins huddling during that goddamned blizzard.
 
-turns out when the shivering horde breaks rank for even a second, that warmth bleeds out along the edges, they reshuffle to close the gap, often trampling those too inexperienced to move in step.
+turns out when the shivering horde breaks rank for even a second, that warmth bleeds out along the edges, they reshuffle to close the gap, and trample those too small and too inexperienced to move in step.
 
 nope.
 
@@ -176,7 +186,7 @@ Deana found me later and, even though we were experiencing this together for the
 
 "don't try and control it, just let it happen."
 
-delivered playfully, her words transitioned me into a comedown where i felt like i understood myself, my place in the universe, the purpose of love -- all with the curiosity of a child and the conviction of a martyr.
+delivered playfully, her words transitioned me into a comedown where i felt like i understood myself, my place in the multiverse, here and now, the purpose of love -- all with the curiosity of a child and the conviction of a martyr.
 
 am i spiritual now? maybe. call it a work in progress.
 
@@ -196,23 +206,25 @@ even though it was no question that she was my person for always, Deana started 
 
 immediately after scraping together enough extra cash to stroll into the mall and snag a perfect Alex + Ani ring, i proposed in the car in rush hour traffic. soo romantic. we had a Quaker wedding on a grass covered rooftop in Philly a month before Phoenix was born.
 
-us, her parents, and a dog they didn't approve of but tolerated, all under one roof. it was cramped.
+us, her parents, and a dog they didn't approve of but tolerated, all under one roof.
 
 even if it was far from stable and even further from ideal, it was our life.
 
-Phoenix changed everything. less time out, more time home. me trying to balance being present with still holding onto the life i had built around music and that scene.
+then Phoenix changed everything.
 
-like trying to mix my weed oil and water, i was already feeling the tension.
+less time out, more time home. me trying to balance being present with still holding onto the life i had built around music and that scene.
+
+like trying to mix my weed oil and water, i was already feeling the separation.
 
 then Benny relapsed.
 
-he’d given me all the leeway to become a dad, hooked me up with easy money. but secretly he was struggling. i only saw him a few times after Phoenix was born. i remember going to his house and he didn’t need to tell me — it was obvious. he was a shell of the person who had become my best friend, though underneath the struggle i could still see him in there.
+he’d given me all the leeway to become a dad, hooked me up with easy money. but secretly he was struggling. i only saw him a few times after Phoenix was born. i remember going to his house and he didn’t need to tell me — it was obvious. he was a shell of the person who had become my best friend, though underneath his struggle i could still see him.
 
 he was gone five months into me being a dad.
 
 when i found out he died, it was unexpected but not surprising. i had lost my role model, my friend, my business partner, the godfather to my kid.
 
-he didn’t have much family, and the ones he did have weren’t as familiar with the person i knew. they knew the addict he had been and returned to. my business relationship allowed me to keep many of his namesakes — his art, his instruments. specifically his acoustic guitars, the Taylors that he would put out every open mic so that even if people didn’t have the means to own a guitar, they had the option to play one. his legacy came to me.
+he didn’t have much family, and the ones he did have weren’t as familiar with the person i knew. they knew the addict he had been and returned to. our business relationship allowed me to keep many of his namesakes — his art, his instruments. specifically his acoustic guitars, the Taylors that he would put out every open mic so that even if people didn’t have the means to own a fancy guitar, they had the option to play one. his legacy came to me.
 
 and whatever balance i thought i had just disappeared.
 
@@ -224,7 +236,7 @@ writing music felt contrived. like i was imitating something that had already en
 
 i had built my whole life around that room, those people, that rhythm. take it away and i didn’t know what was left.
 
-Deana was hit hard too. we were all pseudo-family. this wasn’t just my loss.
+this wasn’t just my loss. really, everyone who knew him was his friend. Deana especially.
 
 but we had each other. and we had Phoenix. that didn’t fix anything, but it meant i couldn’t just disappear into it.
 
