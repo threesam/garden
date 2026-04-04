@@ -106,33 +106,43 @@ wigs.
 
 not that i could have noticed her in the darkness of that room, but at one point, we were three feet apart.
 
-she wanted to see if i was a womanizer. not generally my style but she could have picked worse nights to observe.
+yes, she was out to creep but also see if i was a womanizer.
 
-i suppose i passed her test because the next week we hung out, officially.
+evidently, i passed her test. the next week we hung out, officially.
 
 i was bartending and Deana brought two emotional-support friends, Alena and Taylor. safety in numbers.
 
 the conversation was effortless, we all got to know each other but she was quick as a whip, relentless, and immediately intoxicating. drank every word that left her lips like i had been dying of thirst my whole life.
 
-even though our first time out was a subtle interrogation, i felt comfortable enough to handle the ambush and they felt comfortable enough to come back to Benny's basement studio after we closed down the bar. sure, we all had fun together as they listened to us sing songs into the night. but the time i had in her presence that night was not nearly long enough. she felt the same. we became inseparable, then official, and never looked back.
+even though our first time out was a subtle interrogation, i felt comfortable enough to handle the ambush and they felt comfortable enough to come back to Benny's basement studio after we closed down the bar -- they listened to us sing songs into the night. a good group. but the time i had in her presence that night was not nearly enough. not the type to play hard-to-get i knew she felt the same. we became inseparable, then official, and never looked back.
 
-i remember the first time i met Deana's dad. Deana, her friend Alena, and i were lounging about when this 6'5 tower of a human walked through the door. obviously, home earlier than she expected. in broken English, managed to introduce himself and extend a massive mit to shake my hand.
+## insulation
+
+i remember the first time i met Deana's dad.
+
+Deana, her friend Alena, and i were lounging about when this 6'5 tower of a human walked through the door. obviously, home earlier than she expected. in broken English, managed to introduce himself and extend a massive mit to shake my hand.
 
 gracefully intimidated.
 
 fun fact about Andrey Savchenko: he's a pastor for a Russian Baptist church, and presides over all of North America.
 
-like the whole fucking continent.
+##### like the whole fucking continent.
 
-me not being Christian and not married to his daughter was...tense. but, he let me move in all the same. we didn't speak the same language, but i did learn how to read a room young. that helped.
+me not being Christian and not married to his daughter was...tense. we didn't speak the same language, but i did know how to read a room.
 
-Deana getting a dog, regardless of his goofy demeanor, not so helpful. clearly, the rebel in our relationship, she would constantly push buttons and would wear her parents' ire like it was fashionable.
+Deana, however, was clearly the rebel in our relationship. always finding new buttons to push, she would wear her parents' ire like the latest trend.
 
-even though i would come back from work at 2am smelling like some combination of bleach, alcohol, and stale second-hand cigarellos, i was respectful, i cooked well, and i took out the trash without being asked.
+for example: tired of the back and forth between my house and hers, she asked me to move in. i was respectful, cooked well, and took out the trash without being asked. i also slept on the floor next to her bed. that helped. but only a little.
 
-no one ever asked me to leave. though, did we really want to stay?
+another example: we drove to Maryland to pick up a rambunctious, black and white with patches of beige, miniature Bernadoodle -- Koda ended up being anything but miniature. also, Deana's parents hated dogs. i was not overly enthused if i'm being honest. this goofy little bastard was stealing my spotlight.
 
-we found infinite paths of escape.
+one morning, it was beyond frigid in Philly and the windows were bleeding the little warmth i had on the floor. after using Koda as my personal space heater, i accepted his place in my life.
+
+and apparently her parents accepted mine, when Deana's mom insisted i sleep in the bed. even though i would come back from the bar at 2am smelling like some combination of bleach, alcohol, and stale second-hand cigarellos not once did either of them ever ask me to leave.
+
+though, did we really want to stay?
+
+reality provided clever routes of escape.
 
 ## the comedown
 
@@ -204,49 +214,45 @@ we didn't tell them until it was impossible to hide it, and they were devastated
 
 even though it was no question that she was my person for always, Deana started to joke about our unborn kid taking her last name since she was doing all the work.
 
-immediately after scraping together enough extra cash to stroll into the mall and snag a perfect Alex + Ani ring, i proposed in the car in rush hour traffic. soo romantic. we had a Quaker wedding on a grass covered rooftop in Philly a month before Phoenix was born.
+immediately after scraping together enough extra cash to stroll into the mall and snag a perfect Alex + Ani ring, i proposed in the car in rush hour traffic. soo romantic. we had a Quaker wedding on a grass covered rooftop in the city of Philadelphia a month before Phoenix was born.
 
 us, her parents, and a dog they didn't approve of but tolerated, all under one roof.
 
+then Phoenix came and changed everything.
+
+less time out, more time home. Deana went back to work after three months — only half paid.
+
+she wanted to breastfeed but pumping during shifts is harder than it should be. the stress mounts when you're the breadwinner, and eventually the supply dries up.
+
+i had built big routines around my art and that community in Trenton but presence pulled me into the orbit of an atomic family unit. like trying to mix weed oil and water, i was already feeling the separation.
+
 even if it was far from stable and even further from ideal, it was our life.
 
-then Phoenix changed everything.
-
-less time out, more time home. me trying to balance being present with still holding onto the life i had built around music and that scene.
-
-like trying to mix my weed oil and water, i was already feeling the separation.
-
-then Benny relapsed.
+##### then Benny relapsed.
 
 he’d given me all the leeway to become a dad, hooked me up with easy money. but secretly he was struggling. i only saw him a few times after Phoenix was born. i remember going to his house and he didn’t need to tell me — it was obvious. he was a shell of the person who had become my best friend, though underneath his struggle i could still see him.
 
 he was gone five months into me being a dad.
 
-when i found out he died, it was unexpected but not surprising. i had lost my role model, my friend, my business partner, the godfather to my kid.
+when i found out he died, it was unexpected but not surprising. i had lost a friend, a business partner, a role model, the godfather to my kid.
 
-he didn’t have much family, and the ones he did have weren’t as familiar with the person i knew. they knew the addict he had been and returned to. our business relationship allowed me to keep many of his namesakes — his art, his instruments. specifically his acoustic guitars, the Taylors that he would put out every open mic so that even if people didn’t have the means to own a fancy guitar, they had the option to play one. his legacy came to me.
+he didn’t have much family, and those who showed up weren't familiar with the person i knew. they knew the addict.
 
-and whatever balance i thought i had just disappeared.
+our business relationship allowed me to claim an inheritance of art and instruments. importantly, i got the Taylor acoustic guitars that he would offer every open mic so that even if those without the means could jam on a fancy guitar. his legacy came to me.
 
-it didn’t fade or taper off. it dropped out from under me.
+whatever balance i thought i had dropped out from under me.
 
-i went back to the same bar, but it wasn’t the same place. same walls, same stage, same songs. but hollow.
+i went back to work at the same bar, but it wasn’t the same place.
 
-writing music felt contrived. like i was imitating something that had already ended. i remember thinking, what’s the point?
+same walls, same stage, same songs.
 
-i had built my whole life around that room, those people, that rhythm. take it away and i didn’t know what was left.
+but hollow.
 
-this wasn’t just my loss. really, everyone who knew him was his friend. Deana especially.
+writing music felt contrived. like i was poorly imitating myself in a different dimension.
 
-but we had each other. and we had Phoenix. that didn’t fix anything, but it meant i couldn’t just disappear into it.
+this wasn’t just my loss. really, everyone who knew him was his friend. Deana especially. but we had each other. and we had Phoenix. that didn’t really fix anything, though it meant i couldn’t just shrink into obscurity. everything got tight. time, money, attention — all of it compressed. we had enough to survive but not enough to breathe.
 
-everything got tight after that. time, money, attention — all of it compressed.
-
-Deana went back to work after three months — only half paid. she wanted to breastfeed but pumping during shifts is hard, the stress mounts when you're the breadwinner, and eventually the supply dries up. we had enough to survive but not enough to breathe.
-
-then we had Juniper. Deana went through it all again — three months, half paid, the same impossible math. when Juniper was five months old we got accepted into rent-controlled housing — so did Deana's parents — and that was when things finally started to loosen. less tension, more space, the relationship with her parents getting better.
-
-i was home more. bartending and music didn't map cleanly to the life my growing family needed.
+## pathfinder
 
 it became obvious pretty quickly that if i stayed on that path, we'd always be under pressure.
 
@@ -262,23 +268,29 @@ i committed hard.
 
 5am every day before the house was up. tutorials, docs, forums, reddit threads. i found a mentor online, a senior designer/engineer, and took everything he gave me seriously.
 
-but the mornings weren't enough. so i walked. four hours a day, every day, rain or shine, pushing the kids in the stroller and listening to podcasts and courses. it was the only way i could absorb anything while they were awake. i wore holes in the bottoms of my flip flops.
+but the mornings weren't enough. so i walked. four hours a day, every day, rain or shine, pushing a stroller and listening to podcasts. it was the only way i could absorb anything while responsibility was awake. i wore holes in the bottoms of my flip flops.
 
-my father-in-law thought i was a forever student. he was asking his friends if i could work with them. he just wanted to know his daughter and grandkids would be taken care of. i get that now.
+at some point, we had Juniper. and Deana went through it all again — the same impossible math under the same roof.
 
-six months of that.
+my father-in-law thought i was a "forever student" and, while i refused to agree, he just wanted to know his daughter and grandkids would be taken care of.
 
-the day after Juniper turned one, i started my first job. Deana tried to keep working too, but after three weeks i convinced her to stay home. she resisted hard — her identity had been wrapped up in working since before she knew me. it was her only form of freedom. it took time for her to realize that staying home didn't mean losing that.
+when Juniper was five months old we got accepted into rent-controlled housing. separately, so did Deana's parents.
 
-first day, they asked me to decrypt a 30,000-person email list. i had no idea how. didn't know what it was encrypted with. asked around — nobody else knew either. eventually we figured out it was Base64. i wrote a script that decoded the whole thing and felt the biggest rush i'd had in years. addicted.
+we were finally free to live our own lives.
 
-i said yes to everything after that, especially the things i didn't know how to do. same thing i was learning at home with the kids — you don't get to opt out of the hard parts. you just sit in them until something gives.
+and make our own luck.
 
-my father-in-law apologized. our relationship has never been better.
+the day after Juniper turned one, i started my first job. making way more money than i felt i deserved.
 
 ## foundation
 
-my first job was at Rhone. my manager Isaac took a chance on me — one of the kindest people i'd ever met, completely in love with the work he was doing. he changed my life. he's not with us anymore, which is a travesty. more loss i've had to deal with.
+day one: they asked me to decrypt a 30,000-person email list. i had no idea how. barely knew what encryption meant in this context. when i finally figured it out, wrote some code, and solved my first problem i was addicted.
+
+i said yes to everything after that, especially the things i didn't know how to do. same thing i was learning at home with the kids --
+
+##### you just get comfortable being uncomfortable.
+
+after three weeks of employment, i convinced Deana to quit her job. since she was 14, working was her identity. her only form of freedom.
 
 when Azalea was on the way, i started reading. a lot. forty books my first year. personal development, masculinity, responsibility, money. the kind of stuff i probably needed years earlier but wasn't ready for.
 
