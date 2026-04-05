@@ -254,27 +254,29 @@ this wasn’t just my loss. really, everyone who knew him was his friend. Deana 
 
 ## anything but analog
 
-it became obvious pretty quickly that if i stayed on that path, we'd always be under pressure.
+it became quickly apparent that if i stayed on that path, we'd always be under pressure.
 
 i needed a new obsession. one that didn't depend on being in a room at 1am.
 
 over the years i've had a hard time placing what exactly led me to code. i imagine there were many subtle nudges but one stands out.
 
-in 2017, before we were parents, Deana got me tickets to see the Gorillaz at Penns Landing. truly, she always knew what i wanted before i did. it was an outdoor venue on one of those days that the sky explained in plain english that you were gonna get wet. it did nothing to stop the swell of humanz into Festival Pier. from the first sound check, to Vince Staples opening the show, to Damon Albarn bellowing haunts in every direction, good vibes crushed the crowd closer. the bass puppeteered the mass of meat sacks in lock step to the beat. the sights slowed my cognition as the graphic onslaught printed a fresh core memory.
+in 2017, before we were parents, Deana got me tickets to see the Gorillaz at Penns Landing. truly, she always knew what i wanted before i did. it was an outdoor venue on one of those days where the sky explained in plain english that you were gonna get wet. it did nothing to stop the swell of humanz into Festival Pier.
 
-realized sounds are beautiful, but paired with visuals, **they become religious**.
+from the first sound check, to Vince Staples opening the show, to Damon Albarn bellowing megaphonic haunts in every direction, good vibes crushed the crowd into a mass of meat sacks, puppeteered in lock step to the beat. the sights slowed my cognition as a graphic onslaught cut a fresh core memory.
 
-i let music move me into digital space time.
+i offered no resistence as the music moved me into quantum space time.
+
+more importantly, i realized that while sounds are beautiful, when paired with visuals, **they become religious**.
+
+and i was yearning for my own taste of the divine.
 
 started playing with [Processing](processing.org), trying to make pixels dance across the screen. then, i wanted to show anyone else my digital monstrosity but how do i share my computer with the world?
 
 that curiosity turned into a rabbit hole.
 
-web development, JavaScript, frameworks, everything i could get my hands on.
-
 i committed hard.
 
-5am every day before the house was up. tutorials, docs, forums, reddit threads. i found a mentor online, a senior designer/engineer, and took everything he gave me seriously.
+5am every day before the house was up. tutorials, docs, forums, braving the toxic sesspool of reddit threads where i found a mentor, a senior designer/engineer, who helped me see that all of my efforts were in good spirit but poor form. my shitty portfolio, resume, skillset, all burned so that i could grow back stronger through the ashes. i asked for all the pain he could supply.
 
 but the mornings weren't enough. so i walked. four hours a day, every day, rain or shine, pushing a stroller and listening to podcasts. it was the only way i could absorb anything while responsibility was awake. i wore holes in the bottoms of my flip flops.
 
@@ -292,7 +294,7 @@ the day after Juniper turned one, i started my first job. making way more money 
 
 ## foundation
 
-day one: they asked me to decrypt a 30,000-person email list. i had no idea how. barely knew what encryption meant in this context. when i finally figured it out, wrote some code, and solved my first problem i might have cried.
+day one: they asked me to decrypt a 30,000-person email list. i had no idea how. barely knew what encryption meant in this context. when i finally figured it out, wrote some code, and solved my first real-world problem i might have cried.
 
 i said yes to everything after that, especially the things i didn't know how to do. same thing i was learning at home with the kids --
 
@@ -308,15 +310,19 @@ considering the source of my new prosperity in coding, one idea stuck: money is 
 
 finally started to understand that **perspective shapes reality**.
 
-i grew up with a lot of love but not a lot of extravagance. the first time i took my wife out to a nice dinner, i felt guilty. like i didn't deserve it. like it somehow betrayed where i came from.
+i grew up with a lot of love, but not a lot of extravagance. the first time i took my wife out to a nice dinner, i felt guilty. like i didn't deserve it. like it somehow betrayed where i came from.
 
 but then i noticed the other side. i could hand a five to someone at a stoplight without blinking. and i remembered Benny — who gave away damn near everything he made and received it all back tenfold.
 
-money isn't the thing. it's what lets you not think about the thing, so you can think about everything else.
+**money isn't the thing. it's what lets you not think about the thing, so you can think about everything else.**
 
-Azalea was born while i was still at Rhone. before she was two months old, i switched to Made In Cookware — a better opportunity in every sense. Dan, the lead engineer, was self-taught like me and brilliant. i learned twice as fast watching him work and my confidence grew.
+Azalea was born while i was still at Rhone. before she was two months old, i was poached by Made In Cookware.
 
-but Dan eventually left and i spent a year trying to prove i could lead the ship. the work kept getting bigger. harder problems. i got obsessed with doing things right — performance, accessibility, architecture.
+Dan, the lead engineer there, was self-taught like me and brilliant. after one conversation offered me the job, no technical assessment. risky but i made sure to it wasn't a mistake. i learned twice as fast watching him work and my confidence grew.
+
+but Dan eventually left and i spent an entire year proving i could lead before they officially let me.
+
+the work kept getting bigger. harder problems. i got obsessed with doing things right — performance, accessibility, architecture.
 
 i needed to understand every layer. every decision. if something broke, i wanted to know why before anyone else did.
 
@@ -330,21 +336,25 @@ then we drove up the Coastal Highway of California to Portland, Oregon.
 
 there's something enchanted about the Pacific Northwest. Redwoods feel impossibly large and ancient, ecological diversity slaps you in the face everywhere you turn, the beach is visceral with boulders the size of buildings jutting just beyond the break and bonfires stretching along the entirety of the shoreline, each housing a unique configuration of conversation.
 
-i watched my family breath into this place and relax, Deana and me returning to ourselves before things got hard.
+i watched my growing family breath into this place and relax, Deana and me returning to ourselves before things got hard.
 
 then my Dad died.
 
-and, likely hours before, we conceived our fourth kid.
+and, likely hours before, we conceived our fourth.
 
 **life is a circle**, sometimes a fucked up one.
 
-we ended our gallavanting early and came back to Pennsylvania to have Orion, our first boy.
+we ended our gallavanting early and came back to Pennsylvania to have Orion, the first boy.
 
-being with family felt good. but home didn't feel like home anymore and we knew we needed a change.
+being with family felt good. but home didn't feel like home anymore and we knew we needed something different.
 
 so we moved to Austin.
 
 ## dissonance
+
+i tried to surprise Chip, the CEO, with an in office visit without letting on that i'd moved. when i did my civic duty and updated my address to the tax-free state of Texas, apparently that needs manager approval.
+
+![Chip Malt — nice new address](/assets/chip-malt-new-address.png)
 
 we had a lunch and learn at work. some guy who'd built his whole business on AI.
 
