@@ -252,7 +252,7 @@ writing music felt contrived. like i was poorly imitating myself in a different 
 
 this wasn’t just my loss. really, everyone who knew him was his friend. Deana especially. but we had each other. and we had Phoenix. that didn’t really fix anything, though it meant i couldn’t just shrink into obscurity. everything got tight. time, money, attention — all of it compressed. we had enough to survive but not enough to breathe.
 
-## pathfinder
+## anything but analog
 
 it became obvious pretty quickly that if i stayed on that path, we'd always be under pressure.
 
@@ -260,11 +260,11 @@ i needed a new obsession. one that didn't depend on being in a room at 1am.
 
 over the years i've had a hard time placing what exactly led me to code. i imagine there were many subtle nudges but one stands out.
 
-in 2017, before we parents, Deana got me tickets to see the Gorillaz at Penns Landing. truly, she always knew what i wanted before i did. it was an outdoor venue on one of those days that the sky explained in plain english that you were gonna get wet. it did nothing to stop the swell of humanz into Festival Pier. from the first sound check, to Vince Staples opening the show, to Damon Albarn bellowing haunts in every direction, good vibes crushed the crowd closer. the bass puppeteered the mass of meat sacks in lock step to the beat. the sights slowed my cognition as the graphic onslaught printed a fresh core memory.
+in 2017, before we were parents, Deana got me tickets to see the Gorillaz at Penns Landing. truly, she always knew what i wanted before i did. it was an outdoor venue on one of those days that the sky explained in plain english that you were gonna get wet. it did nothing to stop the swell of humanz into Festival Pier. from the first sound check, to Vince Staples opening the show, to Damon Albarn bellowing haunts in every direction, good vibes crushed the crowd closer. the bass puppeteered the mass of meat sacks in lock step to the beat. the sights slowed my cognition as the graphic onslaught printed a fresh core memory.
 
-sounds are beautiful, but paired with visuals, **they become religious**.
+realized sounds are beautiful, but paired with visuals, **they become religious**.
 
-so, analog music moved me into digital space time.
+i let music move me into digital space time.
 
 started playing with [Processing](processing.org), trying to make pixels dance across the screen. then, i wanted to show anyone else my digital monstrosity but how do i share my computer with the world?
 
