@@ -60,7 +60,7 @@ i found a room packed to the brim with every type of person i would never expect
 
 i remember just watching. trying to understand how it worked.
 
-then i met Benny.
+**then i met Benny.**
 
 within seconds, it was obvious he was one of the most immediately magnetic people on the planet. no hesitation, no filtering. just fully himself. a cosmically talented musician who could pick up anything immediately by ear, with just about any instrument, and riff -- always in service of the song, never himself.
 
@@ -92,7 +92,7 @@ music, bartending, late nights, building relationships.
 
 finally hitting my stride in a thriving art community, i was holding court — talking to women all day and hitting the apps every night.
 
-but after i started talking to Deana, i didn't want to talk to anyone else.
+but after i started talking to Deana, _i didn't want to talk to anyone else._
 
 the first thing i said to my future wife was "hey, Blondie."
 
@@ -246,7 +246,7 @@ i went back to work at the same bar, but it wasn’t the same place.
 
 same walls, same stage, same songs.
 
-but hollow.
+_but hollow._
 
 writing music felt contrived. like i was poorly imitating myself in a different dimension.
 
@@ -274,7 +274,7 @@ started playing with [Processing](processing.org), trying to make pixels dance a
 
 that curiosity turned into a rabbit hole.
 
-i committed hard.
+**i committed hard.**
 
 5am every day before the house was up. tutorials, docs, forums, braving the toxic sesspool of reddit threads where i found a mentor, a senior designer/engineer, who helped me see that all of my efforts were in good spirit but poor form. my shitty portfolio, resume, skillset, all burned so that i could grow back stronger through the ashes. i asked for all the pain he could supply.
 
@@ -338,7 +338,7 @@ there's something enchanted about the Pacific Northwest. Redwoods feel impossibl
 
 i watched my growing family breath into this place and relax, Deana and me returning to ourselves before things got hard.
 
-then my Dad died.
+**then my Dad died.**
 
 and, likely hours before, we conceived our fourth.
 
