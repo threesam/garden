@@ -256,9 +256,17 @@ this wasn’t just my loss. really, everyone who knew him was his friend. Deana 
 
 it became obvious pretty quickly that if i stayed on that path, we'd always be under pressure.
 
-i needed something different. something that didn't depend on being in a room at 1am.
+i needed a new obsession. one that didn't depend on being in a room at 1am.
 
-i had already touched code a bit through generative art. playing with [Processing](processing.org), trying to make groovy visuals for shows. at some point, i wanted to put them onto a website so other people could see them.
+over the years i've had a hard time placing what exactly led me to code. i imagine there were many subtle nudges but one stands out.
+
+in 2017, before we parents, Deana got me tickets to see the Gorillaz at Penns Landing. truly, she always knew what i wanted before i did. it was an outdoor venue on one of those days that the sky explained in plain english that you were gonna get wet. it did nothing to stop the swell of humanz into Festival Pier. from the first sound check, to Vince Staples opening the show, to Damon Albarn bellowing haunts in every direction, good vibes crushed the crowd closer. the bass puppeteered the mass of meat sacks in lock step to the beat. the sights slowed my cognition as the graphic onslaught printed a fresh core memory.
+
+sounds are beautiful, but paired with visuals, **they become religious**.
+
+so, analog music moved me into digital space time.
+
+started playing with [Processing](processing.org), trying to make pixels dance across the screen. then, i wanted to show anyone else my digital monstrosity but how do i share my computer with the world?
 
 that curiosity turned into a rabbit hole.
 
@@ -284,37 +292,57 @@ the day after Juniper turned one, i started my first job. making way more money 
 
 ## foundation
 
-day one: they asked me to decrypt a 30,000-person email list. i had no idea how. barely knew what encryption meant in this context. when i finally figured it out, wrote some code, and solved my first problem i was addicted.
+day one: they asked me to decrypt a 30,000-person email list. i had no idea how. barely knew what encryption meant in this context. when i finally figured it out, wrote some code, and solved my first problem i might have cried.
 
 i said yes to everything after that, especially the things i didn't know how to do. same thing i was learning at home with the kids --
 
 ##### you just get comfortable being uncomfortable.
 
-after three weeks of employment, i convinced Deana to quit her job. since she was 14, working was her identity. her only form of freedom.
+after three weeks of employment, i convinced Deana to quit her job. since she was 14, working was her identity. her only form of freedom. until it wasn't.
 
-when Azalea was on the way, i started reading. a lot. forty books my first year. personal development, masculinity, responsibility, money. the kind of stuff i probably needed years earlier but wasn't ready for.
+we reorganized within our tiny apartment. new routine, new roles, new opportunities, new growth that would not have been possible in our previous constellation.
 
-one idea stuck: money is technology. it's energy. if you treat it like a friend, it acts like one. if you walk around saying your "friend" is the root of all evil, that friend is going to want nothing to do with you.
+when Azalea was on the way, i started reading. a lot. forty books my first year. personal development, masculinity, responsibility, wealth. the kind of stuff i probably needed years earlier but wasn't ready for.
 
-i grew up with a lot of love but not a lot of extravagance. so when i got a real job and took my wife out to a nice dinner, i felt guilty. like i didn't deserve it. like it somehow betrayed where i came from.
+considering the source of my new prosperity in coding, one idea stuck: money is technology. it's energy. if you treat it like a friend, it acts like one. if you walk around saying your "friend" is the root of all evil, your homie will desert you.
 
-but then i noticed the other side. i could hand a five to someone on the street without blinking. and i remembered Benny — who gave away damn near everything he made and received it all back tenfold.
+finally started to understand that **perspective shapes reality**.
+
+i grew up with a lot of love but not a lot of extravagance. the first time i took my wife out to a nice dinner, i felt guilty. like i didn't deserve it. like it somehow betrayed where i came from.
+
+but then i noticed the other side. i could hand a five to someone at a stoplight without blinking. and i remembered Benny — who gave away damn near everything he made and received it all back tenfold.
 
 money isn't the thing. it's what lets you not think about the thing, so you can think about everything else.
 
-Azalea was born while i was still at Rhone. before she was two months old, i switched to Made In Cookware — sizable bump in salary that my growing family needed. sleepless nights with a newborn while ramping up to a new job. i met Dan, our lead engineer, self-taught like me and brilliant. i learned so much from watching him work.
+Azalea was born while i was still at Rhone. before she was two months old, i switched to Made In Cookware — a better opportunity in every sense. Dan, the lead engineer, was self-taught like me and brilliant. i learned twice as fast watching him work and my confidence grew.
 
-Dan eventually left and i spent a year trying to prove i could lead. the work kept getting bigger. harder problems. i got obsessed with doing things right — performance, accessibility, architecture. the kind of stuff most people skip over.
+but Dan eventually left and i spent a year trying to prove i could lead the ship. the work kept getting bigger. harder problems. i got obsessed with doing things right — performance, accessibility, architecture.
 
-i wanted to understand every layer. every decision. if something broke, i wanted to know why before anyone else did.
+i needed to understand every layer. every decision. if something broke, i wanted to know why before anyone else did.
 
-somewhere in there, we started traveling. a month at a time in different cities — Asheville, Joshua Tree, Portland, Midway. the world got bigger. we realized we wanted to keep exploring.
+but there was a big world outside of my little corner of remote work, and i wanted to explore it.
 
-but during our stay in Portland, we got pregnant with Orion. and my dad died.
+so we started traveling because we could. our families were sad to see us go but, for the most part, cheering us on at the chance for adventure.
 
-we came back to Pennsylvania to have the baby and be with family. after a year, we decided to move to Austin — which happens to be Made In's headquarters.
+a month at a time in different cities — the Blue Ridge Mountains of Asheville, then Joshua Tree in the middle of summer. while i didn't see family as often, facetime is a thing, and we probably had more deep conversations on the road than in person. i talked to my Dad almost every day.
 
-that worked for a long time.
+then we drove up the Coastal Highway of California to Portland, Oregon.
+
+there's something enchanted about the Pacific Northwest. Redwoods feel impossibly large and ancient, ecological diversity slaps you in the face everywhere you turn, the beach is visceral with boulders the size of buildings jutting just beyond the break and bonfires stretching along the entirety of the shoreline, each housing a unique configuration of conversation.
+
+i watched my family breath into this place and relax, Deana and me returning to ourselves before things got hard.
+
+then my Dad died.
+
+and, likely hours before, we conceived our fourth kid.
+
+**life is a circle**, sometimes a fucked up one.
+
+we ended our gallavanting early and came back to Pennsylvania to have Orion, our first boy.
+
+being with family felt good. but home didn't feel like home anymore and we knew we needed a change.
+
+so we moved to Austin.
 
 ## dissonance
 
