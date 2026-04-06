@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const LINKS = [
   { href: "/", label: "home" },
@@ -15,6 +16,7 @@ export function Guide() {
   const [hovered, setHovered] = useState(false);
   const lockedRef = useRef(false);
   const coinRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   return (
     <>
@@ -138,14 +140,16 @@ export function Guide() {
         className={`fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md transition-all duration-300 ${open ? "opacity-100" : "pointer-events-none opacity-0"}`}
         style={{ backgroundColor: "var(--coin)" }}
       >
-        <Link
-          href="/"
-          onClick={() => setOpen(false)}
+        <button
+          onClick={() => {
+            setOpen(false);
+            setTimeout(() => router.push("/"), 300);
+          }}
           className="font-mono text-2xl font-bold tracking-[0.3em] transition-transform duration-300 hover:scale-110 hover:duration-[4000ms] hover:ease-out"
-          style={{ color: "var(--black)" }}
+          style={{ color: "var(--black)", background: "none", border: "none", cursor: "pointer" }}
         >
           THREESAM
-        </Link>
+        </button>
       </nav>
     </>
   );
