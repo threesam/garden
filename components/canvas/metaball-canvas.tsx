@@ -37,11 +37,7 @@ const FRAG = `
 
     if (sum > 1.0) {
       float intensity = clamp(sum - 1.0, 0.0, 1.0);
-      vec3 color = vec3(
-        26.0 / 255.0,
-        26.0 / 255.0,
-        20.0 / 255.0
-      );
+      vec3 color = vec3(26.0 / 255.0, 26.0 / 255.0, 20.0 / 255.0);
       float alpha = (180.0 + intensity * 75.0) / 255.0;
       gl_FragColor = vec4(color * alpha, alpha);
     } else {
@@ -105,7 +101,6 @@ export function MetaballCanvas() {
     let rectLeft = 0, rectTop = 0;
     let pointerX = -1, pointerY = -1;
     let pointerActive = false;
-    const ATTRACT = 0.15;
     const balls: Ball[] = [];
 
     function resize() {
@@ -150,22 +145,12 @@ export function MetaballCanvas() {
       const t = e.touches[0];
       if (t) updatePointer(t.clientX, t.clientY);
     }
-    function onPointerLeave() {
-      pointerActive = false;
-      for (const b of balls) {
-        const dx = b.x - pointerX;
-        const dy = b.y - pointerY;
-        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-        b.vx = (dx / dist) * (3 + Math.random() * 3);
-        b.vy = (dy / dist) * (3 + Math.random() * 3);
-      }
-    }
-    function onTouchEnd() { onPointerLeave(); }
+    function onPointerLeave() { pointerActive = false; }
 
     canvas.addEventListener("mousemove", onMouseMove);
     canvas.addEventListener("mouseleave", onPointerLeave);
     canvas.addEventListener("touchmove", onTouchMove, { passive: true });
-    canvas.addEventListener("touchend", onTouchEnd);
+    canvas.addEventListener("touchend", onPointerLeave);
 
     let raf = 0;
     const t0 = performance.now();
@@ -177,18 +162,14 @@ export function MetaballCanvas() {
         if (pointerActive) {
           const dx = pointerX - b.x;
           const dy = pointerY - b.y;
-          b.vx += dx * 0.003;
-          b.vy += dy * 0.003;
+          b.vx += dx * 0.0002;
+          b.vy += dy * 0.0002;
+          b.vx *= 0.98;
+          b.vy *= 0.98;
         }
 
         b.x += b.vx;
         b.y += b.vy;
-
-        // damping — gentle when attracted, heavier when free-floating
-        const damp = pointerActive ? 0.99 : 0.98;
-        b.vx *= damp;
-        b.vy *= damp;
-
         if (b.x < 0 || b.x > w) b.vx *= -1;
         if (b.y < 0 || b.y > h) b.vy *= -1;
       }
@@ -218,7 +199,7 @@ export function MetaballCanvas() {
       canvas.removeEventListener("mousemove", onMouseMove);
       canvas.removeEventListener("mouseleave", onPointerLeave);
       canvas.removeEventListener("touchmove", onTouchMove);
-      canvas.removeEventListener("touchend", onTouchEnd);
+      canvas.removeEventListener("touchend", onPointerLeave);
     };
   }, []);
 
