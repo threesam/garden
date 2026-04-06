@@ -43,7 +43,13 @@ export default async function VibePage() {
       className="copy-lower min-h-screen pb-16"
       style={{ background: "linear-gradient(to bottom, var(--black), var(--white))", color: "var(--white)" } as React.CSSProperties}
     >
-      <section className="relative flex h-[50dvh] items-center justify-center overflow-hidden" style={{ background: "var(--black)" }}>
+      <section
+        className="relative flex h-[50dvh] items-center justify-center overflow-hidden"
+        style={{
+          background: "var(--black)",
+          cursor: `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text y='24' font-size='24'>🧲</text></svg>") 16 16, auto`,
+        }}
+      >
         <MetaballCanvas />
         <h1 className="relative z-10 font-mono text-3xl font-bold tracking-[0.2em] md:text-5xl" style={{ color: "var(--black)" }}>
 
