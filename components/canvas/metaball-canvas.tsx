@@ -147,14 +147,13 @@ export function MetaballCanvas() {
     }
     function onPointerLeave() {
       pointerActive = false;
-      // rotate each ball's heading by ±15° to break the orbit apart
-      const MAX_DEFLECT = 0.26; // ~15 degrees in radians
       for (const b of balls) {
-        const angle = Math.atan2(b.vy, b.vx);
-        const deflection = (Math.random() * 2 - 1) * MAX_DEFLECT;
-        const speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
-        b.vx = Math.cos(angle + deflection) * speed;
-        b.vy = Math.sin(angle + deflection) * speed;
+        // radial push away from cursor's last position
+        const dx = b.x - pointerX;
+        const dy = b.y - pointerY;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        b.vx += (dx / dist) * 0.8;
+        b.vy += (dy / dist) * 0.8;
       }
     }
 
