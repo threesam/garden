@@ -3,16 +3,19 @@
 import { useRef, useEffect, type ReactNode } from "react";
 import Link from "next/link";
 import { VoronoiCanvas } from "@/components/canvas/voronoi-canvas";
+import { MetaballCanvas } from "@/components/canvas/metaball-canvas";
 
 const HERO_MAP: Record<string, () => ReactNode> = {
   self: () => <VoronoiCanvas invert showLetters={false} />,
+  vibe: () => <MetaballCanvas />,
 };
 
-const ITEMS = [
+const ITEMS: { id: number; label: string; handle: string | null; href?: string }[] = [
   { id: 0, label: "self", handle: "self" },
-  ...Array.from({ length: 6 }, (_, i) => ({
-    id: i + 1,
-    label: `${i + 2}`,
+  { id: 1, label: "vibe", handle: "vibe", href: "/vibe" },
+  ...Array.from({ length: 5 }, (_, i) => ({
+    id: i + 2,
+    label: `${i + 3}`,
     handle: null as string | null,
   })),
 ];
@@ -152,7 +155,7 @@ export function Gallery() {
           return item.handle ? (
             <Link
               key={`${item.id}-${i}`}
-              href={`/canvas/${item.handle}`}
+              href={item.href ?? `/canvas/${item.handle}`}
               draggable={false}
               onClick={(e) => {
                 if (didDrag.current) {
@@ -160,7 +163,7 @@ export function Gallery() {
                   return;
                 }
                 e.preventDefault();
-                window.location.href = `/canvas/${item.handle}`;
+                window.location.href = item.href ?? `/canvas/${item.handle}`;
               }}
               className="group relative shrink-0 overflow-hidden rounded-2xl transition-all duration-700"
               style={{

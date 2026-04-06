@@ -126,7 +126,7 @@ gracefully intimidated.
 
 fun fact about Andrey Savchenko: he's a pastor for a Russian Baptist church, and presides over all of North America.
 
-##### like the whole fucking continent.
+**like the whole fucking continent.**
 
 me not being Christian and not married to his daughter was...tense. we didn't speak the same language, but i did know how to read a room.
 
@@ -228,7 +228,7 @@ i had built big routines around my art and that community in Trenton but presenc
 
 even if it was far from stable and even further from ideal, it was our life.
 
-##### then Benny relapsed.
+**then Benny relapsed.**
 
 he’d given me all the leeway to become a dad, hooked me up with easy money. but secretly he was struggling. i only saw him a few times after Phoenix was born. i remember going to his house and he didn’t need to tell me — it was obvious. he was a shell of the person who had become my best friend, though underneath his struggle i could still see him.
 
@@ -298,7 +298,7 @@ day one: they asked me to decrypt a 30,000-person email list. i had no idea how.
 
 i said yes to everything after that, especially the things i didn't know how to do. same thing i was learning at home with the kids --
 
-##### you just get comfortable being uncomfortable.
+**you just get comfortable being uncomfortable.**
 
 after three weeks of employment, i convinced Deana to quit her job. since she was 14, working was her identity. her only form of freedom. until it wasn't.
 
