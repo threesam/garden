@@ -52,11 +52,31 @@ export default async function VibePage() {
       </section>
 
       <style>{`
-        @media (max-width: 639px) { .book-grid > *:nth-child(4n) > a { transform-origin: top right; } }
-        @media (min-width: 640px) and (max-width: 767px) { .book-grid > *:nth-child(6n) > a { transform-origin: top right; } }
-        @media (min-width: 768px) and (max-width: 1023px) { .book-grid > *:nth-child(8n) > a { transform-origin: top right; } }
-        @media (min-width: 1024px) and (max-width: 1279px) { .book-grid > *:nth-child(10n) > a { transform-origin: top right; } }
-        @media (min-width: 1280px) { .book-grid > *:nth-child(12n) > a { transform-origin: top right; } }
+        @media (max-width: 639px) {
+          .book-grid > *:nth-child(4n) > a { transform-origin: top right; }
+          .book-grid > *:nth-last-child(-n+4) > a { transform-origin: bottom left; }
+          .book-grid > *:nth-last-child(-n+4):nth-child(4n) > a { transform-origin: bottom right; }
+        }
+        @media (min-width: 640px) and (max-width: 767px) {
+          .book-grid > *:nth-child(6n) > a { transform-origin: top right; }
+          .book-grid > *:nth-last-child(-n+6) > a { transform-origin: bottom left; }
+          .book-grid > *:nth-last-child(-n+6):nth-child(6n) > a { transform-origin: bottom right; }
+        }
+        @media (min-width: 768px) and (max-width: 1023px) {
+          .book-grid > *:nth-child(8n) > a { transform-origin: top right; }
+          .book-grid > *:nth-last-child(-n+8) > a { transform-origin: bottom left; }
+          .book-grid > *:nth-last-child(-n+8):nth-child(8n) > a { transform-origin: bottom right; }
+        }
+        @media (min-width: 1024px) and (max-width: 1279px) {
+          .book-grid > *:nth-child(10n) > a { transform-origin: top right; }
+          .book-grid > *:nth-last-child(-n+10) > a { transform-origin: bottom left; }
+          .book-grid > *:nth-last-child(-n+10):nth-child(10n) > a { transform-origin: bottom right; }
+        }
+        @media (min-width: 1280px) {
+          .book-grid > *:nth-child(12n) > a { transform-origin: top right; }
+          .book-grid > *:nth-last-child(-n+12) > a { transform-origin: bottom left; }
+          .book-grid > *:nth-last-child(-n+12):nth-child(12n) > a { transform-origin: bottom right; }
+        }
       `}</style>
       <section className="book-grid grid grid-cols-4 overflow-x-hidden sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12">
         {sorted.map((book, i) => (
