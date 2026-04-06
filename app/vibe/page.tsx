@@ -51,7 +51,7 @@ export default async function VibePage() {
         }}
       >
         <MetaballCanvas />
-        <h1 className="relative z-10 font-mono text-3xl font-bold tracking-[0.2em] md:text-5xl" style={{ color: "var(--black)" }}>
+        <h1 className="pointer-events-none relative z-10 font-mono text-3xl font-bold tracking-[0.2em] md:text-5xl" style={{ color: "var(--black)" }}>
 
           what&apos;s my vibe?
         </h1>
