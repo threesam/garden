@@ -15,7 +15,7 @@ const ITEMS: { id: number; label: string; handle: string | null; href?: string }
   { id: 1, label: "vibe", handle: "vibe", href: "/vibe" },
   ...Array.from({ length: 5 }, (_, i) => ({
     id: i + 2,
-    label: `${i + 3}`,
+    label: "undefined",
     handle: null as string | null,
   })),
 ];
