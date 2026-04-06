@@ -7,16 +7,6 @@ export const metadata: Metadata = {
   description: "Books, media, and the things that shape how I think.",
 };
 
-function Stars({ rating }: { rating: number }) {
-  if (rating === 0) return null;
-  return (
-    <span className="font-mono text-[10px] tracking-wider text-zinc-500">
-      {"★".repeat(rating)}
-      {"☆".repeat(5 - rating)}
-    </span>
-  );
-}
-
 function BookCover({ book, eager }: { book: Book; eager?: boolean }) {
   return (
     <div className="group relative aspect-[2/3] md:hover:z-20">
@@ -24,7 +14,7 @@ function BookCover({ book, eager }: { book: Book; eager?: boolean }) {
         href={`https://www.goodreads.com/book/show/${book.id}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="absolute inset-0 overflow-hidden bg-zinc-900 md:transition md:duration-300 md:ease-out md:hover:will-change-transform md:group-hover:scale-[1.8] md:group-hover:shadow-2xl md:group-hover:shadow-black/60"
+        className="absolute inset-0 origin-top-left overflow-hidden bg-zinc-900 md:transition md:duration-300 md:ease-out md:hover:will-change-transform md:group-hover:scale-[2] md:group-hover:shadow-2xl md:group-hover:shadow-black/60"
       >
         {book.coverUrl ? (
           <img
@@ -39,13 +29,6 @@ function BookCover({ book, eager }: { book: Book; eager?: boolean }) {
             {book.cleanTitle}
           </div>
         )}
-        <div className="pointer-events-none absolute inset-0 hidden flex-col justify-end bg-gradient-to-t from-black/80 via-black/20 to-transparent p-3 opacity-0 transition-opacity duration-200 md:flex md:group-hover:opacity-100">
-          <p className="text-xs font-medium leading-tight text-white">
-            {book.cleanTitle}
-          </p>
-          <p className="mt-0.5 text-[10px] text-zinc-400">{book.author}</p>
-          <Stars rating={book.rating} />
-        </div>
       </a>
     </div>
   );
@@ -68,7 +51,14 @@ export default async function VibePage() {
         </h1>
       </section>
 
-      <section className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12">
+      <style>{`
+        @media (max-width: 639px) { .book-grid > *:nth-child(4n) > a { transform-origin: top right; } }
+        @media (min-width: 640px) and (max-width: 767px) { .book-grid > *:nth-child(6n) > a { transform-origin: top right; } }
+        @media (min-width: 768px) and (max-width: 1023px) { .book-grid > *:nth-child(8n) > a { transform-origin: top right; } }
+        @media (min-width: 1024px) and (max-width: 1279px) { .book-grid > *:nth-child(10n) > a { transform-origin: top right; } }
+        @media (min-width: 1280px) { .book-grid > *:nth-child(12n) > a { transform-origin: top right; } }
+      `}</style>
+      <section className="book-grid grid grid-cols-4 overflow-x-hidden sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12">
         {sorted.map((book, i) => (
           <BookCover key={book.id} book={book} eager={i < 24} />
         ))}
