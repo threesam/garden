@@ -163,22 +163,29 @@ export function MetaballCanvas() {
         if (pointerActive) {
           const dx = pointerX - b.x;
           const dy = pointerY - b.y;
-          b.vx += dx * 0.002;
-          b.vy += dy * 0.002;
+          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+
+          // radial pull toward cursor
+          b.vx += (dx / dist) * 0.15;
+          b.vy += (dy / dist) * 0.15;
+
+          // tangential force for orbiting (perpendicular to radial)
+          b.vx += (-dy / dist) * 0.08;
+          b.vy += (dx / dist) * 0.08;
+
+          b.vx *= 0.95;
+          b.vy *= 0.95;
+        } else {
+          // gentle drift back toward initial wandering speed
+          const speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
+          if (speed > 0.4) {
+            b.vx *= 0.98;
+            b.vy *= 0.98;
+          }
         }
 
         b.x += b.vx;
         b.y += b.vy;
-        b.vx *= pointerActive ? 0.96 : 0.995;
-        b.vy *= pointerActive ? 0.96 : 0.995;
-
-        // clamp speed
-        const speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
-        const maxSpeed = pointerActive ? 3 : 0.5;
-        if (speed > maxSpeed) {
-          b.vx = (b.vx / speed) * maxSpeed;
-          b.vy = (b.vy / speed) * maxSpeed;
-        }
         if (b.x < 0 || b.x > w) b.vx *= -1;
         if (b.y < 0 || b.y > h) b.vy *= -1;
       }
