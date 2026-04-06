@@ -127,8 +127,8 @@ export function MetaballCanvas() {
         balls.push({
           x: Math.random() * w,
           y: Math.random() * h,
-          vx: (Math.random() - 0.5) * 0.4,
-          vy: (Math.random() - 0.5) * 0.4,
+          vx: (Math.random() - 0.5) * 0.8,
+          vy: (Math.random() - 0.5) * 0.8,
           r: rMin + Math.random() * rRange,
         });
       }
@@ -188,7 +188,7 @@ export function MetaballCanvas() {
         } else {
           // gentle drift back toward initial wandering speed
           const speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
-          if (speed > 0.4) {
+          if (speed > 0.8) {
             b.vx *= 0.98;
             b.vy *= 0.98;
           }
