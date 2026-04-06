@@ -169,10 +169,15 @@ export function MetaballCanvas() {
 
         b.x += b.vx;
         b.y += b.vy;
+        b.vx *= pointerActive ? 0.96 : 0.995;
+        b.vy *= pointerActive ? 0.96 : 0.995;
 
-        if (pointerActive) {
-          b.vx *= 0.96;
-          b.vy *= 0.96;
+        // clamp speed
+        const speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
+        const maxSpeed = pointerActive ? 3 : 0.5;
+        if (speed > maxSpeed) {
+          b.vx = (b.vx / speed) * maxSpeed;
+          b.vy = (b.vy / speed) * maxSpeed;
         }
         if (b.x < 0 || b.x > w) b.vx *= -1;
         if (b.y < 0 || b.y > h) b.vy *= -1;
