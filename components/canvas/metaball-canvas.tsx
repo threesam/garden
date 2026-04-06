@@ -117,18 +117,24 @@ export function MetaballCanvas() {
       const rect = canvas!.getBoundingClientRect();
       rectLeft = rect.left;
       rectTop = rect.top;
+      for (const b of balls) {
+        b.x = Math.min(b.x, w);
+        b.y = Math.min(b.y, h);
+      }
     }
 
     function initBalls() {
       balls.length = 0;
       const scale = Math.min(w, h);
+      const rMin = scale * 0.06;
+      const rRange = scale * 0.09;
       for (let i = 0; i < NUM_BALLS; i++) {
         balls.push({
           x: Math.random() * w,
           y: Math.random() * h,
           vx: (Math.random() - 0.5) * 1.2,
           vy: (Math.random() - 0.5) * 1.2,
-          r: scale * (0.08 + Math.random() * 0.12),
+          r: rMin + Math.random() * rRange,
         });
       }
     }

@@ -36,13 +36,6 @@ export interface Book {
   shelves: string[];
 }
 
-export interface SeriesGroup {
-  name: string;
-  books: Book[];
-}
-
-export type BookOrSeries = { type: "book"; book: Book } | { type: "series"; group: SeriesGroup };
-
 const parser = new XMLParser();
 
 function parseSeries(title: string): { cleanTitle: string; series: string | null; seriesNumber: number | null } {
@@ -95,50 +88,4 @@ export async function getBooks(shelf = "read"): Promise<Book[]> {
   const pages = await Promise.all([fetchPage(shelf, 1), fetchPage(shelf, 2), fetchPage(shelf, 3)]);
   const entries = pages.flat();
   return entries.map(parseEntry);
-}
-
-export function groupBySeriesAndStandalone(books: Book[]): BookOrSeries[] {
-  const sorted = [...books].sort((a, b) => {
-    const dateA = a.readAt?.getTime() ?? a.addedAt.getTime();
-    const dateB = b.readAt?.getTime() ?? b.addedAt.getTime();
-    return dateB - dateA;
-  });
-
-  const seriesMap = new Map<string, Book[]>();
-  const standalone: Book[] = [];
-
-  for (const book of sorted) {
-    if (book.series) {
-      const existing = seriesMap.get(book.series) ?? [];
-      existing.push(book);
-      seriesMap.set(book.series, existing);
-    } else {
-      standalone.push(book);
-    }
-  }
-
-  // Sort series books by number
-  for (const books of seriesMap.values()) {
-    books.sort((a, b) => (a.seriesNumber ?? 0) - (b.seriesNumber ?? 0));
-  }
-
-  // Build result: place series at the position of its most recently read book
-  const seen = new Set<string>();
-  const result: BookOrSeries[] = [];
-
-  for (const book of sorted) {
-    if (book.series) {
-      if (!seen.has(book.series)) {
-        seen.add(book.series);
-        result.push({
-          type: "series",
-          group: { name: book.series, books: seriesMap.get(book.series)! },
-        });
-      }
-    } else {
-      result.push({ type: "book", book });
-    }
-  }
-
-  return result;
 }

@@ -19,12 +19,12 @@ function Stars({ rating }: { rating: number }) {
 
 function BookCover({ book, eager }: { book: Book; eager?: boolean }) {
   return (
-    <div className="group relative aspect-[2/3] hover:z-20">
+    <div className="group relative aspect-[2/3] md:hover:z-20">
       <a
         href={`https://www.goodreads.com/book/show/${book.id}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="absolute inset-0 overflow-hidden bg-zinc-900 transition duration-300 ease-out hover:will-change-transform group-hover:scale-[1.8] group-hover:shadow-2xl group-hover:shadow-black/60"
+        className="absolute inset-0 overflow-hidden bg-zinc-900 md:transition md:duration-300 md:ease-out md:hover:will-change-transform md:group-hover:scale-[1.8] md:group-hover:shadow-2xl md:group-hover:shadow-black/60"
       >
         {book.coverUrl ? (
           <img
@@ -39,7 +39,7 @@ function BookCover({ book, eager }: { book: Book; eager?: boolean }) {
             {book.cleanTitle}
           </div>
         )}
-        <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/80 via-black/20 to-transparent p-3 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+        <div className="pointer-events-none absolute inset-0 hidden flex-col justify-end bg-gradient-to-t from-black/80 via-black/20 to-transparent p-3 opacity-0 transition-opacity duration-200 md:flex md:group-hover:opacity-100">
           <p className="text-xs font-medium leading-tight text-white">
             {book.cleanTitle}
           </p>
@@ -58,7 +58,6 @@ export default async function VibePage() {
     const dateB = b.readAt?.getTime() ?? b.addedAt.getTime();
     return dateB - dateA;
   });
-
 
   return (
     <main className="copy-lower min-h-screen pb-16">
