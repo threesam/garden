@@ -140,14 +140,15 @@ export function MetaballCanvas() {
       pointerActive = true;
     }
 
-    function onMouseMove(e: MouseEvent) { updatePointer(e.clientX, e.clientY); }
+    function onPointerEvent(e: MouseEvent) { updatePointer(e.clientX, e.clientY); }
     function onTouchMove(e: TouchEvent) {
       const t = e.touches[0];
       if (t) updatePointer(t.clientX, t.clientY);
     }
     function onPointerLeave() { pointerActive = false; }
 
-    canvas.addEventListener("mousemove", onMouseMove);
+    canvas.addEventListener("mouseenter", onPointerEvent);
+    canvas.addEventListener("mousemove", onPointerEvent);
     canvas.addEventListener("mouseleave", onPointerLeave);
     canvas.addEventListener("touchmove", onTouchMove, { passive: true });
     canvas.addEventListener("touchend", onPointerLeave);
@@ -196,7 +197,8 @@ export function MetaballCanvas() {
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
-      canvas.removeEventListener("mousemove", onMouseMove);
+      canvas.removeEventListener("mouseenter", onPointerEvent);
+      canvas.removeEventListener("mousemove", onPointerEvent);
       canvas.removeEventListener("mouseleave", onPointerLeave);
       canvas.removeEventListener("touchmove", onTouchMove);
       canvas.removeEventListener("touchend", onPointerLeave);
