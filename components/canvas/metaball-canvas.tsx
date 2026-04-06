@@ -169,8 +169,11 @@ export function MetaballCanvas() {
 
         b.x += b.vx;
         b.y += b.vy;
-        b.vx *= pointerActive ? 0.96 : 0.99;
-        b.vy *= pointerActive ? 0.96 : 0.99;
+
+        if (pointerActive) {
+          b.vx *= 0.96;
+          b.vy *= 0.96;
+        }
         if (b.x < 0 || b.x > w) b.vx *= -1;
         if (b.y < 0 || b.y > h) b.vy *= -1;
       }
