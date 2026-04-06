@@ -145,16 +145,7 @@ export function MetaballCanvas() {
       const t = e.touches[0];
       if (t) updatePointer(t.clientX, t.clientY);
     }
-    function onPointerLeave() {
-      pointerActive = false;
-      for (const b of balls) {
-        const dx = b.x - pointerX;
-        const dy = b.y - pointerY;
-        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-        b.vx = (dx / dist) * 1.5;
-        b.vy = (dy / dist) * 1.5;
-      }
-    }
+    function onPointerLeave() { pointerActive = false; }
 
     canvas.addEventListener("mouseenter", onPointerEvent);
     canvas.addEventListener("mousemove", onPointerEvent);
