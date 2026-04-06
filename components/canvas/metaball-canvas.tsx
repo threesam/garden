@@ -162,8 +162,8 @@ export function MetaballCanvas() {
         if (pointerActive) {
           const dx = pointerX - b.x;
           const dy = pointerY - b.y;
-          b.vx += dx * 0.0002;
-          b.vy += dy * 0.0002;
+          b.vx += dx * 0.001;
+          b.vy += dy * 0.001;
           b.vx *= 0.98;
           b.vy *= 0.98;
         }
