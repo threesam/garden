@@ -37,7 +37,7 @@ const FRAG = `
 
     if (sum > 1.0) {
       float intensity = clamp(sum - 1.0, 0.0, 1.0);
-      vec3 color = vec3(26.0 / 255.0, 26.0 / 255.0, 20.0 / 255.0);
+      vec3 color = vec3(232.0 / 255.0, 163.0 / 255.0, 23.0 / 255.0);
       float alpha = (180.0 + intensity * 75.0) / 255.0;
       gl_FragColor = vec4(color * alpha, alpha);
     } else {

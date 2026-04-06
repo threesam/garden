@@ -41,11 +41,12 @@ export default async function VibePage() {
   return (
     <main
       className="copy-lower min-h-screen pb-16"
-      style={{ background: "var(--coin)", color: "var(--black)" } as React.CSSProperties}
+      style={{ background: "var(--black)", color: "var(--white)" } as React.CSSProperties}
     >
       <section className="relative flex h-[50dvh] items-center justify-center overflow-hidden">
         <MetaballCanvas />
         <h1 className="relative z-10 font-mono text-3xl font-bold tracking-[0.2em] md:text-5xl" style={{ color: "var(--black)" }}>
+
           what&apos;s my vibe?
         </h1>
       </section>
