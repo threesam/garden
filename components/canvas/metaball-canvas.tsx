@@ -177,14 +177,18 @@ export function MetaballCanvas() {
         if (pointerActive) {
           const dx = pointerX - b.x;
           const dy = pointerY - b.y;
-          b.vx += dx * ATTRACT * 0.005;
-          b.vy += dy * ATTRACT * 0.005;
-          b.vx *= 0.95;
-          b.vy *= 0.95;
+          b.vx += dx * 0.003;
+          b.vy += dy * 0.003;
         }
 
         b.x += b.vx;
         b.y += b.vy;
+
+        // damping — gentle when attracted, heavier when free-floating
+        const damp = pointerActive ? 0.99 : 0.98;
+        b.vx *= damp;
+        b.vy *= damp;
+
         if (b.x < 0 || b.x > w) b.vx *= -1;
         if (b.y < 0 || b.y > h) b.vy *= -1;
       }
