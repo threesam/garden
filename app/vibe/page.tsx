@@ -36,15 +36,7 @@ function BookCover({ book, eager }: { book: Book; eager?: boolean }) {
 
 export default async function VibePage() {
   const books = await getBooks("read");
-  const sorted = [...books].sort((a, b) => {
-    // Books with readAt dates come first, sorted newest to oldest
-    // Books without readAt sort after, by addedAt
-    if (a.readAt && !b.readAt) return -1;
-    if (!a.readAt && b.readAt) return 1;
-    const dateA = (a.readAt ?? a.addedAt).getTime();
-    const dateB = (b.readAt ?? b.addedAt).getTime();
-    return dateB - dateA;
-  });
+  const sorted = [...books].sort((a, b) => b.addedAt.getTime() - a.addedAt.getTime());
 
   return (
     <main className="copy-lower min-h-screen pb-16">
