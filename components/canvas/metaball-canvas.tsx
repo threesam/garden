@@ -162,14 +162,14 @@ export function MetaballCanvas() {
         if (pointerActive) {
           const dx = pointerX - b.x;
           const dy = pointerY - b.y;
-          b.vx += dx * 0.001;
-          b.vy += dy * 0.001;
-          b.vx *= 0.98;
-          b.vy *= 0.98;
+          b.vx += dx * 0.002;
+          b.vy += dy * 0.002;
         }
 
         b.x += b.vx;
         b.y += b.vy;
+        b.vx *= pointerActive ? 0.96 : 0.99;
+        b.vy *= pointerActive ? 0.96 : 0.99;
         if (b.x < 0 || b.x > w) b.vx *= -1;
         if (b.y < 0 || b.y > h) b.vy *= -1;
       }
