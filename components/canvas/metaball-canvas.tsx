@@ -132,8 +132,8 @@ export function MetaballCanvas() {
         balls.push({
           x: Math.random() * w,
           y: Math.random() * h,
-          vx: (Math.random() - 0.5) * 1.2,
-          vy: (Math.random() - 0.5) * 1.2,
+          vx: (Math.random() - 0.5) * 0.4,
+          vy: (Math.random() - 0.5) * 0.4,
           r: rMin + Math.random() * rRange,
         });
       }
