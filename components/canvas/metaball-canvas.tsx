@@ -105,7 +105,7 @@ export function MetaballCanvas() {
     let rectLeft = 0, rectTop = 0;
     let pointerX = -1, pointerY = -1;
     let pointerActive = false;
-    const ATTRACT = 0.02;
+    const ATTRACT = 0.15;
     const balls: Ball[] = [];
 
     function resize() {
@@ -156,8 +156,8 @@ export function MetaballCanvas() {
         const dx = b.x - pointerX;
         const dy = b.y - pointerY;
         const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-        b.vx = (dx / dist) * (2 + Math.random() * 2);
-        b.vy = (dy / dist) * (2 + Math.random() * 2);
+        b.vx = (dx / dist) * (3 + Math.random() * 3);
+        b.vy = (dy / dist) * (3 + Math.random() * 3);
       }
     }
     function onTouchEnd() { onPointerLeave(); }
@@ -177,10 +177,10 @@ export function MetaballCanvas() {
         if (pointerActive) {
           const dx = pointerX - b.x;
           const dy = pointerY - b.y;
-          b.vx += dx * ATTRACT * 0.01;
-          b.vy += dy * ATTRACT * 0.01;
-          b.vx *= 0.98;
-          b.vy *= 0.98;
+          b.vx += dx * ATTRACT * 0.005;
+          b.vy += dy * ATTRACT * 0.005;
+          b.vx *= 0.95;
+          b.vy *= 0.95;
         }
 
         b.x += b.vx;
