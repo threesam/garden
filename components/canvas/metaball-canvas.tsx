@@ -135,8 +135,9 @@ export function MetaballCanvas() {
     }
 
     function updatePointer(clientX: number, clientY: number) {
-      pointerX = clientX - rectLeft;
-      pointerY = clientY - rectTop;
+      const rect = canvas!.getBoundingClientRect();
+      pointerX = clientX - rect.left;
+      pointerY = clientY - rect.top;
       pointerActive = true;
     }
 
