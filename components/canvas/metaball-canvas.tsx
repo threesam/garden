@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-const NUM_BALLS = 8;
+const NUM_BALLS = 12;
 const PIXEL_SIZE = 6.0;
 
 const VERT = `
@@ -125,9 +125,9 @@ export function MetaballCanvas() {
 
     function initBalls() {
       balls.length = 0;
-      const scale = Math.min(w, h);
-      const rMin = scale * 0.06;
-      const rRange = scale * 0.09;
+      const scale = Math.max(w, h);
+      const rMin = scale * 0.024;
+      const rRange = scale * 0.048;
       for (let i = 0; i < NUM_BALLS; i++) {
         balls.push({
           x: Math.random() * w,
