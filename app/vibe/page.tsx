@@ -19,12 +19,12 @@ function Stars({ rating }: { rating: number }) {
 
 function BookCover({ book, eager }: { book: Book; eager?: boolean }) {
   return (
-    <div className="group relative aspect-[2/3]">
+    <div className="group relative aspect-[2/3] hover:z-20">
       <a
         href={`https://www.goodreads.com/book/show/${book.id}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="absolute inset-0 z-0 overflow-hidden bg-zinc-900 will-change-transform transition-[transform,box-shadow,z-index] duration-300 ease-out group-hover:z-20 group-hover:scale-[1.8] group-hover:shadow-2xl group-hover:shadow-black/60"
+        className="absolute inset-0 overflow-hidden bg-zinc-900 transition duration-300 ease-out hover:will-change-transform group-hover:scale-[1.8] group-hover:shadow-2xl group-hover:shadow-black/60"
       >
         {book.coverUrl ? (
           <img

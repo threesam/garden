@@ -102,10 +102,9 @@ export function MetaballCanvas() {
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
     let w = 0, h = 0;
+    let rectLeft = 0, rectTop = 0;
     let pointerX = -1, pointerY = -1;
     let pointerActive = false;
-    let scrolling = false;
-    let scrollTimer = 0;
     const ATTRACT = 0.02;
     const balls: Ball[] = [];
 
@@ -115,6 +114,9 @@ export function MetaballCanvas() {
       canvas!.width = w;
       canvas!.height = h;
       gl!.viewport(0, 0, w, h);
+      const rect = canvas!.getBoundingClientRect();
+      rectLeft = rect.left;
+      rectTop = rect.top;
     }
 
     function initBalls() {
@@ -132,10 +134,8 @@ export function MetaballCanvas() {
     }
 
     function updatePointer(clientX: number, clientY: number) {
-      if (scrolling) return;
-      const rect = canvas!.getBoundingClientRect();
-      pointerX = clientX - rect.left;
-      pointerY = clientY - rect.top;
+      pointerX = clientX - rectLeft;
+      pointerY = clientY - rectTop;
       pointerActive = true;
     }
 
@@ -147,18 +147,10 @@ export function MetaballCanvas() {
     function onPointerLeave() { pointerActive = false; }
     function onTouchEnd() { pointerActive = false; }
 
-    function onScroll() {
-      scrolling = true;
-      pointerActive = false;
-      clearTimeout(scrollTimer);
-      scrollTimer = window.setTimeout(() => { scrolling = false; }, 1000);
-    }
-
     canvas.addEventListener("mousemove", onMouseMove);
     canvas.addEventListener("mouseleave", onPointerLeave);
     canvas.addEventListener("touchmove", onTouchMove, { passive: true });
     canvas.addEventListener("touchend", onTouchEnd);
-    window.addEventListener("scroll", onScroll, { passive: true });
 
     let raf = 0;
     const t0 = performance.now();
@@ -208,8 +200,6 @@ export function MetaballCanvas() {
       canvas.removeEventListener("mouseleave", onPointerLeave);
       canvas.removeEventListener("touchmove", onTouchMove);
       canvas.removeEventListener("touchend", onTouchEnd);
-      window.removeEventListener("scroll", onScroll);
-      clearTimeout(scrollTimer);
     };
   }, []);
 
