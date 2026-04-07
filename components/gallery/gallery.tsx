@@ -7,7 +7,7 @@ import { MetaballCanvas } from "@/components/canvas/metaball-canvas";
 
 const HERO_MAP: Record<string, () => ReactNode> = {
   self: () => <VoronoiCanvas invert showLetters={false} />,
-  vibe: () => <MetaballCanvas />,
+  vibe: () => <MetaballCanvas color={[0.91, 0.64, 0.09]} />,
 };
 
 const ITEMS: { id: number; label: string; handle: string | null; href?: string }[] = [

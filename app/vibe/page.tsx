@@ -39,7 +39,7 @@ export default async function VibePage() {
   return (
     <main
       className="copy-lower min-h-screen pb-16"
-      style={{ background: "linear-gradient(to bottom, var(--black), var(--white))", color: "var(--white)" } as React.CSSProperties}
+      style={{ background: "linear-gradient(to bottom, var(--black) 40%, var(--white))", color: "var(--white)" } as React.CSSProperties}
     >
       <section
         className="relative flex h-[50dvh] items-center justify-center overflow-hidden"
