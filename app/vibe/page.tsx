@@ -13,7 +13,7 @@ function BookCover({ book, eager }: { book: Book; eager?: boolean }) {
       href={`https://www.goodreads.com/book/show/${book.id}`}
       target="_blank"
       rel="noopener noreferrer"
-      className="block break-inside-avoid p-1 grayscale md:transition-[filter] md:duration-300 md:ease-out md:hover:grayscale-0"
+      className="relative block break-inside-avoid p-1 grayscale md:transition-[filter,background-color,box-shadow] md:duration-300 md:ease-out md:hover:z-10 md:hover:grayscale-0 md:hover:bg-[var(--black)] md:hover:shadow-[0_0_0_4px_var(--black)]"
     >
       {book.coverUrl ? (
         <img
