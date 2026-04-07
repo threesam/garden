@@ -10,13 +10,18 @@
     "wasm:build": "cargo build --manifest-path rust/garden_math/Cargo.toml --target wasm32-unknown-unknown --release && cp rust/garden_math/target/wasm32-unknown-unknown/release/garden_math.wasm public/wasm/garden_math.wasm"
   },
   "dependencies": {
+    "@types/d3-cloud": "^1.2.9",
+    "chart.js": "^4.5.1",
+    "d3-cloud": "^1.2.9",
     "fast-xml-parser": "^5.5.10",
     "marked": "^17.0.5",
     "marked-emoji": "^2.0.2",
     "next": "16.1.6",
     "node-emoji": "^2.2.0",
     "react": "19.2.3",
+    "react-chartjs-2": "^5.3.1",
     "react-dom": "19.2.3",
+    "react-wordcloud": "^1.2.7",
     "three": "^0.183.2"
   },
   "devDependencies": {

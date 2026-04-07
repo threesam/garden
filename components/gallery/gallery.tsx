@@ -12,9 +12,10 @@ const HERO_MAP: Record<string, () => ReactNode> = {
 
 const ITEMS: { id: number; label: string; handle: string | null; href?: string }[] = [
   { id: 0, label: "self", handle: "self" },
-  { id: 1, label: "vibe", handle: "vibe", href: "/vibe" },
-  ...Array.from({ length: 5 }, (_, i) => ({
-    id: i + 2,
+  { id: 1, label: "deana", handle: "deana", href: "/deana" },
+  { id: 2, label: "vibe", handle: "vibe", href: "/vibe" },
+  ...Array.from({ length: 4 }, (_, i) => ({
+    id: i + 3,
     label: "undefined",
     handle: null as string | null,
   })),

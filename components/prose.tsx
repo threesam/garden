@@ -40,10 +40,39 @@ md.use({
 
 interface ProseProps {
   content: string;
+  slots?: Record<string, React.ReactNode>;
 }
 
-export function Prose({ content }: ProseProps) {
-  const html = md.parse(content) as string;
-  // Content is author-controlled markdown from content/ directory, not user input
-  return <div dangerouslySetInnerHTML={{ __html: html }} />;
+export function Prose({ content, slots }: ProseProps) {
+  if (!slots) {
+    const html = md.parse(content) as string;
+    // Content is author-controlled markdown from content/ directory, not user input
+    return <div dangerouslySetInnerHTML={{ __html: html }} />;
+  }
+
+  // Split on <!-- slot-name --> markers and interleave React components
+  const parts: React.ReactNode[] = [];
+  const pattern = /<!--\s*([\w-]+)\s*-->/g;
+  let lastIndex = 0;
+  let match;
+  let key = 0;
+
+  while ((match = pattern.exec(content)) !== null) {
+    const before = content.slice(lastIndex, match.index);
+    if (before.trim()) {
+      parts.push(<div key={key++} dangerouslySetInnerHTML={{ __html: md.parse(before) as string }} />);
+    }
+    const slotName = match[1];
+    if (slots[slotName]) {
+      parts.push(<div key={key++}>{slots[slotName]}</div>);
+    }
+    lastIndex = match.index + match[0].length;
+  }
+
+  const remaining = content.slice(lastIndex);
+  if (remaining.trim()) {
+    parts.push(<div key={key++} dangerouslySetInnerHTML={{ __html: md.parse(remaining) as string }} />);
+  }
+
+  return <>{parts}</>;
 }

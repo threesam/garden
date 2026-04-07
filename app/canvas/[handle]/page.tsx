@@ -2,6 +2,7 @@ import { CloudCanvas } from "@/components/canvas/cloud-canvas";
 import { VoronoiCanvas } from "@/components/canvas/voronoi-canvas";
 import { getContent } from "@/lib/content";
 import { Prose } from "@/components/prose";
+import { MessageTimeline } from "@/components/messages/message-timeline";
 
 interface Props {
   params: Promise<{ handle: string }>;
@@ -31,7 +32,10 @@ export default async function CanvasPage({ params }: Props) {
           className="mx-auto max-w-2xl px-6 py-16 md:px-8 md:py-24"
           style={{ color: "var(--black)" }}
         >
-          <Prose content={markdown} />
+          <Prose
+            content={markdown}
+            slots={{ "message-timeline": <MessageTimeline /> }}
+          />
         </section>
       )}
     </>
