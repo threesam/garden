@@ -1,5 +1,3 @@
-"use client";
-
 import wordsData from "@/data/messages/dianchik/words-data.json";
 
 export function TotalWords() {

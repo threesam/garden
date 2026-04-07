@@ -1,5 +1,3 @@
-"use client";
-
 import petData from "@/data/messages/dianchik/petnames-data.json";
 
 interface PetName {

@@ -1,5 +1,3 @@
-"use client";
-
 import modulesData from "@/data/messages/dianchik/modules-data.json";
 
 interface ExchangeMsg {

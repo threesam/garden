@@ -7,7 +7,7 @@ import { FirstNight } from "@/components/messages/first-night";
 import { DailyFirsts } from "@/components/messages/daily-firsts";
 import { EmojiMeter } from "@/components/messages/emoji-meter";
 import { PetNames } from "@/components/messages/pet-names";
-import { WordCloud } from "@/components/messages/word-cloud";
+import { LazyWordCloud } from "@/components/messages/lazy-word-cloud";
 import { TotalWords, BusiestDay, MostWords } from "@/components/messages/word-stats";
 
 export const metadata: Metadata = {
@@ -52,7 +52,7 @@ export default function DeanaPage() {
 
         {/* Word cloud + stats */}
         <div className={`grid grid-cols-1 md:grid-cols-3 ${g}`}>
-          <M className="md:col-span-2"><WordCloud /></M>
+          <M className="md:col-span-2"><LazyWordCloud /></M>
           <div className={`grid grid-rows-3 ${g}`}>
             <M className="flex items-center"><TotalWords /></M>
             <M className="flex items-center"><BusiestDay /></M>

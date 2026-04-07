@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import emojiData from "@/data/messages/dianchik/emoji-data.json";
 
 interface EmojiEntry { emoji: string; count: number }
@@ -16,8 +16,7 @@ for (const [emoji, count] of pool) {
   const n = Math.max(1, Math.round(count / SCALE));
   for (let i = 0; i < n; i++) emojis.push(emoji);
 }
-
-// Shuffle so same emojis aren't all clumped
+// Shuffle once
 for (let i = emojis.length - 1; i > 0; i--) {
   const j = Math.floor(Math.random() * (i + 1));
   [emojis[i], emojis[j]] = [emojis[j], emojis[i]];
@@ -26,11 +25,15 @@ for (let i = emojis.length - 1; i > 0; i--) {
 const FONT = "'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif";
 const SIZE = 16;
 const GAP = 2;
-
+const STEP = SIZE + GAP;
 const CHARS = ["I", "_", "E", "-"];
+
+// Pre-generate stable opacities
+const opacities = emojis.map(() => 0.15 + Math.random() * 0.15);
 
 export function EmojiHero() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const cacheRef = useRef<HTMLCanvasElement | null>(null);
   const [charIdx, setCharIdx] = useState(0);
 
   useEffect(() => {
@@ -38,42 +41,73 @@ export function EmojiHero() {
     return () => clearInterval(id);
   }, []);
 
-  const draw = useCallback(() => {
+  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d")!;
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.parentElement!.getBoundingClientRect();
-    const w = rect.width;
-    const h = rect.height;
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
-    canvas.style.width = `${w}px`;
-    canvas.style.height = `${h}px`;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.font = `${SIZE}px ${FONT}`;
 
-    const step = SIZE + GAP;
-    const cols = Math.floor(w / step);
+    let lastW = 0;
+    let lastH = 0;
 
-    for (let i = 0; i < emojis.length; i++) {
-      const col = i % cols;
-      const row = Math.floor(i / cols);
-      const x = col * step + step / 2;
-      const y = row * step + step / 2;
-      if (y > h + SIZE) break;
-      ctx.globalAlpha = 0.15 + Math.random() * 0.15;
-      ctx.fillText(emojis[i], x, y);
+    function buildCache(w: number, h: number) {
+      const dpr = window.devicePixelRatio || 1;
+      const offscreen = document.createElement("canvas");
+      offscreen.width = w * dpr;
+      offscreen.height = h * dpr;
+      const ctx = offscreen.getContext("2d")!;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = `${SIZE}px ${FONT}`;
+
+      const cols = Math.ceil(w / STEP) + 1;
+      const rows = Math.ceil(h / STEP) + 1;
+      const total = cols * rows;
+      for (let i = 0; i < total; i++) {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        ctx.globalAlpha = opacities[i % opacities.length];
+        ctx.fillText(emojis[i % emojis.length], col * STEP + STEP / 2, row * STEP + STEP / 2);
+      }
+      cacheRef.current = offscreen;
     }
-  }, []);
 
-  useEffect(() => {
-    draw();
-    window.addEventListener("resize", draw);
-    return () => window.removeEventListener("resize", draw);
-  }, [draw]);
+    function paint() {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas!.parentElement!.getBoundingClientRect();
+      const w = rect.width;
+      const h = rect.height;
+
+      if (w !== lastW || h !== lastH) {
+        lastW = w;
+        lastH = h;
+        canvas!.width = w * dpr;
+        canvas!.height = h * dpr;
+        canvas!.style.width = `${w}px`;
+        canvas!.style.height = `${h}px`;
+        buildCache(w, h);
+      }
+
+      const ctx = canvas!.getContext("2d")!;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, canvas!.width, canvas!.height);
+      if (cacheRef.current) {
+        ctx.drawImage(cacheRef.current, 0, 0);
+      }
+    }
+
+    paint();
+
+    let timeout: ReturnType<typeof setTimeout>;
+    const onResize = () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(paint, 150);
+    };
+    window.addEventListener("resize", onResize);
+    return () => {
+      clearTimeout(timeout);
+      window.removeEventListener("resize", onResize);
+    };
+  }, []);
 
   return (
     <div className="relative h-[50dvh] w-full overflow-hidden mb-3 md:mb-4">

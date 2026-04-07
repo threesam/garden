@@ -1,5 +1,3 @@
-"use client";
-
 import emojiData from "@/data/messages/dianchik/emoji-data.json";
 
 interface EmojiEntry {

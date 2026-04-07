@@ -25,6 +25,9 @@ const chartData = {
 
 type Tab = "messages" | "media";
 
+const MSG_TOTAL = chartData.sam.reduce((a, b) => a + b, 0) + chartData.dianchik.reduce((a, b) => a + b, 0);
+const MEDIA_TOTAL = chartData.sam_media.reduce((a, b) => a + b, 0) + chartData.dianchik_media.reduce((a, b) => a + b, 0);
+
 const SAM_COLOR = "rgba(255, 255, 255, 0.35)";
 const SAM_HOVER = "rgba(255, 255, 255, 0.6)";
 const DIA_COLOR = "rgba(212, 175, 55, 0.5)";
@@ -114,8 +117,13 @@ export function MessageTimeline() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    if (chartRef.current) chartRef.current.destroy();
-    chartRef.current = new Chart(canvas.getContext("2d")!, buildConfig(tab));
+    if (chartRef.current) {
+      const config = buildConfig(tab);
+      chartRef.current.data = config.data;
+      chartRef.current.update();
+    } else {
+      chartRef.current = new Chart(canvas.getContext("2d")!, buildConfig(tab));
+    }
 
     return () => {
       chartRef.current?.destroy();
@@ -123,11 +131,7 @@ export function MessageTimeline() {
     };
   }, [tab]);
 
-  const msgTotal = chartData.sam.reduce((a, b) => a + b, 0) +
-    chartData.dianchik.reduce((a, b) => a + b, 0);
-  const mediaTotal = chartData.sam_media.reduce((a, b) => a + b, 0) +
-    chartData.dianchik_media.reduce((a, b) => a + b, 0);
-  const total = tab === "messages" ? msgTotal : mediaTotal;
+  const total = tab === "messages" ? MSG_TOTAL : MEDIA_TOTAL;
 
   return (
     <div>
