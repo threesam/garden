@@ -4,18 +4,30 @@ import { useRef, useEffect, type ReactNode } from "react";
 import Link from "next/link";
 import { VoronoiCanvas } from "@/components/canvas/voronoi-canvas";
 import { MetaballCanvas } from "@/components/canvas/metaball-canvas";
+import { EmojiCardBg } from "@/components/messages/emoji-card-bg";
+import { DanaLabel } from "@/components/messages/dana-label";
 
 const HERO_MAP: Record<string, () => ReactNode> = {
   self: () => <VoronoiCanvas invert showLetters={false} />,
+  deana: () => <EmojiCardBg />,
   vibe: () => <MetaballCanvas color={[0.91, 0.64, 0.09]} />,
 };
 
+const LABEL_MAP: Record<string, () => ReactNode> = {
+  deana: () => <DanaLabel />,
+};
+
+const BG_MAP: Record<string, string> = {
+  deana: "var(--white)",
+};
+
 const ITEMS: { id: number; label: string; handle: string | null; href?: string }[] = [
-  { id: 0, label: "self", handle: "self" },
-  { id: 1, label: "deana", handle: "deana", href: "/deana" },
-  { id: 2, label: "vibe", handle: "vibe", href: "/vibe" },
-  ...Array.from({ length: 4 }, (_, i) => ({
-    id: i + 3,
+  { id: 0, label: "undefined", handle: null },
+  { id: 1, label: "self", handle: "self" },
+  { id: 2, label: "D-ANA", handle: "deana", href: "/deana" },
+  { id: 3, label: "vibe", handle: "vibe", href: "/vibe" },
+  ...Array.from({ length: 3 }, (_, i) => ({
+    id: i + 4,
     label: "undefined",
     handle: null as string | null,
   })),
@@ -170,7 +182,7 @@ export function Gallery() {
               style={{
                 width: CARD_W,
                 height: CARD_W * (5 / 4),
-                backgroundColor: "var(--black)",
+                backgroundColor: (item.handle && BG_MAP[item.handle]) || "var(--black)",
                 border: "3px solid var(--black)",
                 display: "block",
               }}
@@ -207,7 +219,7 @@ export function Gallery() {
                 className={`absolute z-10 font-mono font-bold tracking-[0.3em] transition-colors duration-300 ${heroFn ? "bottom-5 left-5 rounded-2xl px-4 py-2 text-3xl uppercase" : "bottom-4 left-4 text-sm"}`}
                 style={heroFn ? { backgroundColor: "var(--black)", color: "var(--white)" } : { color: "var(--white)" }}
               >
-                {item.label}
+                {(item.handle && LABEL_MAP[item.handle]?.()) || item.label}
               </span>
             </Link>
           ) : (

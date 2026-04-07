@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import emojiData from "@/data/messages/dianchik/emoji-data.json";
 
 interface EmojiEntry { emoji: string; count: number }
@@ -27,8 +27,16 @@ const FONT = "'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-se
 const SIZE = 16;
 const GAP = 2;
 
+const CHARS = ["I", "_", "E", "-"];
+
 export function EmojiHero() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [charIdx, setCharIdx] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => setCharIdx((i) => (i + 1) % CHARS.length), 2000);
+    return () => clearInterval(id);
+  }, []);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -71,8 +79,8 @@ export function EmojiHero() {
     <div className="relative h-[50dvh] w-full overflow-hidden mb-3 md:mb-4">
       <canvas ref={canvasRef} className="absolute inset-0" />
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <h1 className="font-mono text-4xl md:text-6xl font-bold uppercase tracking-[0.3em] text-zinc-800/80">
-          deana
+        <h1 className="text-4xl md:text-6xl font-bold tracking-widest text-zinc-800/80">
+          D<span className="inline-block w-8 md:w-12 text-center">{CHARS[charIdx]}</span>ANA
         </h1>
       </div>
     </div>
