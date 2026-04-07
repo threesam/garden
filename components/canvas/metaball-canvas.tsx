@@ -19,6 +19,7 @@ const FRAG = `
 
   uniform float uTime;
   uniform vec2 uResolution;
+  uniform vec3 uColor;
   uniform vec2 uBalls[${NUM_BALLS}];
   uniform float uRadii[${NUM_BALLS}];
 
@@ -37,7 +38,7 @@ const FRAG = `
 
     if (sum > 1.0) {
       float intensity = clamp(sum - 1.0, 0.0, 1.0);
-      vec3 color = vec3(232.0 / 255.0, 163.0 / 255.0, 23.0 / 255.0);
+      vec3 color = uColor;
       float alpha = (180.0 + intensity * 75.0) / 255.0;
       gl_FragColor = vec4(color * alpha, alpha);
     } else {
@@ -61,7 +62,11 @@ function createShader(gl: WebGLRenderingContext, type: number, source: string) {
   return s;
 }
 
-export function MetaballCanvas() {
+interface MetaballProps {
+  color?: [number, number, number]; // RGB 0-1
+}
+
+export function MetaballCanvas({ color = [0.1, 0.1, 0.08] }: MetaballProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -87,6 +92,8 @@ export function MetaballCanvas() {
 
     const uTime = gl.getUniformLocation(prog, "uTime");
     const uRes = gl.getUniformLocation(prog, "uResolution");
+    const uColorLoc = gl.getUniformLocation(prog, "uColor");
+    gl.uniform3f(uColorLoc, color[0], color[1], color[2]);
     const uBalls: (WebGLUniformLocation | null)[] = [];
     const uRadii: (WebGLUniformLocation | null)[] = [];
     for (let i = 0; i < NUM_BALLS; i++) {
