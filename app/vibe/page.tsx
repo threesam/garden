@@ -13,7 +13,7 @@ function BookCover({ book, eager }: { book: Book; eager?: boolean }) {
       href={`https://www.goodreads.com/book/show/${book.id}`}
       target="_blank"
       rel="noopener noreferrer"
-      className="relative block break-inside-avoid p-1 md:transition-[filter,background-color,box-shadow] md:duration-300 md:ease-out md:hover:z-10 md:hover:grayscale md:hover:bg-[var(--coin)] md:hover:shadow-[0_0_0_4px_var(--coin)]"
+      className="group relative block break-inside-avoid p-1 md:transition-[background-color,box-shadow] md:duration-300 md:ease-out md:hover:z-10 md:hover:bg-[var(--coin)] md:hover:shadow-[0_0_0_4px_var(--coin)]"
     >
       {book.coverUrl ? (
         <img
@@ -21,7 +21,7 @@ function BookCover({ book, eager }: { book: Book; eager?: boolean }) {
           alt={book.cleanTitle}
           loading={eager ? "eager" : "lazy"}
           decoding="async"
-          className="block w-full"
+          className="block w-full md:transition-[filter] md:duration-300 md:group-hover:grayscale"
         />
       ) : (
         <div className="flex aspect-[2/3] w-full items-center justify-center bg-zinc-900 p-3 text-center text-xs text-zinc-600">
