@@ -68,7 +68,7 @@ export function EmojiHero() {
   }, [draw]);
 
   return (
-    <div className="relative h-[50dvh] w-full overflow-hidden">
+    <div className="relative h-[50dvh] w-full overflow-hidden mb-3 md:mb-4">
       <canvas ref={canvasRef} className="absolute inset-0" />
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <h1 className="font-mono text-4xl md:text-6xl font-bold uppercase tracking-[0.3em] text-zinc-800/80">

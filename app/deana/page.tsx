@@ -8,7 +8,7 @@ import { DailyFirsts } from "@/components/messages/daily-firsts";
 import { EmojiMeter } from "@/components/messages/emoji-meter";
 import { PetNames } from "@/components/messages/pet-names";
 import { WordCloud } from "@/components/messages/word-cloud";
-import { TotalWords, PeakDay } from "@/components/messages/word-stats";
+import { TotalWords, BusiestDay, MostWords } from "@/components/messages/word-stats";
 
 export const metadata: Metadata = {
   title: "deana — threesam",
@@ -53,9 +53,10 @@ export default function DeanaPage() {
         {/* Word cloud + stats */}
         <div className={`grid grid-cols-1 md:grid-cols-3 ${g}`}>
           <M className="md:col-span-2"><WordCloud /></M>
-          <div className={`flex flex-col ${g}`}>
-            <M><TotalWords /></M>
-            <M><PeakDay /></M>
+          <div className={`grid grid-rows-3 ${g}`}>
+            <M className="flex items-center"><TotalWords /></M>
+            <M className="flex items-center"><BusiestDay /></M>
+            <M className="flex items-center"><MostWords /></M>
           </div>
         </div>
 

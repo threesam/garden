@@ -45,4 +45,6 @@ next-env.d.ts
 
 # large media imports
 public/assets/messages/
-data/messages/
+data/messages/dianchik/conversation.json
+data/messages/dianchik/combined.json
+data/messages/dianchik/imessage.json
