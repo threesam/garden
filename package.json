@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "journal": "bash scripts/journal-dev.sh",
     "wasm:build": "cargo build --manifest-path rust/garden_math/Cargo.toml --target wasm32-unknown-unknown --release && cp rust/garden_math/target/wasm32-unknown-unknown/release/garden_math.wasm public/wasm/garden_math.wasm"
   },
   "dependencies": {
