@@ -9,6 +9,7 @@ import { EmojiMeter } from "@/components/messages/emoji-meter";
 import { PetNames } from "@/components/messages/pet-names";
 import { LazyWordCloud } from "@/components/messages/lazy-word-cloud";
 import { TotalWords, BusiestDay, MostWords } from "@/components/messages/word-stats";
+import { Compliments } from "@/components/messages/compliments";
 
 export const metadata: Metadata = {
   title: "deana — threesam",
@@ -60,10 +61,11 @@ export default function DeanaPage() {
           </div>
         </div>
 
-        {/* Emoji + Pet names */}
-        <div className={`grid grid-cols-1 md:grid-cols-2 ${g}`}>
+        {/* Emoji + Pet names + Compliments */}
+        <div className={`grid grid-cols-1 md:grid-cols-3 ${g}`}>
           <M><EmojiMeter /></M>
           <M><PetNames /></M>
+          <M><Compliments /></M>
         </div>
 
         {/* First night — dev only */}

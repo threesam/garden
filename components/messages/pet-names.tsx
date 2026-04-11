@@ -14,7 +14,7 @@ function NameBar({ name, count, max, color }: { name: string; count: number; max
   const pct = (count / max) * 100;
   return (
     <div className="flex items-center gap-2">
-      <span className="w-24 shrink-0 truncate text-right font-mono text-[10px] text-zinc-400">{name}</span>
+      <span className="w-24 shrink-0 truncate text-left font-mono text-[10px] text-zinc-400">{name}</span>
       <div className="flex-1 h-3 rounded-full overflow-hidden bg-white/5">
         <div
           className="h-full rounded-full"
