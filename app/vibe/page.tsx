@@ -48,11 +48,7 @@ export default async function VibePage() {
           cursor: `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text y='24' font-size='24'>🧲</text></svg>") 16 16, auto`,
         }}
       >
-        <MetaballCanvas color={[0.91, 0.64, 0.09]} />
-        <h1 className="pointer-events-none relative z-10 font-mono text-3xl font-bold tracking-[0.2em] md:text-5xl" style={{ color: "var(--black)" }}>
-
-          what&apos;s my vibe?
-        </h1>
+        <MetaballCanvas color={[0.91, 0.64, 0.09]} text="what's my vibe?" font="var(--font-jost), system-ui, sans-serif" />
       </section>
 
       <section className="columns-4 gap-0 overflow-hidden py-1 sm:columns-6 md:columns-8 lg:columns-10 xl:columns-12">

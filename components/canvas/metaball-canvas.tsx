@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { prepareWithSegments, layoutWithLines } from "@chenglou/pretext";
 
 const NUM_BALLS = 12;
 const PIXEL_SIZE = 6.0;
@@ -22,6 +23,8 @@ const FRAG = `
   uniform vec3 uColor;
   uniform vec2 uBalls[${NUM_BALLS}];
   uniform float uRadii[${NUM_BALLS}];
+  uniform sampler2D uText;
+  uniform float uHasText;
 
   varying vec2 vUv;
 
@@ -40,8 +43,29 @@ const FRAG = `
       float intensity = clamp(sum - 1.0, 0.0, 1.0);
       vec3 color = uColor;
       float alpha = (180.0 + intensity * 75.0) / 255.0;
+
+      // If text texture exists, reveal text through metaballs
+      if (uHasText > 0.5) {
+        vec2 flippedUv = vec2(vUv.x, 1.0 - vUv.y);
+        float textAlpha = texture2D(uText, flippedUv).a;
+        if (textAlpha > 0.5) {
+          // Text pixel inside metaball — show inverted (background color showing through)
+          gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+          return;
+        }
+      }
+
       gl_FragColor = vec4(color * alpha, alpha);
     } else {
+      // Outside metaball — show text in a subtle color if present
+      if (uHasText > 0.5) {
+        vec2 flippedUv = vec2(vUv.x, 1.0 - vUv.y);
+        float textAlpha = texture2D(uText, flippedUv).a;
+        if (textAlpha > 0.5) {
+          gl_FragColor = vec4(uColor * 0.15, 0.15);
+          return;
+        }
+      }
       gl_FragColor = vec4(0.0);
     }
   }
@@ -62,11 +86,52 @@ function createShader(gl: WebGLRenderingContext, type: number, source: string) {
   return s;
 }
 
-interface MetaballProps {
-  color?: [number, number, number]; // RGB 0-1
+function renderTextToCanvas(
+  text: string,
+  width: number,
+  height: number,
+  font: string,
+): OffscreenCanvas {
+  const offscreen = new OffscreenCanvas(width, height);
+  const ctx = offscreen.getContext("2d")!;
+
+  // Measure with pretext
+  const fontSize = Math.min(width * 0.06, height * 0.18, 72);
+  const fullFont = `700 ${fontSize}px ${font}`;
+  const prepared = prepareWithSegments(text, fullFont);
+  const lineHeight = fontSize * 1.15;
+  const result = layoutWithLines(prepared, width * 0.8, lineHeight);
+
+  // Center vertically
+  const totalHeight = result.lines.length * lineHeight;
+  const startY = (height - totalHeight) / 2 + fontSize * 0.85;
+
+  // Render each line centered
+  ctx.font = fullFont;
+  ctx.fillStyle = "white";
+  ctx.textBaseline = "alphabetic";
+
+  for (let i = 0; i < result.lines.length; i++) {
+    const line = result.lines[i];
+    const x = (width - line.width) / 2;
+    const y = startY + i * lineHeight;
+    ctx.fillText(line.text, x, y);
+  }
+
+  return offscreen;
 }
 
-export function MetaballCanvas({ color = [0.1, 0.1, 0.08] }: MetaballProps) {
+interface MetaballProps {
+  color?: [number, number, number];
+  text?: string;
+  font?: string;
+}
+
+export function MetaballCanvas({
+  color = [0.1, 0.1, 0.08],
+  text,
+  font = "system-ui, sans-serif",
+}: MetaballProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -93,7 +158,11 @@ export function MetaballCanvas({ color = [0.1, 0.1, 0.08] }: MetaballProps) {
     const uTime = gl.getUniformLocation(prog, "uTime");
     const uRes = gl.getUniformLocation(prog, "uResolution");
     const uColorLoc = gl.getUniformLocation(prog, "uColor");
+    const uTextLoc = gl.getUniformLocation(prog, "uText");
+    const uHasTextLoc = gl.getUniformLocation(prog, "uHasText");
     gl.uniform3f(uColorLoc, color[0], color[1], color[2]);
+    gl.uniform1f(uHasTextLoc, text ? 1.0 : 0.0);
+
     const uBalls: (WebGLUniformLocation | null)[] = [];
     const uRadii: (WebGLUniformLocation | null)[] = [];
     for (let i = 0; i < NUM_BALLS; i++) {
@@ -101,11 +170,28 @@ export function MetaballCanvas({ color = [0.1, 0.1, 0.08] }: MetaballProps) {
       uRadii.push(gl.getUniformLocation(prog, `uRadii[${i}]`));
     }
 
+    // Text texture
+    let textTexture: WebGLTexture | null = null;
+    function updateTextTexture() {
+      if (!text || !gl) return;
+      const textCanvas = renderTextToCanvas(text, w, h, font);
+      if (!textTexture) {
+        textTexture = gl.createTexture();
+      }
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, textTexture);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, textCanvas);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.uniform1i(uTextLoc, 0);
+    }
+
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
     let w = 0, h = 0;
-    let rectLeft = 0, rectTop = 0;
     let pointerX = -1, pointerY = -1;
     let pointerActive = false;
     const balls: Ball[] = [];
@@ -116,13 +202,11 @@ export function MetaballCanvas({ color = [0.1, 0.1, 0.08] }: MetaballProps) {
       canvas!.width = w;
       canvas!.height = h;
       gl!.viewport(0, 0, w, h);
-      const rect = canvas!.getBoundingClientRect();
-      rectLeft = rect.left;
-      rectTop = rect.top;
       for (const b of balls) {
         b.x = Math.min(b.x, w);
         b.y = Math.min(b.y, h);
       }
+      updateTextTexture();
     }
 
     function initBalls() {
@@ -156,7 +240,6 @@ export function MetaballCanvas({ color = [0.1, 0.1, 0.08] }: MetaballProps) {
     function onPointerLeave() {
       pointerActive = false;
       for (const b of balls) {
-        // radial push away from cursor's last position
         const dx = b.x - pointerX;
         const dy = b.y - pointerY;
         const dist = Math.sqrt(dx * dx + dy * dy) || 1;
@@ -182,19 +265,13 @@ export function MetaballCanvas({ color = [0.1, 0.1, 0.08] }: MetaballProps) {
           const dx = pointerX - b.x;
           const dy = pointerY - b.y;
           const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-
-          // radial pull toward cursor
           b.vx += (dx / dist) * 0.15;
           b.vy += (dy / dist) * 0.15;
-
-          // tangential force for orbiting (perpendicular to radial)
           b.vx += (-dy / dist) * 0.08;
           b.vy += (dx / dist) * 0.08;
-
           b.vx *= 0.95;
           b.vy *= 0.95;
         } else {
-          // gentle drift back toward initial wandering speed
           const speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
           if (speed > 1.3) {
             b.vx *= 0.98;
