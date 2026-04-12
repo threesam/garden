@@ -69,7 +69,7 @@ export function ParticleTextCanvas() {
       oCtx.clearRect(0, 0, mapW, mapH);
 
       const lines = ["ANYTHING", "BUT", "ANALOG"];
-      const fontSize = Math.floor(mapH * 0.22);
+      const fontSize = mapW >= 768 ? 48 : 24;
       const lineHeight = fontSize * 1.15;
       oCtx.font = `bold ${fontSize}px Jost, sans-serif`;
       oCtx.textAlign = "center";
@@ -225,7 +225,7 @@ export function ParticleTextCanvas() {
     <div
       ref={containerRef}
       className="relative my-12 -mx-6 md:mx-0 md:w-[768px] md:max-w-[768px] md:left-1/2 md:-translate-x-1/2 overflow-hidden md:rounded-lg"
-      style={{ height: 200, backgroundColor: "black" }}
+      style={{ height: 300, backgroundColor: "black" }}
     >
       <canvas ref={canvasRef} className="absolute inset-0" />
     </div>
