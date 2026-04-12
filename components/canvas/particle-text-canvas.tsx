@@ -2,21 +2,20 @@
 
 import { useEffect, useRef } from "react";
 
-const PARTICLE_COUNT = 1200;
+const PARTICLE_COUNT = 1000;
 const SPEED = 0.6;
+const SPEED_MIN_SQ = (SPEED * 0.3) * (SPEED * 0.3);
+const SPEED_RESTORE = SPEED * 0.5;
 const DAMPING = 0.85;
-const TITLE = "ANYTHING BUT ANALOG";
 
-interface Particle {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  r: number;
-  points: number; // vertices for asteroid shape
-  angles: number[]; // irregular vertex offsets
-  rot: number; // current rotation
-  rotSpeed: number;
+// Precompute unit circle sample points for collision
+const SAMPLE_STEPS = 8;
+const COS_TABLE = new Float32Array(SAMPLE_STEPS);
+const SIN_TABLE = new Float32Array(SAMPLE_STEPS);
+for (let i = 0; i < SAMPLE_STEPS; i++) {
+  const a = (i / SAMPLE_STEPS) * Math.PI * 2;
+  COS_TABLE[i] = Math.cos(a);
+  SIN_TABLE[i] = Math.sin(a);
 }
 
 export function ParticleTextCanvas() {
@@ -34,10 +33,21 @@ export function ParticleTextCanvas() {
     let collisionMap: Uint8Array | null = null;
     let mapW = 0;
     let mapH = 0;
-    const particles: Particle[] = [];
     let rafId = 0;
+    let textBitmap: HTMLCanvasElement | null = null;
+
+    // Flat arrays for particle data — avoids object allocation overhead
+    let px: Float32Array;
+    let py: Float32Array;
+    let pvx: Float32Array;
+    let pvy: Float32Array;
+    let pr: Float32Array;
+    let count = 0;
 
     const offscreen = document.createElement("canvas");
+
+    // Cache --white color
+    let textColor = "#f5f0e8";
 
     function buildCollisionMap() {
       w = container!.offsetWidth;
@@ -48,6 +58,8 @@ export function ParticleTextCanvas() {
       canvas!.height = h * dpr;
       canvas!.style.width = `${w}px`;
       canvas!.style.height = `${h}px`;
+
+      textColor = getComputedStyle(container!).getPropertyValue("--white").trim() || "#f5f0e8";
 
       mapW = w;
       mapH = h;
@@ -75,121 +87,116 @@ export function ParticleTextCanvas() {
       for (let i = 0; i < collisionMap.length; i++) {
         collisionMap[i] = imageData[i * 4 + 3] > 128 ? 1 : 0;
       }
-    }
 
-    function isColliding(px: number, py: number): boolean {
-      if (!collisionMap) return false;
-      const mx = Math.round(px);
-      const my = Math.round(py);
-      if (mx < 0 || mx >= mapW || my < 0 || my >= mapH) return false;
-      return collisionMap[my * mapW + mx] === 1;
+      // Pre-render text to a bitmap so we blit instead of fillText each frame
+      textBitmap = document.createElement("canvas");
+      textBitmap.width = w * dpr;
+      textBitmap.height = h * dpr;
+      const tCtx = textBitmap.getContext("2d")!;
+      tCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      tCtx.font = `bold ${fontSize}px Jost, sans-serif`;
+      tCtx.textAlign = "center";
+      tCtx.textBaseline = "middle";
+      tCtx.fillStyle = textColor;
+      tCtx.letterSpacing = "0.1em";
+      for (let i = 0; i < lines.length; i++) {
+        tCtx.fillText(lines[i], w / 2, startY + i * lineHeight);
+      }
     }
 
     function initParticles() {
-      particles.length = 0;
-      for (let i = 0; i < PARTICLE_COUNT; i++) {
+      count = PARTICLE_COUNT;
+      px = new Float32Array(count);
+      py = new Float32Array(count);
+      pvx = new Float32Array(count);
+      pvy = new Float32Array(count);
+      pr = new Float32Array(count);
+
+      for (let i = 0; i < count; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const pts = 5 + Math.floor(Math.random() * 4);
-        const angles: number[] = [];
-        for (let j = 0; j < pts; j++) {
-          angles.push(0.5 + Math.random() * 0.5); // radius variation per vertex
-        }
-        particles.push({
-          x: Math.random() * w,
-          y: Math.random() * h,
-          vx: Math.cos(angle) * SPEED * (0.5 + Math.random()),
-          vy: Math.sin(angle) * SPEED * (0.5 + Math.random()),
-          r: 1 + Math.random() * 3.5,
-          points: pts,
-          angles,
-          rot: Math.random() * Math.PI * 2,
-          rotSpeed: (Math.random() - 0.5) * 0.02,
-        });
+        const spd = SPEED * (0.5 + Math.random());
+        px[i] = Math.random() * w;
+        py[i] = Math.random() * h;
+        pvx[i] = Math.cos(angle) * spd;
+        pvy[i] = Math.sin(angle) * spd;
+        pr[i] = 0.8 + Math.random() * 2.5;
       }
     }
 
     function tick() {
-      if (!canvas || !collisionMap) { rafId = requestAnimationFrame(tick); return; }
+      if (!canvas || !collisionMap || !textBitmap) { rafId = requestAnimationFrame(tick); return; }
 
       const ctx = canvas.getContext("2d")!;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.clearRect(0, 0, w, h);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw text in gold — stacked
-      const drawLines = ["ANYTHING", "BUT", "ANALOG"];
-      const drawFontSize = Math.floor(h * 0.22);
-      const drawLineHeight = drawFontSize * 1.15;
-      ctx.font = `bold ${drawFontSize}px Jost, sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillStyle = getComputedStyle(container!).getPropertyValue("--white").trim() || "#f5f0e8";
-      ctx.letterSpacing = "0.1em";
-      const drawTotalH = drawLines.length * drawLineHeight;
-      const drawStartY = (h - drawTotalH) / 2 + drawLineHeight / 2;
-      for (let i = 0; i < drawLines.length; i++) {
-        ctx.fillText(drawLines[i], w / 2, drawStartY + i * drawLineHeight);
-      }
+      // Blit cached text
+      ctx.drawImage(textBitmap, 0, 0);
 
       // Update and draw particles
-      for (const p of particles) {
-        const nx = p.x + p.vx;
-        const ny = p.y + p.vy;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-        const hitX = isColliding(nx, p.y);
-        const hitY = isColliding(p.x, ny);
-        const hitBoth = isColliding(nx, ny);
+      for (let i = 0; i < count; i++) {
+        const r = pr[i];
+        let x = px[i] + pvx[i];
+        let y = py[i] + pvy[i];
+        let vx = pvx[i];
+        let vy = pvy[i];
 
-        if (hitY || (hitBoth && !hitX)) {
-          p.vy = -p.vy * DAMPING;
-          p.vx += (Math.random() - 0.5) * 0.2;
-        } else {
-          p.y = ny;
+        // Circle collision — sample edge points
+        let normX = 0;
+        let normY = 0;
+        let hitCount = 0;
+        for (let s = 0; s < SAMPLE_STEPS; s++) {
+          const sx = (x + COS_TABLE[s] * r) | 0;
+          const sy = (y + SIN_TABLE[s] * r) | 0;
+          if (sx >= 0 && sx < mapW && sy >= 0 && sy < mapH && collisionMap[sy * mapW + sx] === 1) {
+            hitCount++;
+            normX -= COS_TABLE[s];
+            normY -= SIN_TABLE[s];
+          }
         }
 
-        if (hitX || (hitBoth && !hitY)) {
-          p.vx = -p.vx * DAMPING;
-          p.vy += (Math.random() - 0.5) * 0.2;
-        } else {
-          p.x = nx;
+        if (hitCount > 0) {
+          const len = Math.sqrt(normX * normX + normY * normY) || 1;
+          normX /= len;
+          normY /= len;
+          const dot = vx * normX + vy * normY;
+          vx = (vx - 2 * dot * normX) * DAMPING;
+          vy = (vy - 2 * dot * normY) * DAMPING;
+          x += normX * 2;
+          y += normY * 2;
         }
 
-        // Unstick
-        if (isColliding(p.x, p.y)) {
-          p.x += p.vx > 0 ? 2 : -2;
-          p.y += p.vy > 0 ? 2 : -2;
-        }
-
-        // Maintain speed
-        const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
-        if (speed < SPEED * 0.3) {
-          const angle = Math.atan2(p.vy, p.vx);
-          p.vx = Math.cos(angle) * SPEED * 0.5;
-          p.vy = Math.sin(angle) * SPEED * 0.5;
+        // Maintain minimum speed (compare squared to avoid sqrt)
+        const speedSq = vx * vx + vy * vy;
+        if (speedSq < SPEED_MIN_SQ) {
+          const angle = Math.atan2(vy, vx);
+          vx = Math.cos(angle) * SPEED_RESTORE;
+          vy = Math.sin(angle) * SPEED_RESTORE;
         }
 
         // Bounce off edges
-        if (p.x < p.r) { p.x = p.r; p.vx = Math.abs(p.vx); }
-        if (p.x > w - p.r) { p.x = w - p.r; p.vx = -Math.abs(p.vx); }
-        if (p.y < p.r) { p.y = p.r; p.vy = Math.abs(p.vy); }
-        if (p.y > h - p.r) { p.y = h - p.r; p.vy = -Math.abs(p.vy); }
+        if (x < r) { x = r; vx = vx < 0 ? -vx : vx; }
+        else if (x > w - r) { x = w - r; vx = vx > 0 ? -vx : vx; }
+        if (y < r) { y = r; vy = vy < 0 ? -vy : vy; }
+        else if (y > h - r) { y = h - r; vy = vy > 0 ? -vy : vy; }
 
-        // Draw asteroid
-        p.rot += p.rotSpeed;
-        const bright = 0.4 + (p.r / 4.5) * 0.4;
-        ctx.fillStyle = `rgba(212, 175, 55, ${bright})`;
+        px[i] = x;
+        py[i] = y;
+        pvx[i] = vx;
+        pvy[i] = vy;
+
+        // Draw — batch by similar alpha
+        const bright = 0.4 + (r / 3.3) * 0.4;
+        ctx.globalAlpha = bright;
+        ctx.fillStyle = "#d4af37";
         ctx.beginPath();
-        for (let i = 0; i < p.points; i++) {
-          const a = p.rot + (i / p.points) * Math.PI * 2;
-          const rad = p.r * p.angles[i];
-          const px = p.x + Math.cos(a) * rad;
-          const py = p.y + Math.sin(a) * rad;
-          if (i === 0) ctx.moveTo(px, py);
-          else ctx.lineTo(px, py);
-        }
-        ctx.closePath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
         ctx.fill();
       }
 
+      ctx.globalAlpha = 1;
       rafId = requestAnimationFrame(tick);
     }
 
