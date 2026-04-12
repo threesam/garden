@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-const PARTICLE_COUNT = 500;
+const PARTICLE_COUNT = 1200;
 const SPEED = 0.6;
 const DAMPING = 0.85;
 const TITLE = "ANYTHING BUT ANALOG";
@@ -122,7 +122,7 @@ export function ParticleTextCanvas() {
       ctx.font = `bold ${drawFontSize}px Jost, sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillStyle = "var(--white)";
+      ctx.fillStyle = getComputedStyle(container!).getPropertyValue("--white").trim() || "#f5f0e8";
       ctx.letterSpacing = "0.1em";
       const drawTotalH = drawLines.length * drawLineHeight;
       const drawStartY = (h - drawTotalH) / 2 + drawLineHeight / 2;
