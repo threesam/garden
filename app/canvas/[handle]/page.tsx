@@ -3,6 +3,7 @@ import { VoronoiCanvas } from "@/components/canvas/voronoi-canvas";
 import { getContent } from "@/lib/content";
 import { Prose } from "@/components/prose";
 import { MessageTimeline } from "@/components/messages/message-timeline";
+import { ParticleTextCanvas } from "@/components/canvas/particle-text-canvas";
 
 interface Props {
   params: Promise<{ handle: string }>;
@@ -34,7 +35,10 @@ export default async function CanvasPage({ params }: Props) {
         >
           <Prose
             content={markdown}
-            slots={{ "message-timeline": <MessageTimeline /> }}
+            slots={{
+              "message-timeline": <MessageTimeline />,
+              "anything-but-analog": <ParticleTextCanvas />,
+            }}
           />
         </section>
       )}

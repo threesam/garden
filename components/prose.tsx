@@ -42,7 +42,7 @@ md.use({
       if (text && text.includes('|')) {
         // Hero image: "HEADING|color|position" e.g. "BLONDIE|white" or "ADVENTURE|white|right" or "VELVET DOOR|white|bottom-left"
         const parts = text.split('|');
-        const heading = parts[0].trim();
+        const heading = parts[0].trim().replace(/\\n/g, '<br/>');
         const color = parts[1]?.trim() || 'white';
         const pos = parts[2]?.trim() || 'left';
         const isBottom = pos.startsWith('bottom');

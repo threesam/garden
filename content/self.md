@@ -200,7 +200,7 @@ am i spiritual now? maybe. call it a work in progress.
 
 am i hopelessly in love? definitely.
 
-## fault lines
+![FAULT\nLINES|white|top-center](/assets/fault-lines.png)
 
 her parents kept asking when we'd get married.
 
@@ -250,7 +250,7 @@ writing music felt contrived. like i was poorly imitating myself in a different 
 
 this wasn’t just my loss. really, everyone who knew him was his friend. Deana especially. but we had each other. and we had Phoenix. that didn’t really fix anything, though it meant i couldn’t just shrink into obscurity. everything got tight. time, money, attention — all of it compressed. we had enough to survive but not enough to breathe.
 
-## anything but analog
+<!-- anything-but-analog -->
 
 it became quickly apparent that if i stayed on that path, we'd always be under pressure.
 
