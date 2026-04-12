@@ -23,6 +23,12 @@ md.use({
     },
     paragraph({ tokens }) {
       const text = this.parser.parseInline(tokens);
+      // If paragraph is only emojis (1-3), render larger like iMessage
+      const stripped = text.replace(/<[^>]+>/g, '').trim();
+      const emojiOnly = /^(\p{Emoji_Presentation}|\p{Extended_Pictographic}){1,3}$/u.test(stripped);
+      if (emojiOnly) {
+        return `<p class="mb-6 text-4xl leading-normal">${text}</p>`;
+      }
       return `<p class="mb-6 font-sans text-base leading-relaxed md:text-lg md:leading-relaxed">${text}</p>`;
     },
     hr() {
@@ -33,7 +39,18 @@ md.use({
       return `<a href="${href}"${external ? ' target="_blank" rel="noopener noreferrer"' : ''} class="underline underline-offset-2 decoration-current/40 hover:opacity-70 transition-opacity">${text}</a>`;
     },
     image({ href, text }) {
-      return `<img src="${href}" alt="${text ?? ''}" class="my-8 rounded-lg max-w-full" />`;
+      if (text && text.includes('|')) {
+        // Hero image: "HEADING|color|position" e.g. "BLONDIE|white|left" or "ADVENTURE|black|right"
+        const parts = text.split('|');
+        const heading = parts[0].trim();
+        const color = parts[1]?.trim() || 'white';
+        const pos = parts[2]?.trim() || 'left';
+        const posClass = pos === 'right'
+          ? 'right-6 text-right md:right-20'
+          : 'left-6 md:left-20';
+        return `<div class="relative my-12 -mx-6 md:mx-0 md:w-[768px] md:max-w-[768px] md:left-1/2 md:-translate-x-1/2"><img src="${href}" alt="${heading}" class="w-full md:rounded-lg" /><span class="absolute top-6 ${posClass} font-mono text-2xl font-bold uppercase tracking-[0.1em] md:text-5xl md:top-20" style="color: ${color}">${heading}</span></div>`;
+      }
+      return `<img src="${href}" alt="${text ?? ''}" class="relative my-8 rounded-lg w-full md:w-[768px] md:max-w-[768px] md:left-1/2 md:-translate-x-1/2" />`;
     },
   },
 });

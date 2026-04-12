@@ -16,7 +16,7 @@ it helped that i was confident academically. school made sense. inputs, outputs,
 
 when i was 16, i was at the beach and saw a guy playing guitar. can't remember what he was playing, if he was any good, but there was a circle around him. attention was paid. girls were leaning in and listening closely.
 
-i remember thinking, *you can do that?*
+i remember thinking, _you can do that?_
 
 it felt like a cheat code. like you could bypass whatever social wiring was missing and still connect.
 
@@ -42,7 +42,7 @@ climbed my way up to a Brookstone sales manager, where, for a time, i was the sl
 
 the irony of my store being shut down was that we may have been the only location to crush every sales goal they put in front of us.
 
-luckily, i got some severance and after the unemployment hit my bank account *i used it all* to buy equipment to start recording music. the parents were saints for putting up with my "dreams."
+luckily, i got some severance and after the unemployment hit my bank account _i used it all_ to buy equipment to start recording music. the parents were saints for putting up with my "dreams."
 
 i was looking for beta-testers in my beat laboratory i ended up chatting with my college bud, Valerie, who instead of taking me up on my offer, invited me to an open mic. in Trenton, of all places.
 
@@ -64,7 +64,7 @@ i remember just watching. trying to understand how it worked.
 
 within seconds, it was obvious he was one of the most immediately magnetic people on the planet. no hesitation, no filtering. just fully himself. a cosmically talented musician who could pick up anything immediately by ear, with just about any instrument, and riff -- always in service of the song, never himself.
 
-the open mic was his. he ran it with this philosophy — the list is sacred. you sign up, you get to play -- not that he didn't effortlessly shuffle things around to keep the show tight for the room. you had to try *really* hard to get turned away.
+the open mic was his. he ran it with this philosophy — the list is sacred. you sign up, you get to play -- not that he didn't effortlessly shuffle things around to keep the show tight for the room. you had to try _really_ hard to get turned away.
 
 he talked to every person who walked into the bar, snapped an impossible number of candids and posted the haul online every week. everyone was part of the experience.
 
@@ -84,7 +84,7 @@ but often Benny would tell me an insane, terrifying, hilarious story from his da
 
 those nights became the ritual.
 
-## blondie
+![BLONDIE|white](/assets/blondie.png)
 
 that period of my life was messy and alive.
 
@@ -92,7 +92,7 @@ music, bartending, late nights, building relationships.
 
 finally hitting my stride in a thriving art community, i was holding court — talking to women all day and hitting the apps every night.
 
-but after i started talking to Deana, *i didn't want to talk to anyone else.*
+but after i started talking to Deana, _i didn't want to talk to anyone else._
 
 the first thing i said to my future wife was "hey, Blondie."
 
@@ -246,7 +246,7 @@ i went back to work at the same bar, but it wasn’t the same place.
 
 same walls, same stage, same songs.
 
-*but hollow.*
+_but hollow._
 
 writing music felt contrived. like i was poorly imitating myself in a different dimension.
 
@@ -268,9 +268,9 @@ i offered no resistence as the music moved me into quantum space time.
 
 more importantly, i realized that while sounds are beautiful, when paired with visuals, **they become religious**.
 
-and i was yearning for my own taste of the divine.
+that experience left me yearning for my own taste of the divine.
 
-started playing with [Processing](processing.org), trying to make pixels dance across the screen. then, i wanted to show anyone else my digital monstrosity but how do i share my computer with the world?
+so i scoured the internet and happened upon [Processing](processing.org). immediately began trying to make pixels dance across the screen. then, i needed to show anyone else the birth of my digital monstrosity but had no idea how to share a computer screen with the world wide web.
 
 that curiosity turned into a rabbit hole.
 
@@ -328,6 +328,8 @@ i needed to understand every layer. every decision. if something broke, i wanted
 
 but there was a big world outside of my little corner of remote work, and i wanted to explore it.
 
+![ADVENTURE|white|right](/assets/adventure.png)
+
 so we started traveling because we could. our families were sad to see us go but, for the most part, cheering us on at the chance for adventure.
 
 a month at a time in different cities — the Blue Ridge Mountains of Asheville, then Joshua Tree in the middle of summer. while i didn't see family as often, facetime is a thing, and we probably had more deep conversations on the road than in person. i talked to my Dad almost every day.
@@ -354,25 +356,27 @@ so we moved to Austin.
 
 i tried to surprise Chip, the CEO, with an in office visit without letting on that i'd moved. when i did my civic duty and updated my address to the tax-free state of Texas, apparently that needs manager approval.
 
-Chip Malt — nice new address
+![Chip Malt — nice new address](/assets/chip-malt-new-address.png)
 
-we had a lunch and learn at work. some guy who'd built his whole business on AI.
+🙄
 
-he was just sitting there, switching between tools, prompting, generating, iterating. not even thinking that hard about it.
+anyways, proximity led to new opportunities. we had a lunch and learn at work. some guy who'd evolved his whole consulting firm to leverage AI.
 
-it was fast. loose. almost casual.
+his demo was about as casual as the breakfast tacos strewn about the conference table. he was just sitting there, switching between tools, prompting, generating, iterating. not even thinking that hard about it.
 
-and it worked.
+it was fast. loose. and it worked.
 
 i felt friction watching it.
 
 i'd built my identity around control. understanding the code deeply, making deliberate decisions, keeping things tight.
 
-this looked like the opposite.
+this was not that, _at all_.
 
 but the results were undeniable.
 
-and i realized he didn't care about the code. not like i did. he cared about what it got him.
+and i realized he didn't care about the code, even though he was extremely capable of writing it. he cared way more about the person using the code.
+
+fine.
 
 so i started letting go of the code. not the thinking — the grip.
 
