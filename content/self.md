@@ -308,7 +308,7 @@ considering the source of my new prosperity in coding, one idea stuck: money is 
 
 finally started to understand that **perspective shapes reality**.
 
-i grew up with a lot of love, but not a lot of extravagance. the first time i took my wife out to a nice dinner, i felt guilty. like i didn't deserve it. like it somehow betrayed where i came from.
+i grew up with a lot of love, but not a lot of extravagance. the first time i took Deana out to a nice dinner, i felt guilty. like i didn't deserve it. like it somehow betrayed where i came from.
 
 but then i noticed the other side. i could hand a five to someone at a stoplight without blinking. and i remembered Benny — who gave away damn near everything he made and received it all back tenfold.
 
@@ -316,7 +316,7 @@ but then i noticed the other side. i could hand a five to someone at a stoplight
 
 Azalea was born while i was still at Rhone. before she was two months old, i was poached by Made In Cookware.
 
-Dan, the lead engineer there, was self-taught like me and brilliant. after one conversation offered me the job, no technical assessment. risky but i made sure to it wasn't a mistake. i learned twice as fast watching him work and my confidence grew.
+Dan, the lead engineer there, was self-taught like me and brilliant. after one conversation, offered me the job, no technical assessment. risky for them but i made sure it wasn't a mistake. i learned twice as fast watching him work and my confidence grew.
 
 but Dan eventually left and i spent an entire year proving i could lead before they officially let me.
 
@@ -334,7 +334,7 @@ a month at a time in different cities — the Blue Ridge Mountains of Asheville,
 
 then we drove up the Coastal Highway of California to Portland, Oregon.
 
-there's something enchanted about the Pacific Northwest. Redwoods feel impossibly large and ancient, ecological diversity slaps you in the face everywhere you turn, the beach is visceral with boulders the size of buildings jutting just beyond the break and bonfires stretching along the entirety of the shoreline, each housing a unique configuration of conversation.
+there's something enchanted about the Pacific Northwest. Redwoods feel impossibly large and ancient, ecological diversity slaps you in the face everywhere you turn, the beach is viscerally felt with boulders the size of buildings jutting just beyond the break and bonfires stretching along the entirety of the shoreline, each housing a unique configuration of conversation.
 
 i watched my growing family breath into this place and relax, Deana and me returning to ourselves before things got hard.
 
@@ -346,17 +346,19 @@ and, likely hours before, we conceived our fourth.
 
 we ended our gallavanting early and came back to Pennsylvania to have Orion, the first boy.
 
-being with family felt good. but home didn't feel like home anymore and we knew we needed something different.
+losing family makes missing them hurt, eevn if seeing them forces the grief to the surface. we made our time matter. we hosted often and cherished the connection we previously took for granted. but home didn't feel like home anymore and we knew we needed something different.
 
 so we moved to Austin.
 
-## dissonance
+![DISSONANCE|black|top-center](/assets/dissonance.png)
 
-i tried to surprise Chip, the CEO, with an in office visit without letting on that i'd moved. when i did my civic duty and updated my address to the tax-free state of Texas, apparently that needs manager approval.
+we had our yearly onsite in January. i attempted the in office visit without letting my company know that i'd moved. when i did my civic duty and updated my address to the beautifully tax-free state of Texas, i learned that moving is actually a big enough deal to trigger notifications.
 
 ![Chip Malt — nice new address](/assets/chip-malt-new-address.png)
 
 🙄
+
+no surprises.
 
 anyways, proximity led to new opportunities. we had a lunch and learn at work. some guy who'd evolved his whole consulting firm to leverage AI.
 
