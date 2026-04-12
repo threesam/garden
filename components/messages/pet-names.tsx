@@ -15,7 +15,7 @@ function NameBar({ name, count, max, color }: { name: string; count: number; max
   return (
     <div className="flex items-center gap-2">
       <span className="w-24 shrink-0 truncate text-left font-mono text-[10px] text-zinc-400">{name}</span>
-      <div className="flex-1 h-3 rounded-full overflow-hidden bg-white/5">
+      <div className="flex-1 h-3 rounded-full overflow-hidden bg-zinc-100">
         <div
           className="h-full rounded-full"
           style={{ width: `${pct}%`, backgroundColor: color }}
@@ -43,7 +43,7 @@ export function PetNames() {
           </div>
           <div className="space-y-1.5">
             {sam.slice(0, show).map((p) => (
-              <NameBar key={p.name} name={p.name} count={p.count} max={samMax} color="rgba(255,255,255,0.35)" />
+              <NameBar key={p.name} name={p.name} count={p.count} max={samMax} color="rgba(0,0,0,0.4)" />
             ))}
           </div>
         </div>
@@ -53,7 +53,7 @@ export function PetNames() {
           </div>
           <div className="space-y-1.5">
             {dia.slice(0, show).map((p) => (
-              <NameBar key={p.name} name={p.name} count={p.count} max={diaMax} color="rgba(212,175,55,0.5)" />
+              <NameBar key={p.name} name={p.name} count={p.count} max={diaMax} color="rgba(180,140,20,0.7)" />
             ))}
           </div>
         </div>

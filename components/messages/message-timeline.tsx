@@ -28,10 +28,10 @@ type Tab = "messages" | "media";
 const MSG_TOTAL = chartData.sam.reduce((a, b) => a + b, 0) + chartData.dianchik.reduce((a, b) => a + b, 0);
 const MEDIA_TOTAL = chartData.sam_media.reduce((a, b) => a + b, 0) + chartData.dianchik_media.reduce((a, b) => a + b, 0);
 
-const SAM_COLOR = "rgba(255, 255, 255, 0.35)";
-const SAM_HOVER = "rgba(255, 255, 255, 0.6)";
-const DIA_COLOR = "rgba(212, 175, 55, 0.5)";
-const DIA_HOVER = "rgba(212, 175, 55, 0.8)";
+const SAM_COLOR = "rgba(0, 0, 0, 0.4)";
+const SAM_HOVER = "rgba(0, 0, 0, 0.6)";
+const DIA_COLOR = "rgba(180, 140, 20, 0.7)";
+const DIA_HOVER = "rgba(180, 140, 20, 0.9)";
 
 function buildConfig(tab: Tab) {
   const samData = tab === "messages" ? chartData.sam : chartData.sam_media;
@@ -67,7 +67,7 @@ function buildConfig(tab: Tab) {
         x: {
           stacked: true,
           ticks: {
-            color: "rgba(255,255,255,0.3)",
+            color: "rgba(0,0,0,0.3)",
             font: { family: "monospace", size: 9 },
             maxRotation: 90,
             callback: function (_: unknown, index: number) {
@@ -81,10 +81,10 @@ function buildConfig(tab: Tab) {
         y: {
           stacked: true,
           ticks: {
-            color: "rgba(255,255,255,0.2)",
+            color: "rgba(0,0,0,0.2)",
             font: { family: "monospace", size: 9 },
           },
-          grid: { color: "rgba(255,255,255,0.05)" },
+          grid: { color: "rgba(0,0,0,0.05)" },
           border: { display: false },
         },
       },
@@ -139,13 +139,13 @@ export function MessageTimeline() {
         <div className="flex gap-4">
           <button
             onClick={() => setTab("messages")}
-            className={`font-mono text-xs tracking-[0.16em] transition-colors ${tab === "messages" ? "text-zinc-200" : "text-zinc-600 hover:text-zinc-400"}`}
+            className={`font-mono text-xs tracking-[0.16em] transition-colors ${tab === "messages" ? "text-black" : "text-zinc-500 hover:text-zinc-600"}`}
           >
             messages
           </button>
           <button
             onClick={() => setTab("media")}
-            className={`font-mono text-xs tracking-[0.16em] transition-colors ${tab === "media" ? "text-zinc-200" : "text-zinc-600 hover:text-zinc-400"}`}
+            className={`font-mono text-xs tracking-[0.16em] transition-colors ${tab === "media" ? "text-black" : "text-zinc-500 hover:text-zinc-600"}`}
           >
             media
           </button>
@@ -155,11 +155,11 @@ export function MessageTimeline() {
         </span>
       </div>
       <div className="flex gap-4 mb-4">
-        <span className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-400">
+        <span className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-500">
           <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: SAM_COLOR }} />
           sam
         </span>
-        <span className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-400">
+        <span className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-500">
           <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: DIA_COLOR }} />
           dianchik
         </span>

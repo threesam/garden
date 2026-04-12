@@ -22,7 +22,7 @@ export function FirstNight() {
         <span className="font-mono text-xs tracking-[0.16em] text-zinc-400">
           first night
         </span>
-        <span className="font-mono text-[10px] text-zinc-600">
+        <span className="font-mono text-[10px] text-zinc-400">
           {firstNight.album}
         </span>
       </div>
@@ -30,7 +30,7 @@ export function FirstNight() {
       <div className="space-y-2">
         {firstNight.exchange.map((msg, i) =>
           msg.sender === "ellipsis" ? (
-            <div key={i} className="py-1 text-center font-mono text-[10px] text-zinc-600">
+            <div key={i} className="py-1 text-center font-mono text-[10px] text-zinc-400">
               ...
             </div>
           ) : (
@@ -41,8 +41,8 @@ export function FirstNight() {
               <div
                 className={`max-w-[85%] rounded-xl px-3 py-2 text-sm leading-relaxed ${
                   msg.sender === "sam"
-                    ? "bg-white/10 text-zinc-200"
-                    : "bg-amber-900/20 text-zinc-300"
+                    ? "bg-zinc-100 text-black"
+                    : "bg-amber-50 text-black"
                 }`}
               >
                 <p className="whitespace-pre-line">{msg.text}</p>

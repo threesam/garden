@@ -33,12 +33,12 @@ export function Compliments() {
         </span>
       </div>
       <div className="mb-4 grid grid-cols-2 gap-4">
-        <div className="rounded-lg border border-white/5 p-3 text-center">
-          <p className="text-xl font-bold text-zinc-200">{complimentsData.sam_total}</p>
+        <div className="rounded-lg border border-zinc-200 p-3 text-center">
+          <p className="text-xl font-bold text-black">{complimentsData.sam_total}</p>
           <p className="font-mono text-[10px] text-zinc-500">from sam</p>
         </div>
-        <div className="rounded-lg border border-white/5 p-3 text-center">
-          <p className="text-xl font-bold text-zinc-200">{complimentsData.dia_total}</p>
+        <div className="rounded-lg border border-zinc-200 p-3 text-center">
+          <p className="text-xl font-bold text-black">{complimentsData.dia_total}</p>
           <p className="font-mono text-[10px] text-zinc-500">from dianchik</p>
         </div>
       </div>
@@ -51,16 +51,16 @@ export function Compliments() {
             <div key={theme}>
               <div className="flex items-center justify-between mb-0.5">
                 <span className="font-mono text-[10px] text-zinc-400">{theme}</span>
-                <span className="font-mono text-[9px] text-zinc-600">{total}</span>
+                <span className="font-mono text-[9px] text-zinc-400">{total}</span>
               </div>
-              <div className="flex h-2.5 gap-0.5 overflow-hidden rounded-full bg-white/5">
+              <div className="flex h-2.5 gap-0.5 overflow-hidden rounded-full bg-zinc-100">
                 <div
                   className="rounded-full"
-                  style={{ width: `${samPct}%`, backgroundColor: "rgba(255,255,255,0.35)" }}
+                  style={{ width: `${samPct}%`, backgroundColor: "rgba(0,0,0,0.4)" }}
                 />
                 <div
                   className="rounded-full"
-                  style={{ width: `${diaPct}%`, backgroundColor: "rgba(212,175,55,0.5)" }}
+                  style={{ width: `${diaPct}%`, backgroundColor: "rgba(180,140,20,0.7)" }}
                 />
               </div>
             </div>
@@ -69,11 +69,11 @@ export function Compliments() {
       </div>
       <div className="mt-3 flex gap-4">
         <span className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-500">
-          <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: "rgba(255,255,255,0.35)" }} />
+          <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: "rgba(0,0,0,0.4)" }} />
           sam
         </span>
         <span className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-500">
-          <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: "rgba(212,175,55,0.5)" }} />
+          <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: "rgba(180,140,20,0.7)" }} />
           dianchik
         </span>
       </div>

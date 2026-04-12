@@ -33,9 +33,9 @@ export function DailyFirsts() {
         {slice.map((f) => (
           <div
             key={f.date}
-            className="rounded-lg border border-white/5 p-3"
+            className="rounded-lg border border-zinc-200 p-3"
           >
-            <p className="text-sm leading-relaxed text-zinc-300 line-clamp-2">
+            <p className="text-sm leading-relaxed text-black line-clamp-2">
               &quot;{f.text}&quot;
             </p>
             <p className="mt-2 font-mono text-[9px] text-zinc-500">
@@ -49,17 +49,17 @@ export function DailyFirsts() {
           <button
             onClick={() => setPage((p) => Math.max(0, p - 1))}
             disabled={page === 0}
-            className="font-mono text-[10px] text-zinc-500 hover:text-zinc-300 disabled:opacity-30"
+            className="font-mono text-[10px] text-zinc-500 hover:text-black disabled:opacity-30"
           >
             prev
           </button>
-          <span className="font-mono text-[10px] text-zinc-600">
+          <span className="font-mono text-[10px] text-zinc-400">
             {page + 1} / {totalPages}
           </span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
             disabled={page === totalPages - 1}
-            className="font-mono text-[10px] text-zinc-500 hover:text-zinc-300 disabled:opacity-30"
+            className="font-mono text-[10px] text-zinc-500 hover:text-black disabled:opacity-30"
           >
             next
           </button>

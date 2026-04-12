@@ -7,7 +7,7 @@ const maxVal = Math.max(...heatmap.flat());
 
 function cellColor(val: number) {
   const intensity = val / maxVal;
-  if (intensity === 0) return "rgba(255,255,255,0.02)";
+  if (intensity === 0) return "rgba(0,0,0,0.03)";
   // Gold gradient
   const r = Math.round(212 * intensity + 40 * (1 - intensity));
   const g = Math.round(175 * intensity + 40 * (1 - intensity));
@@ -34,7 +34,7 @@ export function ClockHeatmap() {
             {Array.from({ length: 24 }, (_, h) => (
               <span
                 key={h}
-                className="flex-1 text-center font-mono text-[8px] text-zinc-600"
+                className="flex-1 text-center font-mono text-[8px] text-zinc-400"
               >
                 {h % 6 === 0 ? `${h}` : ""}
               </span>

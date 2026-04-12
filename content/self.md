@@ -24,8 +24,6 @@ i started playing. pretty quickly, it turned into writing.
 
 that part came quite naturally. it gave me a way to say things i wasn't too keen on saying to anyone, let alone myself. before that, i don't think i was really expressing much at all. now, everything had somewhere to go.
 
-![THE VELVET DOOR|white|bottom-left](/assets/velvet-door.png)
-
 after Princeton Day, Rider U -- the only college that offered my broke ass a full scholarship.
 
 loved learning about all of everything -- art, biology, ethics -- but was told my grants would evaporate if i didn't pick a lane my junior year.
@@ -51,6 +49,8 @@ i'd spent a lot of time trying to get away from Trenton. i'd seen enough dead bo
 but Valerie -- who couldn't have weighed more than 90 pounds -- was so thrilled to go to this place she even offered me a ride.
 
 so i went.
+
+![THE VELVET DOOR|white|bottom-left](/assets/velvet-door.png)
 
 it was a small bar. normal enough when walking in: bartenders pouring perfectly foamed beers from the tap, decanting wine, concoting sangria. as we walked passed the bar, a deep growl started to rattle my ribs. there was a velvet curtain. i walked through and into a different world.
 

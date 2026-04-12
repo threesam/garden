@@ -5,7 +5,7 @@ export function TotalWords() {
   return (
     <div>
       <span className="font-mono text-[10px] text-zinc-500">words written</span>
-      <p className="mt-2 text-2xl font-bold text-zinc-200">
+      <p className="mt-2 text-2xl font-bold text-black">
         {total.toLocaleString()}
       </p>
       <div className="mt-3 space-y-1">
@@ -26,7 +26,7 @@ export function BusiestDay() {
   return (
     <div>
       <span className="font-mono text-[10px] text-zinc-500">busiest day</span>
-      <p className="mt-2 text-2xl font-bold text-zinc-200">
+      <p className="mt-2 text-2xl font-bold text-black">
         {wordsData.peak_messages.count}
       </p>
       <p className="mt-1 font-mono text-[10px] text-zinc-500">
@@ -40,7 +40,7 @@ export function MostWords() {
   return (
     <div>
       <span className="font-mono text-[10px] text-zinc-500">most words in a day</span>
-      <p className="mt-2 text-2xl font-bold text-zinc-200">
+      <p className="mt-2 text-2xl font-bold text-black">
         {wordsData.peak_words.count.toLocaleString()}
       </p>
       <p className="mt-1 font-mono text-[10px] text-zinc-500">

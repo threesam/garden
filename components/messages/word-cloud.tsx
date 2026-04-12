@@ -52,10 +52,10 @@ export function WordCloud() {
     const max = words[0]?.count ?? 1;
 
     const baseColor = who === "sam"
-      ? [255, 255, 255]
+      ? [30, 30, 30]
       : who === "dianchik"
-        ? [212, 175, 55]
-        : [200, 200, 200];
+        ? [180, 140, 20]
+        : [60, 60, 60];
 
     const layout = cloud()
       .size([width * 2, height * 2])
@@ -117,7 +117,7 @@ export function WordCloud() {
               key={w}
               onClick={() => setWho(w)}
               className={`font-mono text-[10px] tracking-wider transition-colors ${
-                who === w ? "text-zinc-200" : "text-zinc-600 hover:text-zinc-400"
+                who === w ? "text-black" : "text-zinc-400 hover:text-zinc-600"
               }`}
             >
               {w}

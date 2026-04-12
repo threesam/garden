@@ -21,7 +21,7 @@ const g = "gap-3 md:gap-4";
 
 function M({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={`rounded-3xl bg-zinc-950 border border-white/5 p-5 md:p-6 ${className}`}>
+    <div className={`rounded-3xl bg-white border border-zinc-200 p-5 md:p-6 ${className}`}>
       {children}
     </div>
   );
@@ -38,13 +38,6 @@ export default function DeanaPage() {
         <M>
           <MessageTimeline />
         </M>
-
-        {/* Milestones row — 3 equal */}
-        <div className={`grid grid-cols-1 md:grid-cols-3 ${g}`}>
-          <M><MilestoneSam /></M>
-          <M><MilestoneDia /></M>
-          <M><MilestoneCount /></M>
-        </div>
 
         {/* Heatmap full width */}
         <M>
@@ -68,13 +61,20 @@ export default function DeanaPage() {
           <M><Compliments /></M>
         </div>
 
-        {/* First night — dev only */}
-        {isDev && <M><FirstNight /></M>}
+        {/* Milestones + First night — dev only */}
+        {isDev && (
+          <>
+            <div className={`grid grid-cols-1 md:grid-cols-3 ${g}`}>
+              <M><MilestoneSam /></M>
+              <M><MilestoneDia /></M>
+              <M><MilestoneCount /></M>
+            </div>
+            <M><FirstNight /></M>
+          </>
+        )}
 
-        {/* Daily firsts */}
-        <M>
-          <DailyFirsts />
-        </M>
+        {/* Daily firsts — dev only */}
+        {isDev && <M><DailyFirsts /></M>}
       </div>
       </div>
     </main>
