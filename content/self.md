@@ -1,5 +1,3 @@
-## blank canvas
-
 i grew up in Trenton, New Jersey.
 
 not in a romantic way. just in it. my parents got a fixer upper in a nice area. it was near a nursing home which made it feel safe. near my grandparents, which made things feel comfortable. while we didn't intend to stay, life had other plans.
