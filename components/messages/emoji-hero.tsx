@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { AsciiImage } from "./ascii-image";
 
-const SRCS = ["/assets/deana-5.png", "/assets/deana-hero-3.png", "/assets/deana-6.jpg", "/assets/deana-hero.png", "/assets/deana-hero-5.png"];
+const SRCS = ["/assets/deana-6.jpg", "/assets/deana-5.png", "/assets/deana-hero-3.png", "/assets/deana-hero.png", "/assets/deana-hero-5.png"];
 const CHARS = ["I", "_", "E", "-"];
 
 export function EmojiHero() {
