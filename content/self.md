@@ -350,7 +350,7 @@ losing family makes missing them hurt, eevn if seeing them forces the grief to t
 
 so we moved to Austin.
 
-![DISSONANCE|black|top-center](/assets/dissonance.png)
+![DISSONANCE|black|right](/assets/dissonance.png)
 
 we had our yearly onsite in January. i attempted the in office visit without letting my company know that i'd moved. when i did my civic duty and updated my address to the beautifully tax-free state of Texas, i learned that moving is actually a big enough deal to trigger notifications.
 
