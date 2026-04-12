@@ -40,15 +40,20 @@ md.use({
     },
     image({ href, text }) {
       if (text && text.includes('|')) {
-        // Hero image: "HEADING|color|position" e.g. "BLONDIE|white|left" or "ADVENTURE|black|right"
+        // Hero image: "HEADING|color|position" e.g. "BLONDIE|white" or "ADVENTURE|white|right" or "VELVET DOOR|white|bottom-left"
         const parts = text.split('|');
         const heading = parts[0].trim();
         const color = parts[1]?.trim() || 'white';
         const pos = parts[2]?.trim() || 'left';
-        const posClass = pos === 'right'
+        const isBottom = pos.startsWith('bottom');
+        const isRight = pos.includes('right');
+        const hClass = isRight
           ? 'right-6 text-right md:right-20'
           : 'left-6 md:left-20';
-        return `<div class="relative my-12 -mx-6 md:mx-0 md:w-[768px] md:max-w-[768px] md:left-1/2 md:-translate-x-1/2"><img src="${href}" alt="${heading}" class="w-full md:rounded-lg" /><span class="absolute top-6 ${posClass} font-mono text-2xl font-bold uppercase tracking-[0.1em] md:text-5xl md:top-20" style="color: ${color}">${heading}</span></div>`;
+        const vClass = isBottom
+          ? 'bottom-6 md:bottom-20'
+          : 'top-6 md:top-20';
+        return `<div class="relative my-12 -mx-6 md:mx-0 md:w-[768px] md:max-w-[768px] md:left-1/2 md:-translate-x-1/2"><img src="${href}" alt="${heading}" class="w-full md:rounded-lg" /><span class="absolute ${vClass} ${hClass} font-mono text-2xl font-bold uppercase tracking-[0.1em] md:text-5xl" style="color: ${color}">${heading}</span></div>`;
       }
       return `<img src="${href}" alt="${text ?? ''}" class="relative my-8 rounded-lg w-full md:w-[768px] md:max-w-[768px] md:left-1/2 md:-translate-x-1/2" />`;
     },
