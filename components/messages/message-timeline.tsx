@@ -44,17 +44,17 @@ function buildConfig(tab: Tab) {
       labels: chartData.labels,
       datasets: [
         {
-          label: "sam",
-          data: samData,
-          backgroundColor: SAM_COLOR,
-          hoverBackgroundColor: SAM_HOVER,
-          borderRadius: 2,
-        },
-        {
           label: "dianchik",
           data: diaData,
           backgroundColor: DIA_COLOR,
           hoverBackgroundColor: DIA_HOVER,
+          borderRadius: 2,
+        },
+        {
+          label: "sam",
+          data: samData,
+          backgroundColor: SAM_COLOR,
+          hoverBackgroundColor: SAM_HOVER,
           borderRadius: 2,
         },
       ],
@@ -156,12 +156,12 @@ export function MessageTimeline() {
       </div>
       <div className="flex gap-4 mb-4">
         <span className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-500">
-          <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: SAM_COLOR }} />
-          sam
-        </span>
-        <span className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-500">
           <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: DIA_COLOR }} />
           dianchik
+        </span>
+        <span className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-500">
+          <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: SAM_COLOR }} />
+          sam
         </span>
       </div>
       <div style={{ height: 220 }}>

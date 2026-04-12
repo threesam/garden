@@ -64,8 +64,8 @@ export default function DeanaPage() {
         {isDev && (
           <>
             <div className={`grid grid-cols-1 md:grid-cols-3 ${g}`}>
-              <M><MilestoneSam /></M>
               <M><MilestoneDia /></M>
+              <M><MilestoneSam /></M>
               <M><MilestoneCount /></M>
             </div>
             <M><FirstNight /></M>

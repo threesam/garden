@@ -42,19 +42,6 @@ export function EmojiMeter() {
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
           <div className="mb-3 flex items-baseline justify-between">
-            <span className="font-mono text-[10px] text-zinc-400">sam</span>
-            <span className="font-mono text-[9px] text-zinc-400">
-              {emojiData.sam_unique} unique
-            </span>
-          </div>
-          <div className="space-y-1.5">
-            {sam.slice(0, show).map((e) => (
-              <EmojiBar key={e.emoji} emoji={e.emoji} count={e.count} max={samMax} color="rgba(0,0,0,0.4)" />
-            ))}
-          </div>
-        </div>
-        <div>
-          <div className="mb-3 flex items-baseline justify-between">
             <span className="font-mono text-[10px] text-zinc-400">dianchik</span>
             <span className="font-mono text-[9px] text-zinc-400">
               {emojiData.dia_unique} unique
@@ -63,6 +50,19 @@ export function EmojiMeter() {
           <div className="space-y-1.5">
             {dia.slice(0, show).map((e) => (
               <EmojiBar key={e.emoji} emoji={e.emoji} count={e.count} max={diaMax} color="rgba(180,140,20,0.7)" />
+            ))}
+          </div>
+        </div>
+        <div>
+          <div className="mb-3 flex items-baseline justify-between">
+            <span className="font-mono text-[10px] text-zinc-400">sam</span>
+            <span className="font-mono text-[9px] text-zinc-400">
+              {emojiData.sam_unique} unique
+            </span>
+          </div>
+          <div className="space-y-1.5">
+            {sam.slice(0, show).map((e) => (
+              <EmojiBar key={e.emoji} emoji={e.emoji} count={e.count} max={samMax} color="rgba(0,0,0,0.4)" />
             ))}
           </div>
         </div>

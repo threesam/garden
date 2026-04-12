@@ -39,21 +39,21 @@ export function PetNames() {
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
           <div className="mb-3">
-            <span className="font-mono text-[10px] text-zinc-400">sam calls her</span>
-          </div>
-          <div className="space-y-1.5">
-            {sam.slice(0, show).map((p) => (
-              <NameBar key={p.name} name={p.name} count={p.count} max={samMax} color="rgba(0,0,0,0.4)" />
-            ))}
-          </div>
-        </div>
-        <div>
-          <div className="mb-3">
             <span className="font-mono text-[10px] text-zinc-400">dianchik calls him</span>
           </div>
           <div className="space-y-1.5">
             {dia.slice(0, show).map((p) => (
               <NameBar key={p.name} name={p.name} count={p.count} max={diaMax} color="rgba(180,140,20,0.7)" />
+            ))}
+          </div>
+        </div>
+        <div>
+          <div className="mb-3">
+            <span className="font-mono text-[10px] text-zinc-400">sam calls her</span>
+          </div>
+          <div className="space-y-1.5">
+            {sam.slice(0, show).map((p) => (
+              <NameBar key={p.name} name={p.name} count={p.count} max={samMax} color="rgba(0,0,0,0.4)" />
             ))}
           </div>
         </div>

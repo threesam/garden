@@ -19,7 +19,7 @@ for (const e of sam) merged.set(e.word, (merged.get(e.word) ?? 0) + e.count);
 for (const e of dia) merged.set(e.word, (merged.get(e.word) ?? 0) + e.count);
 const both = [...merged.entries()]
   .sort((a, b) => b[1] - a[1])
-  .slice(0, 150)
+  .slice(0, 300)
   .map(([word, count]) => ({ word, count }));
 
 interface LayoutWord {
@@ -58,7 +58,7 @@ export function WordCloud() {
       ctx.save();
       ctx.translate(canvas.width / 2 + w.x, canvas.height / 2 + w.y);
       ctx.rotate((w.rotate * Math.PI) / 180);
-      ctx.font = `${w.size}px monospace`;
+      ctx.font = `${w.size}px Jost, sans-serif`;
       ctx.fillStyle = `rgba(${baseColor[0]},${baseColor[1]},${baseColor[2]},${opacity})`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -99,16 +99,16 @@ export function WordCloud() {
     const layout = cloud()
       .size([width * 2, height * 2])
       .words(
-        words.slice(0, 120).map((w) => ({
+        words.map((w) => ({
           text: w.word,
-          size: 14 + (w.count / max) * 56,
+          size: 14 + Math.pow(w.count / max, 0.6) * 120,
           count: w.count,
         }))
       )
-      .padding(4)
+      .padding(1)
       .rotate(() => (rng() > 0.7 ? 90 : 0))
       .random(rng)
-      .font("monospace")
+      .font("Jost, sans-serif")
       .fontSize((d) => (d as { size: number }).size)
       .on("end", (layoutWords: LayoutWord[]) => {
         layoutCache.current.set(cacheKey, layoutWords);
@@ -140,7 +140,7 @@ export function WordCloud() {
           word cloud
         </span>
         <div className="flex gap-3">
-          {(["both", "sam", "dianchik"] as Who[]).map((w) => (
+          {(["both", "dianchik", "sam"] as Who[]).map((w) => (
             <button
               key={w}
               onClick={() => setWho(w)}
