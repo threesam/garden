@@ -147,9 +147,10 @@ export function AsciiImage({ srcs, className = "" }: AsciiImageProps) {
       if (w === 0 || h === 0) return;
       if (w !== lastW || h !== lastH) setupCanvas(w, h);
 
-      const curPixels = sampleImg(images[currentIdx], cols, rows, w, h);
+      const cur = sampleImg(images[currentIdx], cols, rows, w, h);
       const nxtPixels = sampleImg(images[nextIdx], cols, rows, w, h);
-      if (!curPixels) return;
+      if (!cur) return;
+      const curPixels = cur;
 
       const startTime = performance.now();
       const blended = new Uint8ClampedArray(curPixels.length);
