@@ -31,10 +31,41 @@ interface LayoutWord {
   count: number;
 }
 
+// Seeded PRNG so layout is deterministic
+function mulberry32(seed: number) {
+  return () => {
+    seed |= 0; seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
 export function WordCloud() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [who, setWho] = useState<Who>("both");
+  const layoutCache = useRef<Map<string, LayoutWord[]>>(new Map());
+
+  const paint = useCallback((layoutWords: LayoutWord[], baseColor: number[], max: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d")!;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (const w of layoutWords) {
+      const opacity = 0.2 + ((w.count ?? 0) / max) * 0.8;
+      ctx.save();
+      ctx.translate(canvas.width / 2 + w.x, canvas.height / 2 + w.y);
+      ctx.rotate((w.rotate * Math.PI) / 180);
+      ctx.font = `${w.size}px monospace`;
+      ctx.fillStyle = `rgba(${baseColor[0]},${baseColor[1]},${baseColor[2]},${opacity})`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(w.text ?? "", 0, 0);
+      ctx.restore();
+    }
+  }, []);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -57,6 +88,14 @@ export function WordCloud() {
         ? [180, 140, 20]
         : [60, 60, 60];
 
+    const cacheKey = `${who}:${width}`;
+    const cached = layoutCache.current.get(cacheKey);
+    if (cached) {
+      paint(cached, baseColor, max);
+      return;
+    }
+
+    const rng = mulberry32(42);
     const layout = cloud()
       .size([width * 2, height * 2])
       .words(
@@ -67,35 +106,24 @@ export function WordCloud() {
         }))
       )
       .padding(4)
-      .rotate(() => (Math.random() > 0.7 ? 90 : 0))
+      .rotate(() => (rng() > 0.7 ? 90 : 0))
+      .random(rng)
       .font("monospace")
       .fontSize((d) => (d as { size: number }).size)
       .on("end", (layoutWords: LayoutWord[]) => {
-        const ctx = canvas.getContext("2d")!;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        for (const w of layoutWords) {
-          const opacity = 0.2 + ((w.count ?? 0) / max) * 0.8;
-          ctx.save();
-          ctx.translate(canvas.width / 2 + w.x, canvas.height / 2 + w.y);
-          ctx.rotate((w.rotate * Math.PI) / 180);
-          ctx.font = `${w.size}px monospace`;
-          ctx.fillStyle = `rgba(${baseColor[0]},${baseColor[1]},${baseColor[2]},${opacity})`;
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillText(w.text ?? "", 0, 0);
-          ctx.restore();
-        }
+        layoutCache.current.set(cacheKey, layoutWords);
+        paint(layoutWords, baseColor, max);
       });
 
     layout.start();
-  }, [who]);
+  }, [who, paint]);
 
   useEffect(() => {
     draw();
     let timeout: ReturnType<typeof setTimeout>;
     const onResize = () => {
       clearTimeout(timeout);
+      layoutCache.current.clear();
       timeout = setTimeout(draw, 150);
     };
     window.addEventListener("resize", onResize);
