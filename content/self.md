@@ -330,6 +330,8 @@ but then i noticed the other side. i could hand a five to someone at a stoplight
 
 Azalea was born while i was still at Rhone. before she was two months old, i was poached by Made In Cookware.
 
+i went from selling pants to selling pans.
+
 Dan, the lead engineer there, was self-taught like me and brilliant. after one conversation, offered me the job, no technical assessment. risky for them but i made sure it wasn't a mistake. i learned twice as fast watching him work and my confidence grew.
 
 but Dan eventually left and i spent an entire year proving i could lead before they officially let me.
@@ -350,17 +352,23 @@ then we drove up the Coastal Highway of California to Portland, Oregon.
 
 there's something enchanted about the Pacific Northwest. Redwoods feel impossibly large and ancient, ecological diversity slaps you in the face everywhere you turn, the beach is viscerally felt with boulders the size of buildings jutting just beyond the break and bonfires stretching along the entirety of the shoreline, each housing a unique configuration of conversation.
 
+we had many facetimes back home, showing off the new planet we were exploring, and made plans to see Deana's very pregnant friend a few hours north in Washington.
+
+we ate pizza and ice cream at [Lovely's](https://www.lovelys5050.com/) damn near every night. we even happened upon our favorite strain of weed, perfectly, _legally_ prerolled and ready for us after the kids fell asleep.
+
 i watched my growing family breathe into this place and relax, Deana and me returning to ourselves before things got hard.
 
-**then my Dad died.**
+we'd been trying for a fourth. we _knew_ the night it happened.
 
-and, likely hours before, we conceived our fourth.
+the next morning, Deana got a call that her friend just had her baby. during that call, my mom and sister called me to let me know my Dad had died.
 
 **life is a circle**, sometimes a fucked up one.
 
-we ended our gallavanting early and came back to Pennsylvania to have Orion, the first boy.
+but it was time for us to come back to Pennsylvania.
 
-losing family makes missing them hurt, even if seeing them forces the grief to the surface. we made our time matter. we hosted often and cherished the connection we previously took for granted. but home didn't feel like home anymore and we knew we needed something different.
+Orion was written in stars, our first boy on the way.
+
+we made our time matter. we hosted our family often and cherished the connection we previously took for granted. we went out of our way to hunt down new friends and we found them. but home didn't feel like home anymore and we knew we needed something different. to continue our adventure.
 
 so we moved to Austin.
 
