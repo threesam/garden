@@ -34,13 +34,13 @@ felt like a perfect synergy of history and philosophy. systems, incentives, how 
 
 so when i graduated summa cum laude, i took my degree and went to work at Quakerbridge Mall. obviously.
 
-climbed my way up to a Brookstone sales manager, where, for a time, i was the slinging more personal massagers than anyone else at the company. is this peak success?
+climbed my way up to a Brookstone sales manager, where, for a time, i was slinging more personal massagers than anyone else at the company. is this peak success?
 
 the irony of my store being shut down was that we may have been the only location to crush every sales goal they put in front of us.
 
 luckily, i got some severance and after the unemployment hit my bank account _i used it all_ to buy equipment to start recording music. the parents were saints for putting up with my "dreams."
 
-i was looking for beta-testers in my beat laboratory i ended up chatting with my college bud, Valerie, who instead of taking me up on my offer, invited me to an open mic. in Trenton, of all places.
+i was looking for beta-testers in my beat laboratory. ended up chatting with my college bud, Valerie, who instead of taking me up on my offer, invited me to an open mic. in Trenton, of all places.
 
 i almost didn't go.
 
@@ -52,7 +52,7 @@ so i went.
 
 ![THE VELVET DOOR|white|bottom-left](/assets/velvet-door.png)
 
-it was a small bar. normal enough when walking in: bartenders pouring perfectly foamed beers from the tap, decanting wine, concoting sangria. as we walked passed the bar, a deep growl started to rattle my ribs. there was a velvet curtain. i walked through and into a different world.
+it was a small bar. normal enough when walking in: bartenders pouring perfectly foamed beers from the tap, decanting wine, concocting sangria. as we walked past the bar, a deep growl started to rattle my ribs. there was a velvet curtain. i walked through and into a different world.
 
 i found a room packed to the brim with every type of person i would never expect to see in my hometown. live music, but not in the usual way. no linear procession of bands. it was fluid. drummer stays, bassist rotates, a microphone used first to amplify voices and then brass. a harmonica solo that lasts a bit too long. an unexpected distortion pedal at exactly the right time to cut through the room as keys echoed into the exposed rafters. pieces moving in every direction, but with some muse secretly threading it all together.
 
@@ -66,7 +66,7 @@ the open mic was his. he ran it with this philosophy — the list is sacred. you
 
 he talked to every person who walked into the bar, snapped an impossible number of candids and posted the haul online every week. everyone was part of the experience.
 
-i remember the first time i got called up. i knew my way around a stage but the energy here was special. i started playing one of my originals and about halfway through someone found the beat on a cajón while Benny hopped on bass. and by the end a saxophone was blaring, riffing a hautning solo all over the final chorus. i learned what "being in the moment" actually meant.
+i remember the first time i got called up. i knew my way around a stage but the energy here was special. i started playing one of my originals and about halfway through someone found the beat on a cajón while Benny hopped on bass. and by the end a saxophone was blaring, riffing a haunting solo all over the final chorus. i learned what "being in the moment" actually meant.
 
 i was hooked after that. it didn't take long for Benny and me to buddy up and run the open mic together.
 
@@ -74,7 +74,7 @@ was definitely for the love of the game because it paid next to nothing. but the
 
 i started washing dishes, then waiting tables, then figuring out how to balance the endless chatter of drunken government employees with the infinite pour of long islands while tending bar -- not really a challenge because i was never alone.
 
-every night after our shift at the bar, we'd go back to Benny's corner brickhouse in a weirdly beautful part of town, smoke a joint, and talk for hours.
+every night after our shift at the bar, we'd go back to Benny's corner brickhouse in a weirdly beautiful part of town, smoke a joint, and talk for hours.
 
 usually about the dumb shit people do at a bar.
 
@@ -112,13 +112,13 @@ i was bartending and Deana brought two emotional-support friends, Alena and Tayl
 
 the conversation was effortless, we all got to know each other but she was quick as a whip, relentless, and immediately intoxicating. drank every word that left her lips like i had been dying of thirst my whole life.
 
-even though our first time out was a subtle interrogation, i felt comfortable enough to handle the ambush and they felt comfortable enough to come back to Benny's basement studio after we closed down the bar -- they listened to us sing songs into the night. a good group. but the time i had in her presence that night was not nearly enough. not the type to play hard-to-get i knew she felt the same. we became inseparable, then official, and never looked back.
+even though our first time out was a subtle interrogation, i felt comfortable enough to handle the ambush and they felt comfortable enough to come back to Benny's basement studio after we closed down the bar -- they listened to us sing songs into the night. a good group. but the time i had in her presence that night was not nearly enough. not the type to play hard-to-get, i knew she felt the same. we became inseparable, then official, and never looked back.
 
 ## insulation
 
 i remember the first time i met Deana's dad.
 
-Deana, her friend Alena, and i were lounging about when this 6'5 tower of a human walked through the door. obviously, home earlier than she expected. in broken English, managed to introduce himself and extend a massive mit to shake my hand.
+Deana, her friend Alena, and i were lounging about when this 6'5 tower of a human walked through the door. obviously, home earlier than she expected. in broken English, managed to introduce himself and extend a massive mitt to shake my hand.
 
 gracefully intimidated.
 
@@ -136,7 +136,7 @@ another example: we drove to Maryland to pick up a rambunctious, black and white
 
 one morning, it was beyond frigid in Philly and the windows were bleeding the little warmth i had on the floor. after using Koda as my personal space heater, i accepted his place in my life.
 
-and apparently her parents accepted mine, when Deana's mom insisted i sleep in the bed. even though i would come back from the bar at 2am smelling like some combination of bleach, alcohol, and stale second-hand cigarellos not once did either of them ever ask me to leave.
+and apparently her parents accepted mine, when Deana's mom insisted i sleep in the bed. even though i would come back from the bar at 2am smelling like some combination of bleach, alcohol, and stale second-hand cigarillos not once did either of them ever ask me to leave.
 
 though, did we really want to stay?
 
@@ -152,7 +152,7 @@ found out: they're equal parts smooth and potent magic mushrooms.
 
 ok.
 
-this launched me into what must have felt like a speech i had meticulously planned for such an occassion.
+this launched me into what must have felt like a speech i had meticulously planned for such an occasion.
 
 i explained that while shrooms are probably safe, i'd only ever consider using them much later in life, maybe in a decade, maybe, after i have a steady career, success, a family. after i'd already hit all the milestones.
 
@@ -166,7 +166,7 @@ this was so out of left field for her that i rolled my eyes at my own hypocrisy 
 
 "sure man"
 
-Deana and me met Benny at a tent-filled meadow of a festival, to which he was providing the entertainment, called Leaperland. grills, grunge, and fireworks abound, we hung around long enough to recieve some tips for effective use. then we were on our way to the Jersey shore.
+Deana and i met Benny at a tent-filled meadow festival called Leaperland, where he was providing the entertainment. grills, grunge, and fireworks abound, we hung around long enough to receive some tips for effective use. then we were on our way to the Jersey shore.
 
 we met at my friend's house in Beach Haven, 4 of us ready to face the unknown.
 
@@ -180,9 +180,9 @@ the warm sand, the salty air misting from the waves.. the cops patrolling the be
 
 even though we were well above the age allowed to roam, nope.
 
-we returned to the safety of the house and by some means of discourse decided to watch Plant Earth.
+we returned to the safety of the house and by some means of discourse decided to watch Planet Earth.
 
-the sound of David Attentenborough's voice is like a soothing hug, warm, though not enough to warm those penguins huddling during that goddamned blizzard.
+the sound of David Attenborough's voice is like a soothing hug, warm, though not enough to warm those penguins huddling during that goddamned blizzard.
 
 turns out when the shivering horde breaks rank for even a second, that warmth bleeds out along the edges, they reshuffle to close the gap, and trample those too small and too inexperienced to move in step.
 
@@ -236,7 +236,7 @@ when i found out he died, it was unexpected but not surprising. i had lost a fri
 
 he didn’t have much family, and those who showed up weren't familiar with the person i knew. they knew the addict.
 
-our business relationship allowed me to claim an inheritance of art and instruments. importantly, i got the Taylor acoustic guitars that he would offer every open mic so that even if those without the means could jam on a fancy guitar. his legacy came to me.
+our business relationship allowed me to claim an inheritance of art and instruments. importantly, i got the Taylor acoustic guitars that he would offer every open mic so that those without the means could jam on a fancy guitar. his legacy came to me.
 
 whatever balance i thought i had dropped out from under me.
 
@@ -268,13 +268,13 @@ more importantly, i realized that while sounds are beautiful, when paired with v
 
 that experience left me yearning for my own taste of the divine.
 
-so i scoured the internet and happened upon [Processing](processing.org). immediately began trying to make pixels dance across the screen. then, i needed to show anyone else the birth of my digital monstrosity but had no idea how to share a computer screen with the world wide web.
+so i scoured the internet and happened upon [Processing](https://processing.org). immediately began trying to make pixels dance across the screen. then, i needed to show anyone else the birth of my digital monstrosity but had no idea how to share a computer screen with the world wide web.
 
 that curiosity turned into a rabbit hole.
 
 **i committed hard.**
 
-5am every day before the house was up. tutorials, docs, forums, braving the toxic sesspool of reddit threads where i found a mentor, a senior designer/engineer, who helped me see that all of my efforts were in good spirit but poor form. my shitty portfolio, resume, skillset, all burned so that i could grow back stronger through the ashes. i asked for all the pain he could supply.
+5am every day before the house was up. tutorials, docs, forums, braving the toxic cesspool of reddit threads where i found a mentor, a senior designer/engineer, who helped me see that all of my efforts were in good spirit but poor form. my shitty portfolio, resume, skillset, all burned so that i could grow back stronger through the ashes. i asked for all the pain he could supply.
 
 but the mornings weren't enough. so i walked. four hours a day, every day, rain or shine, pushing a stroller and listening to podcasts. it was the only way i could absorb anything while responsibility was awake. i wore holes in the bottoms of my flip flops.
 
@@ -288,7 +288,21 @@ we were finally free to live our own lives.
 
 and make our own luck.
 
-the day after Juniper turned one, i started my first job. making way more money than i felt i deserved.
+i had my first interview in the hospital on the day Juniper was born.
+
+i failed miserably.
+
+and continued to do so — hundreds of applications, dozens of bombed interviews. but at that point, sunk costs kept me afloat.
+
+chatting with Isaac, the director of tech at Rhone, was different. a nerd in the best way, his laugh was infectious. the brutal conversations that had come before this one — easy to forget.
+
+i remember getting through the tech assessment, meeting the team, and being asked by Sally, the director of ecom, if i was comfortable with a senior role — the first time i had an inclination the role required it.
+
+regardless of what my imposter syndrome wanted to say, i said yes.
+
+a day later i got the call that made all of the work worth it and changed my idea of what life could be.
+
+then Juniper turned one and i started. making way more money than i felt i deserved.
 
 ## foundation
 
@@ -336,7 +350,7 @@ then we drove up the Coastal Highway of California to Portland, Oregon.
 
 there's something enchanted about the Pacific Northwest. Redwoods feel impossibly large and ancient, ecological diversity slaps you in the face everywhere you turn, the beach is viscerally felt with boulders the size of buildings jutting just beyond the break and bonfires stretching along the entirety of the shoreline, each housing a unique configuration of conversation.
 
-i watched my growing family breath into this place and relax, Deana and me returning to ourselves before things got hard.
+i watched my growing family breathe into this place and relax, Deana and me returning to ourselves before things got hard.
 
 **then my Dad died.**
 
@@ -346,7 +360,7 @@ and, likely hours before, we conceived our fourth.
 
 we ended our gallavanting early and came back to Pennsylvania to have Orion, the first boy.
 
-losing family makes missing them hurt, eevn if seeing them forces the grief to the surface. we made our time matter. we hosted often and cherished the connection we previously took for granted. but home didn't feel like home anymore and we knew we needed something different.
+losing family makes missing them hurt, even if seeing them forces the grief to the surface. we made our time matter. we hosted often and cherished the connection we previously took for granted. but home didn't feel like home anymore and we knew we needed something different.
 
 so we moved to Austin.
 
