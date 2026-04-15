@@ -7,6 +7,9 @@ const SPEED = 0.6;
 const SPEED_MIN_SQ = (SPEED * 0.3) * (SPEED * 0.3);
 const SPEED_RESTORE = SPEED * 0.5;
 const DAMPING = 0.85;
+const REPEL_RADIUS = 130;
+const REPEL_RADIUS_SQ = REPEL_RADIUS * REPEL_RADIUS;
+const REPEL_STRENGTH = 0.5;
 
 // Precompute unit circle sample points for collision
 const SAMPLE_STEPS = 8;
@@ -48,6 +51,11 @@ export function ParticleTextCanvas() {
 
     // Cache --white color
     let textColor = "#f5f0e8";
+
+    // Mouse state — kept as closure locals to avoid React re-renders
+    let mouseX = 0;
+    let mouseY = 0;
+    let mouseActive = false;
 
     function buildCollisionMap() {
       w = container!.offsetWidth;
@@ -138,10 +146,25 @@ export function ParticleTextCanvas() {
 
       for (let i = 0; i < count; i++) {
         const r = pr[i];
-        let x = px[i] + pvx[i];
-        let y = py[i] + pvy[i];
         let vx = pvx[i];
         let vy = pvy[i];
+
+        // Cursor repulsion — particles flee from the mouse
+        if (mouseActive) {
+          const dx = px[i] - mouseX;
+          const dy = py[i] - mouseY;
+          const distSq = dx * dx + dy * dy;
+          if (distSq < REPEL_RADIUS_SQ && distSq > 0.5) {
+            const dist = Math.sqrt(distSq);
+            const falloff = 1 - dist / REPEL_RADIUS;
+            const force = falloff * falloff * REPEL_STRENGTH;
+            vx += (dx / dist) * force;
+            vy += (dy / dist) * force;
+          }
+        }
+
+        let x = px[i] + vx;
+        let y = py[i] + vy;
 
         // Circle collision — sample edge points
         let normX = 0;
@@ -214,10 +237,24 @@ export function ParticleTextCanvas() {
     });
     ro.observe(container);
 
+    const onMove = (e: PointerEvent) => {
+      const rect = container.getBoundingClientRect();
+      mouseX = e.clientX - rect.left;
+      mouseY = e.clientY - rect.top;
+      mouseActive = true;
+    };
+    const onLeave = () => {
+      mouseActive = false;
+    };
+    container.addEventListener("pointermove", onMove);
+    container.addEventListener("pointerleave", onLeave);
+
     return () => {
       cancelAnimationFrame(rafId);
       clearTimeout(resizeTimeout);
       ro.disconnect();
+      container.removeEventListener("pointermove", onMove);
+      container.removeEventListener("pointerleave", onLeave);
     };
   }, []);
 

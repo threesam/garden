@@ -328,7 +328,7 @@ but then i noticed the other side. i could hand a five to someone at a stoplight
 
 **money isn't the thing. it's what lets you not think about the thing, so you can think about everything else.**
 
-Azalea was born while i was still at Rhone. before she was two months old, i was poached by Made In Cookware.
+Azalea was born while i was still at Rhone. before she was two months old, i was poached by Austin's own Made In Cookware.
 
 i went from selling pants to selling pans.
 
