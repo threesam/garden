@@ -7,6 +7,19 @@ export const metadata: Metadata = {
   description: "Books, media, and the things that shape how I think.",
 };
 
+// Books stuck in currently-reading for more than ~3 months are effectively abandoned;
+// fall through to last-read rather than feature something stale.
+const CURRENT_MAX_AGE_MS = 1000 * 60 * 60 * 24 * 90;
+
+function pickCurrentlyReading(books: Book[]): Book | null {
+  const cutoff = Date.now() - CURRENT_MAX_AGE_MS;
+  return (
+    books
+      .filter((b) => b.addedAt.getTime() > cutoff)
+      .sort((a, b) => b.addedAt.getTime() - a.addedAt.getTime())[0] ?? null
+  );
+}
+
 function BookCover({ book, eager }: { book: Book; eager?: boolean }) {
   return (
     <a
@@ -40,14 +53,7 @@ export default async function VibePage() {
 
   const sorted = [...read].sort((a, b) => b.addedAt.getTime() - a.addedAt.getTime());
 
-  // Books stuck in currently-reading for more than ~3 months are effectively abandoned;
-  // fall through to last-read rather than feature something stale.
-  const CURRENT_MAX_AGE_MS = 1000 * 60 * 60 * 24 * 90;
-  const now = Date.now();
-  const currentBook =
-    [...currentlyReading]
-      .filter((b) => now - b.addedAt.getTime() < CURRENT_MAX_AGE_MS)
-      .sort((a, b) => b.addedAt.getTime() - a.addedAt.getTime())[0] ?? null;
+  const currentBook = pickCurrentlyReading(currentlyReading);
 
   const lastRead =
     [...read]
