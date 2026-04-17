@@ -159,10 +159,15 @@ export function MetaballCanvas({
       }
     }
 
-    function updatePointer(clientX: number, clientY: number) {
+    function updateRect() {
       const rect = canvas!.getBoundingClientRect();
-      pointerX = clientX - rect.left;
-      pointerY = clientY - rect.top;
+      rectLeft = rect.left;
+      rectTop = rect.top;
+    }
+
+    function updatePointer(clientX: number, clientY: number) {
+      pointerX = clientX - rectLeft;
+      pointerY = clientY - rectTop;
       pointerActive = true;
     }
 
@@ -193,6 +198,7 @@ export function MetaballCanvas({
     canvas.addEventListener("mouseleave", onPointerLeave);
     canvas.addEventListener("touchmove", onTouchMove, { passive: true });
     canvas.addEventListener("touchend", onPointerLeave);
+    window.addEventListener("scroll", updateRect, { passive: true });
 
     let raf = 0;
     const t0 = performance.now();
@@ -206,9 +212,8 @@ export function MetaballCanvas({
       let attracting = false;
       const tgt = targetRef.current;
       if (tgt) {
-        const rect = canvas!.getBoundingClientRect();
-        attractX = tgt.x - rect.left;
-        attractY = tgt.y - rect.top;
+        attractX = tgt.x - rectLeft;
+        attractY = tgt.y - rectTop;
         attracting = true;
       } else if (trackCursorRef.current && pointerActive) {
         attractX = pointerX;
@@ -275,6 +280,7 @@ export function MetaballCanvas({
       canvas.removeEventListener("mouseleave", onPointerLeave);
       canvas.removeEventListener("touchmove", onTouchMove);
       canvas.removeEventListener("touchend", onPointerLeave);
+      window.removeEventListener("scroll", updateRect);
     };
   }, []);
 

@@ -40,8 +40,14 @@ export default async function VibePage() {
 
   const sorted = [...read].sort((a, b) => b.addedAt.getTime() - a.addedAt.getTime());
 
+  // Books stuck in currently-reading for more than ~3 months are effectively abandoned;
+  // fall through to last-read rather than feature something stale.
+  const CURRENT_MAX_AGE_MS = 1000 * 60 * 60 * 24 * 90;
+  const now = Date.now();
   const currentBook =
-    [...currentlyReading].sort((a, b) => b.addedAt.getTime() - a.addedAt.getTime())[0] ?? null;
+    [...currentlyReading]
+      .filter((b) => now - b.addedAt.getTime() < CURRENT_MAX_AGE_MS)
+      .sort((a, b) => b.addedAt.getTime() - a.addedAt.getTime())[0] ?? null;
 
   const lastRead =
     [...read]
