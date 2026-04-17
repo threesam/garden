@@ -15,9 +15,19 @@ interface VibeHeroProps {
 
 export function VibeHero({ featured, featuredLabel }: VibeHeroProps) {
   const coverRef = useRef<HTMLImageElement>(null);
+  const descRef = useRef<HTMLParagraphElement>(null);
   const [target, setTarget] = useState<{ x: number; y: number } | null>(null);
   const [color, setColor] = useState<[number, number, number]>(BG_COLOR);
   const [expanded, setExpanded] = useState(false);
+  const [contentHeight, setContentHeight] = useState(0);
+  const [metaballsHidden, setMetaballsHidden] = useState(false);
+
+  const toggleExpanded = useCallback(() => {
+    if (descRef.current) setContentHeight(descRef.current.scrollHeight);
+    setMetaballsHidden(true);
+    setTimeout(() => setMetaballsHidden(false), 1000);
+    setExpanded((x) => !x);
+  }, []);
 
   useEffect(() => {
     if (!featured?.coverUrl) return;
@@ -74,7 +84,10 @@ export function VibeHero({ featured, featuredLabel }: VibeHeroProps) {
         aria-hidden="true"
       />
 
-      <div className="pointer-events-none absolute inset-0" style={{ zIndex: 2 }}>
+      <div
+        className="pointer-events-none absolute inset-0 transition-opacity duration-1000 ease-out"
+        style={{ zIndex: 2, opacity: metaballsHidden ? 0 : 1 }}
+      >
         <MetaballCanvas color={color} trackCursor={false} target={target} />
       </div>
 
@@ -126,13 +139,17 @@ export function VibeHero({ featured, featuredLabel }: VibeHeroProps) {
             {featured.description ? (
               <div>
                 <p
-                  className={`whitespace-pre-line text-sm leading-relaxed opacity-75 md:text-base ${expanded ? "" : "max-md:line-clamp-3"}`}
+                  ref={descRef}
+                  style={{
+                    maxHeight: expanded && contentHeight > 0 ? `${contentHeight}px` : undefined,
+                  }}
+                  className={`overflow-hidden whitespace-pre-line text-sm leading-relaxed opacity-75 transition-[max-height] duration-500 ease-out md:!max-h-none md:text-base ${expanded ? "" : "max-md:max-h-[4.5rem]"}`}
                 >
                   {featured.description}
                 </p>
                 <button
                   type="button"
-                  onClick={() => setExpanded((x) => !x)}
+                  onClick={toggleExpanded}
                   className="mt-2 font-mono text-xs uppercase tracking-[0.2em] underline underline-offset-4 transition-opacity hover:opacity-80 md:hidden"
                   style={{ color: "var(--coin)" }}
                 >
