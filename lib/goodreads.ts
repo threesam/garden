@@ -14,6 +14,7 @@ interface RawEntry {
   num_pages: string;
   book_image_url: string;
   book_large_image_url: string;
+  book_description: string;
   user_read_at: string;
   user_date_added: string;
   user_shelves: string;
@@ -29,6 +30,7 @@ export interface Book {
   published: number;
   pages: number;
   coverUrl: string;
+  description: string;
   readAt: Date | null;
   addedAt: Date;
   series: string | null;
@@ -37,6 +39,22 @@ export interface Book {
 }
 
 const parser = new XMLParser();
+
+function stripHtml(html: string): string {
+  if (!html) return "";
+  return html
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
 
 function parseSeries(title: string): { cleanTitle: string; series: string | null; seriesNumber: number | null } {
   const match = title.match(/^(.+?)\s*\(([^,]+),\s*#([\d.]+)\)\s*$/);
@@ -65,6 +83,7 @@ function parseEntry(entry: RawEntry): Book {
     published: parseInt(entry.book_published) || 0,
     pages: parseInt(entry.num_pages) || 0,
     coverUrl: entry.book_large_image_url || entry.book_image_url || "",
+    description: stripHtml(entry.book_description || ""),
     readAt,
     addedAt,
     series,

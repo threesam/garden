@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { MetaballCanvas } from "@/components/canvas/metaball-canvas";
+import { VibeHero } from "@/components/vibe/vibe-hero";
 import { getBooks, type Book } from "@/lib/goodreads";
 
 export const metadata: Metadata = {
@@ -33,27 +33,30 @@ function BookCover({ book, eager }: { book: Book; eager?: boolean }) {
 }
 
 export default async function VibePage() {
-  const books = await getBooks("read");
-  const sorted = [...books].sort((a, b) => b.addedAt.getTime() - a.addedAt.getTime());
+  const [currentlyReading, read] = await Promise.all([
+    getBooks("currently-reading"),
+    getBooks("read"),
+  ]);
+
+  const sorted = [...read].sort((a, b) => b.addedAt.getTime() - a.addedAt.getTime());
+
+  const currentBook =
+    [...currentlyReading].sort((a, b) => b.addedAt.getTime() - a.addedAt.getTime())[0] ?? null;
+
+  const lastRead =
+    [...read]
+      .filter((b) => b.readAt)
+      .sort((a, b) => b.readAt!.getTime() - a.readAt!.getTime())[0] ?? sorted[0] ?? null;
+
+  const featured = currentBook ?? lastRead;
+  const featuredLabel = currentBook ? "currently reading" : "last read";
 
   return (
     <main
       className="copy-lower min-h-screen pb-16"
       style={{ background: "linear-gradient(to bottom, var(--black) 40%, var(--white))", color: "var(--white)" } as React.CSSProperties}
     >
-      <section
-        className="relative flex h-[50dvh] items-center justify-center overflow-hidden"
-        style={{
-          background: "var(--black)",
-          cursor: `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text y='24' font-size='24'>🧲</text></svg>") 16 16, auto`,
-        }}
-      >
-        <MetaballCanvas color={[0.91, 0.64, 0.09]} />
-        <h1 className="pointer-events-none relative z-10 font-mono text-3xl font-bold tracking-[0.2em] md:text-5xl" style={{ color: "var(--black)" }}>
-
-          what&apos;s my vibe?
-        </h1>
-      </section>
+      <VibeHero featured={featured} featuredLabel={featuredLabel} />
 
       <section className="columns-4 gap-0 overflow-hidden py-1 sm:columns-6 md:columns-8 lg:columns-10 xl:columns-12">
         {sorted.map((book, i) => (

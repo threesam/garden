@@ -64,10 +64,29 @@ function createShader(gl: WebGLRenderingContext, type: number, source: string) {
 
 interface MetaballProps {
   color?: [number, number, number]; // RGB 0-1
+  trackCursor?: boolean;
+  target?: { x: number; y: number } | null; // viewport coords
 }
 
-export function MetaballCanvas({ color = [0.1, 0.1, 0.08] }: MetaballProps) {
+export function MetaballCanvas({
+  color = [0.1, 0.1, 0.08],
+  trackCursor = true,
+  target = null,
+}: MetaballProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const targetRef = useRef(target);
+  const trackCursorRef = useRef(trackCursor);
+  const colorRef = useRef(color);
+
+  useEffect(() => {
+    targetRef.current = target;
+  }, [target]);
+  useEffect(() => {
+    trackCursorRef.current = trackCursor;
+  }, [trackCursor]);
+  useEffect(() => {
+    colorRef.current = color;
+  }, [color]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -93,7 +112,6 @@ export function MetaballCanvas({ color = [0.1, 0.1, 0.08] }: MetaballProps) {
     const uTime = gl.getUniformLocation(prog, "uTime");
     const uRes = gl.getUniformLocation(prog, "uResolution");
     const uColorLoc = gl.getUniformLocation(prog, "uColor");
-    gl.uniform3f(uColorLoc, color[0], color[1], color[2]);
     const uBalls: (WebGLUniformLocation | null)[] = [];
     const uRadii: (WebGLUniformLocation | null)[] = [];
     for (let i = 0; i < NUM_BALLS; i++) {
@@ -148,13 +166,18 @@ export function MetaballCanvas({ color = [0.1, 0.1, 0.08] }: MetaballProps) {
       pointerActive = true;
     }
 
-    function onPointerEvent(e: MouseEvent) { updatePointer(e.clientX, e.clientY); }
+    function onPointerEvent(e: MouseEvent) {
+      if (!trackCursorRef.current) return;
+      updatePointer(e.clientX, e.clientY);
+    }
     function onTouchMove(e: TouchEvent) {
+      if (!trackCursorRef.current) return;
       const t = e.touches[0];
       if (t) updatePointer(t.clientX, t.clientY);
     }
     function onPointerLeave() {
       pointerActive = false;
+      if (!trackCursorRef.current) return;
       for (const b of balls) {
         // radial push away from cursor's last position
         const dx = b.x - pointerX;
@@ -177,13 +200,29 @@ export function MetaballCanvas({ color = [0.1, 0.1, 0.08] }: MetaballProps) {
     function tick() {
       const t = (performance.now() - t0) / 1000;
 
+      // resolve attraction point (target prop wins over cursor)
+      let attractX = 0;
+      let attractY = 0;
+      let attracting = false;
+      const tgt = targetRef.current;
+      if (tgt) {
+        const rect = canvas!.getBoundingClientRect();
+        attractX = tgt.x - rect.left;
+        attractY = tgt.y - rect.top;
+        attracting = true;
+      } else if (trackCursorRef.current && pointerActive) {
+        attractX = pointerX;
+        attractY = pointerY;
+        attracting = true;
+      }
+
       for (const b of balls) {
-        if (pointerActive) {
-          const dx = pointerX - b.x;
-          const dy = pointerY - b.y;
+        if (attracting) {
+          const dx = attractX - b.x;
+          const dy = attractY - b.y;
           const dist = Math.sqrt(dx * dx + dy * dy) || 1;
 
-          // radial pull toward cursor
+          // radial pull toward attraction point
           b.vx += (dx / dist) * 0.15;
           b.vy += (dy / dist) * 0.15;
 
@@ -210,6 +249,7 @@ export function MetaballCanvas({ color = [0.1, 0.1, 0.08] }: MetaballProps) {
 
       gl!.uniform1f(uTime, t);
       gl!.uniform2f(uRes, w, h);
+      gl!.uniform3f(uColorLoc, colorRef.current[0], colorRef.current[1], colorRef.current[2]);
       for (let i = 0; i < NUM_BALLS; i++) {
         gl!.uniform2f(uBalls[i], balls[i].x, h - balls[i].y);
         gl!.uniform1f(uRadii[i], balls[i].r);
