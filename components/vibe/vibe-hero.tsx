@@ -20,7 +20,7 @@ export function VibeHero({ featured, featuredLabel }: VibeHeroProps) {
   const [color, setColor] = useState<[number, number, number]>(BG_COLOR);
   const [expanded, setExpanded] = useState(false);
   const [contentHeight, setContentHeight] = useState(0);
-  const [metaballsHidden, setMetaballsHidden] = useState(false);
+  const [metaballsHidden, setMetaballsHidden] = useState(true);
 
   const toggleExpanded = useCallback(() => {
     if (descRef.current) setContentHeight(descRef.current.scrollHeight);
@@ -30,10 +30,15 @@ export function VibeHero({ featured, featuredLabel }: VibeHeroProps) {
   }, []);
 
   useEffect(() => {
-    if (!featured?.coverUrl) return;
+    if (!featured?.coverUrl) {
+      setMetaballsHidden(false);
+      return;
+    }
     let cancelled = false;
     extractDominantColor(featured.coverUrl).then((c) => {
-      if (!cancelled && c) setColor(c);
+      if (cancelled) return;
+      if (c) setColor(c);
+      setMetaballsHidden(false);
     });
     return () => {
       cancelled = true;
