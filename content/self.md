@@ -8,7 +8,7 @@ i was in public school there until 5th grade. 6th grade represented move up to a
 
 i remember sitting with my dad every morning waiting for the bus to come pick me up. once onboard, the Trenton crew would drift alongside industrial warehouses--long decommissioned with barely any windows still intact--and step-change to lush, preserved, and seemingly enchanted forest, manicured lawns, amphitheaters, and a fucking hockey rink. each day i would return to the hood that raised me.
 
-culture shock, sure. but impermanent. kids are so tabula rasa they can adapt to basically anything.
+culture shock, sure. but impermanent.
 
 it helped that i was confident academically. school made sense. inputs, outputs, distinct rules. but socially, it was an entirely different story. awkward. not a damn thing felt natural.
 
@@ -66,7 +66,7 @@ the open mic was his. he ran it with this philosophy — the list is sacred. you
 
 he talked to every person who walked into the bar, snapped an impossible number of candids and posted the haul online every week. everyone was part of the experience.
 
-i remember the first time i got called up. i knew my way around a stage but the energy here was special. i started playing one of my originals and about halfway through someone found the beat on a cajón while Benny hopped on bass. and by the end a saxophone was blaring, riffing a haunting solo all over the final chorus. i learned what "being in the moment" actually meant.
+i remember the first time i got called up. i knew my way around a stage but the energy here was special. i started playing one of my originals and about halfway through someone found the beat on a cajón while Benny hopped on bass. and by the end a saxophone was blaring, riffing a sonorous solo. no idea who was steering, but it wasn't me.
 
 i was hooked after that. it didn't take long for Benny and me to buddy up and run the open mic together.
 
@@ -84,8 +84,6 @@ those nights became the ritual.
 
 ![BLONDIE|white](/assets/blondie.png)
 
-that period of my life was messy and alive.
-
 music, bartending, late nights, building relationships.
 
 finally hitting my stride in a thriving art community, i was holding court — talking to women all day and hitting the apps every night.
@@ -94,7 +92,7 @@ but after i started talking to Deana, _i didn't want to talk to anyone else._
 
 the first thing i said to my future wife was "hey, Blondie."
 
-corny as all hell. and not even true. more like blonde with a tint of fire, and eyes bluer than the Russian ice that ripped through her veins.
+corny as all hell. and not even true. more like blue eyes, sunrise-golden hair.
 
 opening move: invite her to the open mic. very public, easy. unbeknownst to me, she showed up with her friend.
 
@@ -110,9 +108,9 @@ evidently, i passed her test. the next week we hung out, officially.
 
 i was bartending and Deana brought two emotional-support friends, Alena and Taylor. safety in numbers.
 
-the conversation was effortless, we all got to know each other but she was quick as a whip, relentless, and immediately intoxicating. drank every word that left her lips like i had been dying of thirst my whole life.
+the conversation was effortless, we all got to know each other. but i couldn't stop watching her. i wanted to lounge on the curve of her cheek bones, and let her stare freeze me in place.
 
-even though our first time out was a subtle interrogation, i felt comfortable enough to handle the ambush and they felt comfortable enough to come back to Benny's basement studio after we closed down the bar -- they listened to us sing songs into the night. a good group. but the time i had in her presence that night was not nearly enough. not the type to play hard-to-get, i knew she felt the same. we became inseparable, then official, and never looked back.
+even though our first time out was a subtle interrogation, i felt comfortable enough to handle the ambush and they felt comfortable enough to come back to Benny's basement studio after we closed down the bar -- they listened to us sing songs into the night. a good group. but the time i had in her presence that night was not nearly enough. not the type to play hard-to-get, i knew she felt the same. we became inseparable, then official. still are.
 
 ## insulation
 
@@ -204,15 +202,15 @@ am i hopelessly in love? definitely.
 
 her parents kept asking when we'd get married.
 
-but they should have been asking if she was pregnant. oops.
+but they should have been asking if she was pregnant.
 
-her skin tinged yellow from some combination of hormones; her appetite impossible to satiate without an entire jar of dill pickles; and, eventually, not even her oversized hoodies could hide the cuteness of that little bump.
+her skin tinged yellow from some combination of hormones; her appetite impossible to satiate without an entire jar of Brooklyn-made dill pickles; and, eventually, not even her oversized hoodies could hide the cuteness of that little bump.
 
 we didn't tell them until it was impossible to hide it, and they were devastated she was too fearful to tell them sooner.
 
 even though it was no question that she was my person for always, Deana started to joke about our unborn kid taking her last name since she was doing all the work.
 
-immediately after scraping together enough extra cash to stroll into the mall and snag a perfect Alex + Ani ring, i proposed in the car in rush hour traffic. soo romantic. we had a Quaker wedding on a grass covered rooftop in the city of Philadelphia a month before Phoenix was born.
+immediately after scraping together enough extra cash to stroll into the mall and snag a perfect Alex + Ani ring, i proposed in the car in rush hour traffic. she said yes anyway. we had a Quaker wedding on a grass covered rooftop in the city of Philadelphia a month before Phoenix was born.
 
 us, her parents, and a dog they didn't approve of but tolerated, all under one roof.
 
@@ -222,23 +220,23 @@ less time out, more time home. Deana went back to work after three months — on
 
 she wanted to breastfeed but pumping during shifts is harder than it should be. the stress mounts when you're the breadwinner, and eventually the supply dries up.
 
-i had built big routines around my art and that community in Trenton but presence pulled me into the orbit of an atomic family unit. like trying to mix weed oil and water, i was already feeling the separation.
+i had built big routines around my art and that community in Trenton. but being a dad pulled me into a smaller orbit. the two lives didn't share a clock.
 
 even if it was far from stable and even further from ideal, it was our life.
 
 **then Benny relapsed.**
 
-he’d given me all the leeway to become a dad, hooked me up with easy money. but secretly he was struggling. i only saw him a few times after Phoenix was born. i remember going to his house and he didn’t need to tell me — it was obvious. he was a shell of the person who had become my best friend, though underneath his struggle i could still see him.
+he’d given me all the leeway to become a dad, hooked me up with easy money. but secretly he was struggling. i only saw him a few times after Phoenix was born. i remember going to his house and he didn’t need to tell me — it was obvious.
 
 he was gone five months into me being a dad.
 
-when i found out he died, it was unexpected but not surprising. i had lost a friend, a business partner, a role model, the godfather to my kid.
+when i found out he died, it was unexpected but not surprising.
 
-he didn’t have much family, and those who showed up weren't familiar with the person i knew. they knew the addict.
+he didn’t have much family, and those who showed up weren't familiar with the person i knew — the godfather to my kid. they only knew the addict.
 
 our business relationship allowed me to claim an inheritance of art and instruments. importantly, i got the Taylor acoustic guitars that he would offer every open mic so that those without the means could jam on a fancy guitar. his legacy came to me.
 
-whatever balance i thought i had dropped out from under me.
+## hollow leg
 
 i went back to work at the same bar, but it wasn’t the same place.
 
@@ -246,9 +244,9 @@ same walls, same stage, same songs.
 
 _but hollow._
 
-writing music felt contrived. like i was poorly imitating myself in a different dimension.
+writing music felt contrived. like i was poorly imitating myself.
 
-this wasn’t just my loss. really, everyone who knew him was his friend. Deana especially. but we had each other. and we had Phoenix. that didn’t really fix anything, though it meant i couldn’t just shrink into obscurity. everything got tight. time, money, attention — all of it compressed. we had enough to survive but not enough to breathe.
+everything got tight. time, money, attention — all of it compressed. we had enough to survive but not enough to breathe.
 
 <!-- anything-but-analog -->
 
@@ -260,13 +258,9 @@ over the years i've had a hard time placing what exactly led me to code. i imagi
 
 in 2017, before we were parents, Deana got me tickets to see the Gorillaz at Penns Landing. truly, she always knew what i wanted before i did. it was an outdoor venue on one of those days where the sky explained in plain english that you were gonna get wet. it did nothing to stop the swell of humanz into Festival Pier.
 
-from the first sound check, to Vince Staples opening the show, to Damon Albarn bellowing megaphonic haunts in every direction, good vibes crushed the crowd into a mass of meat sacks, puppeteered in lock step to the beat. the sights slowed my cognition as a graphic onslaught cut a fresh core memory.
+from the first sound check, to Vince Staples opening the show, to Damon Albarn bellowing megaphonic haunts in every direction, good vibes crushed the crowd into a mass of meat sacks, puppeteered in lock step to the beat. behind the sound was a wall of sights. a graphic onslaught that made the music corporeal enough to punch me in between my ears.
 
-i offered no resistence as the music moved me into quantum space time.
-
-more importantly, i realized that while sounds are beautiful, when paired with visuals, **they become religious**.
-
-that experience left me yearning for my own taste of the divine.
+i left that pier hungry for the power i had just witnessed.
 
 so i scoured the internet and happened upon [Processing](https://processing.org). immediately began trying to make pixels dance across the screen. then, i needed to show anyone else the birth of my digital monstrosity but had no idea how to share a computer screen with the world wide web.
 
@@ -274,7 +268,7 @@ that curiosity turned into a rabbit hole.
 
 **i committed hard.**
 
-5am every day before the house was up. tutorials, docs, forums, braving the toxic cesspool of reddit threads where i found a mentor, a senior designer/engineer, who helped me see that all of my efforts were in good spirit but poor form. my shitty portfolio, resume, skillset, all burned so that i could grow back stronger through the ashes. i asked for all the pain he could supply.
+5am every day before the house was up. tutorials, docs, forums, braving the toxic cesspool of reddit threads where i found a mentor, a senior designer/engineer, who helped me see that all of my efforts were in good spirit but poor form. my shitty portfolio, resume, skillset — he tore it apart. i rebuilt. he tore it apart again.
 
 but the mornings weren't enough. so i walked. four hours a day, every day, rain or shine, pushing a stroller and listening to podcasts. it was the only way i could absorb anything while responsibility was awake. i wore holes in the bottoms of my flip flops.
 
@@ -288,13 +282,11 @@ we were finally free to live our own lives.
 
 and make our own luck.
 
-i had my first interview in the hospital on the day Juniper was born.
+i had my first interview in the hospital on the day Juniper was born. i bombed it.
 
-i failed miserably.
+and kept bombing — hundreds of applications, dozens of interviews. but at that point, sunk costs kept me afloat.
 
-and continued to do so — hundreds of applications, dozens of bombed interviews. but at that point, sunk costs kept me afloat.
-
-chatting with Isaac, the director of tech at Rhone, was different. a nerd in the best way, his laugh was infectious. the brutal conversations that had come before this one — easy to forget.
+chatting with Isaac, the director of tech at Rhone, was different. i liked him immediately. the brutal conversations that had come before this one — easy to forget.
 
 i remember getting through the tech assessment, meeting the team, and being asked by Sally, the director of ecom, if i was comfortable with a senior role — the first time i had an inclination the role required it.
 
@@ -308,9 +300,7 @@ then Juniper turned one and i started. making way more money than i felt i deser
 
 day one: they asked me to decrypt a 30,000-person email list. i had no idea how. barely knew what encryption meant in this context. when i finally figured it out, wrote some code, and solved my first real-world problem i might have cried.
 
-i said yes to everything after that, especially the things i didn't know how to do. same thing i was learning at home with the kids --
-
-**you just get comfortable being uncomfortable.**
+i said yes to everything after that, especially the things i didn't know how to do. same thing i was learning at home with the kids.
 
 after three weeks of employment, i convinced Deana to quit her job. since she was 14, working was her identity. her only form of freedom. until it wasn't.
 
@@ -318,15 +308,11 @@ we reorganized within our tiny apartment. new routine, new roles, new opportunit
 
 when Azalea was on the way, i started reading. a lot. forty books my first year. personal development, masculinity, responsibility, wealth. the kind of stuff i probably needed years earlier but wasn't ready for.
 
-considering the source of my new prosperity in coding, one idea stuck: money is technology. it's energy. if you treat it like a friend, it acts like one. if you walk around saying your "friend" is the root of all evil, your homie will desert you.
-
-finally started to understand that **perspective shapes reality**.
-
 i grew up with a lot of love, but not a lot of extravagance. the first time i took Deana out to a nice dinner, i felt guilty. like i didn't deserve it. like it somehow betrayed where i came from.
 
-but then i noticed the other side. i could hand a five to someone at a stoplight without blinking. and i remembered Benny — who gave away damn near everything he made and received it all back tenfold.
+but then i noticed the other side. i could hand a five to someone at a stoplight without blinking. and i remembered Benny — who gave away damn near everything he made.
 
-**money isn't the thing. it's what lets you not think about the thing, so you can think about everything else.**
+## scale
 
 Azalea was born while i was still at Rhone. before she was two months old, i was poached by Austin's own Made In Cookware.
 
@@ -360,27 +346,25 @@ i watched my growing family breathe into this place and relax, Deana and me retu
 
 we'd been trying for a fourth. we _knew_ the night it happened.
 
-the next morning, Deana got a call that her friend just had her baby. during that call, my mom and sister called me to let me know my Dad had died.
+the next morning, Deana got a call that her friend just had her baby. while they celebrated, my mom and sister called.
 
-**life is a circle**, sometimes a fucked up one.
+i took it in another room.
 
-but it was time for us to come back to Pennsylvania.
+they let me know my Dad had died.
+
+we came back to Pennsylvania.
 
 Orion was written in stars, our first boy on the way.
 
-we made our time matter. we hosted our family often and cherished the connection we previously took for granted. we went out of our way to hunt down new friends and we found them. but home didn't feel like home anymore and we knew we needed something different. to continue our adventure.
+we made our time matter. we hosted our family often and cherished the connection we previously took for granted. we went out of our way to hunt down forever friends and we found them. but home didn't feel like home anymore and we knew we needed something different. to continue our adventure.
 
 so we moved to Austin.
 
-![DISSONANCE|black|right](/assets/dissonance.png)
+![CHEAT CODE|black|right](/assets/dissonance.png)
 
 we had our yearly onsite in January. i attempted the in office visit without letting my company know that i'd moved. when i did my civic duty and updated my address to the beautifully tax-free state of Texas, i learned that moving is actually a big enough deal to trigger notifications.
 
 ![Chip Malt — nice new address](/assets/chip-malt-new-address.png)
-
-🙄
-
-no surprises.
 
 anyways, proximity led to new opportunities. we had a lunch and learn at work. some guy who'd evolved his whole consulting firm to leverage AI.
 
@@ -402,7 +386,7 @@ fine.
 
 so i started letting go of the code. not the thinking — the grip.
 
-less writing every line. more shaping what came out. it felt wrong at first. like i was cheating on something i'd earned the hard way.
+less writing every line. more shaping what came out. it felt wrong at first.
 
 i remember the first real moment my brain broke was when i caught myself talking to our data. out loud. like it was a person.
 
@@ -424,6 +408,4 @@ i don't know what's next exactly.
 
 i know it's less about doing everything myself. more about being useful to the people around me. not in a self-help way. in a practical way — someone has an idea, i can help them get it out of their head and into the world.
 
-i'm still figuring that out. but i've been here before. the part where you can't see the shape yet but you know you're supposed to be walking toward it.
-
-so that's what i'm doing.
+i'm still figuring that out. but i've been here before.
