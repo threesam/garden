@@ -1,8 +1,6 @@
 i grew up in Trenton, New Jersey.
 
-not in a romantic way. just in it. my parents got a fixer upper in a nice area. it was near a nursing home which made it feel safe. near my grandparents, which made things feel comfortable. while we didn't intend to stay, life had other plans.
-
-always heard you're supposed to stay present, but you can't recognize a dying city living moment to moment. it happens slow. and i lived mostly inside my house so i hardly noticed.
+not in a romantic way. just in it. my parents got a fixer upper in a nice area. it was near a nursing home which made it feel safe. near my grandparents, which made things feel comfortable. we didn't plan to stay but we didn't plan well enough to leave.
 
 i was in public school there until 5th grade. 6th grade represented move up to an infamous junior high. my mom believed i needed to have a more enriched experience, a real challenge, so she got me interview ready and into Princeton Day.
 
@@ -62,7 +60,7 @@ i remember just watching. trying to understand how it worked.
 
 **then i met Benny.**
 
-within seconds, it was obvious he was one of the most immediately magnetic people on the planet. no hesitation, no filtering. just fully himself. a cosmically talented musician who could pick up anything immediately by ear, with just about any instrument, and riff -- always in service of the song, never himself.
+he was the reason the room felt like it did. no hesitation, no filtering. just fully himself. he could pick up any instrument by ear and riff — always in service of the song, never himself.
 
 the open mic was his. he ran it with this philosophy — the list is sacred. you sign up, you get to play -- not that he didn't effortlessly shuffle things around to keep the show tight for the room. you had to try _really_ hard to get turned away.
 
@@ -139,8 +137,6 @@ one morning, it was beyond frigid in Philly and the windows were bleeding the li
 and apparently her parents accepted mine, when Deana's mom insisted i sleep in the bed. even though i would come back from the bar at 2am smelling like some combination of bleach, alcohol, and stale second-hand cigarillos not once did either of them ever ask me to leave.
 
 though, did we really want to stay?
-
-reality provided clever routes of escape.
 
 ## the comedown
 
@@ -338,7 +334,7 @@ a month at a time in different cities — the Blue Ridge Mountains of Asheville,
 
 then we drove up the Coastal Highway of California to Portland, Oregon.
 
-there's something enchanted about the Pacific Northwest. Redwoods feel impossibly large and ancient, ecological diversity slaps you in the face everywhere you turn, the beach is viscerally felt with boulders the size of buildings jutting just beyond the break and bonfires stretching along the entirety of the shoreline, each housing a unique configuration of conversation.
+there's something about the Pacific Northwest. the redwoods, impossibly large, ancient. boulders the size of buildings burst just beyond the break. bonfires stretched along the shoreline, each generating its own gravity. every fire had its own conversation.
 
 we had many facetimes back home, showing off the new planet we were exploring, and made plans to see Deana's very pregnant friend a few hours north in Washington.
 
@@ -408,6 +404,6 @@ it reminded me of that room behind the velvet curtain. you don't have to play ev
 
 i don't know what's next exactly.
 
-i know it's less about doing everything myself. more about being useful to the people around me. not in a self-help way. in a practical way — someone has an idea, i can help them get it out of their head and into the world.
+i know it's less about doing everything myself. more about being useful to the people around me. when someone has an idea, i help them get it out of their head and into the world.
 
 i'm still figuring that out. but i've been here before.
