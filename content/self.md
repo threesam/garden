@@ -24,6 +24,8 @@ i started playing. pretty quickly, it turned into writing.
 
 that part came quite naturally. it gave me a way to say things i wasn't too keen on saying to anyone, let alone myself. before that, i don't think i was really expressing much at all. now, everything had somewhere to go.
 
+## piece of paper
+
 after Princeton Day, Rider U -- the only college that offered my broke ass a full scholarship.
 
 loved learning about all of everything -- art, biology, ethics -- but was told my grants would evaporate if i didn't pick a lane my junior year.
