@@ -112,7 +112,7 @@ the conversation was effortless, we all got to know each other. but i couldn't s
 
 even though our first time out was a subtle interrogation, i felt comfortable enough to handle the ambush and they felt comfortable enough to come back to Benny's basement studio after we closed down the bar — they listened to us sing songs into the night. a good group. but the time i had in her presence that night was not nearly enough. not the type to play hard-to-get, i knew she felt the same. we became inseparable, then official. still are.
 
-## insulation
+## packing tape
 
 i remember the first time i met Deana's dad.
 
@@ -134,9 +134,9 @@ tired of the back and forth between my house and hers, she asked me to move in. 
 
 then we drove to Maryland to pick up a rambunctious, miniature Bernadoodle — black and white with beige patches. Koda ended up being anything but miniature. also, Deana's parents hated dogs. i was not overly enthused if i'm being honest. this goofy little bastard was stealing my spotlight.
 
-one morning, it was beyond frigid in Philly and the windows were bleeding the little warmth i had on the floor. after using Koda as my personal space heater, i accepted his place in my life.
+one morning, it was beyond frigid in Philly and the windows — insulated with packing tape — were bleeding out the little warmth i had left on the floor. after using Koda as my personal space heater, i accepted his place in my life.
 
-and apparently her parents accepted mine, when Deana's mom, Nina, insisted i sleep in the bed. even though i would come back from the bar at 2am smelling like some combination of bleach, alcohol, and stale second-hand cigarillos, not once did either of them ever ask me to leave.
+and apparently her parents accepted mine, when Deana's mom, Nina, insisted i sleep under the covers. even though i would come back from the bar at 2am smelling like some combination of bleach, alcohol, and stale second-hand cigarillos, not once did either of them ever ask me to leave.
 
 though, did we really want to stay?
 
@@ -312,7 +312,7 @@ i grew up with a lot of love, but not a lot of extravagance. the first time i to
 
 but then i noticed the other side. i could hand a five to someone at a stoplight without blinking. and i remembered Benny — who gave away damn near everything he made.
 
-## scale
+## scale or fail
 
 Azalea was born while i was still at Rhone. before she was two months old, i was poached by Austin's own Made In Cookware.
 
@@ -328,7 +328,7 @@ i needed to understand every layer. every decision. if something broke, i wanted
 
 but there was a big world outside of my little corner of remote work, and i wanted to explore it.
 
-![ADVENTURE|white|right](/assets/adventure.png)
+![NOMAD|white|right](/assets/adventure.png)
 
 so we started traveling because we could. our families were sad to see us go but, for the most part, cheering us on toward adventure.
 
