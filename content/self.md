@@ -38,7 +38,7 @@ climbed my way up to a Brookstone sales manager, where, for a time, i was slingi
 
 the irony of my store being shut down was that we may have been the only location to crush every sales goal they put in front of us.
 
-luckily, i got some severance and after the unemployment hit my bank account i used it all to buy equipment to start recording music. the parents were saints for putting up with my "dreams."
+luckily, i got some severance. after the unemployment hit my bank account, i used it all to buy equipment to start recording music. the parents were saints for putting up with my "dreams."
 
 i was looking for beta-testers in my beat laboratory. ended up chatting with my college bud, Valerie, who instead of taking me up on my offer, invited me to an open mic. in Trenton, of all places.
 
@@ -256,7 +256,7 @@ if i stayed on that path, we'd always be under pressure.
 
 i needed a new obsession. one that didn't depend on being in a room at 1am.
 
-over the years i've had a hard time placing what exactly led me to code. i imagine there were many subtle nudges but one stands out.
+over the years i've had a hard time placing what led me to code. but one moment stands out.
 
 in 2017, before we were parents, Deana got me tickets to see the Gorillaz at Penns Landing. truly, she always knew what i wanted before i did. it was an outdoor venue on one of those days where the sky explained in plain English that you were gonna get wet. it did nothing to stop the swell of humanz into Festival Pier.
 
@@ -377,6 +377,8 @@ anyway, proximity led to new opportunities. we had a lunch and learn at work. so
 his demo was about as casual as the breakfast tacos strewn about the conference table. he was just sitting there, switching between tools, prompting, generating, iterating. not even thinking that hard about it.
 
 it was fast. loose. and it worked.
+
+_you can do that?_
 
 i felt friction watching it.
 
