@@ -29,6 +29,9 @@ const FRAGMENT_SHADER = `
   uniform vec2 uCell2;
   uniform vec2 uCell3;
   uniform float uScale;
+  uniform sampler2D uImage;
+  uniform float uHasImage;
+  uniform float uImageAspect;
 
   varying vec2 vUv;
 
@@ -145,10 +148,28 @@ const FRAGMENT_SHADER = `
     float spec = pow(max(0.0, 1.0 - f1 * 3.0), 6.0);
     float fresnel = pow(1.0 - edge, 2.0);
 
-    vec3 base = mix(shadow, silver, edge);
-    base = mix(base, highlight, envReflect * 0.4);
-    base += spec * highlight * 0.5;
-    base += fresnel * silver * 0.2;
+    // Image sampling at fragment position (contain fit — preserve full image)
+    vec2 canvasUv = vUv;
+    vec2 texUv = canvasUv;
+    if (uImageAspect > aspect) {
+      texUv.y = (canvasUv.y - 0.5) * (uImageAspect / aspect) + 0.5;
+    } else {
+      texUv.x = (canvasUv.x - 0.5) * (aspect / uImageAspect) + 0.5;
+    }
+    bool insideImage = uHasImage > 0.5
+                       && texUv.x >= 0.0 && texUv.x <= 1.0
+                       && texUv.y >= 0.0 && texUv.y <= 1.0;
+
+    vec3 base;
+    if (insideImage) {
+      vec3 imgColor = texture2D(uImage, texUv).rgb;
+      base = imgColor;
+    } else {
+      base = mix(shadow, silver, edge);
+      base = mix(base, highlight, envReflect * 0.4);
+      base += spec * highlight * 0.5;
+      base += fresnel * silver * 0.2;
+    }
 
     // Cell strokes
     float edgeLine = 1.0 - smoothstep(0.04, 0.06, f2 - f1);
@@ -257,6 +278,7 @@ function findLetterCells(aspect: number, letterCount: number, scale: number) {
 interface VoronoiCanvasProps {
   invert?: boolean;
   showLetters?: boolean;
+  imageSrc?: string;
 }
 
 function parseHex(hex: string) {
@@ -267,7 +289,7 @@ function parseHex(hex: string) {
   ];
 }
 
-export function VoronoiCanvas({ invert = false, showLetters = true }: VoronoiCanvasProps) {
+export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc }: VoronoiCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -332,10 +354,49 @@ export function VoronoiCanvas({ invert = false, showLetters = true }: VoronoiCan
     const uCell2 = gl.getUniformLocation(program, "uCell2");
     const uCell3 = gl.getUniformLocation(program, "uCell3");
     const uScale = gl.getUniformLocation(program, "uScale");
+    const uImage = gl.getUniformLocation(program, "uImage");
+    const uHasImage = gl.getUniformLocation(program, "uHasImage");
+    const uImageAspect = gl.getUniformLocation(program, "uImageAspect");
 
     gl.uniform1f(uInvert, invert ? 1.0 : 0.0);
     gl.uniform3fv(uTopColor, topColor);
     gl.uniform3fv(uBotColor, botColor);
+    gl.uniform1i(uImage, 0);
+    gl.uniform1f(uHasImage, 0.0);
+    gl.uniform1f(uImageAspect, 1.0);
+
+    let needsRender = true;
+    let texture: WebGLTexture | null = null;
+    if (imageSrc) {
+      texture = gl.createTexture();
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.texImage2D(
+        gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0,
+        gl.RGBA, gl.UNSIGNED_BYTE,
+        new Uint8Array([0, 0, 0, 0]),
+      );
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        gl!.activeTexture(gl!.TEXTURE0);
+        gl!.bindTexture(gl!.TEXTURE_2D, texture);
+        gl!.pixelStorei(gl!.UNPACK_FLIP_Y_WEBGL, true);
+        gl!.texImage2D(
+          gl!.TEXTURE_2D, 0, gl!.RGBA,
+          gl!.RGBA, gl!.UNSIGNED_BYTE, img,
+        );
+        gl!.uniform1f(uImageAspect, img.width / img.height);
+        gl!.uniform1f(uHasImage, 1.0);
+        needsRender = true;
+      };
+      img.src = imageSrc;
+    }
 
     function updateMouseUv(e: MouseEvent | Touch) {
       const rect = canvas!.getBoundingClientRect();
@@ -365,8 +426,6 @@ export function VoronoiCanvas({ invert = false, showLetters = true }: VoronoiCan
     canvas.addEventListener("touchstart", onTouchStart, { passive: true });
     canvas.addEventListener("touchmove", onTouchMove, { passive: true });
     canvas.addEventListener("touchend", onTouchEnd);
-
-    let needsRender = true;
 
     function resize() {
       if (!canvas) return;
@@ -447,8 +506,9 @@ export function VoronoiCanvas({ invert = false, showLetters = true }: VoronoiCan
       gl.deleteShader(vert);
       gl.deleteShader(frag);
       gl.deleteBuffer(buf);
+      if (texture) gl.deleteTexture(texture);
     };
-  }, [invert]);
+  }, [invert, imageSrc]);
 
   return (
     <canvas

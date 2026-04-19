@@ -13,16 +13,23 @@ const HERO_MAP: Record<string, "voronoi" | "cloud"> = {
   self: "voronoi",
 };
 
+const HERO_IMAGE_MAP: Record<string, string> = {
+  self: "/assets/self-hero.png",
+};
+
 export default async function CanvasPage({ params }: Props) {
   const { handle } = await params;
   const markdown = await getContent(handle);
   const heroType = HERO_MAP[handle] ?? "cloud";
+  const heroImage = HERO_IMAGE_MAP[handle];
 
   return (
     <>
-      <div className="relative h-[50dvh] w-full overflow-hidden">
+      <div
+        className={`relative w-full overflow-hidden ${heroImage ? "aspect-[2576/1449]" : "h-[50dvh]"}`}
+      >
         {heroType === "voronoi" ? (
-          <VoronoiCanvas invert />
+          <VoronoiCanvas invert imageSrc={heroImage} />
         ) : (
           <CloudCanvas invert />
         )}
