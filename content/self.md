@@ -4,7 +4,7 @@ not in a romantic way. just in it. my parents got a fixer upper in a nice area. 
 
 i was in public school there until 5th grade. 6th grade was the move up to an infamous junior high. my mom believed i needed to have a more enriched experience, a real challenge, so she got me interview ready and into Princeton Day.
 
-i remember sitting with my dad every morning waiting for the bus to come pick me up. once onboard, the Trenton crew would drift alongside industrial warehouses--long decommissioned with barely any windows still intact--and step-change to lush, preserved, and seemingly enchanted forest, manicured lawns, amphitheaters, and a fucking hockey rink. each day i would return to the hood that raised me.
+i remember sitting with my dad every morning waiting for the bus to come pick me up. once onboard, the Trenton crew would drift alongside industrial warehouses — long decommissioned with barely any windows still intact — and step-change to lush, preserved, and seemingly enchanted forest, manicured lawns, amphitheaters, and a fucking hockey rink. each day i would return to the hood that raised me.
 
 culture shock, sure. but impermanent.
 
@@ -24,9 +24,9 @@ that part came quite naturally. it gave me a way to say things i wasn't too keen
 
 ## piece of paper
 
-after Princeton Day, Rider U -- the only college that offered my broke ass a full scholarship.
+after Princeton Day, Rider U — the only college that offered my broke ass a full scholarship.
 
-loved learning about all of everything -- art, biology, ethics -- but was told my grants would evaporate if i didn't pick a lane my junior year.
+loved learning about all of everything — art, biology, ethics — but was told my grants would evaporate if i didn't pick a lane my junior year.
 
 so i studied political science and global studies.
 
@@ -46,7 +46,7 @@ i almost didn't go.
 
 i'd spent a lot of time trying to get away from Trenton. i'd seen enough dead bodies killed by drugs and/or bullets to feel like it wasn't a place where anything positive could happen.
 
-but Valerie -- who couldn't have weighed more than 90 pounds -- was so thrilled to go to this place she even offered me a ride.
+but Valerie — who couldn't have weighed more than 90 pounds — was so thrilled to go to this place she even offered me a ride.
 
 so i went.
 
@@ -72,13 +72,13 @@ i was hooked after that. it didn't take long for Benny and me to buddy up and ru
 
 it cost more than we were paid to do it. but there were other ways for the Trenton Social to pay the bills.
 
-i started washing dishes, then waiting tables, then figuring out how to balance the endless chatter of drunken government employees with the infinite pour of long islands while tending bar -- not really a challenge because i was never alone.
+i started washing dishes, then waiting tables, then figuring out how to balance the endless chatter of drunken government employees with the infinite pour of long islands while tending bar — not really a challenge because i was never alone.
 
 every night after our shift at the bar, we'd go back to Benny's corner brickhouse in a weirdly beautiful part of town, smoke a joint, and talk for hours.
 
 usually about the dumb shit people do at a bar.
 
-but often Benny would tell me an insane, terrifying, hilarious story from his days as an addict. the next day a story equally as insane -- the man lived more lives than seemed possible at 40. far from random, his stories would fall somewhere between standup and a pressure valve for life's curveballs.
+but often Benny would tell me an insane, terrifying, hilarious story from his days as an addict. the next day a story equally as insane — the man lived more lives than seemed possible at 40. far from random, his stories would fall somewhere between standup and a pressure valve for life's curveballs.
 
 those nights became the ritual.
 
@@ -110,7 +110,7 @@ i was bartending and Deana brought two emotional-support friends, Alena and Tayl
 
 the conversation was effortless, we all got to know each other. but i couldn't stop watching her. i wanted to lounge on the curve of her cheek bones, and let her stare freeze me in place.
 
-even though our first time out was a subtle interrogation, i felt comfortable enough to handle the ambush and they felt comfortable enough to come back to Benny's basement studio after we closed down the bar -- they listened to us sing songs into the night. a good group. but the time i had in her presence that night was not nearly enough. not the type to play hard-to-get, i knew she felt the same. we became inseparable, then official. still are.
+even though our first time out was a subtle interrogation, i felt comfortable enough to handle the ambush and they felt comfortable enough to come back to Benny's basement studio after we closed down the bar — they listened to us sing songs into the night. a good group. but the time i had in her presence that night was not nearly enough. not the type to play hard-to-get, i knew she felt the same. we became inseparable, then official. still are.
 
 ## insulation
 
@@ -136,7 +136,7 @@ then we drove to Maryland to pick up a rambunctious, miniature Bernadoodle — b
 
 one morning, it was beyond frigid in Philly and the windows were bleeding the little warmth i had on the floor. after using Koda as my personal space heater, i accepted his place in my life.
 
-and apparently her parents accepted mine, when Deana's mom insisted i sleep in the bed. even though i would come back from the bar at 2am smelling like some combination of bleach, alcohol, and stale second-hand cigarillos, not once did either of them ever ask me to leave.
+and apparently her parents accepted mine, when Deana's mom, Nina, insisted i sleep in the bed. even though i would come back from the bar at 2am smelling like some combination of bleach, alcohol, and stale second-hand cigarillos, not once did either of them ever ask me to leave.
 
 though, did we really want to stay?
 
@@ -152,7 +152,7 @@ ok.
 
 this launched me into what must have felt like a speech i had meticulously planned for such an occasion.
 
-i explained that while shrooms are probably safe, i'd only ever consider using them much later in life, maybe in a decade, maybe, after i have a steady career, success, a family. after i'd already hit all the milestones.
+i explained that while shrooms are probably safe, i'd only ever consider using them much later in life, in a decade, maybe, after i have a steady career, success, a family. after i'd already hit all the milestones.
 
 Benny side-eyed me, said "sure man" and i never gave it a thought again.
 
@@ -172,7 +172,7 @@ when the sun set, we portioned out 4 servings of the dried fungi and ate with br
 
 nearly an hour in and the individual frames of our vision began to trail, color became more vivid, and the world was somehow more real.
 
-we stepped out onto the beach and felt the billion year old starlight ripping through our faces.
+we stepped out onto the beach and felt the billion-year-old starlight ripping through our faces.
 
 the warm sand, the salty air misting from the waves — the cops patrolling the beach after curfew.
 
@@ -204,13 +204,13 @@ her parents kept asking when we'd get married.
 
 but they should have been asking if she was pregnant.
 
-her skin tinged yellow from some combination of hormones; her appetite impossible to satiate without an entire jar of Brooklyn-made dill pickles; and, eventually, not even her oversized hoodies could hide the cuteness of that little bump.
+her skin tinged yellow from some combination of hormones; her appetite impossible to satiate without an entire jar of Brooklyn-made dill pickles; and, eventually, not even her oversized hoodies could hide that cute little bump.
 
 we didn't tell them until it was impossible to hide it, and they were devastated she was too fearful to tell them sooner.
 
 even though it was no question that she was my person for always, Deana started to joke about our unborn kid taking her last name since she was doing all the work.
 
-immediately after scraping together enough extra cash to stroll into the mall and snag a perfect Alex + Ani ring, i proposed in the car in rush hour traffic. she said yes anyway. we had a Quaker wedding on a grass covered rooftop in the city of Philadelphia a month before Phoenix was born.
+immediately after scraping together enough extra cash to stroll into the mall and snag a perfect Alex + Ani ring, i proposed in the car in rush hour traffic. she said yes anyway. we had a Quaker wedding on a grass-covered rooftop in the city of Philadelphia a month before Phoenix was born.
 
 us, her parents, and a dog they didn't approve of but tolerated, all under one roof.
 
@@ -226,13 +226,13 @@ even if it was far from stable and even further from ideal, it was our life.
 
 **then Benny relapsed.**
 
-he’d given me all the leeway to become a dad, hooked me up with easy money. but secretly he was struggling. i only saw him a few times after Phoenix was born. i remember going to his house and he didn’t need to tell me — it was obvious.
+he'd given me all the leeway to become a dad, hooked me up with easy money. but secretly he was struggling. i only saw him a few times after Phoenix was born. i remember going to his house and he didn't need to tell me — it was obvious.
 
 he was gone five months into me being a dad.
 
 when i found out he died, it was unexpected but not surprising.
 
-he didn’t have much family, and those who showed up weren't familiar with the person i knew — the godfather to my kid. they only knew the addict.
+he didn't have much family, and those who showed up weren't familiar with the person i knew — the godfather to my kid. they only knew the addict.
 
 our business relationship allowed me to claim an inheritance of art and instruments. importantly, i got the Taylor acoustic guitars that he would offer every open mic so that those without the means could jam on a fancy guitar. his legacy came to me.
 
@@ -254,7 +254,7 @@ i needed a new obsession. one that didn't depend on being in a room at 1am.
 
 over the years i've had a hard time placing what exactly led me to code. i imagine there were many subtle nudges but one stands out.
 
-in 2017, before we were parents, Deana got me tickets to see the Gorillaz at Penns Landing. truly, she always knew what i wanted before i did. it was an outdoor venue on one of those days where the sky explained in plain english that you were gonna get wet. it did nothing to stop the swell of humanz into Festival Pier.
+in 2017, before we were parents, Deana got me tickets to see the Gorillaz at Penns Landing. truly, she always knew what i wanted before i did. it was an outdoor venue on one of those days where the sky explained in plain English that you were gonna get wet. it did nothing to stop the swell of humanz into Festival Pier.
 
 from the first sound check, to Vince Staples opening the show, to Damon Albarn bellowing megaphonic haunts in every direction, good vibes crushed the crowd into a mass of meat sacks, puppeteered in lock step to the beat. behind the sound was a wall of sights. a graphic onslaught that made the music corporeal enough to punch me in between my ears.
 
@@ -298,7 +298,7 @@ then Juniper turned one and i started my first job. making way more money than i
 
 ## foundation
 
-day one: they asked me to decrypt a 30,000-person email list. i had no idea how. barely knew what encryption meant in this context. when i finally figured it out, wrote some code, and solved my first real-world problem i might have cried.
+day one: they asked me to decrypt a 30,000-person email list. i had no idea how. barely knew what encryption meant in this context. when i finally figured it out, wrote some code, and solved my first real-world problem — i might have cried.
 
 i said yes to everything after that, especially the things i didn't know how to do. same thing i was learning at home with the kids.
 
@@ -318,7 +318,7 @@ Azalea was born while i was still at Rhone. before she was two months old, i was
 
 i went from selling pants to selling pans.
 
-Dan, the lead engineer there, was self-taught like me and brilliant. after one conversation, offered me the job, no technical assessment. risky for them but i made sure it wasn't a mistake. i learned twice as fast watching him work and my confidence grew.
+Dan, the lead engineer there, was self-taught like me and brilliant. after one conversation, the job was mine, no technical assessment. risky for them but i made sure it wasn't a mistake. i learned twice as fast watching him work and my confidence grew.
 
 but Dan eventually left and i spent an entire year proving i could lead before they officially let me.
 
@@ -362,7 +362,7 @@ so we moved to Austin.
 
 ![CHEAT CODE|black|right](/assets/dissonance.png)
 
-we had our yearly onsite in January. i attempted the in office visit without letting my company know that i'd moved. when i did my civic duty and updated my address to the beautifully tax-free state of Texas, i learned that moving is actually a big enough deal to trigger notifications.
+we had our yearly onsite in January. i attempted the in-office visit without letting my company know that i'd moved. when i did my civic duty and updated my address to the beautifully tax-free state of Texas, i learned that moving is actually a big enough deal to trigger notifications.
 
 ![Chip Malt — nice new address](/assets/chip-malt-new-address.png)
 
@@ -388,13 +388,13 @@ so i started letting go of the code. not the thinking — the grip.
 
 less writing every line. more shaping what came out. it felt wrong at first.
 
-i remember the first real moment my brain broke was when i caught myself talking to our data. out loud. like it was a person.
+my brain broke the first time i caught myself talking to a terminal. out loud. like it was a person.
 
 we'd lost access to some important dashboards. i sat down, asked the right questions, and rebuilt something better than what we'd had. in about an hour.
 
-am i really talking to data right now?
+am i really chatting up our data right now?
 
-the more i sat with it, the answer was yes. me and the machines were working together.
+the longer i sat with it, the clearer the answer: yes. me and the machines were working together.
 
 after two weeks i realized i'd cleared about a year's worth of nice-to-haves. things i'd always talked about doing someday but never had time for. done. no hit to my current workload.
 
