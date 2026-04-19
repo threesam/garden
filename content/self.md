@@ -34,7 +34,7 @@ felt like history and philosophy at once. systems, incentives, how things are su
 
 so when i graduated summa cum laude, i took my degree and went to work at Quakerbridge Mall. obviously.
 
-climbed my way up to a Brookstone sales manager, where, for a time, i was slinging more personal massagers than anyone else at the company. is this peak success?
+climbed my way up to a Brookstone sales manager. for a time, i was slinging more personal massagers than anyone else at the company. is this peak success?
 
 the irony of my store being shut down was that we may have been the only location to crush every sales goal they put in front of us.
 
@@ -112,7 +112,7 @@ the conversation was effortless, we all got to know each other. but i couldn't s
 
 even though our first time out was a subtle interrogation, i felt comfortable enough to handle the ambush and they felt comfortable enough to come back to Benny's basement studio after we closed down the bar — they listened to us sing songs into the night.
 
-a good group. but the time i had in her presence that night was not nearly enough.
+a good group. but the time i had with her that night was not nearly enough.
 
 not the type to play hard-to-get, i knew she felt the same. we became inseparable, then official. still are.
 
@@ -132,7 +132,7 @@ fun fact about Andrey Savchenko: he's a pastor for a Russian Baptist church, and
 
 me not being Christian or married to his daughter was tense. we didn't speak the same language but i could read the room.
 
-Deana refused. a rebel, she pushed her parents' buttons and liked it.
+Deana refused to care. a rebel, she pushed her parents' buttons and liked it.
 
 tired of the back and forth between my house and hers, she asked me to move in. i was respectful, cooked well, and took out the trash without being asked. i also slept on the floor next to her bed. that helped. but only a little.
 
@@ -168,7 +168,7 @@ this was so out of left field for her that i rolled my eyes at my own hypocrisy 
 
 "sure man"
 
-Deana and i met Benny at a tent-filled meadow festival called Leaperland, where he was providing the entertainment. grills, grunge, and fireworks abound, we hung around long enough to receive some tips for effective use. then we were on our way to the Jersey shore.
+Deana and i met Benny at a tent-filled meadow festival called Leaperland, where he was providing the entertainment. grills, grunge, and fireworks abound — we hung around long enough to receive some tips for effective use. then we were on our way to the Jersey shore.
 
 we met at my friend's house in Beach Haven, 4 of us ready to face the unknown.
 
