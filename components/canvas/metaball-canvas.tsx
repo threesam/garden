@@ -166,6 +166,11 @@ export function MetaballCanvas({
     }
 
     function updatePointer(clientX: number, clientY: number) {
+      // Re-measure on every pointer event: the canvas's parent may translate
+      // (e.g. gallery strip) without firing scroll/resize, invalidating the cache.
+      const rect = canvas!.getBoundingClientRect();
+      rectLeft = rect.left;
+      rectTop = rect.top;
       pointerX = clientX - rectLeft;
       pointerY = clientY - rectTop;
       pointerActive = true;
