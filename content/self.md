@@ -38,7 +38,7 @@ climbed my way up to a Brookstone sales manager, where, for a time, i was slingi
 
 the irony of my store being shut down was that we may have been the only location to crush every sales goal they put in front of us.
 
-luckily, i got some severance and after the unemployment hit my bank account _i used it all_ to buy equipment to start recording music. the parents were saints for putting up with my "dreams."
+luckily, i got some severance and after the unemployment hit my bank account i used it all to buy equipment to start recording music. the parents were saints for putting up with my "dreams."
 
 i was looking for beta-testers in my beat laboratory. ended up chatting with my college bud, Valerie, who instead of taking me up on my offer, invited me to an open mic. in Trenton, of all places.
 
@@ -126,7 +126,7 @@ fun fact about Andrey Savchenko: he's a pastor for a Russian Baptist church, and
 
 me not being Christian and not married to his daughter was tense. we didn't speak the same language. i didn't need to.
 
-Deana, however, was clearly the rebel in our relationship. always finding new buttons to push, she would wear her parents' ire like the latest trend.
+Deana, however, was the rebel. she pushed her parents' buttons and liked it.
 
 for example: tired of the back and forth between my house and hers, she asked me to move in. i was respectful, cooked well, and took out the trash without being asked. i also slept on the floor next to her bed. that helped. but only a little.
 
@@ -172,7 +172,7 @@ nearly an hour in and the individual frames of our vision began to trail, color 
 
 we stepped out onto the beach and felt the billion year old starlight ripping through our faces.
 
-the warm sand, the salty air misting from the waves.. the cops patrolling the beach after curfew.
+the warm sand, the salty air misting from the waves — the cops patrolling the beach after curfew.
 
 even though we were well above the age allowed to roam, nope.
 
@@ -248,7 +248,7 @@ everything got tight. time, money, attention — all of it compressed. we had en
 
 <!-- anything-but-analog -->
 
-it became quickly apparent that if i stayed on that path, we'd always be under pressure.
+if i stayed on that path, we'd always be under pressure.
 
 i needed a new obsession. one that didn't depend on being in a room at 1am.
 
