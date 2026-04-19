@@ -110,7 +110,11 @@ i was bartending and Deana brought two emotional-support friends, Alena and Tayl
 
 the conversation was effortless, we all got to know each other. but i couldn't stop watching her. i wanted to lounge on the curve of her cheek bones, and let her stare freeze me in place.
 
-even though our first time out was a subtle interrogation, i felt comfortable enough to handle the ambush and they felt comfortable enough to come back to Benny's basement studio after we closed down the bar — they listened to us sing songs into the night. a good group. but the time i had in her presence that night was not nearly enough. not the type to play hard-to-get, i knew she felt the same. we became inseparable, then official. still are.
+even though our first time out was a subtle interrogation, i felt comfortable enough to handle the ambush and they felt comfortable enough to come back to Benny's basement studio after we closed down the bar — they listened to us sing songs into the night.
+
+a good group. but the time i had in her presence that night was not nearly enough.
+
+not the type to play hard-to-get, i knew she felt the same. we became inseparable, then official. still are.
 
 ## packing tape
 
@@ -188,11 +192,13 @@ nope.
 
 i left the horrors of that room in search of solitude anywhere else in the house.
 
-Deana found me later and, even though we were experiencing this together for the first time, she showed me my stupidity without making me feel stupid:
+Deana found me later. we curled up in a blanket like children in the womb. the darkness consumed us — until we'd peek out and experience light as multi-colored photons bouncing off of breathing walls.
+
+she was sage enough to show me my stupidity without making me feel stupid:
 
 "don't try and control it, just let it happen."
 
-delivered playfully, her words eased me into a comedown where i felt like i understood myself, my place in the multiverse, here and now, the purpose of love — all with the curiosity of a child and the conviction of a martyr.
+delivered playfully, her words eased me into a comedown where i felt like i understood myself, my place in the universe, here and now, the purpose of love — all with absolute conviction.
 
 am i spiritual now? maybe. call it a work in progress.
 
@@ -208,7 +214,7 @@ her skin tinged yellow from some combination of hormones; her appetite impossibl
 
 we didn't tell them until it was impossible to hide it, and they were devastated she was too fearful to tell them sooner.
 
-even though it was no question that she was my person for always, Deana started to joke about our unborn kid taking her last name since she was doing all the work.
+even though it was no question that she was my person, Deana started to joke about our unborn kid taking her last name since she was doing all the work.
 
 immediately after scraping together enough extra cash to stroll into the mall and snag a perfect Alex + Ani ring, i proposed in the car in rush hour traffic. she said yes anyway. we had a Quaker wedding on a grass-covered rooftop in the city of Philadelphia a month before Phoenix was born.
 
@@ -233,8 +239,6 @@ he was gone five months into me being a dad.
 when i found out he died, it was unexpected but not surprising.
 
 he didn't have much family, and those who showed up weren't familiar with the person i knew — the godfather to my kid. they only knew the addict.
-
-our business relationship allowed me to claim an inheritance of art and instruments. importantly, i got the Taylor acoustic guitars that he would offer every open mic so that those without the means could jam on a fancy guitar. his legacy came to me.
 
 ## hollow leg
 
@@ -290,7 +294,7 @@ and make our own luck.
 
 chatting with Isaac, the director of tech at Rhone, was different. we were supposed to be talking about a job. but we also talked about 3d printers, and lasers, and an app he had built for his buddy's company. i liked him immediately. the brutal conversations that had come before this one — easy to forget.
 
-i remember getting through the tech assessment, meeting the team, and being asked by Sally, the director of ecom, if i was comfortable with a senior role — the first time i had an inclination the role required it.
+i remember getting through the tech assessment, meeting the team, and being asked by Sally, the director of ecom, if i was comfortable with a senior role — the first time i realized the role required it.
 
 regardless of what my imposter syndrome wanted to say, i said yes.
 
@@ -351,6 +355,8 @@ the next morning, Deana got a call that her friend just had her baby. while they
 i took it in another room.
 
 they let me know my Dad had died.
+
+two days before, we were all on facetime at the beach from the Goonies. Dad was watching the kids wade through ankle-deep streams into the salty foam. i didn't know it would be the last time.
 
 we came back to Pennsylvania.
 
