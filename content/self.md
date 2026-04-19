@@ -1,8 +1,10 @@
 i grew up in Trenton, New Jersey.
 
-not in a romantic way. just in it. my parents got a fixer upper in a nice area. it was near a nursing home which made it feel safe. near my grandparents, which made things feel comfortable. we didn't plan to stay but we didn't plan well enough to leave.
+not in a romantic way. just in it. my parents got a fixer upper in nice enough area. it was near a nursing home which made it feel safe. near my grandparents, which made things feel comfortable. while we didn't intend to stay, life had other plans.
 
-i was in public school there until 5th grade. 6th grade was the move up to an infamous junior high. my mom believed i needed to have a more enriched experience, a real challenge, so she got me interview ready and into Princeton Day.
+always heard you're supposed to stay present, but you can't recognize a dying city living moment to moment. it happens slow. and i lived mostly inside my house so i hardly noticed.
+
+i was in public school there until 5th grade. 6th grade represented move up to an infamous junior high. my mom believed i needed to have a more enriched experience, a real challenge, so she got me interview ready and into Princeton Day.
 
 i remember sitting with my dad every morning waiting for the bus to come pick me up. once onboard, the Trenton crew would drift alongside industrial warehouses--long decommissioned with barely any windows still intact--and step-change to lush, preserved, and seemingly enchanted forest, manicured lawns, amphitheaters, and a fucking hockey rink. each day i would return to the hood that raised me.
 
@@ -30,7 +32,7 @@ loved learning about all of everything -- art, biology, ethics -- but was told m
 
 so i studied political science and global studies.
 
-felt like history and philosophy at once. systems, incentives, how things are supposed to work. but the real world was messier than the models.
+felt like a perfect synergy of history and philosophy. systems, incentives, how things are supposed to work. but the real-world version felt messy in a way that didn't match the models.
 
 so when i graduated summa cum laude, i took my degree and went to work at Quakerbridge Mall. obviously.
 
@@ -38,7 +40,7 @@ climbed my way up to a Brookstone sales manager, where, for a time, i was slingi
 
 the irony of my store being shut down was that we may have been the only location to crush every sales goal they put in front of us.
 
-luckily, i got some severance and after the unemployment hit my bank account i used it all to buy equipment to start recording music. the parents were saints for putting up with my "dreams."
+luckily, i got some severance and after the unemployment hit my bank account _i used it all_ to buy equipment to start recording music. the parents were saints for putting up with my "dreams."
 
 i was looking for beta-testers in my beat laboratory. ended up chatting with my college bud, Valerie, who instead of taking me up on my offer, invited me to an open mic. in Trenton, of all places.
 
@@ -60,9 +62,9 @@ i remember just watching. trying to understand how it worked.
 
 **then i met Benny.**
 
-he was the reason the room felt like it did. no hesitation, no filtering. just fully himself. he could pick up any instrument by ear and riff — always in service of the song, never himself.
+within seconds, it was obvious he was one of the most immediately magnetic people on the planet. no hesitation, no filtering. just fully himself. a cosmically talented musician who could pick up anything immediately by ear, with just about any instrument, and riff -- always in service of the song, never himself.
 
-the open mic was his. he ran it with this philosophy — the list is sacred. you sign up, you get to play — though he'd effortlessly shuffle things around to keep the show tight for the room. you had to try _really_ hard to get turned away.
+the open mic was his. he ran it with this philosophy — the list is sacred. you sign up, you get to play -- not that he didn't effortlessly shuffle things around to keep the show tight for the room. you had to try _really_ hard to get turned away.
 
 he talked to every person who walked into the bar, snapped an impossible number of candids and posted the haul online every week. everyone was part of the experience.
 
@@ -70,7 +72,7 @@ i remember the first time i got called up. i knew my way around a stage but the 
 
 i was hooked after that. it didn't take long for Benny and me to buddy up and run the open mic together.
 
-it cost more than we were paid to do it. but there were other ways for the Trenton Social to pay the bills.
+was definitely for the love of the game because it paid next to nothing. but there were other ways for the Trenton Social to pay the bills.
 
 i started washing dishes, then waiting tables, then figuring out how to balance the endless chatter of drunken government employees with the infinite pour of long islands while tending bar -- not really a challenge because i was never alone.
 
@@ -78,7 +80,7 @@ every night after our shift at the bar, we'd go back to Benny's corner brickhous
 
 usually about the dumb shit people do at a bar.
 
-but often Benny would tell me an insane, terrifying, hilarious story from his days as an addict. the next day a story equally as insane -- the man lived more lives than seemed possible at 40. far from random, his stories would fall somewhere between standup and a pressure valve for life's curveballs.
+but often Benny would tell me an insane, terrifying, hilarious story from his days as an addict. the next day a story equally as insane -- the man lived more lives than seemed possible at 40. far from random, his stories would fall somewhere between standup and a pressure valve for the life's curveballs.
 
 those nights became the ritual.
 
@@ -86,7 +88,7 @@ those nights became the ritual.
 
 music, bartending, late nights, building relationships.
 
-the kid who didn't know what to say now wouldn't shut up. talking to women all day, hitting the apps every night.
+finally hitting my stride in a thriving art community, i was holding court — talking to women all day and hitting the apps every night.
 
 but after i started talking to Deana, _i didn't want to talk to anyone else._
 
@@ -124,9 +126,9 @@ fun fact about Andrey Savchenko: he's a pastor for a Russian Baptist church, and
 
 **like the whole fucking continent.**
 
-me not being Christian and not married to his daughter was tense. we didn't speak the same language. i didn't need to.
+me not being Christian and not married to his daughter was...tense. we didn't speak the same language, but i did know how to read a room.
 
-Deana, however, was the rebel. she pushed her parents' buttons and liked it.
+Deana, however, was clearly the rebel in our relationship. always finding new buttons to push, she would wear her parents' ire like the latest trend.
 
 for example: tired of the back and forth between my house and hers, she asked me to move in. i was respectful, cooked well, and took out the trash without being asked. i also slept on the floor next to her bed. that helped. but only a little.
 
@@ -137,6 +139,8 @@ one morning, it was beyond frigid in Philly and the windows were bleeding the li
 and apparently her parents accepted mine, when Deana's mom insisted i sleep in the bed. even though i would come back from the bar at 2am smelling like some combination of bleach, alcohol, and stale second-hand cigarillos not once did either of them ever ask me to leave.
 
 though, did we really want to stay?
+
+reality provided clever routes of escape.
 
 ## the comedown
 
@@ -156,7 +160,7 @@ Benny side-eyed me, said "sure man" and i never gave it a thought again.
 
 until the next morning when Deana woke up and said "i wanna do some drugs"
 
-when i asked what kind, she of course said "mushrooms"
+when i asked what kind, she of course said "mushrooms" :mushroom:
 
 this was so out of left field for her that i rolled my eyes at my own hypocrisy and called Benny to let him know i'd take an eighth.
 
@@ -172,7 +176,7 @@ nearly an hour in and the individual frames of our vision began to trail, color 
 
 we stepped out onto the beach and felt the billion year old starlight ripping through our faces.
 
-the warm sand, the salty air misting from the waves — the cops patrolling the beach after curfew.
+the warm sand, the salty air misting from the waves.. the cops patrolling the beach after curfew.
 
 even though we were well above the age allowed to roam, nope.
 
@@ -190,7 +194,7 @@ Deana found me later and, even though we were experiencing this together for the
 
 "don't try and control it, just let it happen."
 
-delivered playfully, her words eased me into a comedown where i felt like i understood myself, my place in the multiverse, here and now, the purpose of love — all with the curiosity of a child and the conviction of a martyr.
+delivered playfully, her words transitioned me into a comedown where i felt like i understood myself, my place in the multiverse, here and now, the purpose of love -- all with the curiosity of a child and the conviction of a martyr.
 
 am i spiritual now? maybe. call it a work in progress.
 
@@ -248,7 +252,7 @@ everything got tight. time, money, attention — all of it compressed. we had en
 
 <!-- anything-but-analog -->
 
-if i stayed on that path, we'd always be under pressure.
+it became quickly apparent that if i stayed on that path, we'd always be under pressure.
 
 i needed a new obsession. one that didn't depend on being in a room at 1am.
 
@@ -266,11 +270,17 @@ that curiosity turned into a rabbit hole.
 
 **i committed hard.**
 
-5am every day before the house was up. tutorials, docs, forums, braving the cesspool of reddit threads where i found a mentor, a senior designer/engineer, who helped me see that all of my efforts were in good spirit but poor form. my shitty portfolio, resume, skillset — he tore it apart. i rebuilt. he tore it apart again.
+5am every day before the house was up. tutorials, docs, forums, braving the cesspool of reddit threads where i found Danny — a senior designer/engineer out of Colorado who'd been offering to mentor strangers. apparently almost nobody ever took him up on it. i did, for both design and development. he helped me see that all of my efforts were in good spirit but poor form. my shitty portfolio, resume, skillset — he tore it apart. i rebuilt. he tore it apart again.
 
-but the mornings weren't enough. so i walked. four hours a day, every day, rain or shine, pushing a stroller and listening to podcasts. it was the only way i could absorb anything while responsibility was awake. i wore holes in the bottoms of my flip flops.
+but the mornings weren't enough. so i walked. four hours a day, every day, rain or shine, pushing a stroller and listening to podcasts. it was the only way i could absorb anything while responsibility was awake. i wore holes in the bottoms of my flip flops while Deana wore a hazmat suit to work. COVID.
+
+i needed a job.
 
 at some point, we had Juniper. and Deana went through it all again — the same impossible math under the same roof.
+
+i had my first interview in the hospital on the day Juniper was born. over the phone. no zoom, no visual. the guy kept talking about nodes. traversing the node. deleting the node. inserting into the node. i didn't know what a node was. i bombed it.
+
+and kept bombing — hundreds of applications, dozens of interviews. but at that point, sunk costs kept me afloat.
 
 my father-in-law thought i was a "forever student" and, while i refused to agree, he just wanted to know his daughter and grandkids would be taken care of.
 
@@ -280,15 +290,13 @@ we were finally free to live our own lives.
 
 and make our own luck.
 
-i had my first interview in the hospital on the day Juniper was born. i bombed it.
-
-and kept bombing — hundreds of applications, dozens of interviews. but at that point, sunk costs kept me afloat.
-
-chatting with Isaac, the director of tech at Rhone, was different. i liked him immediately. the brutal conversations that had come before this one — easy to forget.
+chatting with Isaac, the director of tech at Rhone, was different. we were supposed to be talking about a job. but we also talked about 3d printers, and lasers, and an app he had built for his buddy's company. i liked him immediately. the brutal conversations that had come before this one — easy to forget.
 
 i remember getting through the tech assessment, meeting the team, and being asked by Sally, the director of ecom, if i was comfortable with a senior role — the first time i had an inclination the role required it.
 
 regardless of what my imposter syndrome wanted to say, i said yes.
+
+a day later i got the call that made all of the work worth it and changed my idea of what life could be.
 
 then Juniper turned one and i started. making way more money than i felt i deserved.
 
@@ -300,7 +308,7 @@ i said yes to everything after that, especially the things i didn't know how to 
 
 after three weeks of employment, i convinced Deana to quit her job. since she was 14, working was her identity. her only form of freedom. until it wasn't.
 
-we reorganized within our tiny apartment. new routine, new roles, new growth.
+we reorganized within our tiny apartment. new routine, new roles, new opportunities, new growth that would not have been possible in our previous constellation.
 
 when Azalea was on the way, i started reading. a lot. forty books my first year. personal development, masculinity, responsibility, wealth. the kind of stuff i probably needed years earlier but wasn't ready for.
 
@@ -326,13 +334,13 @@ but there was a big world outside of my little corner of remote work, and i want
 
 ![ADVENTURE|white|right](/assets/adventure.png)
 
-so we started traveling because we could. our families were sad to see us go but, for the most part, cheering us on toward adventure.
+so we started traveling because we could. our families were sad to see us go but, for the most part, cheering us on at the chance for adventure.
 
 a month at a time in different cities — the Blue Ridge Mountains of Asheville, then Joshua Tree in the middle of summer. while i didn't see family as often, facetime is a thing, and we probably had more deep conversations on the road than in person. i talked to my Dad almost every day.
 
 then we drove up the Coastal Highway of California to Portland, Oregon.
 
-there's something about the Pacific Northwest. the redwoods, impossibly large, ancient. boulders the size of buildings burst just beyond the break. bonfires stretched along the shoreline, each generating its own gravity. every fire had its own conversation.
+there's something enchanted about the Pacific Northwest. Redwoods feel impossibly large and ancient, ecological diversity slaps you in the face everywhere you turn, the beach is viscerally felt with boulders the size of buildings jutting just beyond the break and bonfires stretching along the entirety of the shoreline, each housing a unique configuration of conversation.
 
 we had many facetimes back home, showing off the new planet we were exploring, and made plans to see Deana's very pregnant friend a few hours north in Washington.
 
@@ -352,7 +360,7 @@ we came back to Pennsylvania.
 
 Orion was written in stars, our first boy on the way.
 
-we hosted family often. we made new friends. but Pennsylvania wasn't home anymore, and we weren't done moving.
+we made our time matter. we hosted our family often and cherished the connection we previously took for granted. we went out of our way to hunt down forever friends and we found them. but home didn't feel like home anymore and we knew we needed something different. to continue our adventure.
 
 so we moved to Austin.
 
@@ -362,7 +370,7 @@ we had our yearly onsite in January. i attempted the in office visit without let
 
 ![Chip Malt — nice new address](/assets/chip-malt-new-address.png)
 
-anyway, proximity led to new opportunities. we had a lunch and learn at work. some guy who'd evolved his whole consulting firm to leverage AI.
+anyways, proximity led to new opportunities. we had a lunch and learn at work. some guy who'd evolved his whole consulting firm to leverage AI.
 
 his demo was about as casual as the breakfast tacos strewn about the conference table. he was just sitting there, switching between tools, prompting, generating, iterating. not even thinking that hard about it.
 
@@ -402,6 +410,6 @@ it reminded me of that room behind the velvet curtain. you don't have to play ev
 
 i don't know what's next exactly.
 
-i know it's less about doing everything myself. more about being useful to the people around me. when someone has an idea, i help them get it out of their head and into the world.
+i know it's less about doing everything myself. more about being useful to the people around me. not in a self-help way. in a practical way — someone has an idea, i can help them get it out of their head and into the world.
 
 i'm still figuring that out. but i've been here before.
