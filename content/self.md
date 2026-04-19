@@ -2,7 +2,7 @@ i grew up in Trenton, New Jersey.
 
 not in a romantic way. just in it. my parents got a fixer upper in a nice area. it was near a nursing home which made it feel safe. near my grandparents, which made things feel comfortable. we didn't plan to stay but we didn't plan well enough to leave.
 
-i was in public school there until 5th grade. 6th grade represented move up to an infamous junior high. my mom believed i needed to have a more enriched experience, a real challenge, so she got me interview ready and into Princeton Day.
+i was in public school there until 5th grade. 6th grade was the move up to an infamous junior high. my mom believed i needed to have a more enriched experience, a real challenge, so she got me interview ready and into Princeton Day.
 
 i remember sitting with my dad every morning waiting for the bus to come pick me up. once onboard, the Trenton crew would drift alongside industrial warehouses--long decommissioned with barely any windows still intact--and step-change to lush, preserved, and seemingly enchanted forest, manicured lawns, amphitheaters, and a fucking hockey rink. each day i would return to the hood that raised me.
 
@@ -62,7 +62,7 @@ i remember just watching. trying to understand how it worked.
 
 he was the reason the room felt like it did. no hesitation, no filtering. just fully himself. he could pick up any instrument by ear and riff — always in service of the song, never himself.
 
-the open mic was his. he ran it with this philosophy — the list is sacred. you sign up, you get to play -- not that he didn't effortlessly shuffle things around to keep the show tight for the room. you had to try _really_ hard to get turned away.
+the open mic was his. he ran it with this philosophy — the list is sacred. you sign up, you get to play — though he'd effortlessly shuffle things around to keep the show tight for the room. you had to try _really_ hard to get turned away.
 
 he talked to every person who walked into the bar, snapped an impossible number of candids and posted the haul online every week. everyone was part of the experience.
 
@@ -78,7 +78,7 @@ every night after our shift at the bar, we'd go back to Benny's corner brickhous
 
 usually about the dumb shit people do at a bar.
 
-but often Benny would tell me an insane, terrifying, hilarious story from his days as an addict. the next day a story equally as insane -- the man lived more lives than seemed possible at 40. far from random, his stories would fall somewhere between standup and a pressure valve for the life's curveballs.
+but often Benny would tell me an insane, terrifying, hilarious story from his days as an addict. the next day a story equally as insane -- the man lived more lives than seemed possible at 40. far from random, his stories would fall somewhere between standup and a pressure valve for life's curveballs.
 
 those nights became the ritual.
 
@@ -190,7 +190,7 @@ Deana found me later and, even though we were experiencing this together for the
 
 "don't try and control it, just let it happen."
 
-delivered playfully, her words transitioned me into a comedown where i felt like i understood myself, my place in the multiverse, here and now, the purpose of love -- all with the curiosity of a child and the conviction of a martyr.
+delivered playfully, her words eased me into a comedown where i felt like i understood myself, my place in the multiverse, here and now, the purpose of love — all with the curiosity of a child and the conviction of a martyr.
 
 am i spiritual now? maybe. call it a work in progress.
 
@@ -266,7 +266,7 @@ that curiosity turned into a rabbit hole.
 
 **i committed hard.**
 
-5am every day before the house was up. tutorials, docs, forums, braving the toxic cesspool of reddit threads where i found a mentor, a senior designer/engineer, who helped me see that all of my efforts were in good spirit but poor form. my shitty portfolio, resume, skillset — he tore it apart. i rebuilt. he tore it apart again.
+5am every day before the house was up. tutorials, docs, forums, braving the cesspool of reddit threads where i found a mentor, a senior designer/engineer, who helped me see that all of my efforts were in good spirit but poor form. my shitty portfolio, resume, skillset — he tore it apart. i rebuilt. he tore it apart again.
 
 but the mornings weren't enough. so i walked. four hours a day, every day, rain or shine, pushing a stroller and listening to podcasts. it was the only way i could absorb anything while responsibility was awake. i wore holes in the bottoms of my flip flops.
 
@@ -326,7 +326,7 @@ but there was a big world outside of my little corner of remote work, and i want
 
 ![ADVENTURE|white|right](/assets/adventure.png)
 
-so we started traveling because we could. our families were sad to see us go but, for the most part, cheering us on at the chance for adventure.
+so we started traveling because we could. our families were sad to see us go but, for the most part, cheering us on toward adventure.
 
 a month at a time in different cities — the Blue Ridge Mountains of Asheville, then Joshua Tree in the middle of summer. while i didn't see family as often, facetime is a thing, and we probably had more deep conversations on the road than in person. i talked to my Dad almost every day.
 
@@ -362,7 +362,7 @@ we had our yearly onsite in January. i attempted the in office visit without let
 
 ![Chip Malt — nice new address](/assets/chip-malt-new-address.png)
 
-anyways, proximity led to new opportunities. we had a lunch and learn at work. some guy who'd evolved his whole consulting firm to leverage AI.
+anyway, proximity led to new opportunities. we had a lunch and learn at work. some guy who'd evolved his whole consulting firm to leverage AI.
 
 his demo was about as casual as the breakfast tacos strewn about the conference table. he was just sitting there, switching between tools, prompting, generating, iterating. not even thinking that hard about it.
 
