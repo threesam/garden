@@ -2,7 +2,7 @@ i grew up in Trenton, New Jersey.
 
 not in a romantic way. just in it. my parents got a fixer upper in a nice area. it was near a nursing home which made it feel safe. near my grandparents, which made things feel comfortable. we didn't plan to stay, but we also didn't plan well enough to leave.
 
-i was in public school there until 5th grade. 6th grade was the move up to an infamous junior high. my mom believed i needed to have a more enriched experience, a real challenge, so she got me interview ready and into Princeton Day.
+i was in public school there until 5th grade. 6th grade was the move up to an infamous junior high. my mom believed i needed to have a more enriched experience, a real challenge, so she got me interview-ready and into Princeton Day.
 
 i remember sitting with my dad every morning waiting for the bus to come pick me up. once onboard, the Trenton crew would drift alongside industrial warehouses — long decommissioned with barely any windows still intact — and step-change to lush, preserved, and seemingly enchanted forest, manicured lawns, amphitheaters, and a fucking hockey rink. each day i would return to the hood that raised me.
 
@@ -44,7 +44,7 @@ i was looking for beta-testers in my beat laboratory. ended up chatting with my 
 
 i almost didn't go.
 
-i'd spent a lot of time trying to get away from Trenton. i'd seen enough dead bodies killed by drugs and/or bullets to feel like it wasn't a place where anything positive could happen.
+i'd spent a lot of time trying to get away from Trenton. i'd seen enough dead bodies killed by drugs or bullets to feel like it wasn't a place where anything positive could happen.
 
 but Valerie — who couldn't have weighed more than 90 pounds — was so thrilled to go to this place she even offered me a ride.
 
@@ -242,7 +242,7 @@ he didn't have much family, and those who showed up weren't familiar with the pe
 
 ## hollow leg
 
-i went back to work at the same bar, but it wasn’t the same place.
+i went back to work at the same bar, but it wasn't the same place.
 
 same walls, same stage, same songs.
 
@@ -322,7 +322,7 @@ Azalea was born while i was still at Rhone. before she was two months old, i was
 
 i went from selling pants to selling pans.
 
-Dan, the lead engineer there, was self-taught like me and brilliant. after one conversation, the job was mine, no technical assessment. risky for them but i made sure it wasn't a mistake. i learned twice as fast watching him work and my confidence grew.
+Dan, the lead engineer there, spoke in obscure — yet somehow familiar — pop culture, alphabetized _everything_, and was self-taught like me. after one conversation, the job was mine, no technical assessment. risky for them but i made sure it wasn't a mistake. i learned twice as fast watching him work and my confidence grew.
 
 but Dan eventually left and i spent an entire year proving i could lead before they officially let me.
 
