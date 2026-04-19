@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from "react";
 
-const SCALE_DESKTOP = 4.0;
-const SCALE_MOBILE = 5.6;
+const SCALE_DESKTOP = 12.0;
+const SCALE_MOBILE = 16.0;
 const MOBILE_BREAK = 640;
 
 const VERTEX_SHADER = `
@@ -148,13 +148,13 @@ const FRAGMENT_SHADER = `
     float spec = pow(max(0.0, 1.0 - f1 * 3.0), 6.0);
     float fresnel = pow(1.0 - edge, 2.0);
 
-    // Image sampling at fragment position (contain fit — preserve full image)
-    vec2 canvasUv = vUv;
-    vec2 texUv = canvasUv;
+    // Image sampling at cell center (impressionistic — mosaic of photo colors)
+    vec2 cellCanvasUv = nearestCenter / (uScale * vec2(aspect, 1.0));
+    vec2 texUv = cellCanvasUv;
     if (uImageAspect > aspect) {
-      texUv.y = (canvasUv.y - 0.5) * (uImageAspect / aspect) + 0.5;
+      texUv.y = (cellCanvasUv.y - 0.5) * (uImageAspect / aspect) + 0.5;
     } else {
-      texUv.x = (canvasUv.x - 0.5) * (aspect / uImageAspect) + 0.5;
+      texUv.x = (cellCanvasUv.x - 0.5) * (aspect / uImageAspect) + 0.5;
     }
     bool insideImage = uHasImage > 0.5
                        && texUv.x >= 0.0 && texUv.x <= 1.0
@@ -164,6 +164,7 @@ const FRAGMENT_SHADER = `
     if (insideImage) {
       vec3 imgColor = texture2D(uImage, texUv).rgb;
       base = imgColor;
+      base += spec * highlight * 0.1;
     } else {
       base = mix(shadow, silver, edge);
       base = mix(base, highlight, envReflect * 0.4);
