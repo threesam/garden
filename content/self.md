@@ -126,17 +126,17 @@ fun fact about Andrey Savchenko: he's a pastor for a Russian Baptist church, and
 
 **like the whole fucking continent.**
 
-me not being Christian and not married to his daughter was tense. we didn't speak the same language. i didn't need to.
+me not being Christian or married to his daughter was tense. we didn't speak the same language but i could read the room.
 
-Deana, however, was the rebel. she pushed her parents' buttons and liked it.
+Deana refused. a rebel, she pushed her parents' buttons and liked it.
 
-for example: tired of the back and forth between my house and hers, she asked me to move in. i was respectful, cooked well, and took out the trash without being asked. i also slept on the floor next to her bed. that helped. but only a little.
+tired of the back and forth between my house and hers, she asked me to move in. i was respectful, cooked well, and took out the trash without being asked. i also slept on the floor next to her bed. that helped. but only a little.
 
-another example: we drove to Maryland to pick up a rambunctious, black and white with patches of beige, miniature Bernadoodle -- Koda ended up being anything but miniature. also, Deana's parents hated dogs. i was not overly enthused if i'm being honest. this goofy little bastard was stealing my spotlight.
+then we drove to Maryland to pick up a rambunctious, miniature Bernadoodle — black and white with beige patches. Koda ended up being anything but miniature. also, Deana's parents hated dogs. i was not overly enthused if i'm being honest. this goofy little bastard was stealing my spotlight.
 
 one morning, it was beyond frigid in Philly and the windows were bleeding the little warmth i had on the floor. after using Koda as my personal space heater, i accepted his place in my life.
 
-and apparently her parents accepted mine, when Deana's mom insisted i sleep in the bed. even though i would come back from the bar at 2am smelling like some combination of bleach, alcohol, and stale second-hand cigarillos not once did either of them ever ask me to leave.
+and apparently her parents accepted mine, when Deana's mom insisted i sleep in the bed. even though i would come back from the bar at 2am smelling like some combination of bleach, alcohol, and stale second-hand cigarillos, not once did either of them ever ask me to leave.
 
 though, did we really want to stay?
 
