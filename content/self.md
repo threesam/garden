@@ -30,7 +30,7 @@ loved learning about all of everything -- art, biology, ethics -- but was told m
 
 so i studied political science and global studies.
 
-felt like a perfect synergy of history and philosophy. systems, incentives, how things are supposed to work. but the real-world version felt messy in a way that didn't match the models.
+felt like history and philosophy at once. systems, incentives, how things are supposed to work. but the real world was messier than the models.
 
 so when i graduated summa cum laude, i took my degree and went to work at Quakerbridge Mall. obviously.
 
@@ -70,7 +70,7 @@ i remember the first time i got called up. i knew my way around a stage but the 
 
 i was hooked after that. it didn't take long for Benny and me to buddy up and run the open mic together.
 
-was definitely for the love of the game because it paid next to nothing. but there were other ways for the Trenton Social to pay the bills.
+it cost more than we were paid to do it. but there were other ways for the Trenton Social to pay the bills.
 
 i started washing dishes, then waiting tables, then figuring out how to balance the endless chatter of drunken government employees with the infinite pour of long islands while tending bar -- not really a challenge because i was never alone.
 
@@ -86,7 +86,7 @@ those nights became the ritual.
 
 music, bartending, late nights, building relationships.
 
-finally hitting my stride in a thriving art community, i was holding court — talking to women all day and hitting the apps every night.
+the kid who didn't know what to say now wouldn't shut up. talking to women all day, hitting the apps every night.
 
 but after i started talking to Deana, _i didn't want to talk to anyone else._
 
@@ -124,7 +124,7 @@ fun fact about Andrey Savchenko: he's a pastor for a Russian Baptist church, and
 
 **like the whole fucking continent.**
 
-me not being Christian and not married to his daughter was...tense. we didn't speak the same language, but i did know how to read a room.
+me not being Christian and not married to his daughter was tense. we didn't speak the same language. i didn't need to.
 
 Deana, however, was clearly the rebel in our relationship. always finding new buttons to push, she would wear her parents' ire like the latest trend.
 
@@ -156,7 +156,7 @@ Benny side-eyed me, said "sure man" and i never gave it a thought again.
 
 until the next morning when Deana woke up and said "i wanna do some drugs"
 
-when i asked what kind, she of course said "mushrooms" :mushroom:
+when i asked what kind, she of course said "mushrooms"
 
 this was so out of left field for her that i rolled my eyes at my own hypocrisy and called Benny to let him know i'd take an eighth.
 
@@ -290,8 +290,6 @@ i remember getting through the tech assessment, meeting the team, and being aske
 
 regardless of what my imposter syndrome wanted to say, i said yes.
 
-a day later i got the call that made all of the work worth it and changed my idea of what life could be.
-
 then Juniper turned one and i started. making way more money than i felt i deserved.
 
 ## foundation
@@ -302,7 +300,7 @@ i said yes to everything after that, especially the things i didn't know how to 
 
 after three weeks of employment, i convinced Deana to quit her job. since she was 14, working was her identity. her only form of freedom. until it wasn't.
 
-we reorganized within our tiny apartment. new routine, new roles, new opportunities, new growth that would not have been possible in our previous constellation.
+we reorganized within our tiny apartment. new routine, new roles, new growth.
 
 when Azalea was on the way, i started reading. a lot. forty books my first year. personal development, masculinity, responsibility, wealth. the kind of stuff i probably needed years earlier but wasn't ready for.
 
@@ -354,7 +352,7 @@ we came back to Pennsylvania.
 
 Orion was written in stars, our first boy on the way.
 
-we made our time matter. we hosted our family often and cherished the connection we previously took for granted. we went out of our way to hunt down forever friends and we found them. but home didn't feel like home anymore and we knew we needed something different. to continue our adventure.
+we hosted family often. we made new friends. but Pennsylvania wasn't home anymore, and we weren't done moving.
 
 so we moved to Austin.
 
