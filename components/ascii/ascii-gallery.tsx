@@ -3,8 +3,8 @@
 import { useEffect, useRef } from "react";
 import { sampleImage, renderAsciiFrame, getGrid } from "./ascii-canvas";
 
-const FADE_MS = 800;
-const CYCLE_MS = 3000;
+const FADE_MS = 500;
+const CYCLE_MS = 2000;
 
 function clamp(v: number, min: number, max: number) {
   return Math.max(min, Math.min(max, v));
@@ -14,11 +14,14 @@ interface AsciiGalleryProps {
   srcs: string[];
   className?: string;
   cellSize?: number;
+  onIndexChange?: (index: number) => void;
 }
 
-export function AsciiGallery({ srcs, className = "", cellSize = 3 }: AsciiGalleryProps) {
+export function AsciiGallery({ srcs, className = "", cellSize = 3, onIndexChange }: AsciiGalleryProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const onIndexChangeRef = useRef(onIndexChange);
+  onIndexChangeRef.current = onIndexChange;
 
   useEffect(() => {
     const container = containerRef.current;
@@ -77,6 +80,7 @@ export function AsciiGallery({ srcs, className = "", cellSize = 3 }: AsciiGaller
       if (srcs.length < 2) return;
 
       const nextIdx = (currentIdx + 1) % srcs.length;
+      onIndexChangeRef.current?.(nextIdx);
       const w = container!.offsetWidth;
       const h = container!.offsetHeight;
       if (w === 0 || h === 0) return;
@@ -118,7 +122,7 @@ export function AsciiGallery({ srcs, className = "", cellSize = 3 }: AsciiGaller
 
     function scheduleNext() {
       if (srcs.length < 2) return;
-      timerId = setTimeout(startTransition, CYCLE_MS);
+      timerId = setTimeout(startTransition, Math.max(0, CYCLE_MS - FADE_MS));
     }
 
     let loaded = 0;
