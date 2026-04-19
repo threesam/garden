@@ -1,6 +1,6 @@
 i grew up in Trenton, New Jersey.
 
-not in a romantic way. just in it. my parents got a fixer upper in a nice area. it was near a nursing home which made it feel safe. near my grandparents, which made things feel comfortable. we didn't plan to stay but we didn't plan well enough to leave.
+not in a romantic way. just in it. my parents got a fixer upper in a nice area. it was near a nursing home which made it feel safe. near my grandparents, which made things feel comfortable. we didn't plan to stay, but we also didn't plan well enough to leave.
 
 i was in public school there until 5th grade. 6th grade was the move up to an infamous junior high. my mom believed i needed to have a more enriched experience, a real challenge, so she got me interview ready and into Princeton Day.
 
