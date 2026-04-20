@@ -24,7 +24,9 @@ function extractVoronoiImages(markdown: string) {
   const slots: Record<string, React.ReactNode> = {};
   const imageRegex = /!\[([^\]]*)\]\(([^)\s]+)\)/g;
   let i = 0;
-  const processed = markdown.replace(imageRegex, (_, alt, src) => {
+  const processed = markdown.replace(imageRegex, (match, alt, src) => {
+    // Only banners (alt contains "|") get the voronoi treatment
+    if (!alt.includes("|")) return match;
     const id = `voronoi-img-${i++}`;
     slots[id] = <VoronoiImage src={src} alt={alt} />;
     return `<!-- ${id} -->`;
@@ -46,10 +48,20 @@ export default async function CanvasPage({ params }: Props) {
   return (
     <>
       <div
-        className={`relative w-full overflow-hidden ${heroImage ? "aspect-[2576/1449]" : "h-[50dvh]"}`}
+        className={`relative w-full overflow-hidden ${heroImage ? "h-[100dvh]" : "h-[50dvh]"}`}
       >
         {heroType === "voronoi" ? (
-          <VoronoiCanvas invert imageSrc={heroImage} />
+          <>
+            <VoronoiCanvas invert imageSrc={heroImage} showLetters={false} fit="cover" />
+            {handle === "self" && (
+              <h1
+                className="absolute bottom-6 left-6 md:bottom-20 md:left-20 font-mono text-3xl font-bold uppercase tracking-[0.1em] md:text-8xl pointer-events-none z-10"
+                style={{ color: "white" }}
+              >
+                self
+              </h1>
+            )}
+          </>
         ) : (
           <CloudCanvas invert />
         )}

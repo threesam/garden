@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from "react";
 
-const SCALE_DESKTOP = 100.0;
-const SCALE_MOBILE = 120.0;
+const SCALE_DESKTOP = 60.0;
+const SCALE_MOBILE = 40.0;
 const MOBILE_BREAK = 640;
 
 const VERTEX_SHADER = `
@@ -33,6 +33,7 @@ const FRAGMENT_SHADER = `
   uniform float uHasImage;
   uniform float uImageAspect;
   uniform float uLetters;
+  uniform float uCoverFit;
 
   varying vec2 vUv;
 
@@ -158,10 +159,20 @@ const FRAGMENT_SHADER = `
     vec2 cellCanvasUv = nearestCenter / (uScale * vec2(aspect, 1.0));
     cellCanvasUv.y = 1.0 - cellCanvasUv.y;
     vec2 texUv = cellCanvasUv;
-    if (uImageAspect > aspect) {
-      texUv.y = (cellCanvasUv.y - 0.5) * (uImageAspect / aspect) + 0.5;
+    if (uCoverFit > 0.5) {
+      // COVER fit, top-anchored
+      if (uImageAspect > aspect) {
+        texUv.x = (cellCanvasUv.x - 0.5) * (aspect / uImageAspect) + 0.5;
+      } else {
+        texUv.y = 1.0 - (1.0 - cellCanvasUv.y) * (uImageAspect / aspect);
+      }
     } else {
-      texUv.x = (cellCanvasUv.x - 0.5) * (aspect / uImageAspect) + 0.5;
+      // CONTAIN fit (full image visible, may letterbox)
+      if (uImageAspect > aspect) {
+        texUv.y = (cellCanvasUv.y - 0.5) * (uImageAspect / aspect) + 0.5;
+      } else {
+        texUv.x = (cellCanvasUv.x - 0.5) * (aspect / uImageAspect) + 0.5;
+      }
     }
     bool insideImage = uHasImage > 0.5
                        && texUv.x >= 0.0 && texUv.x <= 1.0
@@ -173,10 +184,18 @@ const FRAGMENT_SHADER = `
 
       // Sharp fragment-position sample (for focus area)
       vec2 fragTexUv = vUv;
-      if (uImageAspect > aspect) {
-        fragTexUv.y = (vUv.y - 0.5) * (uImageAspect / aspect) + 0.5;
+      if (uCoverFit > 0.5) {
+        if (uImageAspect > aspect) {
+          fragTexUv.x = (vUv.x - 0.5) * (aspect / uImageAspect) + 0.5;
+        } else {
+          fragTexUv.y = 1.0 - (1.0 - vUv.y) * (uImageAspect / aspect);
+        }
       } else {
-        fragTexUv.x = (vUv.x - 0.5) * (aspect / uImageAspect) + 0.5;
+        if (uImageAspect > aspect) {
+          fragTexUv.y = (vUv.y - 0.5) * (uImageAspect / aspect) + 0.5;
+        } else {
+          fragTexUv.x = (vUv.x - 0.5) * (aspect / uImageAspect) + 0.5;
+        }
       }
       vec3 sharpSample = texture2D(uImage, fragTexUv).rgb;
 
@@ -303,6 +322,8 @@ interface VoronoiCanvasProps {
   showLetters?: boolean;
   imageSrc?: string;
   mobileImageSrc?: string;
+  scale?: number;
+  fit?: "contain" | "cover";
 }
 
 function parseHex(hex: string) {
@@ -313,7 +334,7 @@ function parseHex(hex: string) {
   ];
 }
 
-export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mobileImageSrc }: VoronoiCanvasProps) {
+export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mobileImageSrc, scale, fit = "contain" }: VoronoiCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -386,6 +407,7 @@ export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mo
     const uHasImage = gl.getUniformLocation(program, "uHasImage");
     const uImageAspect = gl.getUniformLocation(program, "uImageAspect");
     const uLetters = gl.getUniformLocation(program, "uLetters");
+    const uCoverFit = gl.getUniformLocation(program, "uCoverFit");
 
     gl.uniform1f(uInvert, invert ? 1.0 : 0.0);
     gl.uniform3fv(uTopColor, topColor);
@@ -394,6 +416,7 @@ export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mo
     gl.uniform1f(uHasImage, 0.0);
     gl.uniform1f(uImageAspect, 1.0);
     gl.uniform1f(uLetters, showLetters ? 1.0 : 0.0);
+    gl.uniform1f(uCoverFit, fit === "cover" ? 1.0 : 0.0);
 
     let needsRender = true;
     let texture: WebGLTexture | null = null;
@@ -464,12 +487,12 @@ export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mo
       gl!.viewport(0, 0, canvas.width, canvas.height);
       gl!.uniform2f(uResolution, canvas.width, canvas.height);
 
-      const scale = canvas.offsetWidth < MOBILE_BREAK ? SCALE_MOBILE : SCALE_DESKTOP;
-      gl!.uniform1f(uScale, scale);
+      const resolvedScale = scale ?? (canvas.offsetWidth < MOBILE_BREAK ? SCALE_MOBILE : SCALE_DESKTOP);
+      gl!.uniform1f(uScale, resolvedScale);
 
       if (showLetters) {
         const aspect = canvas.width / canvas.height;
-        const cells = findLetterCells(aspect, 4, scale);
+        const cells = findLetterCells(aspect, 4, resolvedScale);
         gl!.uniform2f(uCell0, cells[0].gx, cells[0].gy);
         gl!.uniform2f(uCell1, cells[1].gx, cells[1].gy);
         gl!.uniform2f(uCell2, cells[2].gx, cells[2].gy);
@@ -542,7 +565,7 @@ export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mo
       gl.deleteBuffer(buf);
       if (texture) gl.deleteTexture(texture);
     };
-  }, [invert, imageSrc, mobileImageSrc, showLetters]);
+  }, [invert, imageSrc, mobileImageSrc, showLetters, scale, fit]);
 
   return (
     <canvas
