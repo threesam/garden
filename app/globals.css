@@ -24,6 +24,12 @@
   --font-mono: var(--font-jost);
 }
 
+@media (min-width: 768px) {
+  html:has(.canvas-snap) {
+    scroll-snap-type: y proximity;
+  }
+}
+
 body {
   background: var(--black);
   color: var(--foreground);

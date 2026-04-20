@@ -56,7 +56,7 @@ export function VoronoiImage({ src, alt }: VoronoiImageProps) {
     if (isDesktop) {
       return (
         <div
-          className="relative my-12 flex items-center justify-center overflow-hidden"
+          className="relative my-12 flex items-center justify-center overflow-hidden snap-start"
           style={{
             left: "calc(50% - 50vw)",
             width: "100vw",
@@ -79,7 +79,7 @@ export function VoronoiImage({ src, alt }: VoronoiImageProps) {
 
     return (
       <div
-        className="relative my-12 overflow-hidden"
+        className="relative my-12 overflow-hidden snap-start"
         style={{
           left: "50%",
           transform: "translateX(-50%)",

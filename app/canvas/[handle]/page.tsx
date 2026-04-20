@@ -46,7 +46,7 @@ export default async function CanvasPage({ params }: Props) {
     : { processed: markdown ?? "", slots: {} };
 
   return (
-    <>
+    <div className="canvas-snap">
       <div
         className={`relative w-full overflow-hidden ${heroImage ? "h-[100dvh]" : "h-[50dvh]"}`}
       >
@@ -82,6 +82,6 @@ export default async function CanvasPage({ params }: Props) {
           />
         </section>
       )}
-    </>
+    </div>
   );
 }
