@@ -29,7 +29,7 @@ md.use({
       if (emojiOnly) {
         return `<p class="mb-6 text-4xl leading-normal">${text}</p>`;
       }
-      return `<p class="mb-6 font-sans text-base leading-relaxed md:text-lg md:leading-relaxed">${text}</p>`;
+      return `<p class="mb-6 font-sans text-base leading-relaxed md:text-2xl md:leading-relaxed">${text}</p>`;
     },
     hr() {
       return '<hr class="my-12 border-t border-current/10" />';
