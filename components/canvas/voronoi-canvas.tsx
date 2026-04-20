@@ -181,25 +181,28 @@ const FRAGMENT_SHADER = `
     vec3 base;
     if (insideImage) {
       vec3 cellSample = texture2D(uImage, texUv).rgb;
+      vec3 blended = cellSample;
 
-      // Sharp fragment-position sample (for focus area)
-      vec2 fragTexUv = vUv;
-      if (uCoverFit > 0.5) {
-        if (uImageAspect > aspect) {
-          fragTexUv.x = (vUv.x - 0.5) * (aspect / uImageAspect) + 0.5;
+      // Sharp fragment-position sample only when focus is active
+      if (focus > 0.001) {
+        vec2 fragTexUv = vUv;
+        if (uCoverFit > 0.5) {
+          if (uImageAspect > aspect) {
+            fragTexUv.x = (vUv.x - 0.5) * (aspect / uImageAspect) + 0.5;
+          } else {
+            fragTexUv.y = 1.0 - (1.0 - vUv.y) * (uImageAspect / aspect);
+          }
         } else {
-          fragTexUv.y = 1.0 - (1.0 - vUv.y) * (uImageAspect / aspect);
+          if (uImageAspect > aspect) {
+            fragTexUv.y = (vUv.y - 0.5) * (uImageAspect / aspect) + 0.5;
+          } else {
+            fragTexUv.x = (vUv.x - 0.5) * (aspect / uImageAspect) + 0.5;
+          }
         }
-      } else {
-        if (uImageAspect > aspect) {
-          fragTexUv.y = (vUv.y - 0.5) * (uImageAspect / aspect) + 0.5;
-        } else {
-          fragTexUv.x = (vUv.x - 0.5) * (aspect / uImageAspect) + 0.5;
-        }
+        vec3 sharpSample = texture2D(uImage, fragTexUv).rgb;
+        blended = mix(cellSample, sharpSample, focus);
       }
-      vec3 sharpSample = texture2D(uImage, fragTexUv).rgb;
 
-      vec3 blended = mix(cellSample, sharpSample, focus);
       // Default desaturated; focus brings color back
       float gray = dot(blended, vec3(0.299, 0.587, 0.114));
       base = mix(vec3(gray), blended, focus);
@@ -507,10 +510,15 @@ export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mo
     }
 
     resize();
-    window.addEventListener("resize", resize);
 
     const observer = new IntersectionObserver(
-      ([entry]) => { visible = entry.isIntersecting; },
+      ([entry]) => {
+        const wasVisible = visible;
+        visible = entry.isIntersecting;
+        if (visible && !wasVisible) {
+          raf = requestAnimationFrame(render);
+        }
+      },
       { threshold: 0 },
     );
     observer.observe(canvas);
@@ -519,8 +527,11 @@ export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mo
     resizeObserver.observe(canvas);
 
     function render() {
+      if (!visible) {
+        raf = 0;
+        return;
+      }
       raf = requestAnimationFrame(render);
-      if (!visible) return;
 
       const targetInfluence = (hovering || dragging) ? 1.0 : 0.0;
       const prevInfluence = influence;
@@ -550,7 +561,6 @@ export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mo
       cancelAnimationFrame(raf);
       observer.disconnect();
       resizeObserver.disconnect();
-      window.removeEventListener("resize", resize);
       window.removeEventListener("mouseup", onMouseUp);
       canvas.removeEventListener("mouseenter", onMouseEnter);
       canvas.removeEventListener("mouseleave", onMouseLeave);

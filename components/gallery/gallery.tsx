@@ -2,19 +2,17 @@
 
 import { useRef, useEffect, type ReactNode } from "react";
 import Link from "next/link";
-import { VoronoiCanvas } from "@/components/canvas/voronoi-canvas";
 import { MetaballCanvas } from "@/components/canvas/metaball-canvas";
 import { EmojiCardBg } from "@/components/messages/emoji-card-bg";
 import { DanaLabel } from "@/components/messages/dana-label";
 
 const HERO_MAP: Record<string, () => ReactNode> = {
   self: () => (
-    <VoronoiCanvas
-      invert
-      showLetters={false}
-      imageSrc="/assets/self-hero-mobile.png"
-      scale={20}
-      fit="cover"
+    <img
+      src="/assets/self-hero-mobile.png"
+      alt=""
+      className="absolute inset-0 h-full w-full object-cover"
+      style={{ filter: "grayscale(0.6)" }}
     />
   ),
   deana: () => <EmojiCardBg />,
