@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from "react";
 
-const SCALE_DESKTOP = 12.0;
-const SCALE_MOBILE = 16.0;
+const SCALE_DESKTOP = 100.0;
+const SCALE_MOBILE = 120.0;
 const MOBILE_BREAK = 640;
 
 const VERTEX_SHADER = `
@@ -94,7 +94,7 @@ const FRAGMENT_SHADER = `
     float aspect = uResolution.x / uResolution.y;
 
     vec2 p = vec2(uv.x * aspect, uv.y) * uScale;
-    vec2 mouse = vec2(uMouse.x * aspect, uMouse.y) * uScale;
+    vec2 mouse = vec2(uMouse.x * aspect, 1.0 - uMouse.y) * uScale;
 
     // Voronoi with cell center + grid tracking
     vec2 ip = floor(p);
@@ -148,8 +148,14 @@ const FRAGMENT_SHADER = `
     float spec = pow(max(0.0, 1.0 - f1 * 3.0), 6.0);
     float fresnel = pow(1.0 - edge, 2.0);
 
+    // Focus: sharpens image near the cursor
+    float distToMouse = distance(vUv, uMouse);
+    float focusRadius = 0.25;
+    float focus = uInfluence * (1.0 - smoothstep(0.0, focusRadius, distToMouse));
+
     // Image sampling at cell center (impressionistic — mosaic of photo colors)
     vec2 cellCanvasUv = nearestCenter / (uScale * vec2(aspect, 1.0));
+    cellCanvasUv.y = 1.0 - cellCanvasUv.y;
     vec2 texUv = cellCanvasUv;
     if (uImageAspect > aspect) {
       texUv.y = (cellCanvasUv.y - 0.5) * (uImageAspect / aspect) + 0.5;
@@ -162,9 +168,18 @@ const FRAGMENT_SHADER = `
 
     vec3 base;
     if (insideImage) {
-      vec3 imgColor = texture2D(uImage, texUv).rgb;
-      base = imgColor;
-      base += spec * highlight * 0.1;
+      vec3 cellSample = texture2D(uImage, texUv).rgb;
+
+      // Sharp fragment-position sample (for focus area)
+      vec2 fragTexUv = vUv;
+      if (uImageAspect > aspect) {
+        fragTexUv.y = (vUv.y - 0.5) * (uImageAspect / aspect) + 0.5;
+      } else {
+        fragTexUv.x = (vUv.x - 0.5) * (aspect / uImageAspect) + 0.5;
+      }
+      vec3 sharpSample = texture2D(uImage, fragTexUv).rgb;
+
+      base = mix(cellSample, sharpSample, focus);
     } else {
       base = mix(shadow, silver, edge);
       base = mix(base, highlight, envReflect * 0.4);
@@ -172,31 +187,32 @@ const FRAGMENT_SHADER = `
       base += fresnel * silver * 0.2;
     }
 
-    // Cell strokes
-    float edgeLine = 1.0 - smoothstep(0.04, 0.06, f2 - f1);
+    // Letter cells — check if current cell's CENTER is inside a letter shape
+    vec2 cellLetterUv = nearestCenter / uScale;
+    float letterX = 0.12 * aspect;
+    float letterSpacing = 0.22;
+    float letterStart = 0.5 - 1.5 * letterSpacing;
+    float letterScale = 6.0;
+
+    float cellSd = 1e5;
+    vec2 clp;
+    clp = (cellLetterUv - vec2(letterX, letterStart)) * vec2(letterScale, -letterScale);
+    cellSd = min(cellSd, letterS(clp));
+    clp = (cellLetterUv - vec2(letterX, letterStart + letterSpacing)) * vec2(letterScale, -letterScale);
+    cellSd = min(cellSd, letterE(clp));
+    clp = (cellLetterUv - vec2(letterX, letterStart + 2.0 * letterSpacing)) * vec2(letterScale, -letterScale);
+    cellSd = min(cellSd, letterL(clp));
+    clp = (cellLetterUv - vec2(letterX, letterStart + 3.0 * letterSpacing)) * vec2(letterScale, -letterScale);
+    cellSd = min(cellSd, letterF(clp));
+
+    if (cellSd < 0.0) {
+      base = white;
+    }
+
+    // Cell strokes (faded where focus is active)
+    float edgeLine = (1.0 - smoothstep(0.04, 0.06, f2 - f1)) * (1.0 - focus);
     vec3 black = uInvert > 0.5 ? uTopColor : uBotColor;
     base = mix(base, black, edgeLine);
-
-    // Letter rendering — check if current cell is a letter cell
-    int letterIdx = -1;
-    if (length(nearestGrid - uCell0) < 0.1) letterIdx = 0;
-    else if (length(nearestGrid - uCell1) < 0.1) letterIdx = 1;
-    else if (length(nearestGrid - uCell2) < 0.1) letterIdx = 2;
-    else if (length(nearestGrid - uCell3) < 0.1) letterIdx = 3;
-
-    if (letterIdx >= 0) {
-      // Entire letter cell is solid black (including edges)
-      base = black;
-
-      vec2 lp = (p - nearestCenter) * vec2(2.8, -2.8);
-      float sd = 1e5;
-      if (letterIdx == 0) sd = letterS(lp);
-      else if (letterIdx == 1) sd = letterE(lp);
-      else if (letterIdx == 2) sd = letterL(lp);
-      else sd = letterF(lp);
-      float mask = 1.0 - smoothstep(0.0, 0.03, sd);
-      base = mix(base, shadow, mask);
-    }
 
     // Edge fade
     float edgeFade = smoothstep(0.0, 0.08, uv.x)
@@ -280,6 +296,7 @@ interface VoronoiCanvasProps {
   invert?: boolean;
   showLetters?: boolean;
   imageSrc?: string;
+  mobileImageSrc?: string;
 }
 
 function parseHex(hex: string) {
@@ -290,12 +307,16 @@ function parseHex(hex: string) {
   ];
 }
 
-export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc }: VoronoiCanvasProps) {
+export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mobileImageSrc }: VoronoiCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+
+    const activeImageSrc = mobileImageSrc && window.innerWidth < MOBILE_BREAK
+      ? mobileImageSrc
+      : imageSrc;
 
     const gl = canvas.getContext("webgl", { antialias: false, alpha: false });
     if (!gl) return;
@@ -368,7 +389,7 @@ export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc }: 
 
     let needsRender = true;
     let texture: WebGLTexture | null = null;
-    if (imageSrc) {
+    if (activeImageSrc) {
       texture = gl.createTexture();
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -396,7 +417,7 @@ export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc }: 
         gl!.uniform1f(uHasImage, 1.0);
         needsRender = true;
       };
-      img.src = imageSrc;
+      img.src = activeImageSrc;
     }
 
     function updateMouseUv(e: MouseEvent | Touch) {
@@ -509,7 +530,7 @@ export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc }: 
       gl.deleteBuffer(buf);
       if (texture) gl.deleteTexture(texture);
     };
-  }, [invert, imageSrc]);
+  }, [invert, imageSrc, mobileImageSrc]);
 
   return (
     <canvas
