@@ -30,6 +30,46 @@
   }
 }
 
+.voronoi-banner {
+  position: relative;
+  margin: 48px 0;
+  overflow: hidden;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(100vw, 100dvh * var(--banner-aspect));
+  max-height: 100dvh;
+  aspect-ratio: var(--banner-aspect);
+}
+
+.voronoi-banner > .voronoi-banner-inner {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .voronoi-banner {
+    left: calc(50% - 50vw);
+    transform: none;
+    width: 100vw;
+    height: 100dvh;
+    max-height: none;
+    aspect-ratio: auto;
+    background: var(--black);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .voronoi-banner > .voronoi-banner-inner {
+    position: relative;
+    inset: auto;
+    width: min(100vw, 100dvh * var(--banner-aspect));
+    max-height: 100dvh;
+    aspect-ratio: var(--banner-aspect);
+    border-radius: 8px;
+  }
+}
+
 body {
   background: var(--black);
   color: var(--foreground);

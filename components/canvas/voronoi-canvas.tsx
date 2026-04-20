@@ -24,10 +24,6 @@ const FRAGMENT_SHADER = `
   uniform vec2 uMouse;
   uniform vec3 uTopColor;
   uniform vec3 uBotColor;
-  uniform vec2 uCell0;
-  uniform vec2 uCell1;
-  uniform vec2 uCell2;
-  uniform vec2 uCell3;
   uniform float uScale;
   uniform sampler2D uImage;
   uniform float uHasImage;
@@ -267,59 +263,6 @@ function createShader(gl: WebGLRenderingContext, type: number, source: string) {
   return shader;
 }
 
-// Replicate GLSL hash on CPU to find cell centers
-function jsHash2(px: number, py: number): [number, number] {
-  const ax = Math.sin(px * 127.1 + py * 311.7) * 43758.5453123;
-  const ay = Math.sin(px * 269.5 + py * 183.3) * 43758.5453123;
-  return [ax - Math.floor(ax), ay - Math.floor(ay)];
-}
-
-function findLetterCells(aspect: number, letterCount: number, scale: number) {
-  const maxX = aspect * scale;
-  const maxY = scale;
-
-  const cells: { gx: number; gy: number; cx: number; cy: number }[] = [];
-
-  for (let iy = -1; iy <= Math.ceil(maxY) + 1; iy++) {
-    for (let ix = -1; ix <= Math.ceil(maxX) + 1; ix++) {
-      const [hx, hy] = jsHash2(ix, iy);
-      const cx = ix + hx;
-      const cy = iy + hy;
-      // Only cells well within visible area
-      if (cx > 0.5 && cx < maxX - 0.5 && cy > 0.5 && cy < maxY - 0.5) {
-        cells.push({ gx: ix, gy: iy, cx, cy });
-      }
-    }
-  }
-
-  // Pick one cell per horizontal section, closest to vertical center
-  const selected: typeof cells = [];
-  const sectionWidth = maxX / letterCount;
-
-  for (let i = 0; i < letterCount; i++) {
-    const targetX = sectionWidth * (i + 0.5);
-    const targetY = maxY / 2;
-
-    let best = cells[0];
-    let bestDist = Infinity;
-
-    for (const cell of cells) {
-      if (selected.some((s) => s.gx === cell.gx && s.gy === cell.gy)) continue;
-      const dx = cell.cx - targetX;
-      const dy = (cell.cy - targetY) * 2;
-      const dist = dx * dx + dy * dy;
-      if (dist < bestDist) {
-        bestDist = dist;
-        best = cell;
-      }
-    }
-
-    selected.push(best);
-  }
-
-  return selected;
-}
-
 interface VoronoiCanvasProps {
   invert?: boolean;
   showLetters?: boolean;
@@ -401,10 +344,6 @@ export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mo
     const uMouse = gl.getUniformLocation(program, "uMouse");
     const uTopColor = gl.getUniformLocation(program, "uTopColor");
     const uBotColor = gl.getUniformLocation(program, "uBotColor");
-    const uCell0 = gl.getUniformLocation(program, "uCell0");
-    const uCell1 = gl.getUniformLocation(program, "uCell1");
-    const uCell2 = gl.getUniformLocation(program, "uCell2");
-    const uCell3 = gl.getUniformLocation(program, "uCell3");
     const uScale = gl.getUniformLocation(program, "uScale");
     const uImage = gl.getUniformLocation(program, "uImage");
     const uHasImage = gl.getUniformLocation(program, "uHasImage");
@@ -423,6 +362,7 @@ export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mo
 
     let needsRender = true;
     let texture: WebGLTexture | null = null;
+    let alive = true;
     if (activeImageSrc) {
       texture = gl.createTexture();
       gl.activeTexture(gl.TEXTURE0);
@@ -440,6 +380,7 @@ export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mo
       const img = new Image();
       img.crossOrigin = "anonymous";
       img.onload = () => {
+        if (!alive) return;
         gl!.activeTexture(gl!.TEXTURE0);
         gl!.bindTexture(gl!.TEXTURE_2D, texture);
         gl!.pixelStorei(gl!.UNPACK_FLIP_Y_WEBGL, true);
@@ -450,6 +391,7 @@ export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mo
         gl!.uniform1f(uImageAspect, img.width / img.height);
         gl!.uniform1f(uHasImage, 1.0);
         needsRender = true;
+        if (visible && !raf) raf = requestAnimationFrame(render);
       };
       img.src = activeImageSrc;
     }
@@ -492,20 +434,6 @@ export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mo
 
       const resolvedScale = scale ?? (canvas.offsetWidth < MOBILE_BREAK ? SCALE_MOBILE : SCALE_DESKTOP);
       gl!.uniform1f(uScale, resolvedScale);
-
-      if (showLetters) {
-        const aspect = canvas.width / canvas.height;
-        const cells = findLetterCells(aspect, 4, resolvedScale);
-        gl!.uniform2f(uCell0, cells[0].gx, cells[0].gy);
-        gl!.uniform2f(uCell1, cells[1].gx, cells[1].gy);
-        gl!.uniform2f(uCell2, cells[2].gx, cells[2].gy);
-        gl!.uniform2f(uCell3, cells[3].gx, cells[3].gy);
-      } else {
-        gl!.uniform2f(uCell0, -999.0, -999.0);
-        gl!.uniform2f(uCell1, -999.0, -999.0);
-        gl!.uniform2f(uCell2, -999.0, -999.0);
-        gl!.uniform2f(uCell3, -999.0, -999.0);
-      }
       needsRender = true;
     }
 
@@ -515,7 +443,7 @@ export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mo
       ([entry]) => {
         const wasVisible = visible;
         visible = entry.isIntersecting;
-        if (visible && !wasVisible) {
+        if (visible && !wasVisible && !raf) {
           raf = requestAnimationFrame(render);
         }
       },
@@ -558,9 +486,10 @@ export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mo
     raf = requestAnimationFrame(render);
 
     return () => {
-      cancelAnimationFrame(raf);
+      alive = false;
       observer.disconnect();
       resizeObserver.disconnect();
+      if (raf) cancelAnimationFrame(raf);
       window.removeEventListener("mouseup", onMouseUp);
       canvas.removeEventListener("mouseenter", onMouseEnter);
       canvas.removeEventListener("mouseleave", onMouseLeave);
