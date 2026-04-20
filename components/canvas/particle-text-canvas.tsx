@@ -261,8 +261,13 @@ export function ParticleTextCanvas() {
   return (
     <div
       ref={containerRef}
-      className="relative my-12 -mx-6 md:mx-0 md:w-[768px] md:max-w-[768px] md:left-1/2 md:-translate-x-1/2 overflow-hidden md:rounded-lg"
-      style={{ height: 300, backgroundColor: "black" }}
+      className="relative my-12 overflow-hidden snap-start"
+      style={{
+        left: "calc(50% - 50vw)",
+        width: "100vw",
+        height: "100dvh",
+        backgroundColor: "var(--black)",
+      }}
     >
       <canvas ref={canvasRef} className="absolute inset-0" />
     </div>

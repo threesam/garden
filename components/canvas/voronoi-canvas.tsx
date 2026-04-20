@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from "react";
 
-const SCALE_DESKTOP = 4.0;
-const SCALE_MOBILE = 5.6;
+const SCALE_DESKTOP = 60.0;
+const SCALE_MOBILE = 40.0;
 const MOBILE_BREAK = 640;
 
 const VERTEX_SHADER = `
@@ -24,11 +24,12 @@ const FRAGMENT_SHADER = `
   uniform vec2 uMouse;
   uniform vec3 uTopColor;
   uniform vec3 uBotColor;
-  uniform vec2 uCell0;
-  uniform vec2 uCell1;
-  uniform vec2 uCell2;
-  uniform vec2 uCell3;
   uniform float uScale;
+  uniform sampler2D uImage;
+  uniform float uHasImage;
+  uniform float uImageAspect;
+  uniform float uLetters;
+  uniform float uCoverFit;
 
   varying vec2 vUv;
 
@@ -91,7 +92,7 @@ const FRAGMENT_SHADER = `
     float aspect = uResolution.x / uResolution.y;
 
     vec2 p = vec2(uv.x * aspect, uv.y) * uScale;
-    vec2 mouse = vec2(uMouse.x * aspect, uMouse.y) * uScale;
+    vec2 mouse = vec2(uMouse.x * aspect, 1.0 - uMouse.y) * uScale;
 
     // Voronoi with cell center + grid tracking
     vec2 ip = floor(p);
@@ -145,36 +146,97 @@ const FRAGMENT_SHADER = `
     float spec = pow(max(0.0, 1.0 - f1 * 3.0), 6.0);
     float fresnel = pow(1.0 - edge, 2.0);
 
-    vec3 base = mix(shadow, silver, edge);
-    base = mix(base, highlight, envReflect * 0.4);
-    base += spec * highlight * 0.5;
-    base += fresnel * silver * 0.2;
+    // Focus: sharpens image near the cursor
+    float distToMouse = distance(vUv, uMouse);
+    float focusRadius = 0.6;
+    float focus = uInfluence * (1.0 - smoothstep(0.0, focusRadius, distToMouse));
 
-    // Cell strokes
-    float edgeLine = 1.0 - smoothstep(0.04, 0.06, f2 - f1);
+    // Image sampling at cell center (impressionistic — mosaic of photo colors)
+    vec2 cellCanvasUv = nearestCenter / (uScale * vec2(aspect, 1.0));
+    cellCanvasUv.y = 1.0 - cellCanvasUv.y;
+    vec2 texUv = cellCanvasUv;
+    if (uCoverFit > 0.5) {
+      // COVER fit, top-anchored
+      if (uImageAspect > aspect) {
+        texUv.x = (cellCanvasUv.x - 0.5) * (aspect / uImageAspect) + 0.5;
+      } else {
+        texUv.y = 1.0 - (1.0 - cellCanvasUv.y) * (uImageAspect / aspect);
+      }
+    } else {
+      // CONTAIN fit (full image visible, may letterbox)
+      if (uImageAspect > aspect) {
+        texUv.y = (cellCanvasUv.y - 0.5) * (uImageAspect / aspect) + 0.5;
+      } else {
+        texUv.x = (cellCanvasUv.x - 0.5) * (aspect / uImageAspect) + 0.5;
+      }
+    }
+    bool insideImage = uHasImage > 0.5
+                       && texUv.x >= 0.0 && texUv.x <= 1.0
+                       && texUv.y >= 0.0 && texUv.y <= 1.0;
+
+    vec3 base;
+    if (insideImage) {
+      vec3 cellSample = texture2D(uImage, texUv).rgb;
+      vec3 blended = cellSample;
+
+      // Sharp fragment-position sample only when focus is active
+      if (focus > 0.001) {
+        vec2 fragTexUv = vUv;
+        if (uCoverFit > 0.5) {
+          if (uImageAspect > aspect) {
+            fragTexUv.x = (vUv.x - 0.5) * (aspect / uImageAspect) + 0.5;
+          } else {
+            fragTexUv.y = 1.0 - (1.0 - vUv.y) * (uImageAspect / aspect);
+          }
+        } else {
+          if (uImageAspect > aspect) {
+            fragTexUv.y = (vUv.y - 0.5) * (uImageAspect / aspect) + 0.5;
+          } else {
+            fragTexUv.x = (vUv.x - 0.5) * (aspect / uImageAspect) + 0.5;
+          }
+        }
+        vec3 sharpSample = texture2D(uImage, fragTexUv).rgb;
+        blended = mix(cellSample, sharpSample, focus);
+      }
+
+      // Default desaturated; focus brings color back
+      float gray = dot(blended, vec3(0.299, 0.587, 0.114));
+      base = mix(vec3(gray), blended, focus);
+    } else {
+      base = mix(shadow, silver, edge);
+      base = mix(base, highlight, envReflect * 0.4);
+      base += spec * highlight * 0.5;
+      base += fresnel * silver * 0.2;
+    }
+
+    // Letter cells — check if current cell's CENTER is inside a letter shape
+    if (uLetters > 0.5) {
+      vec2 cellLetterUv = nearestCenter / uScale;
+      float letterX = 0.12 * aspect;
+      float letterSpacing = 0.22;
+      float letterStart = 0.5 - 1.5 * letterSpacing;
+      float letterScale = 6.0;
+
+      float cellSd = 1e5;
+      vec2 clp;
+      clp = (cellLetterUv - vec2(letterX, letterStart)) * vec2(letterScale, -letterScale);
+      cellSd = min(cellSd, letterS(clp));
+      clp = (cellLetterUv - vec2(letterX, letterStart + letterSpacing)) * vec2(letterScale, -letterScale);
+      cellSd = min(cellSd, letterE(clp));
+      clp = (cellLetterUv - vec2(letterX, letterStart + 2.0 * letterSpacing)) * vec2(letterScale, -letterScale);
+      cellSd = min(cellSd, letterL(clp));
+      clp = (cellLetterUv - vec2(letterX, letterStart + 3.0 * letterSpacing)) * vec2(letterScale, -letterScale);
+      cellSd = min(cellSd, letterF(clp));
+
+      if (cellSd < 0.0) {
+        base = white;
+      }
+    }
+
+    // Cell strokes (faded where focus is active)
+    float edgeLine = (1.0 - smoothstep(0.04, 0.06, f2 - f1)) * (1.0 - focus);
     vec3 black = uInvert > 0.5 ? uTopColor : uBotColor;
     base = mix(base, black, edgeLine);
-
-    // Letter rendering — check if current cell is a letter cell
-    int letterIdx = -1;
-    if (length(nearestGrid - uCell0) < 0.1) letterIdx = 0;
-    else if (length(nearestGrid - uCell1) < 0.1) letterIdx = 1;
-    else if (length(nearestGrid - uCell2) < 0.1) letterIdx = 2;
-    else if (length(nearestGrid - uCell3) < 0.1) letterIdx = 3;
-
-    if (letterIdx >= 0) {
-      // Entire letter cell is solid black (including edges)
-      base = black;
-
-      vec2 lp = (p - nearestCenter) * vec2(2.8, -2.8);
-      float sd = 1e5;
-      if (letterIdx == 0) sd = letterS(lp);
-      else if (letterIdx == 1) sd = letterE(lp);
-      else if (letterIdx == 2) sd = letterL(lp);
-      else sd = letterF(lp);
-      float mask = 1.0 - smoothstep(0.0, 0.03, sd);
-      base = mix(base, shadow, mask);
-    }
 
     // Edge fade
     float edgeFade = smoothstep(0.0, 0.08, uv.x)
@@ -201,62 +263,13 @@ function createShader(gl: WebGLRenderingContext, type: number, source: string) {
   return shader;
 }
 
-// Replicate GLSL hash on CPU to find cell centers
-function jsHash2(px: number, py: number): [number, number] {
-  const ax = Math.sin(px * 127.1 + py * 311.7) * 43758.5453123;
-  const ay = Math.sin(px * 269.5 + py * 183.3) * 43758.5453123;
-  return [ax - Math.floor(ax), ay - Math.floor(ay)];
-}
-
-function findLetterCells(aspect: number, letterCount: number, scale: number) {
-  const maxX = aspect * scale;
-  const maxY = scale;
-
-  const cells: { gx: number; gy: number; cx: number; cy: number }[] = [];
-
-  for (let iy = -1; iy <= Math.ceil(maxY) + 1; iy++) {
-    for (let ix = -1; ix <= Math.ceil(maxX) + 1; ix++) {
-      const [hx, hy] = jsHash2(ix, iy);
-      const cx = ix + hx;
-      const cy = iy + hy;
-      // Only cells well within visible area
-      if (cx > 0.5 && cx < maxX - 0.5 && cy > 0.5 && cy < maxY - 0.5) {
-        cells.push({ gx: ix, gy: iy, cx, cy });
-      }
-    }
-  }
-
-  // Pick one cell per horizontal section, closest to vertical center
-  const selected: typeof cells = [];
-  const sectionWidth = maxX / letterCount;
-
-  for (let i = 0; i < letterCount; i++) {
-    const targetX = sectionWidth * (i + 0.5);
-    const targetY = maxY / 2;
-
-    let best = cells[0];
-    let bestDist = Infinity;
-
-    for (const cell of cells) {
-      if (selected.some((s) => s.gx === cell.gx && s.gy === cell.gy)) continue;
-      const dx = cell.cx - targetX;
-      const dy = (cell.cy - targetY) * 2;
-      const dist = dx * dx + dy * dy;
-      if (dist < bestDist) {
-        bestDist = dist;
-        best = cell;
-      }
-    }
-
-    selected.push(best);
-  }
-
-  return selected;
-}
-
 interface VoronoiCanvasProps {
   invert?: boolean;
   showLetters?: boolean;
+  imageSrc?: string;
+  mobileImageSrc?: string;
+  scale?: number;
+  fit?: "contain" | "cover";
 }
 
 function parseHex(hex: string) {
@@ -267,12 +280,16 @@ function parseHex(hex: string) {
   ];
 }
 
-export function VoronoiCanvas({ invert = false, showLetters = true }: VoronoiCanvasProps) {
+export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mobileImageSrc, scale, fit = "contain" }: VoronoiCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+
+    const activeImageSrc = mobileImageSrc && window.innerWidth < MOBILE_BREAK
+      ? mobileImageSrc
+      : imageSrc;
 
     const gl = canvas.getContext("webgl", { antialias: false, alpha: false });
     if (!gl) return;
@@ -327,15 +344,57 @@ export function VoronoiCanvas({ invert = false, showLetters = true }: VoronoiCan
     const uMouse = gl.getUniformLocation(program, "uMouse");
     const uTopColor = gl.getUniformLocation(program, "uTopColor");
     const uBotColor = gl.getUniformLocation(program, "uBotColor");
-    const uCell0 = gl.getUniformLocation(program, "uCell0");
-    const uCell1 = gl.getUniformLocation(program, "uCell1");
-    const uCell2 = gl.getUniformLocation(program, "uCell2");
-    const uCell3 = gl.getUniformLocation(program, "uCell3");
     const uScale = gl.getUniformLocation(program, "uScale");
+    const uImage = gl.getUniformLocation(program, "uImage");
+    const uHasImage = gl.getUniformLocation(program, "uHasImage");
+    const uImageAspect = gl.getUniformLocation(program, "uImageAspect");
+    const uLetters = gl.getUniformLocation(program, "uLetters");
+    const uCoverFit = gl.getUniformLocation(program, "uCoverFit");
 
     gl.uniform1f(uInvert, invert ? 1.0 : 0.0);
     gl.uniform3fv(uTopColor, topColor);
     gl.uniform3fv(uBotColor, botColor);
+    gl.uniform1i(uImage, 0);
+    gl.uniform1f(uHasImage, 0.0);
+    gl.uniform1f(uImageAspect, 1.0);
+    gl.uniform1f(uLetters, showLetters ? 1.0 : 0.0);
+    gl.uniform1f(uCoverFit, fit === "cover" ? 1.0 : 0.0);
+
+    let needsRender = true;
+    let texture: WebGLTexture | null = null;
+    let alive = true;
+    if (activeImageSrc) {
+      texture = gl.createTexture();
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.texImage2D(
+        gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0,
+        gl.RGBA, gl.UNSIGNED_BYTE,
+        new Uint8Array([0, 0, 0, 0]),
+      );
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        if (!alive) return;
+        gl!.activeTexture(gl!.TEXTURE0);
+        gl!.bindTexture(gl!.TEXTURE_2D, texture);
+        gl!.pixelStorei(gl!.UNPACK_FLIP_Y_WEBGL, true);
+        gl!.texImage2D(
+          gl!.TEXTURE_2D, 0, gl!.RGBA,
+          gl!.RGBA, gl!.UNSIGNED_BYTE, img,
+        );
+        gl!.uniform1f(uImageAspect, img.width / img.height);
+        gl!.uniform1f(uHasImage, 1.0);
+        needsRender = true;
+        if (visible && !raf) raf = requestAnimationFrame(render);
+      };
+      img.src = activeImageSrc;
+    }
 
     function updateMouseUv(e: MouseEvent | Touch) {
       const rect = canvas!.getBoundingClientRect();
@@ -366,8 +425,6 @@ export function VoronoiCanvas({ invert = false, showLetters = true }: VoronoiCan
     canvas.addEventListener("touchmove", onTouchMove, { passive: true });
     canvas.addEventListener("touchend", onTouchEnd);
 
-    let needsRender = true;
-
     function resize() {
       if (!canvas) return;
       canvas.width = canvas.offsetWidth;
@@ -375,37 +432,34 @@ export function VoronoiCanvas({ invert = false, showLetters = true }: VoronoiCan
       gl!.viewport(0, 0, canvas.width, canvas.height);
       gl!.uniform2f(uResolution, canvas.width, canvas.height);
 
-      const scale = canvas.offsetWidth < MOBILE_BREAK ? SCALE_MOBILE : SCALE_DESKTOP;
-      gl!.uniform1f(uScale, scale);
-
-      if (showLetters) {
-        const aspect = canvas.width / canvas.height;
-        const cells = findLetterCells(aspect, 4, scale);
-        gl!.uniform2f(uCell0, cells[0].gx, cells[0].gy);
-        gl!.uniform2f(uCell1, cells[1].gx, cells[1].gy);
-        gl!.uniform2f(uCell2, cells[2].gx, cells[2].gy);
-        gl!.uniform2f(uCell3, cells[3].gx, cells[3].gy);
-      } else {
-        gl!.uniform2f(uCell0, -999.0, -999.0);
-        gl!.uniform2f(uCell1, -999.0, -999.0);
-        gl!.uniform2f(uCell2, -999.0, -999.0);
-        gl!.uniform2f(uCell3, -999.0, -999.0);
-      }
+      const resolvedScale = scale ?? (canvas.offsetWidth < MOBILE_BREAK ? SCALE_MOBILE : SCALE_DESKTOP);
+      gl!.uniform1f(uScale, resolvedScale);
       needsRender = true;
     }
 
     resize();
-    window.addEventListener("resize", resize);
 
     const observer = new IntersectionObserver(
-      ([entry]) => { visible = entry.isIntersecting; },
+      ([entry]) => {
+        const wasVisible = visible;
+        visible = entry.isIntersecting;
+        if (visible && !wasVisible && !raf) {
+          raf = requestAnimationFrame(render);
+        }
+      },
       { threshold: 0 },
     );
     observer.observe(canvas);
 
+    const resizeObserver = new ResizeObserver(() => resize());
+    resizeObserver.observe(canvas);
+
     function render() {
+      if (!visible) {
+        raf = 0;
+        return;
+      }
       raf = requestAnimationFrame(render);
-      if (!visible) return;
 
       const targetInfluence = (hovering || dragging) ? 1.0 : 0.0;
       const prevInfluence = influence;
@@ -432,9 +486,10 @@ export function VoronoiCanvas({ invert = false, showLetters = true }: VoronoiCan
     raf = requestAnimationFrame(render);
 
     return () => {
-      cancelAnimationFrame(raf);
+      alive = false;
       observer.disconnect();
-      window.removeEventListener("resize", resize);
+      resizeObserver.disconnect();
+      if (raf) cancelAnimationFrame(raf);
       window.removeEventListener("mouseup", onMouseUp);
       canvas.removeEventListener("mouseenter", onMouseEnter);
       canvas.removeEventListener("mouseleave", onMouseLeave);
@@ -447,8 +502,9 @@ export function VoronoiCanvas({ invert = false, showLetters = true }: VoronoiCan
       gl.deleteShader(vert);
       gl.deleteShader(frag);
       gl.deleteBuffer(buf);
+      if (texture) gl.deleteTexture(texture);
     };
-  }, [invert]);
+  }, [invert, imageSrc, mobileImageSrc, showLetters, scale, fit]);
 
   return (
     <canvas

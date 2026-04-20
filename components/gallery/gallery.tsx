@@ -8,7 +8,15 @@ import { EmojiCardBg } from "@/components/messages/emoji-card-bg";
 import { DanaLabel } from "@/components/messages/dana-label";
 
 const HERO_MAP: Record<string, () => ReactNode> = {
-  self: () => <VoronoiCanvas invert showLetters={false} />,
+  self: () => (
+    <VoronoiCanvas
+      invert
+      showLetters={false}
+      imageSrc="/assets/self-hero-mobile.png"
+      scale={20}
+      fit="cover"
+    />
+  ),
   deana: () => <EmojiCardBg />,
   vibe: () => <MetaballCanvas color={[0.91, 0.64, 0.09]} />,
 };
