@@ -22,7 +22,7 @@ i started playing. pretty quickly, it turned into writing.
 
 that part came quite naturally. it gave me a way to say things i wasn't too keen on saying to anyone, let alone myself. before that, i don't think i was really expressing much at all. now, everything had somewhere to go.
 
-## piece of paper
+![PIECE OF PAPER|white|center](/assets/piece-of-paper.png)
 
 after Princeton Day, Rider U — the only college that offered my broke ass a full scholarship.
 
@@ -366,7 +366,7 @@ we hosted family often. we made new friends. but Pennsylvania wasn't home anymor
 
 so we moved to Austin.
 
-![CHEAT CODE|black|right](/assets/dissonance.png)
+![CHEAT CODE|white|right](/assets/dissonance.png)
 
 we had our yearly onsite in January. i attempted the in-office visit without letting my company know that i'd moved. when i did my civic duty and updated my address to the beautifully tax-free state of Texas, i learned that moving is actually a big enough deal to trigger notifications.
 

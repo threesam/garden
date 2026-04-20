@@ -32,6 +32,7 @@ const FRAGMENT_SHADER = `
   uniform sampler2D uImage;
   uniform float uHasImage;
   uniform float uImageAspect;
+  uniform float uLetters;
 
   varying vec2 vUv;
 
@@ -150,7 +151,7 @@ const FRAGMENT_SHADER = `
 
     // Focus: sharpens image near the cursor
     float distToMouse = distance(vUv, uMouse);
-    float focusRadius = 0.25;
+    float focusRadius = 0.6;
     float focus = uInfluence * (1.0 - smoothstep(0.0, focusRadius, distToMouse));
 
     // Image sampling at cell center (impressionistic — mosaic of photo colors)
@@ -179,7 +180,10 @@ const FRAGMENT_SHADER = `
       }
       vec3 sharpSample = texture2D(uImage, fragTexUv).rgb;
 
-      base = mix(cellSample, sharpSample, focus);
+      vec3 blended = mix(cellSample, sharpSample, focus);
+      // Default desaturated; focus brings color back
+      float gray = dot(blended, vec3(0.299, 0.587, 0.114));
+      base = mix(vec3(gray), blended, focus);
     } else {
       base = mix(shadow, silver, edge);
       base = mix(base, highlight, envReflect * 0.4);
@@ -188,25 +192,27 @@ const FRAGMENT_SHADER = `
     }
 
     // Letter cells — check if current cell's CENTER is inside a letter shape
-    vec2 cellLetterUv = nearestCenter / uScale;
-    float letterX = 0.12 * aspect;
-    float letterSpacing = 0.22;
-    float letterStart = 0.5 - 1.5 * letterSpacing;
-    float letterScale = 6.0;
+    if (uLetters > 0.5) {
+      vec2 cellLetterUv = nearestCenter / uScale;
+      float letterX = 0.12 * aspect;
+      float letterSpacing = 0.22;
+      float letterStart = 0.5 - 1.5 * letterSpacing;
+      float letterScale = 6.0;
 
-    float cellSd = 1e5;
-    vec2 clp;
-    clp = (cellLetterUv - vec2(letterX, letterStart)) * vec2(letterScale, -letterScale);
-    cellSd = min(cellSd, letterS(clp));
-    clp = (cellLetterUv - vec2(letterX, letterStart + letterSpacing)) * vec2(letterScale, -letterScale);
-    cellSd = min(cellSd, letterE(clp));
-    clp = (cellLetterUv - vec2(letterX, letterStart + 2.0 * letterSpacing)) * vec2(letterScale, -letterScale);
-    cellSd = min(cellSd, letterL(clp));
-    clp = (cellLetterUv - vec2(letterX, letterStart + 3.0 * letterSpacing)) * vec2(letterScale, -letterScale);
-    cellSd = min(cellSd, letterF(clp));
+      float cellSd = 1e5;
+      vec2 clp;
+      clp = (cellLetterUv - vec2(letterX, letterStart)) * vec2(letterScale, -letterScale);
+      cellSd = min(cellSd, letterS(clp));
+      clp = (cellLetterUv - vec2(letterX, letterStart + letterSpacing)) * vec2(letterScale, -letterScale);
+      cellSd = min(cellSd, letterE(clp));
+      clp = (cellLetterUv - vec2(letterX, letterStart + 2.0 * letterSpacing)) * vec2(letterScale, -letterScale);
+      cellSd = min(cellSd, letterL(clp));
+      clp = (cellLetterUv - vec2(letterX, letterStart + 3.0 * letterSpacing)) * vec2(letterScale, -letterScale);
+      cellSd = min(cellSd, letterF(clp));
 
-    if (cellSd < 0.0) {
-      base = white;
+      if (cellSd < 0.0) {
+        base = white;
+      }
     }
 
     // Cell strokes (faded where focus is active)
@@ -379,6 +385,7 @@ export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mo
     const uImage = gl.getUniformLocation(program, "uImage");
     const uHasImage = gl.getUniformLocation(program, "uHasImage");
     const uImageAspect = gl.getUniformLocation(program, "uImageAspect");
+    const uLetters = gl.getUniformLocation(program, "uLetters");
 
     gl.uniform1f(uInvert, invert ? 1.0 : 0.0);
     gl.uniform3fv(uTopColor, topColor);
@@ -386,6 +393,7 @@ export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mo
     gl.uniform1i(uImage, 0);
     gl.uniform1f(uHasImage, 0.0);
     gl.uniform1f(uImageAspect, 1.0);
+    gl.uniform1f(uLetters, showLetters ? 1.0 : 0.0);
 
     let needsRender = true;
     let texture: WebGLTexture | null = null;
@@ -484,6 +492,9 @@ export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mo
     );
     observer.observe(canvas);
 
+    const resizeObserver = new ResizeObserver(() => resize());
+    resizeObserver.observe(canvas);
+
     function render() {
       raf = requestAnimationFrame(render);
       if (!visible) return;
@@ -515,6 +526,7 @@ export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mo
     return () => {
       cancelAnimationFrame(raf);
       observer.disconnect();
+      resizeObserver.disconnect();
       window.removeEventListener("resize", resize);
       window.removeEventListener("mouseup", onMouseUp);
       canvas.removeEventListener("mouseenter", onMouseEnter);
@@ -530,7 +542,7 @@ export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mo
       gl.deleteBuffer(buf);
       if (texture) gl.deleteTexture(texture);
     };
-  }, [invert, imageSrc, mobileImageSrc]);
+  }, [invert, imageSrc, mobileImageSrc, showLetters]);
 
   return (
     <canvas

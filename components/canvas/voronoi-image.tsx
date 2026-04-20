@@ -25,6 +25,7 @@ export function VoronoiImage({ src, alt }: VoronoiImageProps) {
     const color = parts[1]?.trim() || "white";
     const pos = parts[2]?.trim() || "left";
     const isBottom = pos.startsWith("bottom");
+    const isMiddleVertical = pos === "center";
     const isRight = pos.includes("right");
     const isCenter = pos.includes("center");
     const hClass = isCenter
@@ -34,14 +35,16 @@ export function VoronoiImage({ src, alt }: VoronoiImageProps) {
         : "left-6 md:left-20";
     const vClass = isBottom
       ? "bottom-6 md:bottom-20"
-      : "top-6 md:top-20";
+      : isMiddleVertical
+        ? "top-1/2 -translate-y-1/2"
+        : "top-6 md:top-20";
 
     return (
       <div
         className="relative my-12 -mx-6 md:mx-0 md:w-[768px] md:max-w-[768px] md:left-1/2 md:-translate-x-1/2 overflow-hidden md:rounded-lg"
         style={{ aspectRatio: aspect }}
       >
-        <VoronoiCanvas imageSrc={src} invert />
+        <VoronoiCanvas imageSrc={src} invert showLetters={false} />
         <span
           className={`absolute ${vClass} ${hClass} font-mono text-2xl font-bold uppercase tracking-[0.1em] md:text-5xl pointer-events-none z-10`}
           style={{ color, whiteSpace: "pre-line" }}
@@ -57,7 +60,7 @@ export function VoronoiImage({ src, alt }: VoronoiImageProps) {
       className="relative my-8 rounded-lg overflow-hidden w-full md:w-[768px] md:max-w-[768px] md:left-1/2 md:-translate-x-1/2"
       style={{ aspectRatio: aspect }}
     >
-      <VoronoiCanvas imageSrc={src} invert />
+      <VoronoiCanvas imageSrc={src} invert showLetters={false} />
       {alt && <span className="sr-only">{alt}</span>}
     </div>
   );
