@@ -497,11 +497,7 @@ export function ParticleTextCanvas({
         };
 
         // Collision bitmap is the same w × h CSS-pixel canvas either
-        // way — just text, no disc. Set it up once per rebuild. Letters
-        // are drawn with both fill *and* a stroke so the collision
-        // footprint is wider than the visible letter shape — at lower
-        // particle counts this creates a visible halo around the text
-        // because the carved-out zone is wider than the letter itself.
+        // way — just text, no disc.
         textBitmapCanvas.width = w;
         textBitmapCanvas.height = h;
         const cCtx = textBitmapCanvas.getContext("2d")!;
@@ -510,16 +506,10 @@ export function ParticleTextCanvas({
         cCtx.textBaseline = "middle";
         cCtx.letterSpacing = "0.1em";
         cCtx.fillStyle = "white";
-        cCtx.strokeStyle = "white";
-        cCtx.lineJoin = "round";
 
         if (stacked) {
           const lines = ["ANYTHING", "BUT", "ANALOG"];
-          // Per-line alignment: ANYTHING flushed right, BUT centered,
-          // ANALOG flushed left — produces a right→center→left stair as
-          // you read top to bottom.
-          const aligns: ("right" | "center" | "left")[] = ["right", "center", "left"];
-          const padFrac = 0.08;
+          const leftPadFrac = 0.08;
           const lineHeight = 1.2;
           const widthBudget = w * 0.75;
           const heightBudget = h * 0.55;
@@ -529,35 +519,28 @@ export function ParticleTextCanvas({
           const fontStr = `bold ${fontSize}px Jost, sans-serif`;
           tCtx.font = fontStr;
           cCtx.font = fontStr;
+          tCtx.textAlign = "left";
           tCtx.textBaseline = "middle";
           tCtx.letterSpacing = "0.1em";
+          cCtx.textAlign = "left";
 
+          const startX = w * leftPadFrac;
           const yAt = (i: number) => (h * (i + 1)) / (lines.length + 1);
-          const xFor = (align: "left" | "center" | "right") =>
-            align === "left" ? w * padFrac : align === "right" ? w * (1 - padFrac) : w / 2;
 
           for (let i = 0; i < lines.length; i++) {
-            tCtx.textAlign = aligns[i];
             tCtx.fillStyle = lines[i] === "ANALOG" ? whiteColor : textColor;
-            tCtx.fillText(lines[i], xFor(aligns[i]), yAt(i));
+            tCtx.fillText(lines[i], startX, yAt(i));
           }
 
           const analogIdx = lines.indexOf("ANALOG");
-          tCtx.textAlign = "left";
           const analogWidth = tCtx.measureText("ANALOG").width;
-          const analogLeft = xFor("left");
-          goldCircle.cx = analogLeft + analogWidth / 2;
+          goldCircle.cx = startX + analogWidth / 2;
           goldCircle.cy = yAt(analogIdx);
           goldCircle.r = analogWidth * 0.65;
           goldVicinity = goldCircle.r * 0.5;
 
-          // Stroke the text wider in the collision bitmap so the
-          // carved-out zone is bigger than the visible letter shape.
-          cCtx.lineWidth = fontSize * 0.18;
           for (let i = 0; i < lines.length; i++) {
-            cCtx.textAlign = aligns[i];
-            cCtx.strokeText(lines[i], xFor(aligns[i]), yAt(i));
-            cCtx.fillText(lines[i], xFor(aligns[i]), yAt(i));
+            cCtx.fillText(lines[i], startX, yAt(i));
           }
         } else {
           // Desktop: single-line "ANYTHING BUT ANALOG", centered, with
@@ -587,10 +570,7 @@ export function ParticleTextCanvas({
           goldCircle.r = highlightWidth * 0.6;
           goldVicinity = goldCircle.r * 0.5;
 
-          cCtx.lineWidth = fontSize * 0.18;
-          cCtx.strokeText(prefix, startX, centerY);
           cCtx.fillText(prefix, startX, centerY);
-          cCtx.strokeText(highlight, startX + prefixWidth, centerY);
           cCtx.fillText(highlight, startX + prefixWidth, centerY);
         }
 
