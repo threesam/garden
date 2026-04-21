@@ -42,15 +42,15 @@ export const day30: Sketch = {
     const TARGET = 700;
 
     function spawn(): Walker {
-      // Smaller figures overall — quarter 1.5-4.5 (was 3-10) so the
-      // total glyph footprint is roughly half.
+      // Smaller figures overall.
       const quarter = map(rng(), 0, 1, 1.5, 4.5);
       return {
-        // Spawn just below the bottom-right quadrant, outside the frame.
-        // y > h/2 = below the visible bottom in world coords (origin at
-        // canvas center after translate(w/2, h/2)).
-        x: map(rng(), 0, 1, -w * 0.1, w * 0.55),
-        y: map(rng(), 0, 1, h * 0.5 + 20, h * 0.5 + 260),
+        // Spawn bottom-LEFT (below + left of the frame) so the NE flow
+        // carries them DIAGONALLY across the whole canvas instead of
+        // exiting the right edge immediately.
+        // World coords: origin at center; +x right, +y down.
+        x: map(rng(), 0, 1, -w * 0.55 - 40, 0),
+        y: map(rng(), 0, 1, h * 0.5 + 20, h * 0.5 + 300),
         quarter,
         half: quarter * 2,
         limbLength: map(rng(), 0, 1, 22, 34),
@@ -99,10 +99,9 @@ export const day30: Sketch = {
 
     return {
       tick() {
-        // Short-trail fade: ~18% per frame — imprints are visibly gone
-        // within ~15 frames so the sketch reads as streaming motion, not
-        // accumulation.
-        ctx.fillStyle = "rgba(0,0,0,0.18)";
+        // Short-trail fade at 13% per frame — imprints visibly gone in
+        // ~22 frames; reads as a streaming crowd, not accumulation.
+        ctx.fillStyle = "rgba(0,0,0,0.13)";
         ctx.fillRect(0, 0, w, h);
 
         // Top up to target — spawn until density is maintained. Using a
