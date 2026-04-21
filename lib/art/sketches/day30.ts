@@ -84,7 +84,20 @@ export const day30: Sketch = {
     ctx.fillRect(0, 0, w, h);
 
     return {
-      tick() {
+      tick(_, frame) {
+        // Short trail: aggressive fade every frame wipes old imprints fast so
+        // the canvas reads as "figures walking" rather than "figures
+        // accumulating". 18% per frame → visibly gone in ~15 frames.
+        ctx.fillStyle = "rgba(0,0,0,0.18)";
+        ctx.fillRect(0, 0, w, h);
+
+        // Exponential backoff on imprint rate: start drawing every frame,
+        // double the interval every ~300 frames, cap at every-64th frame.
+        // Dense early activity → sparse breadcrumbs over time.
+        const step = Math.floor(frame / 300);
+        const drawInterval = Math.min(64, 1 << step);
+        const drawThisFrame = frame % drawInterval === 0;
+
         ctx.save();
         ctx.translate(w / 2, h / 2);
 
@@ -99,14 +112,13 @@ export const day30: Sketch = {
           walker.x += Math.cos(angle) * 1.2;
           walker.y += Math.sin(angle) * 1.2;
 
-          ctx.save();
-          ctx.translate(walker.x, walker.y);
-          // Face the flow — add +π/2 because the figure's "up" axis is its
-          // torso-to-head direction; rotating it by the flow angle keeps
-          // limbs trailing behind naturally.
-          ctx.rotate(angle + Math.PI / 2);
-          drawWalker(walker);
-          ctx.restore();
+          if (drawThisFrame) {
+            ctx.save();
+            ctx.translate(walker.x, walker.y);
+            ctx.rotate(angle + Math.PI / 2);
+            drawWalker(walker);
+            ctx.restore();
+          }
 
           walker.life--;
           const offscreen =
