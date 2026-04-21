@@ -23,10 +23,10 @@ function pickParticleCount(): { count: number; animate: boolean } {
   const isMobile = w < 768;
   const isLowMem = dm !== undefined && dm < 4;
 
-  // Roughly halved from previous tuning — 1.5M was hitting vertex throughput
-  // on mid desktops once the gallery page also runs 2–3 other sketches
-  // concurrently. These counts still look dense enough visually.
-  if (isMobile || isLowMem) return { count: 80_000, animate: true };
+  // Mobile bumped to 200k so the ANALOG tint circle has enough density
+  // to read as a solid dark zone — at 80k the zone was a faint gray
+  // cloud and white ANALOG text disappeared into the background.
+  if (isMobile || isLowMem) return { count: 200_000, animate: true };
   if (w < 1280) return { count: 250_000, animate: true };
   if (w < 1920) return { count: 450_000, animate: true };
   return { count: 700_000, animate: true };
@@ -147,15 +147,19 @@ void main() {
   vec2 clip = (a_position / u_resolution) * 2.0 - 1.0;
   clip.y *= -1.0;
   gl_Position = vec4(clip, 0.0, 1.0);
-  gl_PointSize = u_pointSize;
 
   vec3 baseColor = a_color;
+  float t = 0.0;
   if (u_goldRadius > 0.0) {
     float dist = distance(a_position, u_goldCenter);
-    // t = 1 inside the disc, smoothly falls to 0 over u_goldVicinity.
-    float t = 1.0 - smoothstep(u_goldRadius, u_goldRadius + u_goldVicinity, dist);
+    t = 1.0 - smoothstep(u_goldRadius, u_goldRadius + u_goldVicinity, dist);
     baseColor = mix(a_color, u_goldColor, t);
   }
+  // Mild size boost inside the tint zone — just enough to let the
+  // dark circle hold its shape at lower particle counts. Anything
+  // larger visually blankets the ANALOG letter cutouts that the
+  // collision texture carves into the disc.
+  gl_PointSize = u_pointSize * (1.0 + t * 0.35);
   v_color = baseColor;
 }
 `;
@@ -473,27 +477,6 @@ export function ParticleTextCanvas({
       // Reset — radius 0 disables the window.
       goldCircle.cx = goldCircle.cy = goldCircle.r = 0;
       if (!hideText) {
-        const lines = ["ANYTHING", "BUT", "ANALOG"];
-        // Width divisor is a rough "ANYTHING-widths-per-fontSize"
-        // coefficient for Bold Jost at 0.1em letter spacing — empirically
-        // ~6.5. Height budget is 55% split across 3 lines × 1.2 line
-        // height. Whichever binds first wins, then clamp.
-        const leftPadFrac = 0.08;
-        const lineHeight = 1.2;
-        const widthBudget = w * 0.75;
-        const heightBudget = h * 0.55;
-        const sizeFromW = widthBudget / 6.5;
-        const sizeFromH = heightBudget / (lines.length * lineHeight);
-        const fontSize = Math.max(22, Math.min(120, Math.min(sizeFromW, sizeFromH)));
-        const fontStr = `bold ${fontSize}px Jost, sans-serif`;
-        tCtx.font = fontStr;
-        tCtx.textAlign = "left";
-        tCtx.textBaseline = "middle";
-        tCtx.letterSpacing = "0.1em";
-
-        const startX = w * leftPadFrac;
-        // Evenly-spaced vertical centers: line i at h * (i + 1) / (n + 1).
-        const yAt = (i: number) => (h * (i + 1)) / (lines.length + 1);
         const whiteColor =
           getComputedStyle(container!).getPropertyValue("--white").trim() ||
           "#ffffff";
@@ -501,45 +484,116 @@ export function ParticleTextCanvas({
           getComputedStyle(container!).getPropertyValue("--black").trim() ||
           "#111";
 
-        // Draw ANYTHING and BUT first, then the ANALOG dark disc, then
-        // ANALOG text on top of the disc. Drawing the disc on the text
-        // canvas (not just as a particle tint) guarantees white-on-dark
-        // contrast at any viewport size — particle density alone was
-        // too sparse at mobile to do that job.
-        for (let i = 0; i < lines.length; i++) {
-          if (lines[i] === "ANALOG") continue;
-          tCtx.fillStyle = textColor;
-          tCtx.fillText(lines[i], startX, yAt(i));
-        }
+        // Desktop keeps the original single-line "ANYTHING BUT ANALOG"
+        // layout; mobile stacks into three lines so the word fits and
+        // ANALOG isn't pushed off-screen. Breakpoint matches the rest
+        // of the site.
+        const stacked = w < 768;
 
-        const analogIdx = lines.indexOf("ANALOG");
-        const analogWidth = tCtx.measureText("ANALOG").width;
-        goldCircle.cx = startX + analogWidth / 2;
-        goldCircle.cy = yAt(analogIdx);
-        goldCircle.r = analogWidth * 0.65;
-        goldVicinity = goldCircle.r * 0.5;
+        const textBaselineMiddle = () => {
+          tCtx.textAlign = "left";
+          tCtx.textBaseline = "middle";
+          tCtx.letterSpacing = "0.1em";
+        };
 
-        tCtx.fillStyle = blackColor;
-        tCtx.beginPath();
-        tCtx.arc(goldCircle.cx, goldCircle.cy, goldCircle.r, 0, Math.PI * 2);
-        tCtx.fill();
-
-        tCtx.fillStyle = whiteColor;
-        tCtx.fillText("ANALOG", startX, yAt(analogIdx));
-
-        // Collision texture: same layout in a CSS-pixel-sized canvas.
+        // Collision bitmap is the same w × h CSS-pixel canvas either
+        // way — just text, no disc. Set it up once per rebuild. Letters
+        // are drawn with both fill *and* a stroke so the collision
+        // footprint is wider than the visible letter shape — at lower
+        // particle counts this creates a visible halo around the text
+        // because the carved-out zone is wider than the letter itself.
         textBitmapCanvas.width = w;
         textBitmapCanvas.height = h;
         const cCtx = textBitmapCanvas.getContext("2d")!;
         cCtx.clearRect(0, 0, w, h);
-        cCtx.font = fontStr;
         cCtx.textAlign = "left";
         cCtx.textBaseline = "middle";
         cCtx.letterSpacing = "0.1em";
         cCtx.fillStyle = "white";
-        for (let i = 0; i < lines.length; i++) {
-          cCtx.fillText(lines[i], startX, yAt(i));
+        cCtx.strokeStyle = "white";
+        cCtx.lineJoin = "round";
+
+        if (stacked) {
+          const lines = ["ANYTHING", "BUT", "ANALOG"];
+          // Per-line alignment: ANYTHING flushed right, BUT centered,
+          // ANALOG flushed left — produces a right→center→left stair as
+          // you read top to bottom.
+          const aligns: ("right" | "center" | "left")[] = ["right", "center", "left"];
+          const padFrac = 0.08;
+          const lineHeight = 1.2;
+          const widthBudget = w * 0.75;
+          const heightBudget = h * 0.55;
+          const sizeFromW = widthBudget / 6.5;
+          const sizeFromH = heightBudget / (lines.length * lineHeight);
+          const fontSize = Math.max(22, Math.min(120, Math.min(sizeFromW, sizeFromH)));
+          const fontStr = `bold ${fontSize}px Jost, sans-serif`;
+          tCtx.font = fontStr;
+          cCtx.font = fontStr;
+          tCtx.textBaseline = "middle";
+          tCtx.letterSpacing = "0.1em";
+
+          const yAt = (i: number) => (h * (i + 1)) / (lines.length + 1);
+          const xFor = (align: "left" | "center" | "right") =>
+            align === "left" ? w * padFrac : align === "right" ? w * (1 - padFrac) : w / 2;
+
+          for (let i = 0; i < lines.length; i++) {
+            tCtx.textAlign = aligns[i];
+            tCtx.fillStyle = lines[i] === "ANALOG" ? whiteColor : textColor;
+            tCtx.fillText(lines[i], xFor(aligns[i]), yAt(i));
+          }
+
+          const analogIdx = lines.indexOf("ANALOG");
+          tCtx.textAlign = "left";
+          const analogWidth = tCtx.measureText("ANALOG").width;
+          const analogLeft = xFor("left");
+          goldCircle.cx = analogLeft + analogWidth / 2;
+          goldCircle.cy = yAt(analogIdx);
+          goldCircle.r = analogWidth * 0.65;
+          goldVicinity = goldCircle.r * 0.5;
+
+          // Stroke the text wider in the collision bitmap so the
+          // carved-out zone is bigger than the visible letter shape.
+          cCtx.lineWidth = fontSize * 0.18;
+          for (let i = 0; i < lines.length; i++) {
+            cCtx.textAlign = aligns[i];
+            cCtx.strokeText(lines[i], xFor(aligns[i]), yAt(i));
+            cCtx.fillText(lines[i], xFor(aligns[i]), yAt(i));
+          }
+        } else {
+          // Desktop: single-line "ANYTHING BUT ANALOG", centered, with
+          // a particle-tint circle around ANALOG (no disc on text
+          // canvas — desktop has enough particles to do the job).
+          const prefix = "ANYTHING BUT ";
+          const highlight = "ANALOG";
+          const fontSize = w >= 1920 ? 120 : w >= 1280 ? 96 : 72;
+          const fontStr = `bold ${fontSize}px Jost, sans-serif`;
+          tCtx.font = fontStr;
+          cCtx.font = fontStr;
+          textBaselineMiddle();
+
+          const prefixWidth = tCtx.measureText(prefix).width;
+          const highlightWidth = tCtx.measureText(highlight).width;
+          const totalWidth = prefixWidth + highlightWidth;
+          const startX = (w - totalWidth) / 2;
+          const centerY = h / 2;
+
+          tCtx.fillStyle = textColor;
+          tCtx.fillText(prefix, startX, centerY);
+          tCtx.fillStyle = whiteColor;
+          tCtx.fillText(highlight, startX + prefixWidth, centerY);
+
+          goldCircle.cx = startX + prefixWidth + highlightWidth / 2;
+          goldCircle.cy = centerY;
+          goldCircle.r = highlightWidth * 0.6;
+          goldVicinity = goldCircle.r * 0.5;
+
+          cCtx.lineWidth = fontSize * 0.18;
+          cCtx.strokeText(prefix, startX, centerY);
+          cCtx.fillText(prefix, startX, centerY);
+          cCtx.strokeText(highlight, startX + prefixWidth, centerY);
+          cCtx.fillText(highlight, startX + prefixWidth, centerY);
         }
+
         const collisionData = cCtx.getImageData(0, 0, w, h).data;
         for (let i = 0; i < r8.length; i++) r8[i] = collisionData[i * 4 + 3];
       }
