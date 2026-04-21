@@ -587,7 +587,7 @@ export function ParticleTextCanvas({ countOverride }: ParticleTextCanvasProps = 
   return (
     <div
       ref={containerRef}
-      className="relative my-12 overflow-hidden snap-start"
+      className="relative overflow-hidden snap-start"
       style={{
         left: "calc(50% - 50vw)",
         width: "100vw",

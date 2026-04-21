@@ -68,6 +68,15 @@ export const sketches: Sketch[] = [
   day1,
 ];
 
+/**
+ * Slugs hidden from the gallery scroll (because they're slow, broken, or
+ * otherwise not ready for a curated tour). Still accessible via
+ * `/anything-but-analog/raw/<n>` for direct viewing.
+ */
+export const HIDDEN_SLUGS = new Set<string>(["21", "32", "33"]);
+
+export const visibleSketches: Sketch[] = sketches.filter((s) => !HIDDEN_SLUGS.has(s.slug));
+
 export function getSketch(slug: string): Sketch | null {
   return sketches.find((s) => s.slug === slug) ?? null;
 }

@@ -15,7 +15,7 @@ export const day16: Sketch = {
     const increment = 3;
     const multi = 0.1;
 
-    ctx.fillStyle = "rgb(26,26,20)";
+    ctx.fillStyle = "rgb(0,0,0)";
     ctx.fillRect(0, 0, w, h);
     ctx.save();
     ctx.translate(w / 2, h / 2);

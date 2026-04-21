@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ArtGallery } from "@/components/art/art-gallery";
 import { ArtScrollSync } from "@/components/art/art-scroll-sync";
 import { ParticleTextCanvas } from "@/components/canvas/particle-text-canvas";
-import { sketches } from "@/lib/art/registry";
+import { visibleSketches } from "@/lib/art/registry";
 
 export const metadata: Metadata = {
   title: "anything but analog — threesam",
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default function AnythingButAnalogPage() {
-  const meta = sketches.map((s) => ({ slug: s.slug, date: s.date }));
+  const meta = visibleSketches.map((s) => ({ slug: s.slug, date: s.date }));
   return (
     <main
       id="art-scroller"

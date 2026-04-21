@@ -1,13 +1,13 @@
 import type { Sketch } from "../types";
 
-// Where my friends at — grid of yellow smileys with spotlight fade. Mouse
-// position (if tracked elsewhere) would drive the spotlight; here we anchor
-// it to center for a static render.
+// Where my friends at — grid of yellow smileys with a cursor-driven
+// spotlight. Hover reveals nearby friends; those outside the spotlight
+// fade toward near-invisible.
 export const day6: Sketch = {
   slug: "6",
   title: "friends",
   date: "2022-01-06",
-  setup(api) {
+  setup(api, canvas) {
     const { ctx, w, h, rng, map, dist } = api;
     const isLandscape = w > h;
     const increment = 50;
@@ -39,42 +39,65 @@ export const day6: Sketch = {
       }
     }
 
-    ctx.fillStyle = "rgb(26,26,20)";
-    ctx.fillRect(0, 0, w, h);
-
-    const cx = w / 2;
-    const cy = h / 2;
     const smallSide = isLandscape ? h : w;
-    const spotlight = smallSide * 0.8;
-    const maxDist = Math.hypot(w, h);
+    const spotlight = smallSide * 0.6;
+    // Track cursor in CSS-pixel space of the canvas. Default to center so
+    // the first frame isn't blank, and fall back to center on pointerleave.
+    let mx = w / 2;
+    let my = h / 2;
 
-    for (const f of friends) {
-      const d = dist(cx, cy, f.x, f.y);
-      const r = Math.floor(map(f.x, 0, w, 200, 255));
-      // Floor alpha at 0.25 so every friend is visible; center ones pop.
-      const a = Math.max(0.25, map(d, 0, spotlight, 1, 0.25));
-      const eyeMulti = Math.max(0.5, map(d, 0, spotlight, 2, 0.5));
-      void maxDist;
-
-      ctx.fillStyle = `rgba(${r}, ${r}, 0, ${a})`;
-      ctx.beginPath();
-      ctx.arc(f.x, f.y, f.size / 2, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = "rgb(0,0,0)";
-      ctx.beginPath();
-      ctx.arc(f.lx, f.ey, (f.lSize * eyeMulti) / 2, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(f.rx, f.ey, (f.rSize * eyeMulti) / 2, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = "rgb(0,0,0)";
-      ctx.lineWidth = 3;
-      const halfLine = map(d, spotlight, 0, f.size / 5, f.size / 15);
-      ctx.beginPath();
-      ctx.moveTo(f.x - halfLine, f.y + halfLine);
-      ctx.lineTo(f.x + halfLine, f.y + halfLine);
-      ctx.stroke();
+    function onMove(e: PointerEvent) {
+      const rect = canvas.getBoundingClientRect();
+      mx = e.clientX - rect.left;
+      my = e.clientY - rect.top;
     }
-    return {};
+    function onLeave() {
+      mx = w / 2;
+      my = h / 2;
+    }
+
+    canvas.addEventListener("pointermove", onMove);
+    canvas.addEventListener("pointerleave", onLeave);
+
+    function render() {
+      ctx.fillStyle = "rgb(0,0,0)";
+      ctx.fillRect(0, 0, w, h);
+
+      for (const f of friends) {
+        const d = dist(mx, my, f.x, f.y);
+        const r = Math.floor(map(f.x, 0, w, 200, 255));
+        const a = Math.max(0.15, map(d, 0, spotlight, 1, 0.15));
+        const eyeMulti = Math.max(0.5, map(d, 0, spotlight, 2, 0.5));
+
+        ctx.fillStyle = `rgba(${r}, ${r}, 0, ${a})`;
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, f.size / 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "rgb(0,0,0)";
+        ctx.beginPath();
+        ctx.arc(f.lx, f.ey, (f.lSize * eyeMulti) / 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(f.rx, f.ey, (f.rSize * eyeMulti) / 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "rgb(0,0,0)";
+        ctx.lineWidth = 3;
+        const halfLine = map(d, spotlight, 0, f.size / 5, f.size / 15);
+        ctx.beginPath();
+        ctx.moveTo(f.x - halfLine, f.y + halfLine);
+        ctx.lineTo(f.x + halfLine, f.y + halfLine);
+        ctx.stroke();
+      }
+    }
+
+    render(); // first paint
+
+    return {
+      tick: render,
+      cleanup() {
+        canvas.removeEventListener("pointermove", onMove);
+        canvas.removeEventListener("pointerleave", onLeave);
+      },
+    };
   },
 };

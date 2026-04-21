@@ -9,7 +9,7 @@ export const day9: Sketch = {
   date: "2022-01-09",
   setup(api) {
     const { ctx, w, h } = api;
-    ctx.fillStyle = "rgb(26,26,20)";
+    ctx.fillStyle = "rgb(0,0,0)";
     ctx.fillRect(0, 0, w, h);
     ctx.save();
     ctx.translate(w / 2, h / 2);
@@ -17,7 +17,7 @@ export const day9: Sketch = {
     const slab = 20;
     ctx.strokeStyle = "rgb(245,240,232)";
     ctx.lineWidth = 1.5;
-    ctx.fillStyle = "rgb(26,26,20)";
+    ctx.fillStyle = "rgb(0,0,0)";
 
     // 5 stacked cylinder slabs (drawn as ellipse caps + side rects)
     const cylR = 100;
@@ -49,7 +49,7 @@ export const day9: Sketch = {
     ctx.stroke();
 
     // door's negative space
-    ctx.fillStyle = "rgb(26,26,20)";
+    ctx.fillStyle = "rgb(0,0,0)";
     ctx.beginPath();
     ctx.rect(-20, slab, 40, 60);
     ctx.fill();
