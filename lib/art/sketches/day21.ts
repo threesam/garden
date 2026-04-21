@@ -1,10 +1,13 @@
 import type { Sketch } from "../types";
 
-// Flow × ML (day4 + day10 mash-up) — particles flow along a noise field
-// leaving cumulative trails. Inside the central square they read as
-// cream/white "organic" worms; outside the square they turn red
-// ("machine learning gone wrong"). Head dots appear at each step's leading
-// end and are what give the composition its beaded look.
+// day21 — faithful port of the Sapper original: a jittered grid of particles
+// is shuffled, then revealed one per frame. Each active particle walks a
+// noise-angled flow field and paints a *circle* (not a line) at its new
+// position every frame. Size + stroke alpha come from a second noise
+// sample. Inside a central padded rectangle circles are white with faint
+// black strokes; outside they flip to black circles with red strokes — the
+// "fidenza + machine learning gone wrong" combo described in the original
+// Instagram post.
 export const day21: Sketch = {
   slug: "21",
   title: "flow ml",
@@ -12,79 +15,73 @@ export const day21: Sketch = {
   setup(api) {
     const { ctx, w, h, rng, noise, map } = api;
     const smallSide = Math.min(w, h);
-    const boundaryHalf = smallSide * 0.35;
-    const cx = w / 2;
-    const cy = h / 2;
+    // Density dialed down from the Sapper original's 500 (which produced
+    // ~250k particles at a 1080p viewport — unnecessary) to 100, which
+    // still saturates the composition nicely at ~10k particles.
+    const density = 100;
+    const padding = 0.7;
+    const space = (smallSide / density) * padding;
+    const left = w / 2 - (smallSide / 2) * padding;
+    const right = w / 2 + (smallSide / 2) * padding;
+    const bottom = h / 2 - (smallSide / 2) * padding;
+    const top = h / 2 + (smallSide / 2) * padding;
     const multi = 0.004;
 
-    interface P {
+    interface V {
       x: number;
       y: number;
-      trailW: number; // line thickness
-      headR: number; // head dot radius (distinct from trail to read as "ball")
-      life: number;
     }
-
-    const PARTICLE_COUNT = 90;
-    const particles: P[] = [];
-    function spawn(): P {
-      const trailW = map(rng(), 0, 1, 0.8, 2.5);
-      return {
-        x: map(rng(), 0, 1, 0, w),
-        y: map(rng(), 0, 1, 0, h),
-        trailW,
-        // Head dot is 3-4× the trail width so you can actually see the ball
-        // moving instead of it disappearing into its own path.
-        headR: trailW * map(rng(), 0, 1, 3, 5),
-        life: Math.floor(map(rng(), 0, 1, 120, 600)),
-      };
+    const vectors: V[] = [];
+    for (let x = left; x < right; x += space) {
+      for (let y = bottom; y < top; y += space) {
+        vectors.push({
+          x: x + map(rng(), 0, 1, -space, space),
+          y: y + map(rng(), 0, 1, -space, space),
+        });
+      }
     }
-    for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(spawn());
+    // Fisher-Yates shuffle so the progressive reveal seeds randomly across
+    // the grid instead of sweeping corner-to-corner.
+    for (let i = vectors.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [vectors[i], vectors[j]] = [vectors[j], vectors[i]];
+    }
 
     ctx.fillStyle = "rgb(0,0,0)";
     ctx.fillRect(0, 0, w, h);
-    ctx.lineCap = "round";
+    ctx.lineWidth = 1;
 
     return {
-      tick() {
-        for (const p of particles) {
-          const angle = map(noise(p.x * multi, p.y * multi), 0, 1, 0, Math.PI * 4);
-          const nx = p.x + Math.cos(angle) * 1.8;
-          const ny = p.y + Math.sin(angle) * 1.8;
+      tick(_, frame) {
+        const max = Math.min(frame + 1, vectors.length);
+        for (let i = 0; i < max; i++) {
+          const v = vectors[i];
+          // The original treats the noise value as "an angle in 0-720" and
+          // passes it straight to Math.cos/sin, which interpret it as
+          // radians. Keeping that literal — it produces more chaotic
+          // direction churn than a clean 0-2π mapping, which is what the
+          // aesthetic depends on.
+          const angle = map(noise(v.x * multi, v.y * multi), 0, 1, 0, 720);
+          v.x += Math.cos(angle);
+          v.y += Math.sin(angle);
 
-          const outside =
-            Math.abs(nx - cx) > boundaryHalf || Math.abs(ny - cy) > boundaryHalf;
-          const trailRGBA = outside
-            ? "rgba(225, 40, 40, 0.7)"
-            : "rgba(235, 230, 220, 0.5)";
-          const headRGBA = outside ? "rgb(255, 60, 60)" : "rgb(255, 255, 255)";
+          const n = noise(v.x * 0.025, v.y * 0.025);
+          const size = map(n, 0, 1, 1, 33);
+          const isOutside =
+            v.x < left || v.x > right || v.y > top || v.y < bottom;
 
-          // trail stroke — thin
-          ctx.lineWidth = p.trailW;
-          ctx.strokeStyle = trailRGBA;
-          ctx.beginPath();
-          ctx.moveTo(p.x, p.y);
-          ctx.lineTo(nx, ny);
-          ctx.stroke();
-
-          // head dot — thick, opaque, distinct from trail
-          ctx.fillStyle = headRGBA;
-          ctx.beginPath();
-          ctx.arc(nx, ny, p.headR, 0, Math.PI * 2);
-          ctx.fill();
-
-          p.x = nx;
-          p.y = ny;
-          p.life--;
-
-          if (p.life <= 0 || p.x < -20 || p.x > w + 20 || p.y < -20 || p.y > h + 20) {
-            const fresh = spawn();
-            p.x = fresh.x;
-            p.y = fresh.y;
-            p.trailW = fresh.trailW;
-            p.headR = fresh.headR;
-            p.life = fresh.life;
+          if (isOutside) {
+            ctx.fillStyle = "rgb(0,0,0)";
+            ctx.strokeStyle = "rgb(255,0,0)";
+          } else {
+            ctx.fillStyle = "rgb(255,255,255)";
+            ctx.strokeStyle = `rgba(0,0,0,${1 - n})`;
           }
+
+          ctx.beginPath();
+          ctx.arc(v.x, v.y, size / 2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
         }
       },
     };
