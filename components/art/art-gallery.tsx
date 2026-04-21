@@ -77,8 +77,15 @@ export function ArtGallery({ sketches, heroCount = 1, lookahead = 2, lookback = 
           >
             <SketchHost slug={s.slug} active={active} />
             <span
-              className="pointer-events-none absolute top-6 left-6 z-10 font-mono text-sm font-bold uppercase tracking-[0.25em] md:top-10 md:left-10 md:text-base"
-              style={{ color: "var(--white)", mixBlendMode: "difference" }}
+              className="pointer-events-none absolute top-5 left-5 z-10 grid place-items-center font-mono text-xs font-bold uppercase tracking-[0.12em] md:top-6 md:left-8"
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: "50%",
+                backgroundColor: "var(--black)",
+                color: "var(--white)",
+                boxShadow: "inset 0 0 0 1.5px var(--white), 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1)",
+              }}
             >
               {s.slug}
             </span>

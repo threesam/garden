@@ -125,8 +125,9 @@ out vec4 outColor;
 void main() { outColor = vec4(0.0); }
 `;
 
-// Vertex shader for render pass: convert pixel position to clip space, draw as
-// a single point. gl_PointSize must be set or points won't render.
+// Vertex shader for render pass. The scene is a_color (light grays) by
+// default; particles inside a circular window around ANALOG are pushed
+// to u_goldColor (black) so the word sits inside a dark disc.
 const RENDER_VERT = `#version 300 es
 precision highp float;
 
@@ -135,6 +136,10 @@ in vec3 a_color;
 
 uniform vec2 u_resolution;
 uniform float u_pointSize;
+uniform vec2 u_goldCenter;     // circle center (pixels)
+uniform float u_goldRadius;    // circle radius (pixels) — 0 disables window
+uniform vec3 u_goldColor;
+uniform float u_goldVicinity;  // soft fade thickness outside the radius
 
 out vec3 v_color;
 
@@ -143,7 +148,15 @@ void main() {
   clip.y *= -1.0;
   gl_Position = vec4(clip, 0.0, 1.0);
   gl_PointSize = u_pointSize;
-  v_color = a_color;
+
+  vec3 baseColor = a_color;
+  if (u_goldRadius > 0.0) {
+    float dist = distance(a_position, u_goldCenter);
+    // t = 1 inside the disc, smoothly falls to 0 over u_goldVicinity.
+    float t = 1.0 - smoothstep(u_goldRadius, u_goldRadius + u_goldVicinity, dist);
+    baseColor = mix(a_color, u_goldColor, t);
+  }
+  v_color = baseColor;
 }
 `;
 
@@ -156,11 +169,10 @@ void main() {
 }
 `;
 
-// Grayscale range for per-particle color. Continuous distribution within
-// [GRAY_MIN, GRAY_MAX] picked at init — lighter than pure mid-gray so the
-// densest regions read as a warm silvery haze against the black bg.
-const GRAY_MIN = 80;
-const GRAY_MAX = 220;
+// Grayscale range for per-particle color. Light grays that sit subtly on
+// a white background — not invisible, but not competing with text either.
+const GRAY_MIN = 170;
+const GRAY_MAX = 215;
 
 function compileShader(gl: WebGL2RenderingContext, type: number, src: string): WebGLShader {
   const shader = gl.createShader(type)!;
@@ -271,7 +283,18 @@ export function ParticleTextCanvas({
     let rU = {
       resolution: null as WebGLUniformLocation | null,
       pointSize: null as WebGLUniformLocation | null,
+      goldCenter: null as WebGLUniformLocation | null,
+      goldRadius: null as WebGLUniformLocation | null,
+      goldColor: null as WebGLUniformLocation | null,
+      goldVicinity: null as WebGLUniformLocation | null,
     };
+    // Circular ANALOG window: center + radius in CSS pixels. Radius = 0
+    // disables the window (thumbnail / hideText path). Vicinity is
+    // computed per-rebuild as a fraction of the radius so the fade
+    // reads the same across mobile / desktop breakpoints.
+    const goldCircle = { cx: 0, cy: 0, r: 0 };
+    const goldRGB: [number, number, number] = [0, 0, 0];
+    let goldVicinity = 0;
 
     function setupGL(): boolean {
       gl = glCanvas!.getContext("webgl2", {
@@ -305,6 +328,10 @@ export function ParticleTextCanvas({
       rU = {
         resolution: gl.getUniformLocation(renderProg, "u_resolution"),
         pointSize: gl.getUniformLocation(renderProg, "u_pointSize"),
+        goldCenter: gl.getUniformLocation(renderProg, "u_goldCenter"),
+        goldRadius: gl.getUniformLocation(renderProg, "u_goldRadius"),
+        goldColor: gl.getUniformLocation(renderProg, "u_goldColor"),
+        goldVicinity: gl.getUniformLocation(renderProg, "u_goldVicinity"),
       };
 
       posBuffers = [gl.createBuffer()!, gl.createBuffer()!];
@@ -431,7 +458,9 @@ export function ParticleTextCanvas({
       gl!.viewport(0, 0, bufW, bufH);
 
       const containerStyle = getComputedStyle(container!);
-      textColor = containerStyle.getPropertyValue("--white").trim() || "#f5f0e8";
+      // On a white background "ANYTHING BUT" needs to be dark to be
+      // readable. ANALOG stays the --coin gold.
+      textColor = containerStyle.getPropertyValue("--black").trim() || "#111";
       goldColor = containerStyle.getPropertyValue("--coin").trim() || "#e8a317";
 
       // Render text to visible 2D canvas. Skipped when hideText is set —
@@ -441,10 +470,12 @@ export function ParticleTextCanvas({
       tCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
       const r8 = new Uint8Array(w * h);
+      // Reset — radius 0 disables the window.
+      goldCircle.cx = goldCircle.cy = goldCircle.r = 0;
       if (!hideText) {
         const prefix = "ANYTHING BUT ";
         const highlight = "ANALOG";
-        const fontSize = w >= 1920 ? 120 : w >= 1280 ? 96 : w >= 768 ? 72 : 22;
+        const fontSize = w >= 1920 ? 120 : w >= 1280 ? 96 : w >= 768 ? 72 : 32;
         const fontStr = `bold ${fontSize}px Jost, sans-serif`;
         tCtx.font = fontStr;
         tCtx.textAlign = "left";
@@ -457,8 +488,23 @@ export function ParticleTextCanvas({
         const centerY = h / 2;
         tCtx.fillStyle = textColor;
         tCtx.fillText(prefix, startX, centerY);
-        tCtx.fillStyle = goldColor;
+        // ANALOG sits inside the black particle square, so white reads
+        // clearly against it.
+        tCtx.fillStyle =
+          getComputedStyle(container!).getPropertyValue("--white").trim() ||
+          "#ffffff";
         tCtx.fillText(highlight, startX + prefixWidth, centerY);
+
+        // Circular window centered on ANALOG. Radius padded slightly
+        // past half the word width; vicinity is a fraction of the
+        // radius so the fade feels the same on mobile and desktop
+        // (hardcoded pixel values would dominate at small sizes and
+        // dilute the dark core).
+        goldCircle.cx = startX + prefixWidth + highlightWidth / 2;
+        goldCircle.cy = centerY;
+        goldCircle.r = highlightWidth * 0.6;
+        goldVicinity = goldCircle.r * 0.5;
+
 
         // Same text to a CSS-pixel-sized canvas for the collision texture.
         textBitmapCanvas.width = w;
@@ -527,6 +573,10 @@ export function ParticleTextCanvas({
       gl!.useProgram(renderProg);
       gl!.uniform2f(rU.resolution, w, h);
       gl!.uniform1f(rU.pointSize, pointSize * dpr);
+      gl!.uniform2f(rU.goldCenter, goldCircle.cx, goldCircle.cy);
+      gl!.uniform1f(rU.goldRadius, goldCircle.r);
+      gl!.uniform3f(rU.goldColor, goldRGB[0], goldRGB[1], goldRGB[2]);
+      gl!.uniform1f(rU.goldVicinity, goldVicinity);
       gl!.bindVertexArray(renderVaos[outIdx]);
 
       gl!.clearColor(0, 0, 0, 0); // transparent — text canvas underneath shows through
@@ -616,7 +666,7 @@ export function ParticleTextCanvas({
     <div
       ref={containerRef}
       className="relative h-full w-full overflow-hidden"
-      style={{ backgroundColor: "var(--black)" }}
+      style={{ backgroundColor: "var(--white)" }}
     >
       <canvas ref={textCanvasRef} className="absolute inset-0" />
       <canvas ref={glCanvasRef} className="absolute inset-0" />
