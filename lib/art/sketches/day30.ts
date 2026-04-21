@@ -1,79 +1,88 @@
 import type { Sketch } from "../types";
 
-// The crowd — procedural stick figures walking along a flow field. Each
-// figure has random proportions (size, torso, arm, leg, neck) established
-// once; every frame it samples a noise-angle at its current position,
-// steps forward, rotates to face the flow, and paints itself. The canvas
-// doesn't clear, so trails of figures accumulate along the flow lines —
-// the "crowd" trace over time.
+// The crowd — procedural stick figures walking along a gentle NE-biased
+// flow field. Spawn just below the bottom-right edge (off-screen),
+// stream up-and-right across the frame, pop off once they leave the
+// viewport. Each walker's proportions (size, torso, arm/leg/neck) are
+// fixed at spawn and maintained for its lifetime. Short fading trail so
+// recent paths remain faintly visible.
 export const day30: Sketch = {
   slug: "30",
   title: "the crowd",
   date: "2022-01-30",
   setup(api) {
     const { ctx, w, h, rng, noise, map } = api;
-    const smallSide = Math.min(w, h) * 0.75;
-    const multi = 0.002;
-    const start = -smallSide * 0.5;
-    const end = smallSide * 0.5;
+
+    // Looser, less-curvy flow: smaller `multi` means the noise varies
+    // over a much larger spatial scale, so nearby walkers follow nearly
+    // parallel headings.
+    const noiseScale = 0.0008;
+
+    // NE-biased flow: base angle -π/4 (up + right) plus noise-driven
+    // ±π/6 wobble. Walkers stay broadly streaming together instead of
+    // pinwheeling.
+    const baseAngle = -Math.PI / 4;
+    const wobble = Math.PI / 6;
 
     interface Walker {
       x: number;
       y: number;
-      // fixed proportions
+      // proportions — set once at spawn, immutable thereafter
       quarter: number;
       half: number;
       limbLength: number;
       torsoWidthOffset: number;
       torsoLength: number;
       neck: number;
-      color: number; // grey 0-255
-      life: number;
+      color: number;
     }
 
-    const WALKER_COUNT = 220;
     const walkers: Walker[] = [];
+    const TARGET = 700;
 
     function spawn(): Walker {
-      const quarter = map(rng(), 0, 1, 3, 10);
+      // Smaller figures overall — quarter 1.5-4.5 (was 3-10) so the
+      // total glyph footprint is roughly half.
+      const quarter = map(rng(), 0, 1, 1.5, 4.5);
       return {
-        x: map(rng(), 0, 1, start * 1.5, end * 1.5),
-        y: map(rng(), 0, 1, start * 1.5, end * 1.5),
+        // Spawn just below the bottom-right quadrant, outside the frame.
+        // y > h/2 = below the visible bottom in world coords (origin at
+        // canvas center after translate(w/2, h/2)).
+        x: map(rng(), 0, 1, -w * 0.1, w * 0.55),
+        y: map(rng(), 0, 1, h * 0.5 + 20, h * 0.5 + 260),
         quarter,
         half: quarter * 2,
-        limbLength: map(rng(), 0, 1, 50, 70),
-        torsoWidthOffset: map(rng(), 0, 1, 5, quarter),
-        torsoLength: map(rng(), 0, 1, 30, 50),
+        limbLength: map(rng(), 0, 1, 22, 34),
+        torsoWidthOffset: map(rng(), 0, 1, 1.5, quarter),
+        torsoLength: map(rng(), 0, 1, 12, 22),
         neck: rng() * quarter,
         color: Math.floor(map(rng(), 0, 1, 140, 255)),
-        life: Math.floor(map(rng(), 0, 1, 60, 400)),
       };
     }
-    for (let i = 0; i < WALKER_COUNT; i++) walkers.push(spawn());
 
-    function drawWalker(w: Walker) {
-      const q = w.quarter;
-      const h2 = w.half;
-      const torsoW = h2 - w.torsoWidthOffset;
-      const tl = w.torsoLength;
-      const ll = w.limbLength;
+    function drawWalker(wk: Walker) {
+      const q = wk.quarter;
+      const h2 = wk.half;
+      const torsoW = h2 - wk.torsoWidthOffset;
+      const tl = wk.torsoLength;
+      const ll = wk.limbLength;
       const minPossible = 0.025;
 
-      ctx.strokeStyle = `rgb(${w.color},${w.color},${w.color})`;
+      ctx.strokeStyle = `rgb(${wk.color},${wk.color},${wk.color})`;
       ctx.lineWidth = 1;
 
       ctx.save();
-      // head
-      if (rng() > minPossible) ctx.strokeRect(0, -h2 - w.neck, h2, h2);
-      // body
-      if (rng() > minPossible) ctx.strokeRect(w.torsoWidthOffset / 2, 0, torsoW, tl);
-      // arms — slight tilt
+      // Draw calls are deterministic per-figure (no per-frame randomness)
+      // so the same walker looks consistent as it moves. We reuse rng()
+      // intentionally to vary which limbs appear per frame — keeps figures
+      // jittery like the original static version.
+      if (rng() > minPossible) ctx.strokeRect(0, -h2 - wk.neck, h2, h2);
+      if (rng() > minPossible) ctx.strokeRect(wk.torsoWidthOffset / 2, 0, torsoW, tl);
       const armTilt = rng() * (Math.PI / 90);
       ctx.rotate(armTilt);
       if (rng() > minPossible) ctx.strokeRect(h2, 0, q, ll * (1 + rng() * 0.3));
       ctx.rotate(-armTilt);
       if (rng() > minPossible) ctx.strokeRect(-q, 0, q, ll * (1 + rng() * 0.3));
-      // legs — drop to below torso
       ctx.translate(0, tl);
       if (rng() > minPossible) ctx.strokeRect(q, 0, q, ll * (1 + rng() * 0.3));
       if (rng() > minPossible) ctx.strokeRect(0, 0, q, ll * (1 + rng() * 0.3));
@@ -83,53 +92,50 @@ export const day30: Sketch = {
     ctx.fillStyle = "rgb(0,0,0)";
     ctx.fillRect(0, 0, w, h);
 
+    const halfW = w / 2;
+    const halfH = h / 2;
+    const MARGIN = 80;
+
     return {
-      tick(_, frame) {
-        // Short trail: aggressive fade every frame wipes old imprints fast so
-        // the canvas reads as "figures walking" rather than "figures
-        // accumulating". 18% per frame → visibly gone in ~15 frames.
+      tick() {
+        // Short-trail fade: ~18% per frame — imprints are visibly gone
+        // within ~15 frames so the sketch reads as streaming motion, not
+        // accumulation.
         ctx.fillStyle = "rgba(0,0,0,0.18)";
         ctx.fillRect(0, 0, w, h);
 
-        // Exponential backoff on imprint rate: start drawing every frame,
-        // double the interval every ~300 frames, cap at every-64th frame.
-        // Dense early activity → sparse breadcrumbs over time.
-        const step = Math.floor(frame / 300);
-        const drawInterval = Math.min(64, 1 << step);
-        const drawThisFrame = frame % drawInterval === 0;
+        // Top up to target — spawn until density is maintained. Using a
+        // while loop so a rapid burst of exits refills promptly.
+        while (walkers.length < TARGET) walkers.push(spawn());
 
         ctx.save();
-        ctx.translate(w / 2, h / 2);
+        ctx.translate(halfW, halfH);
 
-        for (const walker of walkers) {
-          const angle = map(
-            noise(walker.x * multi, walker.y * multi),
-            0,
-            1,
-            0,
-            Math.PI * 4
-          );
-          walker.x += Math.cos(angle) * 1.2;
-          walker.y += Math.sin(angle) * 1.2;
+        // Iterate backwards so splice doesn't skip elements.
+        for (let i = walkers.length - 1; i >= 0; i--) {
+          const wk = walkers[i];
+          const n = noise(wk.x * noiseScale, wk.y * noiseScale);
+          const angle = baseAngle + map(n, 0, 1, -wobble, wobble);
+          wk.x += Math.cos(angle) * 1.2;
+          wk.y += Math.sin(angle) * 1.2;
 
-          if (drawThisFrame) {
-            ctx.save();
-            ctx.translate(walker.x, walker.y);
-            ctx.rotate(angle + Math.PI / 2);
-            drawWalker(walker);
-            ctx.restore();
-          }
-
-          walker.life--;
           const offscreen =
-            walker.x < -w / 1.5 ||
-            walker.x > w / 1.5 ||
-            walker.y < -h / 1.5 ||
-            walker.y > h / 1.5;
-          if (walker.life <= 0 || offscreen) {
-            const fresh = spawn();
-            Object.assign(walker, fresh);
+            wk.y < -halfH - MARGIN ||
+            wk.x > halfW + MARGIN ||
+            wk.x < -halfW - MARGIN;
+          if (offscreen) {
+            // Pop and release — O(1) swap-remove so we don't shift the
+            // whole tail each time a walker exits.
+            walkers[i] = walkers[walkers.length - 1];
+            walkers.pop();
+            continue;
           }
+
+          ctx.save();
+          ctx.translate(wk.x, wk.y);
+          ctx.rotate(angle + Math.PI / 2); // face direction of travel
+          drawWalker(wk);
+          ctx.restore();
         }
 
         ctx.restore();
