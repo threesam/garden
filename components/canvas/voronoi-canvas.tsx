@@ -148,7 +148,7 @@ const FRAGMENT_SHADER = `
 
     // Focus: sharpens image near the cursor
     float distToMouse = distance(vUv, uMouse);
-    float focusRadius = 0.6;
+    float focusRadius = 0.42;
     float focus = uInfluence * (1.0 - smoothstep(0.0, focusRadius, distToMouse));
 
     // Image sampling at cell center (impressionistic — mosaic of photo colors)

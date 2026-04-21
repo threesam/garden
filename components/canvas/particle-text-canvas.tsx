@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 
 // Physics constants — kept as shader uniforms / constants where used
 const SPEED = 0.3;
-const REPEL_RADIUS = 180;
+const DEFAULT_REPEL_RADIUS = 180;
 const REPEL_STRENGTH = 2.0;
 const DAMPING = 0.85;
 
@@ -12,10 +12,10 @@ const DAMPING = 0.85;
 // get small counts so they don't OOM on the GPU buffers; desktops scale up.
 // prefers-reduced-motion gets a static, low-count snapshot.
 function pickParticleCount(): { count: number; animate: boolean } {
-  if (typeof window === "undefined") return { count: 200_000, animate: true };
+  if (typeof window === "undefined") return { count: 150_000, animate: true };
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (reduceMotion) return { count: 50_000, animate: false };
+  if (reduceMotion) return { count: 40_000, animate: false };
 
   const w = window.innerWidth;
   // navigator.deviceMemory: 0.25 to 8 (GB), undefined when unsupported (Safari)
@@ -23,10 +23,13 @@ function pickParticleCount(): { count: number; animate: boolean } {
   const isMobile = w < 768;
   const isLowMem = dm !== undefined && dm < 4;
 
-  if (isMobile || isLowMem) return { count: 150_000, animate: true };
-  if (w < 1280) return { count: 500_000, animate: true };
-  if (w < 1920) return { count: 800_000, animate: true };
-  return { count: 1_500_000, animate: true };
+  // Roughly halved from previous tuning — 1.5M was hitting vertex throughput
+  // on mid desktops once the gallery page also runs 2–3 other sketches
+  // concurrently. These counts still look dense enough visually.
+  if (isMobile || isLowMem) return { count: 80_000, animate: true };
+  if (w < 1280) return { count: 250_000, animate: true };
+  if (w < 1920) return { count: 450_000, animate: true };
+  return { count: 700_000, animate: true };
 }
 
 // GLSL requires explicit decimals on float literals. JS `${n}` drops the `.0`
@@ -37,7 +40,9 @@ const glf = (n: number): string => (Number.isInteger(n) ? `${n}.0` : `${n}`);
 // buffers, applies cursor repulsion + text collision (via sampled alpha map) +
 // edge bounce, writes new pos+vel to transform-feedback output varyings.
 // Rasterizer is discarded — we never want this pass to draw fragments.
-const UPDATE_VERT = `#version 300 es
+// Built per-instance so the repel radius can vary between component usages
+// (thumbnail vs hero) without paying a uniform-read every vertex.
+const buildUpdateVert = (repelRadius: number) => `#version 300 es
 precision highp float;
 
 in vec2 a_position;
@@ -58,10 +63,10 @@ void main() {
   if (u_mouse.x >= 0.0) {
     vec2 diff = pos - u_mouse;
     float distSq = dot(diff, diff);
-    float radiusSq = ${glf(REPEL_RADIUS)} * ${glf(REPEL_RADIUS)};
+    float radiusSq = ${glf(repelRadius)} * ${glf(repelRadius)};
     if (distSq < radiusSq && distSq > 0.5) {
       float dist = sqrt(distSq);
-      float falloff = 1.0 - dist / ${glf(REPEL_RADIUS)};
+      float falloff = 1.0 - dist / ${glf(repelRadius)};
       float force = falloff * falloff * ${glf(REPEL_STRENGTH)};
       vel += (diff / dist) * force;
     }
@@ -129,6 +134,7 @@ in vec2 a_position;
 in vec3 a_color;
 
 uniform vec2 u_resolution;
+uniform float u_pointSize;
 
 out vec3 v_color;
 
@@ -136,7 +142,7 @@ void main() {
   vec2 clip = (a_position / u_resolution) * 2.0 - 1.0;
   clip.y *= -1.0;
   gl_Position = vec4(clip, 0.0, 1.0);
-  gl_PointSize = 1.0;
+  gl_PointSize = u_pointSize;
   v_color = a_color;
 }
 `;
@@ -192,9 +198,24 @@ function linkProgram(
 interface ParticleTextCanvasProps {
   // Override adaptive sizing; used for gallery thumbnails etc.
   countOverride?: number;
+  // Skip drawing the "ANYTHING BUT ANALOG" title and its collision texture
+  // so particles drift freely. Useful for thumbnails where the title would
+  // dominate the card.
+  hideText?: boolean;
+  // Device-pixel size of each particle. 1.0 on retina = ½ CSS pixel, which
+  // is invisible at thumbnail scale — bump to 2–3 for card use.
+  pointSize?: number;
+  // Cursor repulsion radius in CSS pixels. Large hero values make the
+  // cursor feel commanding; smaller values (~40–60) are right for thumbs.
+  repelRadius?: number;
 }
 
-export function ParticleTextCanvas({ countOverride }: ParticleTextCanvasProps = {}) {
+export function ParticleTextCanvas({
+  countOverride,
+  hideText = false,
+  pointSize = 1.0,
+  repelRadius = DEFAULT_REPEL_RADIUS,
+}: ParticleTextCanvasProps = {}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const textCanvasRef = useRef<HTMLCanvasElement>(null);
   const glCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -247,7 +268,10 @@ export function ParticleTextCanvas({ countOverride }: ParticleTextCanvasProps = 
       collision: null as WebGLUniformLocation | null,
     };
     let rA = { position: -1, color: -1 };
-    let rU = { resolution: null as WebGLUniformLocation | null };
+    let rU = {
+      resolution: null as WebGLUniformLocation | null,
+      pointSize: null as WebGLUniformLocation | null,
+    };
 
     function setupGL(): boolean {
       gl = glCanvas!.getContext("webgl2", {
@@ -257,7 +281,7 @@ export function ParticleTextCanvas({ countOverride }: ParticleTextCanvasProps = 
       });
       if (!gl) return false;
 
-      updateVS = compileShader(gl, gl.VERTEX_SHADER, UPDATE_VERT);
+      updateVS = compileShader(gl, gl.VERTEX_SHADER, buildUpdateVert(repelRadius));
       updateFS = compileShader(gl, gl.FRAGMENT_SHADER, UPDATE_FRAG);
       updateProg = linkProgram(gl, updateVS, updateFS, ["v_position", "v_velocity"]);
 
@@ -278,7 +302,10 @@ export function ParticleTextCanvas({ countOverride }: ParticleTextCanvasProps = 
         position: gl.getAttribLocation(renderProg, "a_position"),
         color: gl.getAttribLocation(renderProg, "a_color"),
       };
-      rU = { resolution: gl.getUniformLocation(renderProg, "u_resolution") };
+      rU = {
+        resolution: gl.getUniformLocation(renderProg, "u_resolution"),
+        pointSize: gl.getUniformLocation(renderProg, "u_pointSize"),
+      };
 
       posBuffers = [gl.createBuffer()!, gl.createBuffer()!];
       velBuffers = [gl.createBuffer()!, gl.createBuffer()!];
@@ -407,47 +434,47 @@ export function ParticleTextCanvas({ countOverride }: ParticleTextCanvasProps = 
       textColor = containerStyle.getPropertyValue("--white").trim() || "#f5f0e8";
       goldColor = containerStyle.getPropertyValue("--coin").trim() || "#e8a317";
 
-      // Render text to visible 2D canvas
+      // Render text to visible 2D canvas. Skipped when hideText is set —
+      // particles then have no obstacle and drift freely.
       const tCtx = textCanvas!.getContext("2d")!;
       tCtx.clearRect(0, 0, bufW, bufH);
       tCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const prefix = "ANYTHING BUT ";
-      const highlight = "ANALOG";
-      const fontSize = w >= 1920 ? 120 : w >= 1280 ? 96 : w >= 768 ? 72 : 22;
-      const fontStr = `bold ${fontSize}px Jost, sans-serif`;
-      tCtx.font = fontStr;
-      tCtx.textAlign = "left";
-      tCtx.textBaseline = "middle";
-      tCtx.letterSpacing = "0.1em";
-      const prefixWidth = tCtx.measureText(prefix).width;
-      const highlightWidth = tCtx.measureText(highlight).width;
-      const totalWidth = prefixWidth + highlightWidth;
-      const startX = (w - totalWidth) / 2;
-      const centerY = h / 2;
-      tCtx.fillStyle = textColor;
-      tCtx.fillText(prefix, startX, centerY);
-      tCtx.fillStyle = goldColor;
-      tCtx.fillText(highlight, startX + prefixWidth, centerY);
 
-      // Render same text to a CSS-pixel-sized canvas for the collision texture.
-      // GPU sampler reads alpha; smaller texture is fine since collision
-      // doesn't need device-pixel precision.
-      textBitmapCanvas.width = w;
-      textBitmapCanvas.height = h;
-      const cCtx = textBitmapCanvas.getContext("2d")!;
-      cCtx.clearRect(0, 0, w, h);
-      cCtx.font = fontStr;
-      cCtx.textAlign = "left";
-      cCtx.textBaseline = "middle";
-      cCtx.letterSpacing = "0.1em";
-      cCtx.fillStyle = "white";
-      cCtx.fillText(prefix, startX, centerY);
-      cCtx.fillText(highlight, startX + prefixWidth, centerY);
-
-      // Upload alpha channel as R8 texture
-      const collisionData = cCtx.getImageData(0, 0, w, h).data;
       const r8 = new Uint8Array(w * h);
-      for (let i = 0; i < r8.length; i++) r8[i] = collisionData[i * 4 + 3];
+      if (!hideText) {
+        const prefix = "ANYTHING BUT ";
+        const highlight = "ANALOG";
+        const fontSize = w >= 1920 ? 120 : w >= 1280 ? 96 : w >= 768 ? 72 : 22;
+        const fontStr = `bold ${fontSize}px Jost, sans-serif`;
+        tCtx.font = fontStr;
+        tCtx.textAlign = "left";
+        tCtx.textBaseline = "middle";
+        tCtx.letterSpacing = "0.1em";
+        const prefixWidth = tCtx.measureText(prefix).width;
+        const highlightWidth = tCtx.measureText(highlight).width;
+        const totalWidth = prefixWidth + highlightWidth;
+        const startX = (w - totalWidth) / 2;
+        const centerY = h / 2;
+        tCtx.fillStyle = textColor;
+        tCtx.fillText(prefix, startX, centerY);
+        tCtx.fillStyle = goldColor;
+        tCtx.fillText(highlight, startX + prefixWidth, centerY);
+
+        // Same text to a CSS-pixel-sized canvas for the collision texture.
+        textBitmapCanvas.width = w;
+        textBitmapCanvas.height = h;
+        const cCtx = textBitmapCanvas.getContext("2d")!;
+        cCtx.clearRect(0, 0, w, h);
+        cCtx.font = fontStr;
+        cCtx.textAlign = "left";
+        cCtx.textBaseline = "middle";
+        cCtx.letterSpacing = "0.1em";
+        cCtx.fillStyle = "white";
+        cCtx.fillText(prefix, startX, centerY);
+        cCtx.fillText(highlight, startX + prefixWidth, centerY);
+        const collisionData = cCtx.getImageData(0, 0, w, h).data;
+        for (let i = 0; i < r8.length; i++) r8[i] = collisionData[i * 4 + 3];
+      }
 
       if (textTexture) gl!.deleteTexture(textTexture);
       textTexture = gl!.createTexture();
@@ -499,6 +526,7 @@ export function ParticleTextCanvas({ countOverride }: ParticleTextCanvasProps = 
       // ===== Render pass =====
       gl!.useProgram(renderProg);
       gl!.uniform2f(rU.resolution, w, h);
+      gl!.uniform1f(rU.pointSize, pointSize * dpr);
       gl!.bindVertexArray(renderVaos[outIdx]);
 
       gl!.clearColor(0, 0, 0, 0); // transparent — text canvas underneath shows through
@@ -582,18 +610,13 @@ export function ParticleTextCanvas({ countOverride }: ParticleTextCanvasProps = 
       glCanvas.removeEventListener("webglcontextrestored", onContextRestored);
       teardownGL();
     };
-  }, [countOverride]);
+  }, [countOverride, hideText, pointSize, repelRadius]);
 
   return (
     <div
       ref={containerRef}
-      className="relative overflow-hidden snap-start"
-      style={{
-        left: "calc(50% - 50vw)",
-        width: "100vw",
-        height: "100dvh",
-        backgroundColor: "var(--black)",
-      }}
+      className="relative h-full w-full overflow-hidden"
+      style={{ backgroundColor: "var(--black)" }}
     >
       <canvas ref={textCanvasRef} className="absolute inset-0" />
       <canvas ref={glCanvasRef} className="absolute inset-0" />

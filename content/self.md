@@ -310,7 +310,7 @@ after three weeks of employment, i convinced Deana to quit her job. since she wa
 
 we reorganized within our tiny apartment. new routine, new roles, new growth.
 
-when Azalea was on the way, i started reading. a lot. forty books my first year. personal development, masculinity, responsibility, wealth. the kind of stuff i probably needed years earlier but wasn't ready for.
+when Azalea was on the way, i started reading. a lot. forty [books](/shelf) my first year. personal development, masculinity, responsibility, wealth. the kind of stuff i probably needed years earlier but wasn't ready for.
 
 i grew up with a lot of love, but not a lot of extravagance. the first time i took Deana out to a nice dinner, i felt guilty. like i didn't deserve it. like it somehow betrayed where i came from.
 

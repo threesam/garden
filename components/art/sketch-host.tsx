@@ -22,9 +22,14 @@ export function SketchHost({ slug, seed, active }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const activeRef = useRef(active);
+  const syncRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     activeRef.current = active;
+    // Trigger a sync without re-running the whole effect — avoids tearing
+    // down and recreating the ResizeObserver on every window-shift during
+    // scroll. Heavy gallery perf win.
+    syncRef.current?.();
   }, [active]);
 
   useEffect(() => {
@@ -125,15 +130,18 @@ export function SketchHost({ slug, seed, active }: Props) {
       rafId = requestAnimationFrame(tickFrame);
     }
 
-    // Activate / deactivate in response to the `active` prop.
+    // Activate / deactivate in response to the ref-watched `active` prop.
+    // Exposed via syncRef so the `active`-only effect above can ping it
+    // without re-running this whole setup.
     const stateSync = () => {
-      if (active) {
+      if (activeRef.current) {
         if (!hasSetup) setupSketch();
         startTick();
       } else if (hasSetup) {
         teardownSketch();
       }
     };
+    syncRef.current = stateSync;
 
     stateSync();
 
@@ -149,11 +157,12 @@ export function SketchHost({ slug, seed, active }: Props) {
     ro.observe(container);
 
     return () => {
+      syncRef.current = null;
       clearTimeout(resizeTimeout);
       ro.disconnect();
       if (hasSetup) teardownSketch();
     };
-  }, [slug, seed, active]);
+  }, [slug, seed]);
 
   return (
     <div ref={containerRef} className="relative h-full w-full" style={{ backgroundColor: "var(--black)" }}>

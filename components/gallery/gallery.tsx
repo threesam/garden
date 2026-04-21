@@ -19,10 +19,10 @@ const HERO_MAP: Record<string, () => ReactNode> = {
     />
   ),
   deana: () => <EmojiCardBg />,
-  vibe: () => <MetaballCanvas color={[0.91, 0.64, 0.09]} />,
-  // Card is 320×400 = ~128k pixels. 600 grains of sand gives ~1 particle
-  // per 200 pixels — visibly scattered without looking noisy at thumb size.
-  "anything-but-analog": () => <ParticleTextCanvas countOverride={600} />,
+  shelf: () => <MetaballCanvas color={[0.91, 0.64, 0.09]} />,
+  "anything-but-analog": () => (
+    <ParticleTextCanvas countOverride={10000} hideText pointSize={2} repelRadius={50} />
+  ),
 };
 
 const LABEL_MAP: Record<string, () => ReactNode> = {
@@ -37,7 +37,7 @@ const ITEMS: { id: number; label: string; handle: string | null; href?: string }
   { id: 0, label: "undefined", handle: null },
   { id: 1, label: "self", handle: "self" },
   { id: 2, label: "D-ANA", handle: "deana", href: "/deana" },
-  { id: 3, label: "vibe", handle: "vibe", href: "/vibe" },
+  { id: 3, label: "shelf", handle: "shelf", href: "/shelf" },
   { id: 4, label: "analog", handle: "anything-but-analog", href: "/anything-but-analog" },
   ...Array.from({ length: 2 }, (_, i) => ({
     id: i + 5,

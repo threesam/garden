@@ -17,6 +17,13 @@ export const day23: Sketch = {
     const maxLength = 25;
     const minLength = 7;
     const angle = (30 * Math.PI) / 180;
+    // Planting disc radius — extended from 0.28 to 0.45 * smallSide so the
+    // fade trails further out before dying at the edges.
+    const discRadius = smallSide * 0.45;
+    // Center trees get a 30% size boost so center-vs-edge contrast reads
+    // more drastic.
+    const centerScale = 1.3;
+    const edgeScale = 0.25;
 
     interface Tree {
       x: number;
@@ -26,7 +33,7 @@ export const day23: Sketch = {
     const trees: Tree[] = [];
     for (let x = start + space; x < end; x += space) {
       for (let y = start + space; y < end; y += space) {
-        if (dist(x, y, 0, 0) >= smallSide * 0.28) continue;
+        if (dist(x, y, 0, 0) >= discRadius) continue;
         const n = noise(x * multi, y * multi);
         trees.push({
           x: x + map(rng(), 0, 1, -10, 10),
@@ -65,7 +72,7 @@ export const day23: Sketch = {
     ctx.lineWidth = 1;
     for (const t of trees) {
       const d = dist(t.x, t.y, 0, 0);
-      const scale = map(d, 0, smallSide * 0.28, 1, 0.25);
+      const scale = map(d, 0, discRadius, centerScale, edgeScale);
       ctx.save();
       ctx.strokeStyle = `rgb(${Math.floor(t.color)},${Math.floor(t.color)},${Math.floor(t.color)})`;
       ctx.translate(t.x, t.y);

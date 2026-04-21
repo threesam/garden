@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { VibeHero } from "@/components/vibe/vibe-hero";
+import { ShelfHero } from "@/components/shelf/shelf-hero";
 import { getBooks, type Book } from "@/lib/goodreads";
 
 export const metadata: Metadata = {
-  title: "vibe — threesam",
+  title: "shelf — threesam",
   description: "Books, media, and the things that shape how I think.",
 };
 
@@ -45,7 +45,7 @@ function BookCover({ book, eager }: { book: Book; eager?: boolean }) {
   );
 }
 
-export default async function VibePage() {
+export default async function ShelfPage() {
   const [currentlyReading, read] = await Promise.all([
     getBooks("currently-reading"),
     getBooks("read"),
@@ -68,7 +68,7 @@ export default async function VibePage() {
       className="copy-lower min-h-screen pb-16"
       style={{ background: "linear-gradient(to bottom, var(--black) 40%, var(--white))", color: "var(--white)" } as React.CSSProperties}
     >
-      <VibeHero featured={featured} featuredLabel={featuredLabel} />
+      <ShelfHero featured={featured} featuredLabel={featuredLabel} />
 
       <section className="columns-4 gap-0 overflow-hidden py-1 sm:columns-6 md:columns-8 lg:columns-10 xl:columns-12">
         {sorted.map((book, i) => (

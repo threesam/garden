@@ -8,12 +8,12 @@ import type { Book } from "@/lib/goodreads";
 // --black #1a1a14 as normalized RGB — metaballs start invisible on the black section.
 const BG_COLOR: [number, number, number] = [26 / 255, 26 / 255, 20 / 255];
 
-interface VibeHeroProps {
+interface ShelfHeroProps {
   featured: Book | null;
   featuredLabel: string;
 }
 
-export function VibeHero({ featured, featuredLabel }: VibeHeroProps) {
+export function ShelfHero({ featured, featuredLabel }: ShelfHeroProps) {
   const coverRef = useRef<HTMLImageElement>(null);
   const descRef = useRef<HTMLParagraphElement>(null);
   const [target, setTarget] = useState<{ x: number; y: number } | null>(null);
@@ -57,7 +57,7 @@ export function VibeHero({ featured, featuredLabel }: VibeHeroProps) {
     const cssColor = `rgb(${Math.round(color[0] * 255)}, ${Math.round(color[1] * 255)}, ${Math.round(color[2] * 255)})`;
     const tileW = 900;
     const tileH = 460;
-    const phrase = "WHAT'S MY VIBE? ".repeat(10);
+    const phrase = "WHAT'S ON MY SHELF? ".repeat(10);
     const rows = [
       { y: 38, size: 26, offset: 0 },
       { y: 92, size: 16, offset: -140 },
@@ -96,7 +96,7 @@ export function VibeHero({ featured, featuredLabel }: VibeHeroProps) {
         <MetaballCanvas color={color} trackCursor={false} target={target} />
       </div>
 
-      <h1 className="sr-only">what&apos;s my vibe?</h1>
+      <h1 className="sr-only">what&apos;s on my shelf?</h1>
 
       {featured ? (
         <div className="relative z-10 mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-6 md:grid-cols-2 md:gap-12">
