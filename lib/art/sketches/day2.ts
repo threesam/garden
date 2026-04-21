@@ -16,13 +16,13 @@ export const day2: Sketch = {
     const pad = 0.69;
     const diameter = (isLandscape ? h : w) * pad;
 
-    ctx.fillStyle = "rgb(245,240,232)";
+    ctx.fillStyle = "rgb(26,26,20)";
     ctx.fillRect(0, 0, w, h);
     ctx.save();
     ctx.translate(w / 2, h / 2);
     if (!isLandscape) ctx.rotate(Math.PI / 2);
 
-    ctx.strokeStyle = "rgba(26,26,20,1)";
+    ctx.strokeStyle = "rgba(245,240,232,1)";
     for (let i = 0; i < ringsAmount; i++) {
       const a = map(noise(0.069 * i + 4), 0, 1, 0, 1);
       const cx = -multi * ringsAmount + i * 2 * multi;

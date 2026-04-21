@@ -9,20 +9,23 @@ import { getSketch } from "@/lib/art/registry";
 interface Props {
   slug: string;
   seed?: number;
+  /**
+   * When true, the sketch is set up and ticks. When false, it tears down —
+   * cancels its rAF, runs the sketch's cleanup fn, and clears the canvas
+   * pixel buffer so memory is released. Driven by the parent gallery's
+   * scroll-window coordinator; not per-element IntersectionObserver.
+   */
+  active: boolean;
 }
 
-/**
- * Generic host for a generative-art sketch. Handles:
- *  - Canvas sizing + device-pixel-ratio
- *  - Seeded rng + noise helpers
- *  - ResizeObserver (debounced) — reruns setup
- *  - IntersectionObserver — pauses rAF while off-screen
- *  - rAF tick loop when sketch returns a tick fn
- *  - Cleanup contract for WebGL/three sketches (sketch.manualCanvas)
- */
-export function SketchHost({ slug, seed }: Props) {
+export function SketchHost({ slug, seed, active }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const activeRef = useRef(active);
+
+  useEffect(() => {
+    activeRef.current = active;
+  }, [active]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -37,7 +40,6 @@ export function SketchHost({ slug, seed }: Props) {
     const noise = makeNoise(actualSeed);
 
     let rafId = 0;
-    let isVisible = false;
     let resizeTimeout: ReturnType<typeof setTimeout>;
     let cleanup: (() => void) | null = null;
     let tick: ((api: SketchAPI, frame: number) => void) | null = null;
@@ -70,7 +72,6 @@ export function SketchHost({ slug, seed }: Props) {
           dist: (x1, y1, x2, y2) => Math.hypot(x2 - x1, y2 - y1),
         };
       } else {
-        // WebGL/Three sketches own their canvas sizing; give them a stub api
         api = {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ctx: null as any,
@@ -91,6 +92,7 @@ export function SketchHost({ slug, seed }: Props) {
         cleanup = result.cleanup ?? null;
       }
       frame = 0;
+      hasSetup = true;
     }
 
     function teardownSketch() {
@@ -101,11 +103,19 @@ export function SketchHost({ slug, seed }: Props) {
       if (cleanup) cleanup();
       cleanup = null;
       tick = null;
+      api = null;
+      // Release the canvas pixel buffer — setting width/height to 0 tells the
+      // browser to drop the GPU-backed ImageBitmap.
+      if (canvas) {
+        canvas.width = 0;
+        canvas.height = 0;
+      }
+      hasSetup = false;
     }
 
     function tickFrame() {
       rafId = 0;
-      if (!isVisible || !api || !tick) return;
+      if (!activeRef.current || !api || !tick) return;
       tick(api, frame++);
       rafId = requestAnimationFrame(tickFrame);
     }
@@ -115,42 +125,35 @@ export function SketchHost({ slug, seed }: Props) {
       rafId = requestAnimationFrame(tickFrame);
     }
 
+    // Activate / deactivate in response to the `active` prop.
+    const stateSync = () => {
+      if (active) {
+        if (!hasSetup) setupSketch();
+        startTick();
+      } else if (hasSetup) {
+        teardownSketch();
+      }
+    };
+
+    stateSync();
+
     const ro = new ResizeObserver(() => {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
-        if (!hasSetup) return; // no-op until first visibility triggered setup
+        if (!hasSetup) return;
         teardownSketch();
         setupSketch();
-        if (isVisible) startTick();
+        if (activeRef.current) startTick();
       }, 150);
     });
     ro.observe(container);
 
-    // Defer setup until first visibility — a stacked grid of 12 canvases
-    // would otherwise run 12 setups synchronously on mount.
-    const io = new IntersectionObserver(
-      (entries) => {
-        const wasVisible = isVisible;
-        isVisible = entries[0]?.isIntersecting ?? false;
-        if (isVisible) {
-          if (!hasSetup) {
-            setupSketch();
-            hasSetup = true;
-          }
-          if (!wasVisible) startTick();
-        }
-      },
-      { threshold: 0, rootMargin: "200px" } // warm up slightly before visible
-    );
-    io.observe(container);
-
     return () => {
       clearTimeout(resizeTimeout);
       ro.disconnect();
-      io.disconnect();
-      teardownSketch();
+      if (hasSetup) teardownSketch();
     };
-  }, [slug, seed]);
+  }, [slug, seed, active]);
 
   return (
     <div ref={containerRef} className="relative h-full w-full" style={{ backgroundColor: "var(--black)" }}>

@@ -38,7 +38,7 @@ export const day13: Sketch = {
 
     return {
       tick(_, frame) {
-        ctx.fillStyle = "rgb(245,240,232)";
+        ctx.fillStyle = "rgb(26,26,20)";
         ctx.fillRect(0, 0, w, h);
         ctx.save();
         ctx.translate(w / 2, h / 2);
@@ -46,7 +46,7 @@ export const day13: Sketch = {
         // outer ellipses as horizontal rings
         for (const r of outerRings) {
           if (r.a <= 0) continue;
-          ctx.strokeStyle = `rgba(26,26,20,${r.a / 50})`;
+          ctx.strokeStyle = `rgba(245,240,232,${r.a / 50})`;
           ctx.lineWidth = 1;
           ctx.beginPath();
           ctx.ellipse(0, r.y, r.size / 2, r.size / 8, 0, 0, Math.PI * 2);

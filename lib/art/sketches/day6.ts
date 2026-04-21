@@ -45,13 +45,16 @@ export const day6: Sketch = {
     const cx = w / 2;
     const cy = h / 2;
     const smallSide = isLandscape ? h : w;
-    const spotlight = smallSide * 0.4;
+    const spotlight = smallSide * 0.8;
+    const maxDist = Math.hypot(w, h);
 
     for (const f of friends) {
       const d = dist(cx, cy, f.x, f.y);
       const r = Math.floor(map(f.x, 0, w, 200, 255));
-      const a = Math.max(0, map(d, 0, spotlight, 1, 0));
-      const eyeMulti = map(d, 0, spotlight, 2, 0.5);
+      // Floor alpha at 0.25 so every friend is visible; center ones pop.
+      const a = Math.max(0.25, map(d, 0, spotlight, 1, 0.25));
+      const eyeMulti = Math.max(0.5, map(d, 0, spotlight, 2, 0.5));
+      void maxDist;
 
       ctx.fillStyle = `rgba(${r}, ${r}, 0, ${a})`;
       ctx.beginPath();

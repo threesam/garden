@@ -29,7 +29,7 @@ export const day31: Sketch = {
         for (let z = start; z < end; z += space) {
           const d = Math.hypot(x, y, z);
           if (d <= 0) continue;
-          const color = map(d, 0, end, 255, 0);
+          const color = map(d, 0, end, 255, 100);
           const size = map(rng(), 0, 1, 0, space);
           flowers.push({
             x: x + map(rng(), 0, 1, -10, 10),
@@ -55,7 +55,7 @@ export const day31: Sketch = {
       }))
       .sort((a, b) => a.z - b.z);
 
-    ctx.fillStyle = "rgb(213,213,213)";
+    ctx.fillStyle = "rgb(26,26,20)";
     ctx.fillRect(0, 0, w, h);
     ctx.save();
     ctx.translate(w / 2, h / 2);

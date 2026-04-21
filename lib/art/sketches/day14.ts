@@ -43,7 +43,7 @@ export const day14: Sketch = {
       [vectors[i], vectors[j]] = [vectors[j], vectors[i]];
     }
 
-    ctx.fillStyle = "rgb(245,240,232)";
+    ctx.fillStyle = "rgb(26,26,20)";
     ctx.fillRect(0, 0, w, h);
 
     return {

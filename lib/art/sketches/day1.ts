@@ -12,7 +12,7 @@ export const day1: Sketch = {
     const pixels = isLandscape ? h : w;
     const count = Math.floor(pixels > 500 ? pixels / 2 : pixels / 4);
 
-    ctx.fillStyle = "rgb(245,240,232)";
+    ctx.fillStyle = "rgb(26,26,20)";
     ctx.fillRect(0, 0, w, h);
     ctx.save();
     ctx.translate(w / 2, h / 2);

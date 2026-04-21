@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SketchHost } from "@/components/art/sketch-host";
+import { ArtGallery } from "@/components/art/art-gallery";
 import { ArtScrollSync } from "@/components/art/art-scroll-sync";
 import { ParticleTextCanvas } from "@/components/canvas/particle-text-canvas";
 import { sketches } from "@/lib/art/registry";
@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default function AnythingButAnalogPage() {
+  const meta = sketches.map((s) => ({ slug: s.slug, date: s.date }));
   return (
     <main
       id="art-scroller"
@@ -27,28 +28,7 @@ export default function AnythingButAnalogPage() {
       >
         <ParticleTextCanvas />
       </section>
-      {sketches.map((s) => (
-        <section
-          key={s.slug}
-          id={s.slug}
-          data-art-slug={s.slug}
-          className="relative h-[100dvh] w-full snap-start overflow-hidden"
-        >
-          <SketchHost slug={s.slug} />
-          <span
-            className="pointer-events-none absolute top-6 left-6 z-10 font-mono text-sm font-bold uppercase tracking-[0.25em] md:top-10 md:left-10 md:text-base"
-            style={{ color: "var(--white)", mixBlendMode: "difference" }}
-          >
-            {s.slug}
-          </span>
-          <span
-            className="pointer-events-none absolute bottom-6 left-6 z-10 font-mono text-xs uppercase tracking-[0.25em] md:bottom-10 md:left-10 md:text-sm"
-            style={{ color: "var(--white)", mixBlendMode: "difference" }}
-          >
-            {s.date}
-          </span>
-        </section>
-      ))}
+      <ArtGallery sketches={meta} />
     </main>
   );
 }

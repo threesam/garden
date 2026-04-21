@@ -9,15 +9,15 @@ export const day9: Sketch = {
   date: "2022-01-09",
   setup(api) {
     const { ctx, w, h } = api;
-    ctx.fillStyle = "rgb(245,240,232)";
+    ctx.fillStyle = "rgb(26,26,20)";
     ctx.fillRect(0, 0, w, h);
     ctx.save();
     ctx.translate(w / 2, h / 2);
 
     const slab = 20;
-    ctx.strokeStyle = "rgb(26,26,20)";
+    ctx.strokeStyle = "rgb(245,240,232)";
     ctx.lineWidth = 1.5;
-    ctx.fillStyle = "rgb(245,240,232)";
+    ctx.fillStyle = "rgb(26,26,20)";
 
     // 5 stacked cylinder slabs (drawn as ellipse caps + side rects)
     const cylR = 100;

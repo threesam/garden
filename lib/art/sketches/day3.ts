@@ -9,7 +9,7 @@ export const day3: Sketch = {
   setup(api) {
     const { ctx, w, h, noise, map } = api;
 
-    ctx.fillStyle = "rgb(245,240,232)";
+    ctx.fillStyle = "rgb(26,26,20)";
     ctx.fillRect(0, 0, w, h);
     ctx.save();
     ctx.translate(w / 2, h / 2);
@@ -28,7 +28,7 @@ export const day3: Sketch = {
       const rot = map(noise(i * 0.01), 0, 1, Math.PI / 5, Math.PI);
       ctx.save();
       ctx.rotate(rot);
-      ctx.strokeStyle = `rgba(26,26,20,${t.alpha / 255})`;
+      ctx.strokeStyle = `rgba(245,240,232,${t.alpha / 255})`;
       ctx.beginPath();
       ctx.moveTo(t.coords[0], t.coords[1]);
       ctx.lineTo(t.coords[2], t.coords[3]);
