@@ -1,64 +1,88 @@
 import type { Sketch } from "../types";
 
-// Fingerprint planet v2 — dense noise-sized white circles drifting along a
-// noise-angled flow field, progressively revealed.
+// Flow × ML (day4 + day10 mash-up) — particles flow along a noise field
+// leaving cumulative trails. Inside the central square they read as
+// cream/white "organic" worms; outside the square they turn red
+// ("machine learning gone wrong"). Head dots appear at each step's leading
+// end and are what give the composition its beaded look.
 export const day21: Sketch = {
   slug: "21",
-  title: "fingerprint planet v2",
+  title: "flow ml",
   date: "2022-01-21",
   setup(api) {
-    const { ctx, w, h, rng, noise, map, dist } = api;
-    const smallSide = w > h ? h : w;
-    const density = 500;
-    const padding = 0.7;
-    const space = (smallSide / density) * padding;
-    const left = w / 2 - (smallSide / 2) * padding;
-    const right = w / 2 + (smallSide / 2) * padding;
-    const bottom = h / 2 - (smallSide / 2) * padding;
-    const top = h / 2 + (smallSide / 2) * padding;
+    const { ctx, w, h, rng, noise, map } = api;
+    const smallSide = Math.min(w, h);
+    const boundaryHalf = smallSide * 0.35;
+    const cx = w / 2;
+    const cy = h / 2;
     const multi = 0.004;
 
-    const vectors: { x: number; y: number }[] = [];
-    for (let x = left; x < right; x += space) {
-      for (let y = bottom; y < top; y += space) {
-        vectors.push({ x: x + map(rng(), 0, 1, -space, space), y: y + map(rng(), 0, 1, -space, space) });
-      }
+    interface P {
+      x: number;
+      y: number;
+      r: number; // line + head-dot radius
+      life: number;
     }
-    for (let i = vectors.length - 1; i > 0; i--) {
-      const j = Math.floor(rng() * (i + 1));
-      [vectors[i], vectors[j]] = [vectors[j], vectors[i]];
+
+    const PARTICLE_COUNT = 260;
+    const particles: P[] = [];
+    function spawn(): P {
+      return {
+        x: map(rng(), 0, 1, 0, w),
+        y: map(rng(), 0, 1, 0, h),
+        r: map(rng(), 0, 1, 1.2, 5),
+        life: Math.floor(map(rng(), 0, 1, 60, 400)),
+      };
     }
+    for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(spawn());
 
     ctx.fillStyle = "rgb(0,0,0)";
     ctx.fillRect(0, 0, w, h);
+    ctx.lineCap = "round";
 
     return {
-      tick(_, frame) {
-        const max = Math.min(frame + 1, vectors.length);
-        for (let i = 0; i < max; i++) {
-          const v = vectors[i];
-          const angle = map(noise(v.x * multi, v.y * multi), 0, 1, 0, Math.PI * 4);
-          v.x += Math.cos(angle);
-          v.y += Math.sin(angle);
-          const distFromCenter = dist(w / 2, h / 2, v.x, v.y);
-          const n = noise(v.x * 0.025, v.y * 0.025);
-          const alpha = map(n, 0, 1, 0, 1);
-          const size = map(n, 0, 1, 1, 33);
-          const isOutsideSquare = v.x < left || v.x > right || v.y > top || v.y < bottom;
-          const isOutsideCircle = distFromCenter > (smallSide / 2) * padding;
-          if (isOutsideSquare) {
-            ctx.fillStyle = "rgb(0,0,0)";
-            ctx.strokeStyle = "rgb(255,0,0)";
-          } else if (isOutsideCircle) {
-            ctx.fillStyle = "rgb(0,0,0)";
-            ctx.strokeStyle = `rgba(0,0,0,${alpha})`;
-          } else {
-            ctx.fillStyle = "rgb(255,255,255)";
-            ctx.strokeStyle = `rgba(0,0,0,${alpha})`;
-          }
+      tick() {
+        for (const p of particles) {
+          const angle = map(noise(p.x * multi, p.y * multi), 0, 1, 0, Math.PI * 4);
+          const nx = p.x + Math.cos(angle) * 1.5;
+          const ny = p.y + Math.sin(angle) * 1.5;
+
+          const outside =
+            Math.abs(nx - cx) > boundaryHalf || Math.abs(ny - cy) > boundaryHalf;
+          const trailRGBA = outside
+            ? "rgba(225, 40, 40, 0.55)"
+            : "rgba(235, 230, 220, 0.35)";
+          const headRGBA = outside
+            ? "rgba(255, 80, 80, 0.95)"
+            : "rgba(255, 255, 255, 0.95)";
+
+          // trail stroke
+          ctx.lineWidth = p.r;
+          ctx.strokeStyle = trailRGBA;
           ctx.beginPath();
-          ctx.arc(v.x, v.y, size / 2, 0, Math.PI * 2);
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(nx, ny);
+          ctx.stroke();
+
+          // head dot
+          ctx.fillStyle = headRGBA;
+          ctx.beginPath();
+          ctx.arc(nx, ny, p.r * 0.9, 0, Math.PI * 2);
           ctx.fill();
+
+          p.x = nx;
+          p.y = ny;
+          p.life--;
+
+          // Respawn when lifetime ends or escapes the frame — keeps the
+          // composition evolving instead of settling into fixed channels.
+          if (p.life <= 0 || p.x < -20 || p.x > w + 20 || p.y < -20 || p.y > h + 20) {
+            const fresh = spawn();
+            p.x = fresh.x;
+            p.y = fresh.y;
+            p.r = fresh.r;
+            p.life = fresh.life;
+          }
         }
       },
     };

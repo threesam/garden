@@ -73,7 +73,7 @@ export const sketches: Sketch[] = [
  * otherwise not ready for a curated tour). Still accessible via
  * `/anything-but-analog/raw/<n>` for direct viewing.
  *
- * Visible tour: 2, 10, 20, 23, 25, 26, 29, 30.
+ * Visible tour: 2, 10, 20, 21, 23, 25, 26, 29, 30.
  */
 export const HIDDEN_SLUGS = new Set<string>([
   "1",
@@ -91,7 +91,6 @@ export const HIDDEN_SLUGS = new Set<string>([
   "16",
   "17",
   "18",
-  "21",
   "22",
   "24",
   "27",
