@@ -72,8 +72,27 @@ export const sketches: Sketch[] = [
  * Slugs hidden from the gallery scroll (because they're slow, broken, or
  * otherwise not ready for a curated tour). Still accessible via
  * `/anything-but-analog/raw/<n>` for direct viewing.
+ *
+ * Visible tour: 1, 2, 4, 10, 12, 14, 15, 18, 20, 22, 23, 25, 26, 29, 30.
  */
-export const HIDDEN_SLUGS = new Set<string>(["21", "32", "33"]);
+export const HIDDEN_SLUGS = new Set<string>([
+  "3",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  "13",
+  "16",
+  "17",
+  "21",
+  "24",
+  "27",
+  "28",
+  "31",
+  "32",
+  "33",
+]);
 
 export const visibleSketches: Sketch[] = sketches.filter((s) => !HIDDEN_SLUGS.has(s.slug));
 
