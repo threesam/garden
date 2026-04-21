@@ -16,9 +16,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const sketch = getSketch(slug);
   if (!sketch) return { title: "not found" };
-  const ogUrl = `/art/og/${sketch.slug}.png`;
+  const ogUrl = `/og/anything-but-analog/${sketch.slug}.png`;
   return {
-    title: `${sketch.title} — art — threesam`,
+    title: `${sketch.title} — anything but analog — threesam`,
     description: `${sketch.title} (${sketch.date}), generative sketch.`,
     openGraph: {
       title: `${sketch.title} — threesam`,
@@ -33,16 +33,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 /**
- * Thin shell page: server-renders per-sketch metadata (title, og:image, etc.)
- * so crawlers see a rich social card, and client-redirects humans to the
- * scroll-snap gallery at /art#<slug>.
+ * Shareable per-sketch URL. Server renders rich social metadata;
+ * client redirects humans to the scroll-snap gallery at
+ * /anything-but-analog#<slug>.
  */
-export default async function ArtSketchPage({ params }: Props) {
+export default async function SketchPage({ params }: Props) {
   const { slug } = await params;
   const sketch = getSketch(slug);
   if (!sketch) notFound();
 
-  const target = `/art#${sketch.slug}`;
+  const target = `/anything-but-analog#${sketch.slug}`;
   return (
     <main
       className="flex h-[100dvh] items-center justify-center"
