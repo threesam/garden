@@ -14,16 +14,12 @@ export const day30: Sketch = {
   setup(api) {
     const { ctx, w, h, rng, noise, map } = api;
 
-    // Looser, less-curvy flow: smaller `multi` means the noise varies
-    // over a much larger spatial scale, so nearby walkers follow nearly
-    // parallel headings.
-    const noiseScale = 0.0008;
-
-    // NE-biased flow: base angle -π/4 (up + right) plus noise-driven
-    // ±π/6 wobble. Walkers stay broadly streaming together instead of
-    // pinwheeling.
-    const baseAngle = -Math.PI / 4;
-    const wobble = Math.PI / 6;
+    // Proper flow field: noise drives the full 0-2π angle at each point,
+    // so the field has real currents/eddies — walkers get swept along
+    // whichever current they're nearest to. Scale chosen so swirls are
+    // roughly 1/5 of the smaller screen dim (visible meandering paths,
+    // not chaotic noise).
+    const noiseScale = 0.003;
 
     interface Walker {
       x: number;
@@ -41,16 +37,21 @@ export const day30: Sketch = {
     const walkers: Walker[] = [];
     const TARGET = 700;
 
+    // Gather point — a small spawn cluster in the bottom-left quadrant.
+    // Figures originate here and get pulled into whichever flow-field
+    // current they're nearest, so they spread across the canvas instead
+    // of streaming in parallel.
+    const originX = -w * 0.35;
+    const originY = h * 0.3;
+    const spawnRadius = Math.min(w, h) * 0.08;
+
     function spawn(): Walker {
-      // Smaller figures overall.
+      const a = rng() * Math.PI * 2;
+      const r = rng() * spawnRadius;
       const quarter = map(rng(), 0, 1, 1.5, 4.5);
       return {
-        // Spawn bottom-LEFT (below + left of the frame) so the NE flow
-        // carries them DIAGONALLY across the whole canvas instead of
-        // exiting the right edge immediately.
-        // World coords: origin at center; +x right, +y down.
-        x: map(rng(), 0, 1, -w * 0.55 - 40, 0),
-        y: map(rng(), 0, 1, h * 0.5 + 20, h * 0.5 + 300),
+        x: originX + Math.cos(a) * r,
+        y: originY + Math.sin(a) * r,
         quarter,
         half: quarter * 2,
         limbLength: map(rng(), 0, 1, 22, 34),
@@ -115,7 +116,10 @@ export const day30: Sketch = {
         for (let i = walkers.length - 1; i >= 0; i--) {
           const wk = walkers[i];
           const n = noise(wk.x * noiseScale, wk.y * noiseScale);
-          const angle = baseAngle + map(n, 0, 1, -wobble, wobble);
+          // Full 0-2π angle → true flow field with currents in all
+          // directions. Walkers sample the noise field wherever they
+          // happen to be and follow that local direction.
+          const angle = n * Math.PI * 2;
           wk.x += Math.cos(angle) * 1.2;
           wk.y += Math.sin(angle) * 1.2;
 

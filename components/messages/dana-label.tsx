@@ -13,6 +13,13 @@ export function DanaLabel() {
   }, []);
 
   return (
-    <>D<span className="inline-block w-6 text-center">{CHARS[idx]}</span>ANA</>
+    <>
+      D
+      {/* em-based slot so the middle letter scales with whatever font size
+          DanaLabel is rendered at — the old `w-6` (24px fixed) worked at
+          small sizes but collapsed against the D / ANA at md:text-5xl. */}
+      <span className="inline-block w-[0.9em] text-center">{CHARS[idx]}</span>
+      ANA
+    </>
   );
 }

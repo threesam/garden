@@ -20,7 +20,9 @@ const HERO_MAP: Record<string, () => ReactNode> = {
   ),
   deana: () => <EmojiCardBg />,
   vibe: () => <MetaballCanvas color={[0.91, 0.64, 0.09]} />,
-  "anything-but-analog": () => <ParticleTextCanvas countOverride={1500} />,
+  // Card is 320×400 = ~128k pixels. 600 grains of sand gives ~1 particle
+  // per 200 pixels — visibly scattered without looking noisy at thumb size.
+  "anything-but-analog": () => <ParticleTextCanvas countOverride={600} />,
 };
 
 const LABEL_MAP: Record<string, () => ReactNode> = {
