@@ -4,6 +4,7 @@ import { useRef, useEffect, type ReactNode } from "react";
 import Link from "next/link";
 import { VoronoiCanvas } from "@/components/canvas/voronoi-canvas";
 import { MetaballCanvas } from "@/components/canvas/metaball-canvas";
+import { ParticleTextCanvas } from "@/components/canvas/particle-text-canvas";
 import { EmojiCardBg } from "@/components/messages/emoji-card-bg";
 import { DanaLabel } from "@/components/messages/dana-label";
 
@@ -19,6 +20,7 @@ const HERO_MAP: Record<string, () => ReactNode> = {
   ),
   deana: () => <EmojiCardBg />,
   vibe: () => <MetaballCanvas color={[0.91, 0.64, 0.09]} />,
+  "anything-but-analog": () => <ParticleTextCanvas countOverride={1500} />,
 };
 
 const LABEL_MAP: Record<string, () => ReactNode> = {
@@ -34,8 +36,9 @@ const ITEMS: { id: number; label: string; handle: string | null; href?: string }
   { id: 1, label: "self", handle: "self" },
   { id: 2, label: "D-ANA", handle: "deana", href: "/deana" },
   { id: 3, label: "vibe", handle: "vibe", href: "/vibe" },
-  ...Array.from({ length: 3 }, (_, i) => ({
-    id: i + 4,
+  { id: 4, label: "analog", handle: "anything-but-analog", href: "/anything-but-analog" },
+  ...Array.from({ length: 2 }, (_, i) => ({
+    id: i + 5,
     label: "undefined",
     handle: null as string | null,
   })),

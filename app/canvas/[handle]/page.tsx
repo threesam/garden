@@ -4,7 +4,7 @@ import { VoronoiImage } from "@/components/canvas/voronoi-image";
 import { getContent } from "@/lib/content";
 import { Prose } from "@/components/prose";
 import { MessageTimeline } from "@/components/messages/message-timeline";
-import { ParticleTextCanvas } from "@/components/canvas/particle-text-canvas";
+import { AnythingButAnalogBanner } from "@/components/banners/anything-but-analog-banner";
 
 interface Props {
   params: Promise<{ handle: string }>;
@@ -76,7 +76,7 @@ export default async function CanvasPage({ params }: Props) {
             content={processed}
             slots={{
               "message-timeline": <MessageTimeline />,
-              "anything-but-analog": <ParticleTextCanvas />,
+              "anything-but-analog": <AnythingButAnalogBanner href="/anything-but-analog" />,
               ...voronoiImageSlots,
             }}
           />

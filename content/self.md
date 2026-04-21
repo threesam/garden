@@ -266,7 +266,7 @@ i left that pier hungry for the power i had just witnessed.
 
 <!-- anything-but-analog -->
 
-so i scoured the internet and happened upon [Processing](https://processing.org). immediately began trying to make pixels dance across the screen. then, i needed to show anyone else the birth of my digital monstrosity but had no idea how to share a computer screen with the world wide web.
+so i scoured the internet and happened upon [Processing](https://processing.org). immediately began trying to make [pixels dance](/anything-but-analog) across the screen. then, i needed to show anyone else the birth of my digital monstrosity but had no idea how to share a computer screen with the world wide web.
 
 that curiosity turned into a rabbit hole.
 
