@@ -49,22 +49,23 @@ export const day32: Sketch = {
       return false;
     }
 
+    const FAN_LINES = 80;
     function drawShape(s: Shape) {
       ctx.save();
       ctx.translate(w / 2 + s.x, h / 2 + s.y);
       ctx.rotate(s.rotation);
       ctx.lineWidth = 1;
       ctx.strokeStyle = `rgb(${s.big}, ${s.big - s.small}, 0)`;
-      // 200-line radial fan
-      for (let i = 0; i < 200; i++) {
-        const angle = (i / 200) * Math.PI;
-        const offset = (i / 200) * 10;
-        ctx.rotate(angle);
-        ctx.beginPath();
+      // radial fan — fewer lines, batched in one path for fewer GPU round-trips
+      ctx.beginPath();
+      for (let i = 0; i < FAN_LINES; i++) {
+        const angle = (i / FAN_LINES) * Math.PI;
+        const offset = (i / FAN_LINES) * 10;
         ctx.moveTo(0, 0);
-        ctx.lineTo(0, s.r - offset);
-        ctx.stroke();
+        const r = s.r - offset;
+        ctx.lineTo(Math.sin(angle) * r, -Math.cos(angle) * r);
       }
+      ctx.stroke();
       ctx.restore();
     }
 
@@ -80,20 +81,22 @@ export const day32: Sketch = {
           return;
         }
 
-        const x = map(rng(), 0, 1, -smallerSide / 2, smallerSide / 2);
-        const y = map(rng(), 0, 1, -smallerSide / 2, smallerSide / 2);
-
-        if (Math.hypot(x, y) < smallerSide / 2.5 && (frame > 1000 || frame % 7 === 0)) {
-          const small = Math.floor(map(noise(x * multi), 0, 1, 0, 50));
-          const big = Math.floor(map(noise(x * multi, y * multi), 0, 1, 150, 250));
-          circles.push({
-            x,
-            y,
-            r: 1,
-            rotation: map(noise(x * multi, y * multi), 0, 1, 0, Math.PI),
-            big,
-            small,
-          });
+        // Three seeds per frame instead of one-every-seven → tripled spawn rate
+        for (let s = 0; s < 3; s++) {
+          const x = map(rng(), 0, 1, -smallerSide / 2, smallerSide / 2);
+          const y = map(rng(), 0, 1, -smallerSide / 2, smallerSide / 2);
+          if (Math.hypot(x, y) < smallerSide / 2.5) {
+            const small = Math.floor(map(noise(x * multi), 0, 1, 0, 50));
+            const big = Math.floor(map(noise(x * multi, y * multi), 0, 1, 150, 250));
+            circles.push({
+              x,
+              y,
+              r: 1,
+              rotation: map(noise(x * multi, y * multi), 0, 1, 0, Math.PI),
+              big,
+              small,
+            });
+          }
         }
 
         for (const c of circles) {
@@ -102,7 +105,8 @@ export const day32: Sketch = {
           } else if (detectShapeCollision(c)) {
             if (c.r > 1) drawShape(c);
           } else {
-            c.r++;
+            // Grow 3× per tick so circles reach their final radius faster
+            c.r += 3;
             drawShape(c);
           }
         }
