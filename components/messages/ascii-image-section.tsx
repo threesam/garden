@@ -23,9 +23,9 @@ export function AsciiImageSection({ src, altSrcs }: Props) {
 
   return (
     <section
-      className="relative h-[100dvh] w-full overflow-hidden"
+      className="relative h-[100dvh] w-full snap-start overflow-hidden"
       style={{
-        backgroundColor: "var(--black)",
+        backgroundColor: "var(--white)",
         contentVisibility: "auto",
         containIntrinsicSize: "100vw 100dvh",
       }}
