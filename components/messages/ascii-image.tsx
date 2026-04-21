@@ -187,7 +187,9 @@ export function AsciiImage({ srcs, className = "" }: AsciiImageProps) {
 
     // Initial render once first image loads, then start cycle
     let loaded = 0;
+    let cancelled = false;
     const onLoad = () => {
+      if (cancelled) return;
       loaded++;
       if (loaded === 1) {
         renderStatic();
@@ -209,10 +211,12 @@ export function AsciiImage({ srcs, className = "" }: AsciiImageProps) {
     ro.observe(container);
 
     return () => {
+      cancelled = true;
       cancelAnimationFrame(rafId);
       if (timerId) clearTimeout(timerId);
       clearTimeout(resizeTimeout);
       ro.disconnect();
+      for (const img of images) img.onload = null;
     };
   }, [srcs]);
 

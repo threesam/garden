@@ -1,22 +1,19 @@
 import type { Metadata } from "next";
-import { EmojiHero } from "@/components/messages/emoji-hero";
+import { AsciiImageSection } from "@/components/messages/ascii-image-section";
 import { MessageTimeline } from "@/components/messages/message-timeline";
 import { ClockHeatmap } from "@/components/messages/clock-heatmap";
-import { MilestoneSam, MilestoneDia, MilestoneCount } from "@/components/messages/milestones";
-import { FirstNight } from "@/components/messages/first-night";
-import { DailyFirsts } from "@/components/messages/daily-firsts";
 import { EmojiMeter } from "@/components/messages/emoji-meter";
 import { PetNames } from "@/components/messages/pet-names";
 import { LazyWordCloud } from "@/components/messages/lazy-word-cloud";
 import { TotalWords, BusiestDay, MostWords } from "@/components/messages/word-stats";
-
+import { LazyMount } from "@/components/lazy-mount";
+import { DEANA_IMAGES } from "@/components/messages/deana-images";
 
 export const metadata: Metadata = {
   title: "deana — threesam",
   description: "102,549 messages. 10 years. One conversation.",
 };
 
-const isDev = process.env.NODE_ENV === "development";
 const g = "gap-3 md:gap-4";
 
 function M({ children, className = "" }: { children: React.ReactNode; className?: string }) {
@@ -27,55 +24,63 @@ function M({ children, className = "" }: { children: React.ReactNode; className?
   );
 }
 
+function ContentSection({ children }: { children: React.ReactNode }) {
+  return (
+    <section
+      className="flex min-h-[100dvh] w-full items-center justify-center px-3 py-10 md:px-4"
+      style={{ backgroundColor: "var(--white)" }}
+    >
+      <div className={`mx-auto w-full max-w-7xl flex flex-col ${g}`}>{children}</div>
+    </section>
+  );
+}
+
 export default function DeanaPage() {
   return (
-    <main className="min-h-screen" style={{ backgroundColor: "var(--white)" }}>
-      <EmojiHero />
-      <div className="px-3 pb-6 md:px-4">
-      <div className={`mx-auto max-w-7xl flex flex-col ${g}`}>
+    <main style={{ backgroundColor: "var(--black)" }}>
+      <AsciiImageSection src={DEANA_IMAGES[0]} />
 
-        {/* Timeline — full width */}
-        <M>
-          <MessageTimeline />
-        </M>
+      <ContentSection>
+        <LazyMount>
+          <M><MessageTimeline /></M>
+        </LazyMount>
+      </ContentSection>
 
-        {/* Heatmap full width */}
-        <M>
-          <ClockHeatmap />
-        </M>
+      <AsciiImageSection src={DEANA_IMAGES[1]} />
 
-        {/* Word cloud + stats */}
-        <div className={`grid grid-cols-1 md:grid-cols-3 ${g}`}>
-          <M className="md:col-span-2"><LazyWordCloud /></M>
-          <div className={`grid grid-rows-3 ${g}`}>
-            <M className="flex items-center"><TotalWords /></M>
-            <M className="flex items-center"><BusiestDay /></M>
-            <M className="flex items-center"><MostWords /></M>
-          </div>
-        </div>
+      <ContentSection>
+        <LazyMount>
+          <M><ClockHeatmap /></M>
+        </LazyMount>
+      </ContentSection>
 
-        {/* Emoji + Pet names */}
-        <div className={`grid grid-cols-1 md:grid-cols-2 ${g}`}>
-          <M><EmojiMeter /></M>
-          <M><PetNames /></M>
-        </div>
+      <AsciiImageSection src={DEANA_IMAGES[2]} />
 
-        {/* Milestones + First night — dev only */}
-        {isDev && (
-          <>
-            <div className={`grid grid-cols-1 md:grid-cols-3 ${g}`}>
-              <M><MilestoneDia /></M>
-              <M><MilestoneSam /></M>
-              <M><MilestoneCount /></M>
+      <ContentSection>
+        <LazyMount>
+          <div className={`grid grid-cols-1 md:grid-cols-3 ${g}`}>
+            <M className="md:col-span-2"><LazyWordCloud /></M>
+            <div className={`grid grid-rows-3 ${g}`}>
+              <M className="flex items-center"><TotalWords /></M>
+              <M className="flex items-center"><BusiestDay /></M>
+              <M className="flex items-center"><MostWords /></M>
             </div>
-            <M><FirstNight /></M>
-          </>
-        )}
+          </div>
+        </LazyMount>
+      </ContentSection>
 
-        {/* Daily firsts — dev only */}
-        {isDev && <M><DailyFirsts /></M>}
-      </div>
-      </div>
+      <AsciiImageSection src={DEANA_IMAGES[3]} />
+
+      <ContentSection>
+        <LazyMount>
+          <div className={`grid grid-cols-1 md:grid-cols-2 ${g}`}>
+            <M><EmojiMeter /></M>
+            <M><PetNames /></M>
+          </div>
+        </LazyMount>
+      </ContentSection>
+
+      <AsciiImageSection src={DEANA_IMAGES[4]} />
     </main>
   );
 }
