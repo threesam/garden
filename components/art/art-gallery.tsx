@@ -6,6 +6,7 @@ import { SketchHost } from "./sketch-host";
 export interface SketchMeta {
   slug: string;
   date: string;
+  description?: string;
 }
 
 interface Props {
@@ -87,6 +88,14 @@ export function ArtGallery({ sketches, heroCount = 1, lookahead = 2, lookback = 
             >
               {s.date}
             </span>
+            {s.description ? (
+              <span
+                className="pointer-events-none absolute right-6 bottom-6 z-10 max-w-[60%] text-right font-mono text-xs uppercase tracking-[0.2em] md:right-10 md:bottom-10 md:max-w-[40%] md:text-sm"
+                style={{ color: "var(--white)" }}
+              >
+                {s.description}
+              </span>
+            ) : null}
           </section>
         );
       })}

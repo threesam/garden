@@ -10,6 +10,7 @@ export const day30: Sketch = {
   slug: "30",
   title: "the crowd",
   date: "2022-01-30",
+  description: "do not hold bodies in memory longer than they need holding",
   setup(api) {
     const { ctx, w, h, rng, noise, map } = api;
 

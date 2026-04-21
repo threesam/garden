@@ -13,7 +13,11 @@ export const metadata: Metadata = {
 };
 
 export default function AnythingButAnalogPage() {
-  const meta = visibleSketches.map((s) => ({ slug: s.slug, date: s.date }));
+  const meta = visibleSketches.map((s) => ({
+    slug: s.slug,
+    date: s.date,
+    description: s.description,
+  }));
   return (
     <main
       id="art-scroller"
