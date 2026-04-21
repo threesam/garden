@@ -473,40 +473,61 @@ export function ParticleTextCanvas({
       // Reset — radius 0 disables the window.
       goldCircle.cx = goldCircle.cy = goldCircle.r = 0;
       if (!hideText) {
-        const prefix = "ANYTHING BUT ";
-        const highlight = "ANALOG";
-        const fontSize = w >= 1920 ? 120 : w >= 1280 ? 96 : w >= 768 ? 72 : 32;
+        const lines = ["ANYTHING", "BUT", "ANALOG"];
+        // Width divisor is a rough "ANYTHING-widths-per-fontSize"
+        // coefficient for Bold Jost at 0.1em letter spacing — empirically
+        // ~6.5. Height budget is 55% split across 3 lines × 1.2 line
+        // height. Whichever binds first wins, then clamp.
+        const leftPadFrac = 0.08;
+        const lineHeight = 1.2;
+        const widthBudget = w * 0.75;
+        const heightBudget = h * 0.55;
+        const sizeFromW = widthBudget / 6.5;
+        const sizeFromH = heightBudget / (lines.length * lineHeight);
+        const fontSize = Math.max(22, Math.min(120, Math.min(sizeFromW, sizeFromH)));
         const fontStr = `bold ${fontSize}px Jost, sans-serif`;
         tCtx.font = fontStr;
         tCtx.textAlign = "left";
         tCtx.textBaseline = "middle";
         tCtx.letterSpacing = "0.1em";
-        const prefixWidth = tCtx.measureText(prefix).width;
-        const highlightWidth = tCtx.measureText(highlight).width;
-        const totalWidth = prefixWidth + highlightWidth;
-        const startX = (w - totalWidth) / 2;
-        const centerY = h / 2;
-        tCtx.fillStyle = textColor;
-        tCtx.fillText(prefix, startX, centerY);
-        // ANALOG sits inside the black particle square, so white reads
-        // clearly against it.
-        tCtx.fillStyle =
+
+        const startX = w * leftPadFrac;
+        // Evenly-spaced vertical centers: line i at h * (i + 1) / (n + 1).
+        const yAt = (i: number) => (h * (i + 1)) / (lines.length + 1);
+        const whiteColor =
           getComputedStyle(container!).getPropertyValue("--white").trim() ||
           "#ffffff";
-        tCtx.fillText(highlight, startX + prefixWidth, centerY);
+        const blackColor =
+          getComputedStyle(container!).getPropertyValue("--black").trim() ||
+          "#111";
 
-        // Circular window centered on ANALOG. Radius padded slightly
-        // past half the word width; vicinity is a fraction of the
-        // radius so the fade feels the same on mobile and desktop
-        // (hardcoded pixel values would dominate at small sizes and
-        // dilute the dark core).
-        goldCircle.cx = startX + prefixWidth + highlightWidth / 2;
-        goldCircle.cy = centerY;
-        goldCircle.r = highlightWidth * 0.6;
+        // Draw ANYTHING and BUT first, then the ANALOG dark disc, then
+        // ANALOG text on top of the disc. Drawing the disc on the text
+        // canvas (not just as a particle tint) guarantees white-on-dark
+        // contrast at any viewport size — particle density alone was
+        // too sparse at mobile to do that job.
+        for (let i = 0; i < lines.length; i++) {
+          if (lines[i] === "ANALOG") continue;
+          tCtx.fillStyle = textColor;
+          tCtx.fillText(lines[i], startX, yAt(i));
+        }
+
+        const analogIdx = lines.indexOf("ANALOG");
+        const analogWidth = tCtx.measureText("ANALOG").width;
+        goldCircle.cx = startX + analogWidth / 2;
+        goldCircle.cy = yAt(analogIdx);
+        goldCircle.r = analogWidth * 0.65;
         goldVicinity = goldCircle.r * 0.5;
 
+        tCtx.fillStyle = blackColor;
+        tCtx.beginPath();
+        tCtx.arc(goldCircle.cx, goldCircle.cy, goldCircle.r, 0, Math.PI * 2);
+        tCtx.fill();
 
-        // Same text to a CSS-pixel-sized canvas for the collision texture.
+        tCtx.fillStyle = whiteColor;
+        tCtx.fillText("ANALOG", startX, yAt(analogIdx));
+
+        // Collision texture: same layout in a CSS-pixel-sized canvas.
         textBitmapCanvas.width = w;
         textBitmapCanvas.height = h;
         const cCtx = textBitmapCanvas.getContext("2d")!;
@@ -516,8 +537,9 @@ export function ParticleTextCanvas({
         cCtx.textBaseline = "middle";
         cCtx.letterSpacing = "0.1em";
         cCtx.fillStyle = "white";
-        cCtx.fillText(prefix, startX, centerY);
-        cCtx.fillText(highlight, startX + prefixWidth, centerY);
+        for (let i = 0; i < lines.length; i++) {
+          cCtx.fillText(lines[i], startX, yAt(i));
+        }
         const collisionData = cCtx.getImageData(0, 0, w, h).data;
         for (let i = 0; i < r8.length; i++) r8[i] = collisionData[i * 4 + 3];
       }

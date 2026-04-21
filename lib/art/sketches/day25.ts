@@ -15,6 +15,12 @@ export const day25: Sketch = {
     const end = smallSide * 4.5;
     const density = 13;
     const space = smallSide / density;
+    // Eye diameter is now a fraction of the cell spacing so there's
+    // always visible gap between eyes regardless of viewport size.
+    // Previously eyes were hardcoded in pixels (13–30) and overlapped
+    // heavily at mobile because `space` shrinks with the viewport.
+    const minSize = space * 0.3;
+    const maxSize = space * 0.55;
 
     // rotateX(-PI/5), rotateY(PI/7), rotateZ(PI/30)
     const rx = -Math.PI / 5;
@@ -53,10 +59,14 @@ export const day25: Sketch = {
     const eyes: Eye[] = [];
     for (let y = start; y < end; y += space) {
       for (let x = start; x < end; x += space) {
-        const size = map(y, start, end, 13, 30);
+        const size = map(y, start, end, minSize, maxSize);
         const move = map(y, start, end, -size / 3, size / 3);
-        const nShift = map(noise(x * multi, y * multi), 0, 1, -3, 3);
-        const curve = map(noise(x * multi, y * multi), 0, 1, -10, 10);
+        // Jitter + curve also scaled to `space` so they don't dominate
+        // the cell on mobile.
+        const shiftAmp = space * 0.12;
+        const curveAmp = space * 0.4;
+        const nShift = map(noise(x * multi, y * multi), 0, 1, -shiftAmp, shiftAmp);
+        const curve = map(noise(x * multi, y * multi), 0, 1, -curveAmp, curveAmp);
         const p = project(x + nShift, y + nShift, curve);
         eyes.push({
           px: p.x,

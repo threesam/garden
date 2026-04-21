@@ -21,9 +21,9 @@ export const day30: Sketch = {
 
     // NE bias: pure noise drifts randomly; we bias the field toward
     // up-and-right so the crowd has net directional flow. 0 = pure noise,
-    // 1 = all bias. 0.65 keeps visible turbulence while ensuring exit
-    // through the top/right edges, not the left.
-    const biasStrength = 0.65;
+    // 1 = all bias. Lower values read less wave-like because walkers
+    // don't all converge into the same strong currents.
+    const biasStrength = 0.45;
     const biasAngle = -Math.PI / 4; // NE in screen coords (y+ down)
     const biasDX = Math.cos(biasAngle) * biasStrength;
     const biasDY = Math.sin(biasAngle) * biasStrength;
@@ -37,6 +37,10 @@ export const day30: Sketch = {
     interface Walker {
       x: number;
       y: number;
+      // Per-walker speed: range around 1.0. Without this, walkers that
+      // end up in the same current move in perfect lockstep and read as
+      // a wave. Small spread is enough to dissolve the convoy feel.
+      speed: number;
       // proportions — set once at spawn, immutable thereafter
       quarter: number;
       half: number;
@@ -64,6 +68,7 @@ export const day30: Sketch = {
       return {
         x: map(rng(), 0, 1, -halfW - 40, halfW * 0.6),
         y: map(rng(), 0, 1, halfH + 20, halfH + 70),
+        speed: map(rng(), 0, 1, 0.8, 1.5),
         quarter,
         half: quarter * 2,
         limbLength: map(rng(), 0, 1, 22, 34),
