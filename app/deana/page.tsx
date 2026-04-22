@@ -27,7 +27,7 @@ function M({ children, className = "" }: { children: React.ReactNode; className?
 function ContentSection({ children }: { children: React.ReactNode }) {
   return (
     <section
-      className="flex min-h-[100dvh] w-full snap-start items-center justify-center px-3 py-10 md:px-4"
+      className="w-full snap-start px-3 py-16 md:px-4 md:py-24"
       style={{ backgroundColor: "var(--white)" }}
     >
       <div className={`mx-auto w-full max-w-7xl flex flex-col ${g}`}>{children}</div>
