@@ -15,15 +15,19 @@ export const day30: Sketch = {
   setup(api) {
     const { ctx, w, h, rng, noise, map } = api;
 
-    // Flow field scale: tuned so currents are a few hundred px wide —
-    // walkers meander within a current rather than snapping between them.
-    const noiseScale = 0.004;
+    // Flow field scale: tuned so currents are roughly 100-150 px wide —
+    // fine enough that walkers cross between currents as they move,
+    // which prevents thick-convoy bundling while keeping a readable
+    // directional flow. The earlier 0.004 gave 250+px currents that
+    // acted as walker highways and read as a single thick strand.
+    const noiseScale = 0.008;
 
     // NE bias: pure noise drifts randomly; we bias the field toward
     // up-and-right so the crowd has net directional flow. 0 = pure noise,
-    // 1 = all bias. Lower values read less wave-like because walkers
-    // don't all converge into the same strong currents.
-    const biasStrength = 0.45;
+    // 1 = all bias. Kept low so walkers don't all converge into the same
+    // strong current — stronger bias reads as a single blob drifting
+    // instead of a crowd with its own internal milling.
+    const biasStrength = 0.2;
     const biasAngle = -Math.PI / 4; // NE in screen coords (y+ down)
     const biasDX = Math.cos(biasAngle) * biasStrength;
     const biasDY = Math.sin(biasAngle) * biasStrength;
@@ -57,17 +61,11 @@ export const day30: Sketch = {
     const halfW = w / 2;
     const halfH = h / 2;
 
-    // Throttled spawn from a band just off-screen (bottom, extending left).
-    // Gradual fill over the first ~5 seconds reads as a crowd entering the
-    // frame. Once TARGET is reached, no more spawns — the asteroids wrap
-    // takes over and the population cycles indefinitely.
-    const SPAWN_PER_FRAME = 3;
-
     function spawn(): Walker {
       const quarter = map(rng(), 0, 1, 1.5, 4.5);
       return {
-        x: map(rng(), 0, 1, -halfW - 40, halfW * 0.6),
-        y: map(rng(), 0, 1, halfH + 20, halfH + 70),
+        x: 0,
+        y: 0,
         speed: map(rng(), 0, 1, 0.8, 1.5),
         quarter,
         half: quarter * 2,
@@ -77,6 +75,26 @@ export const day30: Sketch = {
         neck: rng() * quarter,
         color: Math.floor(map(rng(), 0, 1, 140, 255)),
       };
+    }
+
+    // Seed the viewport at t=0 with a jittered grid. The earlier version
+    // spawned walkers from a band off-screen and throttled them in — it
+    // looked like a single convoy entering from the bottom-left instead
+    // of a crowd. Pre-populating reads as a fully-inhabited scene from
+    // the first frame; the asteroids wrap keeps the population stable.
+    const cols = Math.max(1, Math.floor(Math.sqrt((TARGET * w) / h)));
+    const rows = Math.ceil(TARGET / cols);
+    const cellW = w / cols;
+    const cellH = h / rows;
+    for (let r = 0; r < rows && walkers.length < TARGET; r++) {
+      for (let c = 0; c < cols && walkers.length < TARGET; c++) {
+        const wk = spawn();
+        // Jitter within ±40% of cell size — enough to break up the grid
+        // visually but keeps coverage uniform.
+        wk.x = -halfW + (c + 0.5 + (rng() - 0.5) * 0.8) * cellW;
+        wk.y = -halfH + (r + 0.5 + (rng() - 0.5) * 0.8) * cellH;
+        walkers.push(wk);
+      }
     }
 
     function drawWalker(wk: Walker) {
@@ -132,14 +150,6 @@ export const day30: Sketch = {
         ctx.fillStyle = "rgba(0,0,0,0.13)";
         ctx.fillRect(0, 0, w, h);
 
-        // Throttled initial fill. Once walkers.length >= TARGET, this is
-        // a no-op and the population cycles via the wrap logic below.
-        let spawnedThisFrame = 0;
-        while (walkers.length < TARGET && spawnedThisFrame < SPAWN_PER_FRAME) {
-          walkers.push(spawn());
-          spawnedThisFrame++;
-        }
-
         ctx.save();
         ctx.translate(halfW, halfH);
 
@@ -192,9 +202,15 @@ export const day30: Sketch = {
             }
           }
 
-          const speed = 1.2;
-          wk.x += Math.cos(angle) * speed + repelX * 0.6;
-          wk.y += Math.sin(angle) * speed + repelY * 0.6;
+          // Per-frame angular jitter (±~0.6 rad ≈ ±34°) around the flow
+          // angle. Combined with finer noise and per-walker speed, this
+          // dissolves the thick flow-field bundles — the crowd reads as
+          // individuals milling along a general direction instead of a
+          // convoy riding a single strand.
+          const jitter = (rng() - 0.5) * 1.2;
+          const moveAngle = angle + jitter;
+          wk.x += Math.cos(moveAngle) * wk.speed + repelX * 0.6;
+          wk.y += Math.sin(moveAngle) * wk.speed + repelY * 0.6;
 
           // Asteroids wrap. Exit right → enter left at same y. Exit top
           // → enter bottom at same x. And vice versa. Uses the extended
