@@ -15,19 +15,19 @@ export const day30: Sketch = {
   setup(api) {
     const { ctx, w, h, rng, noise, map } = api;
 
-    // Flow field scale: tuned so currents are roughly 100-150 px wide —
-    // fine enough that walkers cross between currents as they move,
-    // which prevents thick-convoy bundling while keeping a readable
-    // directional flow. The earlier 0.004 gave 250+px currents that
-    // acted as walker highways and read as a single thick strand.
-    const noiseScale = 0.008;
+    // Flow field uses curl-of-noise (divergence-free). A naive
+    // "angle = noise * 2π" field has convergent sinks where flows
+    // drain in — walkers pool there within a few seconds and the
+    // scene reads as aggregated blobs in the gutters. Curl-of-noise
+    // has zero divergence by construction (∂F_x/∂x + ∂F_y/∂y = 0)
+    // so walkers circulate through regions rather than pooling.
+    const noiseScale = 0.005;
+    const curlStep = 0.02; // noise-coord step for the central difference
 
-    // NE bias: pure noise drifts randomly; we bias the field toward
-    // up-and-right so the crowd has net directional flow. 0 = pure noise,
-    // 1 = all bias. Kept low so walkers don't all converge into the same
-    // strong current — stronger bias reads as a single blob drifting
-    // instead of a crowd with its own internal milling.
-    const biasStrength = 0.2;
+    // Soft NE drift. Kept low so the curl's natural circulation still
+    // reads as the dominant motion; too much bias flattens curl back
+    // into a directional stream.
+    const biasStrength = 0.15;
     const biasAngle = -Math.PI / 4; // NE in screen coords (y+ down)
     const biasDX = Math.cos(biasAngle) * biasStrength;
     const biasDY = Math.sin(biasAngle) * biasStrength;
@@ -167,12 +167,19 @@ export const day30: Sketch = {
 
         for (let i = 0; i < walkers.length; i++) {
           const wk = walkers[i];
-          const n = noise(wk.x * noiseScale, wk.y * noiseScale);
-          // Blend noise direction with NE bias vector. This keeps local
-          // turbulence but guarantees net drift up-and-right.
-          const noiseAngle = n * Math.PI * 2;
-          const dx = Math.cos(noiseAngle) * (1 - biasStrength) + biasDX;
-          const dy = Math.sin(noiseAngle) * (1 - biasStrength) + biasDY;
+          // Curl-of-noise: treat `noise` as a stream function ψ and
+          // take its 2D curl — F = (∂ψ/∂y, -∂ψ/∂x) — via central
+          // differences. Four noise lookups per walker; 900 × 4 =
+          // ~3600/frame, negligible at 60fps.
+          const nx = wk.x * noiseScale;
+          const ny = wk.y * noiseScale;
+          const dnx = (noise(nx + curlStep, ny) - noise(nx - curlStep, ny)) / (2 * curlStep);
+          const dny = (noise(nx, ny + curlStep) - noise(nx, ny - curlStep)) / (2 * curlStep);
+          const flowLen = Math.hypot(dny, -dnx) || 1;
+          const fx = dny / flowLen;
+          const fy = -dnx / flowLen;
+          const dx = fx * (1 - biasStrength) + biasDX;
+          const dy = fy * (1 - biasStrength) + biasDY;
           const angle = Math.atan2(dy, dx);
 
           // Collision avoidance: check 3x3 neighborhood for walkers
@@ -202,12 +209,11 @@ export const day30: Sketch = {
             }
           }
 
-          // Per-frame angular jitter (±~0.6 rad ≈ ±34°) around the flow
-          // angle. Combined with finer noise and per-walker speed, this
-          // dissolves the thick flow-field bundles — the crowd reads as
-          // individuals milling along a general direction instead of a
-          // convoy riding a single strand.
-          const jitter = (rng() - 0.5) * 1.2;
+          // Light per-frame angular jitter (±~0.3 rad). Curl-noise
+          // already circulates naturally so heavy jitter just masks
+          // the field; this is enough to keep neighbors from
+          // lockstepping without dissolving the curl shapes.
+          const jitter = (rng() - 0.5) * 0.6;
           const moveAngle = angle + jitter;
           wk.x += Math.cos(moveAngle) * wk.speed + repelX * 0.6;
           wk.y += Math.sin(moveAngle) * wk.speed + repelY * 0.6;
