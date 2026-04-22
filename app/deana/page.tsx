@@ -27,7 +27,7 @@ function M({ children, className = "" }: { children: React.ReactNode; className?
 function ContentSection({ children }: { children: React.ReactNode }) {
   return (
     <section
-      className="flex h-[100dvh] w-full snap-start items-center justify-center overflow-y-auto px-3 py-10 md:px-4"
+      className="flex min-h-[100dvh] w-full snap-start items-center justify-center px-3 py-10 md:px-4"
       style={{ backgroundColor: "var(--white)" }}
     >
       <div className={`mx-auto w-full max-w-7xl flex flex-col ${g}`}>{children}</div>
@@ -82,8 +82,6 @@ export default function DeanaPage() {
           </div>
         </LazyMount>
       </ContentSection>
-
-      <AsciiImageSection src={DEANA_IMAGES[4]} />
     </main>
   );
 }
