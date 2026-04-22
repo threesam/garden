@@ -13,7 +13,7 @@ export function Anchor() {
     return null;
   }
   return (
-    <div className="relative h-[50dvh] w-full">
+    <div className="relative h-[30dvh] w-full md:h-[50dvh]">
       <CloudCanvas />
     </div>
   );
