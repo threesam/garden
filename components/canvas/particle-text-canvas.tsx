@@ -5,7 +5,9 @@ import { useEffect, useRef } from "react";
 // Physics constants — kept as shader uniforms / constants where used
 const SPEED = 0.3;
 const DEFAULT_REPEL_RADIUS = 180;
-const REPEL_STRENGTH = 2.0;
+// Halved from the old 2.0 so the cursor nudges particles rather than
+// shoves them — reads as "gently parting a field" instead of a blast.
+const REPEL_STRENGTH = 1.0;
 const DAMPING = 0.85;
 
 // Pick a particle count appropriate to the device. Mobile + low-mem devices
@@ -74,8 +76,9 @@ void main() {
 
   pos += vel;
 
-  // Text collision via sampled alpha. If we're inside the text, compute a
-  // normal from neighbor samples and reflect velocity.
+  // Text collision via sampled alpha. Threshold 0.5 gives a crisp edge
+  // at bilinear-sampled glyph boundaries; neighbor gradient yields a
+  // surface normal to reflect against.
   vec2 uv = pos / u_resolution;
   if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0) {
     float here = texture(u_collision, uv).r;
@@ -247,6 +250,13 @@ export function ParticleTextCanvas({
     const PARTICLE_COUNT = countOverride ?? picked.count;
     const animate = picked.animate;
     const textBitmapCanvas = document.createElement("canvas");
+    // Mobile gets a tighter cursor radius (30% smaller) so the hover zone
+    // doesn't dominate the viewport on a phone. Desktop keeps the default.
+    // Explicit caller override (thumbnail usage) always wins.
+    const callerOverrodeRadius = repelRadius !== DEFAULT_REPEL_RADIUS;
+    const viewportDefault =
+      window.innerWidth < 768 ? DEFAULT_REPEL_RADIUS * 0.7 : DEFAULT_REPEL_RADIUS;
+    const effectiveRepelRadius = callerOverrodeRadius ? repelRadius : viewportDefault;
 
     // Mutable per-instance state (shared across init / context-restore cycles).
     let w = 0;
@@ -261,6 +271,13 @@ export function ParticleTextCanvas({
     let mouseY = -1;
     let activeIdx = 0;
     let particlesInitialized = false;
+
+    // R8 letter mask in CSS pixels. Consulted at particle spawn so no
+    // particle starts inside a glyph — the collision shader can't push
+    // out particles whose 4 neighbor samples are all inside the stroke
+    // (gradient is zero, normal stays 0), so they'd sit there forever
+    // and blot the letter. Null when hideText is true.
+    let collisionMask: Uint8Array | null = null;
 
     // GL state — assigned by setupGL(), cleared by teardownGL().
     // Re-created on context-restore for iOS Safari compatibility.
@@ -308,7 +325,7 @@ export function ParticleTextCanvas({
       });
       if (!gl) return false;
 
-      updateVS = compileShader(gl, gl.VERTEX_SHADER, buildUpdateVert(repelRadius));
+      updateVS = compileShader(gl, gl.VERTEX_SHADER, buildUpdateVert(effectiveRepelRadius));
       updateFS = compileShader(gl, gl.FRAGMENT_SHADER, UPDATE_FRAG);
       updateProg = linkProgram(gl, updateVS, updateFS, ["v_position", "v_velocity"]);
 
@@ -389,11 +406,28 @@ export function ParticleTextCanvas({
       const colors = new Uint8Array(PARTICLE_COUNT * 3);
 
       const grayRange = GRAY_MAX - GRAY_MIN;
+      const mask = collisionMask;
       for (let i = 0; i < PARTICLE_COUNT; i++) {
+        let px = Math.random() * w;
+        let py = Math.random() * h;
+        // Reject spawns inside a glyph fill. Six retries is plenty —
+        // letter pixels are a tiny fraction of the canvas so the odds
+        // of six consecutive hits are negligible. If they all hit
+        // (tiny viewport / huge text), we accept the last roll.
+        if (mask) {
+          for (let retry = 0; retry < 6; retry++) {
+            const cx = Math.min(w - 1, Math.floor(px));
+            const cy = Math.min(h - 1, Math.floor(py));
+            if (mask[cy * w + cx] < 50) break;
+            px = Math.random() * w;
+            py = Math.random() * h;
+          }
+        }
+
         const angle = Math.random() * Math.PI * 2;
         const spd = SPEED * (0.5 + Math.random());
-        positions[i * 2] = Math.random() * w;
-        positions[i * 2 + 1] = Math.random() * h;
+        positions[i * 2] = px;
+        positions[i * 2 + 1] = py;
         velocities[i * 2] = Math.cos(angle) * spd;
         velocities[i * 2 + 1] = Math.sin(angle) * spd;
 
@@ -500,7 +534,10 @@ export function ParticleTextCanvas({
         // way — just text, no disc.
         textBitmapCanvas.width = w;
         textBitmapCanvas.height = h;
-        const cCtx = textBitmapCanvas.getContext("2d")!;
+        // willReadFrequently keeps this canvas on the CPU-side backing
+        // store, which is what we want: we draw text once then pull the
+        // whole bitmap out with getImageData to build the collision mask.
+        const cCtx = textBitmapCanvas.getContext("2d", { willReadFrequently: true })!;
         cCtx.clearRect(0, 0, w, h);
         cCtx.textAlign = "left";
         cCtx.textBaseline = "middle";
@@ -576,12 +613,23 @@ export function ParticleTextCanvas({
 
         const collisionData = cCtx.getImageData(0, 0, w, h).data;
         for (let i = 0; i < r8.length; i++) r8[i] = collisionData[i * 4 + 3];
+        collisionMask = r8;
+      } else {
+        collisionMask = null;
       }
 
       if (textTexture) gl!.deleteTexture(textTexture);
       textTexture = gl!.createTexture();
       gl!.activeTexture(gl!.TEXTURE0);
       gl!.bindTexture(gl!.TEXTURE_2D, textTexture);
+      // R8 is 1 byte/pixel; at the default UNPACK_ALIGNMENT=4 WebGL expects
+      // each row padded to a multiple of 4 bytes. When `w` isn't divisible
+      // by 4 (e.g. 390px iPhones, 375px SE, 414px Max), the upload fails
+      // with "ArrayBufferView not big enough" and the texture is left with
+      // garbage/zeros — particles see zero collision texture and drift
+      // through letters. Desktop widths 1280/1440/1920 all happen to be
+      // multiples of 4 so the bug was invisible there.
+      gl!.pixelStorei(gl!.UNPACK_ALIGNMENT, 1);
       gl!.texImage2D(gl!.TEXTURE_2D, 0, gl!.R8, w, h, 0, gl!.RED, gl!.UNSIGNED_BYTE, r8);
       gl!.texParameteri(gl!.TEXTURE_2D, gl!.TEXTURE_MIN_FILTER, gl!.LINEAR);
       gl!.texParameteri(gl!.TEXTURE_2D, gl!.TEXTURE_MAG_FILTER, gl!.LINEAR);
