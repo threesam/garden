@@ -38,7 +38,7 @@ function ContentSection({ children }: { children: React.ReactNode }) {
 export default function DeanaPage() {
   return (
     <main
-      className="h-[100dvh] snap-y snap-mandatory overflow-y-scroll"
+      className="h-[100dvh] snap-y snap-proximity overflow-y-scroll"
       style={{ backgroundColor: "var(--white)" }}
     >
       <AsciiImageSection src={DEANA_IMAGES[0]} />

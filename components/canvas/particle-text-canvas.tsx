@@ -233,7 +233,7 @@ export function ParticleTextCanvas({
   countOverride,
   hideText = false,
   pointSize = 1.0,
-  repelRadius = DEFAULT_REPEL_RADIUS,
+  repelRadius,
 }: ParticleTextCanvasProps = {}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const textCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -253,10 +253,9 @@ export function ParticleTextCanvas({
     // Mobile gets a tighter cursor radius (30% smaller) so the hover zone
     // doesn't dominate the viewport on a phone. Desktop keeps the default.
     // Explicit caller override (thumbnail usage) always wins.
-    const callerOverrodeRadius = repelRadius !== DEFAULT_REPEL_RADIUS;
     const viewportDefault =
       window.innerWidth < 768 ? DEFAULT_REPEL_RADIUS * 0.7 : DEFAULT_REPEL_RADIUS;
-    const effectiveRepelRadius = callerOverrodeRadius ? repelRadius : viewportDefault;
+    const effectiveRepelRadius = repelRadius ?? viewportDefault;
 
     // Mutable per-instance state (shared across init / context-restore cycles).
     let w = 0;
@@ -410,17 +409,31 @@ export function ParticleTextCanvas({
       for (let i = 0; i < PARTICLE_COUNT; i++) {
         let px = Math.random() * w;
         let py = Math.random() * h;
-        // Reject spawns inside a glyph fill. Six retries is plenty —
-        // letter pixels are a tiny fraction of the canvas so the odds
-        // of six consecutive hits are negligible. If they all hit
-        // (tiny viewport / huge text), we accept the last roll.
+        // Reject spawns inside a glyph fill. Twelve random retries is
+        // plenty for realistic letter-coverage ratios; the degenerate
+        // fallback below guarantees we never accept a trapped position
+        // even in pathological cases (text covers most of the canvas).
         if (mask) {
-          for (let retry = 0; retry < 6; retry++) {
+          let ok = false;
+          for (let retry = 0; retry < 12; retry++) {
             const cx = Math.min(w - 1, Math.floor(px));
             const cy = Math.min(h - 1, Math.floor(py));
-            if (mask[cy * w + cx] < 50) break;
+            if (mask[cy * w + cx] < 50) { ok = true; break; }
             px = Math.random() * w;
             py = Math.random() * h;
+          }
+          // Degenerate fallback: if 12 retries all landed inside glyph
+          // pixels (only possible if text covers nearly the whole canvas),
+          // hop left+down until we find a clear cell. Guaranteed to
+          // terminate because the cursor wraps around.
+          if (!ok) {
+            let cx = Math.min(w - 1, Math.floor(px));
+            let cy = Math.min(h - 1, Math.floor(py));
+            for (let step = 0; step < w * h; step++) {
+              if (mask[cy * w + cx] < 50) { px = cx + 0.5; py = cy + 0.5; break; }
+              cx++;
+              if (cx >= w) { cx = 0; cy = (cy + 1) % h; }
+            }
           }
         }
 
