@@ -26,7 +26,12 @@ interface Props {
  * is torn down (canvas cleared, state discarded) to keep memory bounded
  * regardless of how far the user has scrolled.
  */
-export function ArtGallery({ sketches, heroCount = 1, lookahead = 2, lookback = 0 }: Props) {
+// lookahead defaults to 1 so at most two sketches animate concurrently
+// (current + next). The previous default of 2 meant 3 rAF pipelines were
+// running in lockstep whenever the user sat mid-gallery — measurable
+// wins on mobile battery and desktop fan noise for sketches that do
+// heavy per-frame work.
+export function ArtGallery({ sketches, heroCount = 1, lookahead = 1, lookback = 0 }: Props) {
   // Initial: first `lookahead+1` sketches active so hero → first sketches are
   // already warm on mount.
   const [activeIdx, setActiveIdx] = useState(0);
