@@ -143,7 +143,7 @@ export function CloudCanvas({ invert = false }: CloudCanvasProps) {
     const gl = canvas.getContext("webgl", { antialias: false, alpha: false });
     if (!gl) return;
 
-    let raf: number;
+    let raf = 0;
     let visible = true;
     const startTime = performance.now();
 
