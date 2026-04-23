@@ -32,11 +32,20 @@ export const day30: Sketch = {
     const biasDX = Math.cos(biasAngle) * biasStrength;
     const biasDY = Math.sin(biasAngle) * biasStrength;
 
-    // Collision avoidance: uniform spatial hash. Cell size = repulsion
-    // radius so each walker only checks its own cell + 8 neighbors.
-    const REPEL_RADIUS = 14;
+    // Flocking separation via uniform spatial hash. Radius is sized so
+    // walkers (roughly 40–70 CSS px tall limb-stretched figures) don't
+    // visibly overlap — the old 14 let walker arms intersect because
+    // the "center" distance stayed below visual body half-width. Cell
+    // size matches radius so each walker checks its own cell + 8
+    // neighbors, bounding the per-frame cost at a known density.
+    const REPEL_RADIUS = 24;
     const REPEL_RADIUS_SQ = REPEL_RADIUS * REPEL_RADIUS;
     const CELL = REPEL_RADIUS;
+    // Quadratic falloff (s²) gives a hard "no touching" core — force
+    // ramps steeply as walkers close in, then fades gently at the
+    // edge of the radius so the flow field still dominates outside
+    // the personal-space bubble.
+    const SEPARATION_GAIN = 1.2;
 
     interface Walker {
       x: number;
@@ -199,9 +208,11 @@ export const day30: Sketch = {
                 const ddy = wk.y - other.y;
                 const d2 = ddx * ddx + ddy * ddy;
                 if (d2 > 0 && d2 < REPEL_RADIUS_SQ) {
-                  // Strength falls off linearly with distance.
                   const d = Math.sqrt(d2);
-                  const s = (REPEL_RADIUS - d) / REPEL_RADIUS;
+                  const linear = (REPEL_RADIUS - d) / REPEL_RADIUS;
+                  // Quadratic so force grows sharply as walkers get
+                  // close — keeps personal-space bubble firm.
+                  const s = linear * linear;
                   repelX += (ddx / d) * s;
                   repelY += (ddy / d) * s;
                 }
@@ -215,8 +226,8 @@ export const day30: Sketch = {
           // lockstepping without dissolving the curl shapes.
           const jitter = (rng() - 0.5) * 0.6;
           const moveAngle = angle + jitter;
-          wk.x += Math.cos(moveAngle) * wk.speed + repelX * 0.6;
-          wk.y += Math.sin(moveAngle) * wk.speed + repelY * 0.6;
+          wk.x += Math.cos(moveAngle) * wk.speed + repelX * SEPARATION_GAIN;
+          wk.y += Math.sin(moveAngle) * wk.speed + repelY * SEPARATION_GAIN;
 
           // Asteroids wrap. Exit right → enter left at same y. Exit top
           // → enter bottom at same x. And vice versa. Uses the extended
