@@ -33,24 +33,20 @@ const BG_MAP: Record<string, string> = {
   deana: "var(--white)",
 };
 
-const ITEMS: { id: number; label: string; handle: string | null; href?: string }[] = [
-  { id: 0, label: "undefined", handle: null },
-  { id: 1, label: "self", handle: "self" },
-  { id: 2, label: "D-ANA", handle: "deana", href: "/deana" },
-  { id: 3, label: "shelf", handle: "shelf", href: "/shelf" },
-  { id: 4, label: "analog", handle: "anything-but-analog", href: "/anything-but-analog" },
-  ...Array.from({ length: 2 }, (_, i) => ({
-    id: i + 5,
-    label: "undefined",
-    handle: null as string | null,
-  })),
+const UNIQUE_ITEMS: { label: string; handle: string; href: string }[] = [
+  { label: "self", handle: "self", href: "/canvas/self" },
+  { label: "D-ANA", handle: "deana", href: "/deana" },
+  { label: "shelf", handle: "shelf", href: "/shelf" },
+  { label: "analog", handle: "anything-but-analog", href: "/anything-but-analog" },
 ];
 
+// Double each card in the strip so a tight 4-card gallery loops without
+// empty gaps at typical desktop widths; the strip also gets a second
+// full pass appended for seamless wraparound of the running offset.
+const ITEMS = [...UNIQUE_ITEMS, ...UNIQUE_ITEMS].map((it, i) => ({ id: i, ...it }));
 const LOOPED = [...ITEMS, ...ITEMS];
 
-const CARD_W = 320;
 const CARD_GAP = 24;
-const STRIP_W = ITEMS.length * (CARD_W + CARD_GAP);
 
 const SPEED = 30;
 const SPEED_HOVER = 8;
@@ -79,9 +75,23 @@ export function Gallery() {
 
     lastRef.current = performance.now();
 
+    // Card width is now derived from height via CSS (aspect-ratio 4/5), so
+    // we can't hard-code STRIP_W at module scope — it changes when the
+    // viewport resizes. Re-measure on resize; ITEMS is the unit length.
+    let stripW = 1; // filled in on first tick once the card has rendered
+    function measure() {
+      const firstCard = strip!.firstElementChild as HTMLElement | null;
+      if (firstCard) {
+        stripW = ITEMS.length * (firstCard.offsetWidth + CARD_GAP);
+      }
+    }
+    const ro = new ResizeObserver(measure);
+    ro.observe(section);
+
     function tick(now: number) {
       const dt = Math.min((now - lastRef.current) / 1000, 0.1);
       lastRef.current = now;
+      if (stripW < 2) measure(); // first-paint safety
 
       // Smooth speed transitions
       const lerpRate = targetSpeedRef.current === 0 ? 0.1 : 0.02;
@@ -99,7 +109,7 @@ export function Gallery() {
         }
       }
 
-      offsetRef.current = ((offsetRef.current % STRIP_W) + STRIP_W) % STRIP_W;
+      offsetRef.current = ((offsetRef.current % stripW) + stripW) % stripW;
       strip!.style.transform = `translate3d(${-offsetRef.current}px,0,0)`;
       rafRef.current = requestAnimationFrame(tick);
     }
@@ -155,6 +165,7 @@ export function Gallery() {
 
     return () => {
       cancelAnimationFrame(rafRef.current);
+      ro.disconnect();
       section.removeEventListener("mouseenter", onEnter);
       section.removeEventListener("mouseleave", onLeave);
       section.removeEventListener("pointerdown", onDown);
@@ -167,21 +178,21 @@ export function Gallery() {
 
   return (
     <section
-      className="w-full cursor-grab overflow-hidden active:cursor-grabbing"
-      style={{ touchAction: "none", paddingTop: CARD_GAP, paddingBottom: CARD_GAP }}
+      className="h-full w-full cursor-grab overflow-hidden active:cursor-grabbing"
+      style={{ touchAction: "none", padding: CARD_GAP }}
     >
       <div
         ref={stripRef}
-        className="flex"
+        className="flex h-full"
         style={{ gap: CARD_GAP, willChange: "transform" }}
       >
         {LOOPED.map((item, i) => {
-          const heroFn = item.handle ? HERO_MAP[item.handle] : undefined;
+          const heroFn = HERO_MAP[item.handle];
 
-          return item.handle ? (
+          return (
             <Link
               key={`${item.id}-${i}`}
-              href={item.href ?? `/canvas/${item.handle}`}
+              href={item.href}
               draggable={false}
               onClick={(e) => {
                 if (didDrag.current) {
@@ -189,13 +200,12 @@ export function Gallery() {
                   return;
                 }
                 e.preventDefault();
-                window.location.href = item.href ?? `/canvas/${item.handle}`;
+                window.location.href = item.href;
               }}
-              className="group relative shrink-0 overflow-hidden rounded-2xl transition-all duration-700"
+              className="group relative h-full shrink-0 overflow-hidden rounded-2xl transition-all duration-700"
               style={{
-                width: CARD_W,
-                height: CARD_W * (5 / 4),
-                backgroundColor: (item.handle && BG_MAP[item.handle]) || "var(--black)",
+                aspectRatio: "4 / 5",
+                backgroundColor: BG_MAP[item.handle] || "var(--black)",
                 border: "3px solid var(--black)",
                 display: "block",
               }}
@@ -229,30 +239,12 @@ export function Gallery() {
               )}
               <span
                 data-card-label
-                className={`absolute z-10 font-mono font-bold tracking-[0.3em] transition-colors duration-300 ${heroFn ? "bottom-5 left-5 rounded-2xl px-4 py-2 text-3xl uppercase" : "bottom-4 left-4 text-sm"}`}
-                style={heroFn ? { backgroundColor: "var(--black)", color: "var(--white)" } : { color: "var(--white)" }}
+                className="absolute bottom-5 left-5 z-10 rounded-2xl px-4 py-2 font-mono text-3xl font-bold uppercase tracking-[0.3em] transition-colors duration-300"
+                style={{ backgroundColor: "var(--black)", color: "var(--white)" }}
               >
-                {(item.handle && LABEL_MAP[item.handle]?.()) || item.label}
+                {LABEL_MAP[item.handle]?.() || item.label}
               </span>
             </Link>
-          ) : (
-            <div
-              key={`${item.id}-${i}`}
-              className="relative shrink-0 rounded-2xl"
-              style={{
-                width: CARD_W,
-                height: CARD_W * (5 / 4),
-                backgroundColor: "var(--black)",
-                border: "3px solid var(--black)",
-              }}
-            >
-              <span
-                className="absolute bottom-4 left-4 font-mono text-sm font-bold tracking-[0.3em]"
-                style={{ color: "var(--white)" }}
-              >
-                {item.label}
-              </span>
-            </div>
           );
         })}
       </div>
