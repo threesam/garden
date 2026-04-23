@@ -26,8 +26,11 @@ function M({ children, className = "" }: { children: React.ReactNode; className?
 
 function ContentSection({ children }: { children: React.ReactNode }) {
   return (
+    // No snap-start: scroll-snap is for the filmstrip-style ASCII
+    // images, not the data cards. Content flows naturally between
+    // (and past) the image sections.
     <section
-      className="w-full snap-start px-3 py-16 md:px-4 md:py-24"
+      className="w-full px-3 py-16 md:px-4 md:py-24"
       style={{ backgroundColor: "var(--white)" }}
     >
       <div className={`mx-auto w-full max-w-7xl flex flex-col ${g}`}>{children}</div>

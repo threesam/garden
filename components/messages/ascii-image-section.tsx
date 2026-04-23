@@ -35,7 +35,15 @@ export function AsciiImageSection({ src, altSrcs }: Props) {
       </LazyMount>
       <span
         className="pointer-events-none absolute bottom-6 left-6 z-10 font-mono text-2xl font-bold uppercase tracking-[0.3em] md:bottom-10 md:left-10 md:text-5xl"
-        style={{ color: "var(--white)", mixBlendMode: "difference" }}
+        style={{
+          color: "var(--black)",
+          // Legible against the noisy ASCII field. mixBlend:difference
+          // flickered char-by-char through the art and was unreadable.
+          // Solid black with a subtle cream halo keeps the letters
+          // crisp wherever ASCII char density dips.
+          textShadow:
+            "0 0 2px rgba(245,244,240,0.95), 0 1px 6px rgba(245,244,240,0.7)",
+        }}
       >
         <DanaLabel />
       </span>
