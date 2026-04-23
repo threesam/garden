@@ -67,10 +67,10 @@ export const day30: Sketch = {
     const walkers: Walker[] = [];
     // Sized so the viewport isn't saturated — each walker needs roughly
     // REPEL_RADIUS² worth of space to keep its personal-space bubble
-    // without constant repulsion overhead. 900 read as a dense crowd
-    // but fought the separation force every frame and was visibly slow
-    // on mid-range devices.
-    const TARGET = 420;
+    // without constant repulsion overhead. Mobile gets a lower count
+    // since the canvas is ~½ the area and phones pay more per walker
+    // for the canvas2D stroke calls.
+    const TARGET = w < 768 ? 200 : 420;
 
     const halfW = w / 2;
     const halfH = h / 2;
