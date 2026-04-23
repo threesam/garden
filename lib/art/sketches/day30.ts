@@ -65,7 +65,12 @@ export const day30: Sketch = {
     }
 
     const walkers: Walker[] = [];
-    const TARGET = 900;
+    // Sized so the viewport isn't saturated — each walker needs roughly
+    // REPEL_RADIUS² worth of space to keep its personal-space bubble
+    // without constant repulsion overhead. 900 read as a dense crowd
+    // but fought the separation force every frame and was visibly
+    // slow on mid-range devices; 500 breathes without a perf hit.
+    const TARGET = 500;
 
     const halfW = w / 2;
     const halfH = h / 2;
