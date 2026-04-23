@@ -12,26 +12,26 @@ const DAMPING = 0.85;
 
 // Pick a particle count appropriate to the device. Mobile + low-mem devices
 // get small counts so they don't OOM on the GPU buffers; desktops scale up.
-// prefers-reduced-motion gets a static, low-count snapshot.
+// prefers-reduced-motion gets a static, low-count snapshot. Tuned down
+// from earlier tiers (450k–700k on desktop) because the 60fps budget
+// couldn't absorb the full physics-pass cost alongside any other
+// animation on the same page. 200k is still dense enough for the ANALOG
+// tint disc to read as a solid zone.
 function pickParticleCount(): { count: number; animate: boolean } {
-  if (typeof window === "undefined") return { count: 150_000, animate: true };
+  if (typeof window === "undefined") return { count: 80_000, animate: true };
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (reduceMotion) return { count: 40_000, animate: false };
 
   const w = window.innerWidth;
-  // navigator.deviceMemory: 0.25 to 8 (GB), undefined when unsupported (Safari)
   const dm = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
   const isMobile = w < 768;
   const isLowMem = dm !== undefined && dm < 4;
 
-  // Mobile bumped to 200k so the ANALOG tint circle has enough density
-  // to read as a solid dark zone — at 80k the zone was a faint gray
-  // cloud and white ANALOG text disappeared into the background.
-  if (isMobile || isLowMem) return { count: 200_000, animate: true };
-  if (w < 1280) return { count: 250_000, animate: true };
-  if (w < 1920) return { count: 450_000, animate: true };
-  return { count: 700_000, animate: true };
+  if (isMobile || isLowMem) return { count: 100_000, animate: true };
+  if (w < 1280) return { count: 140_000, animate: true };
+  if (w < 1920) return { count: 200_000, animate: true };
+  return { count: 280_000, animate: true };
 }
 
 // GLSL requires explicit decimals on float literals. JS `${n}` drops the `.0`

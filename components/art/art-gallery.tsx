@@ -50,8 +50,14 @@ export function ArtGallery({ sketches, heroCount = 1, lookahead = 1, lookback = 
       const h = s.clientHeight;
       if (h === 0) return;
       const rawIdx = Math.round(s.scrollTop / h);
-      // DOM index 0 = hero; sketches start at heroCount. Clamp to [0, len-1].
-      const sketchIdx = Math.max(0, Math.min(sketches.length - 1, rawIdx - heroCount));
+      // DOM index 0 = hero; sketches start at heroCount. When the user
+      // is still on/before the hero we set a sentinel value far enough
+      // from sketch-index 0 that even with `lookahead` the first sketch
+      // stays torn down. Previously `Math.max(0, ...)` clamped to 0 on
+      // the hero, which kept the first sketch active while the hero's
+      // own canvas was running — noticeable lag on the hero section.
+      const gallery = rawIdx - heroCount;
+      const sketchIdx = gallery < 0 ? -100 : Math.min(sketches.length - 1, gallery);
       setActiveIdx((prev) => (prev === sketchIdx ? prev : sketchIdx));
     }
 

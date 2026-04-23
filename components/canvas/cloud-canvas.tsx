@@ -81,25 +81,25 @@ const FRAGMENT_SHADER = `
     float baseSpeed = 0.01;
 
     // Layer 0: red, deep background (1x speed)
-    float d0 = cloudDensity(uv, cloudTime, baseSpeed, 2.0, 1.2, 6, 0.32, 0.0, 0.0);
+    float d0 = cloudDensity(uv, cloudTime, baseSpeed, 2.0, 1.2, 4, 0.32, 0.0, 0.0);
     float i0 = d0 * cloudWindow * 0.35;
     vec3 col0 = vec3(190.0, 50.0, 60.0) / 255.0;
     base = mix(base, col0, i0);
 
     // Layer 1: pink (2x speed)
-    float d1 = cloudDensity(uv, cloudTime, baseSpeed * 2.0, 2.8, 1.6, 6, 0.32, 137.0, 241.0);
+    float d1 = cloudDensity(uv, cloudTime, baseSpeed * 2.0, 2.8, 1.6, 4, 0.32, 137.0, 241.0);
     float i1 = d1 * cloudWindow * 0.35;
     vec3 col1 = vec3(230.0, 100.0, 140.0) / 255.0;
     base = mix(base, col1, i1);
 
     // Layer 2: orange (3x speed)
-    float d2 = cloudDensity(uv, cloudTime, baseSpeed * 3.0, 3.8, 2.2, 6, 0.32, 274.0, 482.0);
+    float d2 = cloudDensity(uv, cloudTime, baseSpeed * 3.0, 3.8, 2.2, 4, 0.32, 274.0, 482.0);
     float i2 = d2 * cloudWindow * 0.35;
     vec3 col2 = vec3(235.0, 150.0, 50.0) / 255.0;
     base = mix(base, col2, i2);
 
     // Layer 3: yellow, foreground (4x speed)
-    float d3 = cloudDensity(uv, cloudTime, baseSpeed * 4.0, 5.0, 3.0, 6, 0.32, 411.0, 723.0);
+    float d3 = cloudDensity(uv, cloudTime, baseSpeed * 4.0, 5.0, 3.0, 4, 0.32, 411.0, 723.0);
     float i3 = d3 * cloudWindow * 0.35;
     vec3 col3 = vec3(250.0, 220.0, 60.0) / 255.0;
     base = mix(base, col3, i3);
