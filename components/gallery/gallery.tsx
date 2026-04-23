@@ -40,11 +40,14 @@ const UNIQUE_ITEMS: { label: string; handle: string; href: string }[] = [
   { label: "analog", handle: "anything-but-analog", href: "/anything-but-analog" },
 ];
 
-// Double each card in the strip so a tight 4-card gallery loops without
-// empty gaps at typical desktop widths; the strip also gets a second
-// full pass appended for seamless wraparound of the running offset.
-const ITEMS = [...UNIQUE_ITEMS, ...UNIQUE_ITEMS].map((it, i) => ({ id: i, ...it }));
-const LOOPED = [...ITEMS, ...ITEMS];
+// One unique item per card — the strip wraps by rendering two full
+// passes (LOOPED) so there's always content on the trailing side as
+// the modulo offset resets. Rendering a third or fourth pass (as we
+// used to) instantiates more animated WebGL canvases than needed;
+// two passes is already the minimum for a seamless scroll at every
+// viewport we support.
+const LOOPED = [...UNIQUE_ITEMS, ...UNIQUE_ITEMS].map((it, i) => ({ id: i, ...it }));
+const UNIQUE_COUNT = UNIQUE_ITEMS.length;
 
 const CARD_GAP = 24;
 
@@ -77,12 +80,15 @@ export function Gallery() {
 
     // Card width is now derived from height via CSS (aspect-ratio 4/5), so
     // we can't hard-code STRIP_W at module scope — it changes when the
-    // viewport resizes. Re-measure on resize; ITEMS is the unit length.
+    // viewport resizes. Re-measure on resize; wrap unit is one full
+    // pass of the unique items (4 cards), so after offset cycles
+    // UNIQUE_COUNT × stride the strip visually resets to itself —
+    // the second rendered pass covers the visible gap during wrap.
     let stripW = 1; // filled in on first tick once the card has rendered
     function measure() {
       const firstCard = strip!.firstElementChild as HTMLElement | null;
       if (firstCard) {
-        stripW = ITEMS.length * (firstCard.offsetWidth + CARD_GAP);
+        stripW = UNIQUE_COUNT * (firstCard.offsetWidth + CARD_GAP);
       }
     }
     const ro = new ResizeObserver(measure);

@@ -205,24 +205,32 @@ export function CloudCanvas({ invert = false }: CloudCanvasProps) {
     resize();
     window.addEventListener("resize", resize);
 
+    function startRender() {
+      if (raf || !visible) return;
+      raf = requestAnimationFrame(render);
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
+        const wasVisible = visible;
         visible = entry.isIntersecting;
+        if (visible && !wasVisible) startRender();
       },
       { threshold: 0 },
     );
     observer.observe(canvas);
 
     function render(now: number) {
-      raf = requestAnimationFrame(render);
+      raf = 0;
       if (!visible) return;
 
       const time = (now - startTime) / 1000;
       gl!.uniform1f(uTime, time);
       gl!.drawArrays(gl!.TRIANGLE_STRIP, 0, 4);
+      raf = requestAnimationFrame(render);
     }
 
-    raf = requestAnimationFrame(render);
+    startRender();
 
     return () => {
       cancelAnimationFrame(raf);

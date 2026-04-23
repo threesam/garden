@@ -206,9 +206,12 @@ export function MetaballCanvas({
     window.addEventListener("scroll", updateRect, { passive: true });
 
     let raf = 0;
+    let isVisible = true; // IO below flips this on attach
     const t0 = performance.now();
 
     function tick() {
+      raf = 0;
+      if (!isVisible) return;
       const t = (performance.now() - t0) / 1000;
 
       // resolve attraction point (target prop wins over cursor)
@@ -270,16 +273,35 @@ export function MetaballCanvas({
       raf = requestAnimationFrame(tick);
     }
 
+    function startTick() {
+      if (raf || !isVisible) return;
+      raf = requestAnimationFrame(tick);
+    }
+
     resize();
     initBalls();
-    raf = requestAnimationFrame(tick);
 
     const ro = new ResizeObserver(() => resize());
     ro.observe(canvas);
 
+    // Pause when scrolled out of view. With 4 of these mounted in the
+    // gallery strip, running them all per frame wastes a huge chunk of
+    // the GPU/CPU budget whenever the user isn't looking at SHELF.
+    const io = new IntersectionObserver(
+      (entries) => {
+        const wasVisible = isVisible;
+        isVisible = entries[0]?.isIntersecting ?? true;
+        if (isVisible && !wasVisible) startTick();
+      },
+      { threshold: 0 }
+    );
+    io.observe(canvas);
+    startTick();
+
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
+      io.disconnect();
       canvas.removeEventListener("mouseenter", onPointerEvent);
       canvas.removeEventListener("mousemove", onPointerEvent);
       canvas.removeEventListener("mouseleave", onPointerLeave);
