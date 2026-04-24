@@ -87,35 +87,37 @@ const FRAGMENT_SHADER = `
 
     float baseSpeed = 0.01;
 
-    // Layer 0: red, deep background (1x speed)
-    float d0 = cloudDensity(uv, cloudTime, baseSpeed, 2.0, 1.2, 4, 0.32, 0.0, 0.0);
-    float i0 = d0 * cloudWindow * 0.35;
-    vec3 col0 = vec3(190.0, 50.0, 60.0) / 255.0;
-    base = mix(base, col0, i0);
+    // 3 layers (down from 4) — the previous deep-red layer 0 contributed
+    // muddy red tints at the lowest visual saliency and consumed 25% of
+    // the per-pixel fbm cost. Pink + orange + yellow alone read as a
+    // sunset-band gradient and the perf gain is meaningful.
 
-    // Layer 1: pink (2x speed)
-    float d1 = cloudDensity(uv, cloudTime, baseSpeed * 2.0, 2.8, 1.6, 4, 0.32, 137.0, 241.0);
-    float i1 = d1 * cloudWindow * 0.35;
-    vec3 col1 = vec3(230.0, 100.0, 140.0) / 255.0;
-    base = mix(base, col1, i1);
+    // Layer A: pink (2x speed)
+    float dA = cloudDensity(uv, cloudTime, baseSpeed * 2.0, 2.8, 1.6, 4, 0.32, 137.0, 241.0);
+    float iA = dA * cloudWindow * 0.35;
+    vec3 colA = vec3(230.0, 100.0, 140.0) / 255.0;
+    base = mix(base, colA, iA);
 
-    // Layer 2: orange (3x speed)
-    float d2 = cloudDensity(uv, cloudTime, baseSpeed * 3.0, 3.8, 2.2, 4, 0.32, 274.0, 482.0);
-    float i2 = d2 * cloudWindow * 0.35;
-    vec3 col2 = vec3(235.0, 150.0, 50.0) / 255.0;
-    base = mix(base, col2, i2);
+    // Layer B: orange (3x speed)
+    float dB = cloudDensity(uv, cloudTime, baseSpeed * 3.0, 3.8, 2.2, 4, 0.32, 274.0, 482.0);
+    float iB = dB * cloudWindow * 0.35;
+    vec3 colB = vec3(235.0, 150.0, 50.0) / 255.0;
+    base = mix(base, colB, iB);
 
-    // Layer 3: yellow, foreground (4x speed)
-    float d3 = cloudDensity(uv, cloudTime, baseSpeed * 4.0, 5.0, 3.0, 4, 0.32, 411.0, 723.0);
-    float i3 = d3 * cloudWindow * 0.35;
-    vec3 col3 = vec3(250.0, 220.0, 60.0) / 255.0;
-    base = mix(base, col3, i3);
+    // Layer C: yellow, foreground (4x speed)
+    float dC = cloudDensity(uv, cloudTime, baseSpeed * 4.0, 5.0, 3.0, 4, 0.32, 411.0, 723.0);
+    float iC = dC * cloudWindow * 0.35;
+    vec3 colC = vec3(250.0, 220.0, 60.0) / 255.0;
+    base = mix(base, colC, iC);
 
     gl_FragColor = vec4(base, 1.0);
   }
 `;
 
-const RENDER_SCALE = 0.5;
+// Offscreen render scale. 0.5 was visible as upscale-block tiling on the
+// blit edges; 0.75 keeps the offscreen ~2.25× cheaper than full but the
+// 1.33× upscale is small enough that bilinear filtering hides it.
+const RENDER_SCALE = 0.75;
 const MIN_FRAME_INTERVAL = 33; // ~30fps; clouds drift slowly enough that 60fps is wasted.
 
 function compileShader(gl: WebGLRenderingContext, type: number, source: string) {
@@ -169,6 +171,13 @@ class CloudPipeline {
       if (!this.init()) return () => {};
     }
     const ctx = canvas.getContext("2d");
+    if (ctx) {
+      // High-quality bilinear/bicubic upscale on the offscreen-blit; without
+      // it the 1.33× upscale (offscreen 0.75× → CSS 1×) shows hard pixel
+      // boundaries that read as "tiles" against the soft cloud noise.
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+    }
     this.subscribers.set(canvas, { ctx, visible: true });
     this.maybeStart();
 
