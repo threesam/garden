@@ -59,20 +59,25 @@ const FRAGMENT_SHADER = `
     // that, larger-scale layers (smaller features in screen space) read
     // as moving faster than intended.
 
-    // Layer A: pink, deep background (1× speed, slowest)
-    float dA = cloudDensity(uv, 0.35, vec2(t * 1.0 * 0.35 + 0.137, 0.241), 0.32);
+    // Each layer has a wider scale range so the size step between
+    // depths is actually visible. Larger scale = more noise cycles per
+    // strip = smaller features, so back layer (0.25) reads as big slow
+    // shapes and front (1.0) as small fast specks.
+
+    // Layer A: pink, deep background — largest features, slowest drift
+    float dA = cloudDensity(uv, 0.25, vec2(t * 1.0 * 0.25 + 0.137, 0.241), 0.32);
     float iA = dA * cloudWindow * 0.45;
     vec3 colA = vec3(230.0, 100.0, 140.0) / 255.0;
     base = mix(base, colA, iA);
 
-    // Layer B: orange, midground (3× speed)
-    float dB = cloudDensity(uv, 0.48, vec2(t * 3.0 * 0.48 + 0.274, 0.482), 0.32);
+    // Layer B: orange, midground
+    float dB = cloudDensity(uv, 0.5, vec2(t * 3.0 * 0.5 + 0.274, 0.482), 0.32);
     float iB = dB * cloudWindow * 0.45;
     vec3 colB = vec3(235.0, 150.0, 50.0) / 255.0;
     base = mix(base, colB, iB);
 
-    // Layer C: yellow, foreground (6× speed, fastest)
-    float dC = cloudDensity(uv, 0.63, vec2(t * 6.0 * 0.63 + 0.411, 0.723), 0.32);
+    // Layer C: yellow, foreground — smallest features, fastest drift
+    float dC = cloudDensity(uv, 1.0, vec2(t * 6.0 * 1.0 + 0.411, 0.723), 0.32);
     float iC = dC * cloudWindow * 0.45;
     vec3 colC = vec3(250.0, 220.0, 60.0) / 255.0;
     base = mix(base, colC, iC);
