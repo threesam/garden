@@ -46,7 +46,11 @@ const FRAGMENT_SHADER = `
     // window left.
     float cloudWindow = sin(uv.y * 3.14159265) * sin(vUv.x * 3.14159265);
 
-    float baseSpeed = 0.01;
+    // Halved (was 0.01) — clouds drift slowly enough that the eye reads
+    // them as a still backdrop rather than active motion. Lower drift
+    // also tolerates the 30 fps render throttle without any visible
+    // step.
+    float baseSpeed = 0.005;
     float t = -uTime * baseSpeed;
 
     // Layer scales are 1/8th of the prior live-shader values because the
@@ -92,7 +96,11 @@ const NOISE_SIZE = 256;
 // in dev because the wider upscale ratio pushes Chrome's drawImage onto
 // a slower resampling path even with the same shader behind it.
 const RENDER_SCALE = 0.75;
-const MIN_FRAME_INTERVAL = 33; // ~30fps
+// 15 Hz cloud render. Combined with the halved drift speed, the eye
+// can't tell apart 15 fps and 60 fps for content this slow, but the
+// per-second pixel-shader + drawImage cost drops to a third of the old
+// 30 fps cadence.
+const MIN_FRAME_INTERVAL = 66;
 
 function compileShader(gl: WebGLRenderingContext, type: number, source: string) {
   const shader = gl.createShader(type);

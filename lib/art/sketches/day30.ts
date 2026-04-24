@@ -16,7 +16,7 @@ export const day30: Sketch = {
   // full-canvas alpha fillRect. At DPR=2 that's a 4x pixel budget for
   // essentially no visual gain on 1px strokeRect bodies.
   lowDpr: true,
-  setup(api) {
+  setup(api, canvas) {
     const { ctx, w, h, rng, noise, map } = api;
 
     // Flow field uses curl-of-noise (divergence-free). A naive
@@ -165,6 +165,37 @@ export const day30: Sketch = {
       return ((cx + 4096) << 13) | (cy + 4096);
     }
 
+    // Cursor reactivity: walkers within ORBIT_RADIUS of the cursor get
+    // pulled into a ring at ORBIT_TARGET distance and pushed tangentially
+    // around it; outside the radius, no cursor influence so they continue
+    // along the curl-noise flow field. Coords stored in walker space
+    // (centered) so they compare directly with walker positions.
+    let cursorX = 0;
+    let cursorY = 0;
+    let cursorActive = false;
+    const ORBIT_RADIUS = Math.min(w, h) * 0.25;
+    const ORBIT_RADIUS_SQ = ORBIT_RADIUS * ORBIT_RADIUS;
+    const ORBIT_TARGET = ORBIT_RADIUS * 0.45;
+    // Tangential strength — controls how fast walkers circle the cursor.
+    // Sized to dominate the ~1.0 px/frame curl-noise speed when right at
+    // the orbit target distance.
+    const ORBIT_TANGENT = 1.4;
+    // Radial spring constant — how aggressively walkers settle to
+    // ORBIT_TARGET. 0.06 reaches steady state in ~30 frames (~0.5s).
+    const ORBIT_RADIAL = 0.06;
+
+    function onPointerMove(e: PointerEvent) {
+      const rect = canvas.getBoundingClientRect();
+      cursorX = (e.clientX - rect.left) - halfW;
+      cursorY = (e.clientY - rect.top) - halfH;
+      cursorActive = true;
+    }
+    function onPointerLeave() {
+      cursorActive = false;
+    }
+    canvas.addEventListener("pointermove", onPointerMove);
+    canvas.addEventListener("pointerleave", onPointerLeave);
+
     let frameCount = 0;
 
     return {
@@ -248,8 +279,34 @@ export const day30: Sketch = {
           // lockstepping without dissolving the curl shapes.
           const jitter = (rng() - 0.5) * 0.6;
           const moveAngle = angle + jitter;
-          wk.x += Math.cos(moveAngle) * wk.speed + repelX * SEPARATION_GAIN;
-          wk.y += Math.sin(moveAngle) * wk.speed + repelY * SEPARATION_GAIN;
+
+          // Cursor orbit — added on top of flow rather than blended, so
+          // distant walkers are unaffected and near-cursor walkers feel
+          // a strong-enough swirl to overpower the flow. Force fades to
+          // zero at the orbit radius so the transition back to plain
+          // flow when the cursor leaves is automatic and smooth.
+          let orbitX = 0;
+          let orbitY = 0;
+          if (cursorActive) {
+            const cdx = wk.x - cursorX;
+            const cdy = wk.y - cursorY;
+            const cd2 = cdx * cdx + cdy * cdy;
+            if (cd2 < ORBIT_RADIUS_SQ && cd2 > 1) {
+              const cd = Math.sqrt(cd2);
+              const falloff = 1 - cd / ORBIT_RADIUS;
+              // Tangential (perpendicular to radial direction)
+              orbitX = (-cdy / cd) * ORBIT_TANGENT * falloff;
+              orbitY = (cdx / cd) * ORBIT_TANGENT * falloff;
+              // Radial spring to ORBIT_TARGET — pulls in if outside,
+              // pushes out if inside.
+              const radialPull = -(cd - ORBIT_TARGET) * ORBIT_RADIAL * falloff;
+              orbitX += (cdx / cd) * radialPull;
+              orbitY += (cdy / cd) * radialPull;
+            }
+          }
+
+          wk.x += Math.cos(moveAngle) * wk.speed + repelX * SEPARATION_GAIN + orbitX;
+          wk.y += Math.sin(moveAngle) * wk.speed + repelY * SEPARATION_GAIN + orbitY;
 
           // Asteroids wrap. Exit right → enter left at same y. Exit top
           // → enter bottom at same x. And vice versa. Uses the extended
@@ -268,6 +325,10 @@ export const day30: Sketch = {
         }
 
         ctx.restore();
+      },
+      cleanup() {
+        canvas.removeEventListener("pointermove", onPointerMove);
+        canvas.removeEventListener("pointerleave", onPointerLeave);
       },
     };
   },
