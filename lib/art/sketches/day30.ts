@@ -71,11 +71,13 @@ export const day30: Sketch = {
     const walkers: Walker[] = [];
     // Sized to hit 60fps with comfortable headroom now that the fade
     // runs at 1x CSS pixels (lowDpr) — the dominant remaining cost is
-    // per-walker strokeRect calls (~6 each). Desktop 180 / mobile 70
-    // sustains 60fps on a mid-retina laptop with the gallery's other
-    // sketches warm; mobile is more conservative because small-device
-    // GPUs handle the canvas-2D submit cost less gracefully.
-    const TARGET = w < 768 ? 70 : 180;
+    // per-walker strokeRect calls (~6 each). Desktop 140 / mobile 60
+    // sustains 60fps on a mid-retina laptop when the sketch is used
+    // full-viewport (e.g. /thoughts background) where there's no
+    // concurrent canvas to share GPU budget with; mobile stays more
+    // conservative because small-device GPUs handle the canvas-2D
+    // submit cost less gracefully.
+    const TARGET = w < 768 ? 60 : 140;
 
     const halfW = w / 2;
     const halfH = h / 2;

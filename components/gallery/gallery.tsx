@@ -5,6 +5,7 @@ import Link from "next/link";
 import { VoronoiCanvas } from "@/components/canvas/voronoi-canvas";
 import { MetaballCanvas } from "@/components/canvas/metaball-canvas";
 import { ParticleTextCanvas } from "@/components/canvas/particle-text-canvas";
+import { SketchHost } from "@/components/art/sketch-host";
 import { EmojiCardBg } from "@/components/messages/emoji-card-bg";
 import { DanaLabel } from "@/components/messages/dana-label";
 
@@ -23,6 +24,13 @@ const HERO_MAP: Record<string, () => ReactNode> = {
   "anything-but-analog": () => (
     <ParticleTextCanvas countOverride={10000} hideText pointSize={2} repelRadius={50} />
   ),
+  // Under-construction routes preview their sketch background via
+  // SketchHost — day30 (crowd walkers) for /thoughts and day25
+  // (eye/dot grid) for /sounds. Day25 has no tick so it's static
+  // after first paint; day30 runs at the mobile-tier walker count
+  // because the card width stays below the w<768 threshold.
+  thoughts: () => <SketchHost slug="30" active />,
+  sounds: () => <SketchHost slug="25" active />,
 };
 
 const LABEL_MAP: Record<string, () => ReactNode> = {
@@ -38,15 +46,17 @@ const UNIQUE_ITEMS: { label: string; handle: string; href: string }[] = [
   { label: "D-ANA", handle: "deana", href: "/deana" },
   { label: "shelf", handle: "shelf", href: "/shelf" },
   { label: "analog", handle: "anything-but-analog", href: "/anything-but-analog" },
+  { label: "thoughts", handle: "thoughts", href: "/thoughts" },
+  { label: "sounds", handle: "sounds", href: "/sounds" },
 ];
 
-// One unique item per card — the strip wraps by rendering two full
-// passes (LOOPED) so there's always content on the trailing side as
-// the modulo offset resets. Rendering a third or fourth pass (as we
-// used to) instantiates more animated WebGL canvases than needed;
-// two passes is already the minimum for a seamless scroll at every
-// viewport we support.
-const LOOPED = [...UNIQUE_ITEMS, ...UNIQUE_ITEMS].map((it, i) => ({ id: i, ...it }));
+// Single pass — each unique item renders once. With 6 cards the strip is
+// comfortably wider than any viewport we support, so the modulo wrap only
+// exposes a brief content shift at its seam; virtualization bounds the
+// number of mounted canvases to the visible window regardless of strip
+// length, so rendering a second duplicate pass (as we used to) just
+// amplified DOM size without a corresponding perf gain.
+const LOOPED = UNIQUE_ITEMS.map((it, i) => ({ id: i, ...it }));
 const UNIQUE_COUNT = UNIQUE_ITEMS.length;
 
 const CARD_GAP = 24;
