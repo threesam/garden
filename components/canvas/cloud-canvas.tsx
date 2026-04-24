@@ -11,6 +11,13 @@ const VERTEX_SHADER = `
   }
 `;
 
+// Sin-free hash (Dave Hoskins variant). The classic
+// fract(sin(dot(p, ...)) * big) calls sin() 64× per pixel (4 layers ×
+// 4 octaves × 4 corner samples) and sin compiles to a multi-cycle
+// transcendental op. This variant uses only mul / add / fract — all
+// single-cycle on modern GPUs. The vec3 lift keeps the operands small
+// even at the fbm's highest octave, where the simpler IQ hash develops
+// visible tiling artifacts.
 const FRAGMENT_SHADER = `
   precision highp float;
 
@@ -20,10 +27,10 @@ const FRAGMENT_SHADER = `
 
   varying vec2 vUv;
 
-  // --- hash & FBM ---
-
   float hash(vec2 p) {
-    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+    vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.x + p3.y) * p3.z);
   }
 
   float smoothNoise(vec2 p) {
@@ -108,7 +115,10 @@ const FRAGMENT_SHADER = `
   }
 `;
 
-function createShader(gl: WebGLRenderingContext, type: number, source: string) {
+const RENDER_SCALE = 0.5;
+const MIN_FRAME_INTERVAL = 33; // ~30fps; clouds drift slowly enough that 60fps is wasted.
+
+function compileShader(gl: WebGLRenderingContext, type: number, source: string) {
   const shader = gl.createShader(type);
   if (!shader) return null;
   gl.shaderSource(shader, source);
@@ -121,24 +131,208 @@ function createShader(gl: WebGLRenderingContext, type: number, source: string) {
   return shader;
 }
 
-interface CloudCanvasProps {
-  /**
-   * CSS-flip the canvas vertically. Use for the "top" placement so the
-   * sky gradient goes dark-at-page-edge → light-toward-content, while the
-   * bottom placement (no mirror) does the opposite. Shader renders the
-   * same scene both times; only the paint direction changes — so both
-   * clouds drift in the same L→R direction instead of the previous
-   * time-reversed appearance.
-   */
-  mirror?: boolean;
-}
-
-function parseHex(hex: string) {
+function parseHex(hex: string): [number, number, number] {
   return [
     parseInt(hex.slice(1, 3), 16) / 255,
     parseInt(hex.slice(3, 5), 16) / 255,
     parseInt(hex.slice(5, 7), 16) / 255,
   ];
+}
+
+interface SubscriberEntry {
+  ctx: CanvasRenderingContext2D | null;
+  visible: boolean;
+}
+
+/**
+ * Module-level shared cloud pipeline. One offscreen WebGL canvas runs the
+ * fragment shader once per frame; every mounted CloudCanvas subscriber
+ * gets a 2D drawImage of that single render. Halves cloud GPU cost on the
+ * homepage (was: two independent WebGL contexts each running the full
+ * fbm shader; now: one shader run, two cheap blits).
+ */
+class CloudPipeline {
+  private gl: WebGLRenderingContext | null = null;
+  private offscreen: HTMLCanvasElement | null = null;
+  private program: WebGLProgram | null = null;
+  private vert: WebGLShader | null = null;
+  private frag: WebGLShader | null = null;
+  private buf: WebGLBuffer | null = null;
+  private uTime: WebGLUniformLocation | null = null;
+  private subscribers = new Map<HTMLCanvasElement, SubscriberEntry>();
+  private rafId = 0;
+  private startTime = 0;
+  private lastRender = 0;
+
+  subscribe(canvas: HTMLCanvasElement) {
+    if (!this.gl) {
+      if (!this.init()) return () => {};
+    }
+    const ctx = canvas.getContext("2d");
+    this.subscribers.set(canvas, { ctx, visible: true });
+    this.maybeStart();
+
+    return () => {
+      this.subscribers.delete(canvas);
+      if (this.subscribers.size === 0) this.teardown();
+    };
+  }
+
+  setVisibility(canvas: HTMLCanvasElement, visible: boolean) {
+    const entry = this.subscribers.get(canvas);
+    if (!entry) return;
+    entry.visible = visible;
+    if (visible) this.maybeStart();
+  }
+
+  private init(): boolean {
+    this.startTime = performance.now();
+    this.lastRender = 0;
+    this.offscreen = document.createElement("canvas");
+    this.offscreen.width = 1;
+    this.offscreen.height = 1;
+
+    // preserveDrawingBuffer so a 2D drawImage from this canvas reliably
+    // sees the latest WebGL contents — without it, WebGL is allowed to
+    // clear the buffer between frames and the blit would catch garbage.
+    const gl = this.offscreen.getContext("webgl", {
+      antialias: false,
+      alpha: false,
+      preserveDrawingBuffer: true,
+    });
+    if (!gl) return false;
+    this.gl = gl;
+
+    this.vert = compileShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER);
+    this.frag = compileShader(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER);
+    if (!this.vert || !this.frag) return false;
+
+    const program = gl.createProgram();
+    if (!program) return false;
+    gl.attachShader(program, this.vert);
+    gl.attachShader(program, this.frag);
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      console.error("Cloud program link failed:", gl.getProgramInfoLog(program));
+      return false;
+    }
+    this.program = program;
+    gl.useProgram(program);
+
+    const quad = new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]);
+    this.buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.buf);
+    gl.bufferData(gl.ARRAY_BUFFER, quad, gl.STATIC_DRAW);
+    const aPosition = gl.getAttribLocation(program, "aPosition");
+    gl.enableVertexAttribArray(aPosition);
+    gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0);
+
+    this.uTime = gl.getUniformLocation(program, "uTime");
+    const uTopColor = gl.getUniformLocation(program, "uTopColor");
+    const uBotColor = gl.getUniformLocation(program, "uBotColor");
+
+    // Pull palette from the document root so theme tokens flow through.
+    const rootStyle = getComputedStyle(document.documentElement);
+    const whiteColor = parseHex(rootStyle.getPropertyValue("--white").trim() || "#f5f4f0");
+    const blackColor = parseHex(rootStyle.getPropertyValue("--black").trim() || "#1a1a14");
+    gl.uniform3fv(uTopColor, whiteColor);
+    gl.uniform3fv(uBotColor, blackColor);
+
+    return true;
+  }
+
+  private teardown() {
+    if (this.rafId) cancelAnimationFrame(this.rafId);
+    this.rafId = 0;
+    if (this.gl) {
+      if (this.program) this.gl.deleteProgram(this.program);
+      if (this.vert) this.gl.deleteShader(this.vert);
+      if (this.frag) this.gl.deleteShader(this.frag);
+      if (this.buf) this.gl.deleteBuffer(this.buf);
+    }
+    this.gl = null;
+    this.offscreen = null;
+    this.program = null;
+    this.vert = null;
+    this.frag = null;
+    this.buf = null;
+    this.uTime = null;
+  }
+
+  private hasVisibleSubscriber() {
+    for (const entry of this.subscribers.values()) {
+      if (entry.visible) return true;
+    }
+    return false;
+  }
+
+  private maybeStart() {
+    if (this.rafId) return;
+    if (!this.hasVisibleSubscriber()) return;
+    this.rafId = requestAnimationFrame(this.render);
+  }
+
+  private syncOffscreenSize() {
+    if (!this.gl || !this.offscreen) return;
+    // Size the offscreen from the largest visible subscriber so its blit
+    // never has to upscale. Smaller subscribers downscale via drawImage,
+    // which is cheap and visually fine for soft cloud noise.
+    let maxW = 0;
+    let maxH = 0;
+    for (const [canvas, entry] of this.subscribers) {
+      if (!entry.visible) continue;
+      if (canvas.offsetWidth > maxW) maxW = canvas.offsetWidth;
+      if (canvas.offsetHeight > maxH) maxH = canvas.offsetHeight;
+    }
+    const w = Math.max(1, Math.round(maxW * RENDER_SCALE));
+    const h = Math.max(1, Math.round(maxH * RENDER_SCALE));
+    if (this.offscreen.width !== w || this.offscreen.height !== h) {
+      this.offscreen.width = w;
+      this.offscreen.height = h;
+      this.gl.viewport(0, 0, w, h);
+    }
+  }
+
+  private render = (now: number) => {
+    this.rafId = 0;
+    if (!this.hasVisibleSubscriber() || !this.gl || !this.uTime || !this.offscreen) return;
+
+    if (now - this.lastRender >= MIN_FRAME_INTERVAL) {
+      this.syncOffscreenSize();
+      const time = (now - this.startTime) / 1000;
+      this.gl.uniform1f(this.uTime, time);
+      this.gl.drawArrays(this.gl.TRIANGLE_STRIP, 0, 4);
+      this.lastRender = now;
+
+      // Blit to each visible subscriber. drawImage handles scaling, so
+      // subscribers can be any size and the offscreen is rendered at
+      // the largest of them (×0.5 for the existing render-scale win).
+      for (const [canvas, entry] of this.subscribers) {
+        if (!entry.visible || !entry.ctx) continue;
+        const w = canvas.offsetWidth;
+        const h = canvas.offsetHeight;
+        if (canvas.width !== w || canvas.height !== h) {
+          canvas.width = w;
+          canvas.height = h;
+        }
+        entry.ctx.drawImage(this.offscreen, 0, 0, w, h);
+      }
+    }
+
+    this.rafId = requestAnimationFrame(this.render);
+  };
+}
+
+const pipeline = new CloudPipeline();
+
+interface CloudCanvasProps {
+  /**
+   * CSS-flip the canvas vertically. Use for the "top" placement so the
+   * sky gradient goes dark-at-page-edge → light-toward-content; bottom
+   * placement (no mirror) does the opposite. The shader output is
+   * identical in both — only the paint direction changes.
+   */
+  mirror?: boolean;
 }
 
 export function CloudCanvas({ mirror = false }: CloudCanvasProps) {
@@ -148,119 +342,17 @@ export function CloudCanvas({ mirror = false }: CloudCanvasProps) {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const gl = canvas.getContext("webgl", { antialias: false, alpha: false });
-    if (!gl) return;
-
-    let raf = 0;
-    let visible = true;
-    const startTime = performance.now();
-
-    const style = getComputedStyle(canvas);
-    const whiteColor = parseHex(
-      style.getPropertyValue("--white").trim() || "#f5f4f0",
-    );
-    const blackColor = parseHex(
-      style.getPropertyValue("--black").trim() || "#1a1a14",
-    );
-
-    const topColor = whiteColor;
-    const botColor = blackColor;
-
-    // Compile shaders & link program
-    const vert = createShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER);
-    const frag = createShader(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER);
-    if (!vert || !frag) return;
-
-    const program = gl.createProgram()!;
-    gl.attachShader(program, vert);
-    gl.attachShader(program, frag);
-    gl.linkProgram(program);
-
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      console.error("Program link error:", gl.getProgramInfoLog(program));
-      return;
-    }
-
-    gl.useProgram(program);
-
-    // Full-screen quad
-    const quad = new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]);
-    const buf = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-    gl.bufferData(gl.ARRAY_BUFFER, quad, gl.STATIC_DRAW);
-
-    const aPosition = gl.getAttribLocation(program, "aPosition");
-    gl.enableVertexAttribArray(aPosition);
-    gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0);
-
-    // Uniforms
-    const uTime = gl.getUniformLocation(program, "uTime");
-    const uTopColor = gl.getUniformLocation(program, "uTopColor");
-    const uBotColor = gl.getUniformLocation(program, "uBotColor");
-
-    gl.uniform3fv(uTopColor, topColor);
-    gl.uniform3fv(uBotColor, botColor);
-
-    function resize() {
-      if (!canvas) return;
-      // Render buffer at 0.5x CSS pixels. Fragment shader runs fbm with 4
-      // layers × 4 octaves per pixel — the dominant homepage GPU cost.
-      // Clouds are soft-edged noise, so the browser's bilinear upscale
-      // back to CSS size is visually indistinguishable from native-res.
-      // 4x pixel budget savings per render.
-      const RENDER_SCALE = 0.5;
-      canvas.width = Math.max(1, Math.round(canvas.offsetWidth * RENDER_SCALE));
-      canvas.height = Math.max(1, Math.round(canvas.offsetHeight * RENDER_SCALE));
-      gl!.viewport(0, 0, canvas.width, canvas.height);
-    }
-
-    resize();
-    window.addEventListener("resize", resize);
-
-    function startRender() {
-      if (raf || !visible) return;
-      raf = requestAnimationFrame(render);
-    }
+    const unsubscribe = pipeline.subscribe(canvas);
 
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        const wasVisible = visible;
-        visible = entry.isIntersecting;
-        if (visible && !wasVisible) startRender();
-      },
+      ([entry]) => pipeline.setVisibility(canvas, entry.isIntersecting),
       { threshold: 0 },
     );
     observer.observe(canvas);
 
-    // Clouds drift at baseSpeed=0.01 — slow enough that halving the
-    // paint rate to 30fps is visually indistinguishable from 60fps but
-    // halves the fragment-shader pixel budget (4-layer × 4-octave fbm
-    // per pixel is the dominant homepage GPU cost).
-    let lastRenderTime = 0;
-    const MIN_FRAME_INTERVAL = 33; // ms — targets 30fps
-    function render(now: number) {
-      raf = 0;
-      if (!visible) return;
-
-      if (now - lastRenderTime >= MIN_FRAME_INTERVAL) {
-        const time = (now - startTime) / 1000;
-        gl!.uniform1f(uTime, time);
-        gl!.drawArrays(gl!.TRIANGLE_STRIP, 0, 4);
-        lastRenderTime = now;
-      }
-      raf = requestAnimationFrame(render);
-    }
-
-    startRender();
-
     return () => {
-      cancelAnimationFrame(raf);
       observer.disconnect();
-      window.removeEventListener("resize", resize);
-      gl.deleteProgram(program);
-      gl.deleteShader(vert);
-      gl.deleteShader(frag);
-      gl.deleteBuffer(buf);
+      unsubscribe();
     };
   }, []);
 
