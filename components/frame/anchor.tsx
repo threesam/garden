@@ -6,9 +6,11 @@ import { CloudCanvas } from "@/components/canvas/cloud-canvas";
 // Pages where the ambient cloud footer would compete with the page's own
 // full-bleed animations / immersive scroll experience. Also hidden on `/`
 // because the homepage lays out its own 25dvh bottom cloud inside a
-// single-viewport flex column.
+// single-viewport flex column. /thoughts and /sounds are full-viewport
+// WIP pages whose own sketch background fills the screen — an extra
+// cloud strip below pushes them past 100dvh and breaks the clean layout.
 const HIDE_ON = ["/anything-but-analog"];
-const EXACT_HIDE_ON = new Set(["/"]);
+const EXACT_HIDE_ON = new Set(["/", "/thoughts", "/sounds"]);
 
 export function Anchor() {
   const pathname = usePathname();

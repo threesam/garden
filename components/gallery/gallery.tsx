@@ -50,13 +50,13 @@ const UNIQUE_ITEMS: { label: string; handle: string; href: string }[] = [
   { label: "sounds", handle: "sounds", href: "/sounds" },
 ];
 
-// Single pass — each unique item renders once. With 6 cards the strip is
-// comfortably wider than any viewport we support, so the modulo wrap only
-// exposes a brief content shift at its seam; virtualization bounds the
-// number of mounted canvases to the visible window regardless of strip
-// length, so rendering a second duplicate pass (as we used to) just
-// amplified DOM size without a corresponding perf gain.
-const LOOPED = UNIQUE_ITEMS.map((it, i) => ({ id: i, ...it }));
+// Two full passes so the modulo wrap is seamless — when the offset cycles
+// past stripW and snaps back, the trailing pass has already painted in
+// place of the leading pass, hiding the wrap. Virtualization caps the
+// number of *mounted* canvases to the visible window regardless of the
+// total rendered Link count, so the DOM overhead of a second pass is
+// minimal and the canvases beyond the window are never instantiated.
+const LOOPED = [...UNIQUE_ITEMS, ...UNIQUE_ITEMS].map((it, i) => ({ id: i, ...it }));
 const UNIQUE_COUNT = UNIQUE_ITEMS.length;
 
 const CARD_GAP = 24;
