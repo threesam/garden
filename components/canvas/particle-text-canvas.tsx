@@ -33,9 +33,9 @@ function pickParticleCount(): { count: number; animate: boolean } {
   const isLowMem = dm !== undefined && dm < 4;
 
   if (isMobile || isLowMem) return { count: 200_000, animate: true };
-  if (w < 1280) return { count: 240_000, animate: true };
-  if (w < 1920) return { count: 320_000, animate: true };
-  return { count: 420_000, animate: true };
+  if (w < 1280) return { count: 220_000, animate: true };
+  if (w < 1920) return { count: 260_000, animate: true };
+  return { count: 320_000, animate: true };
 }
 
 // GLSL requires explicit decimals on float literals. JS `${n}` drops the `.0`
