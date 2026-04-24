@@ -46,8 +46,14 @@ export function Guide() {
           appearance: "none",
           WebkitAppearance: "none",
           boxShadow: "none",
+          // Promote to its own compositor layer so a sibling WebGL canvas
+          // (which often gets auto-promoted on pages like /thoughts and
+          // /sounds where it covers the viewport) can't paint over it
+          // regardless of z-index. Without this the coin can disappear
+          // behind the canvas's compositor layer on some browsers.
+          transform: "translateZ(0)",
         }}
-        className="fixed top-5 right-5 z-[60] cursor-pointer md:top-6 md:right-8"
+        className="fixed top-5 right-5 z-[9999] cursor-pointer md:top-6 md:right-8"
       >
         <div
           ref={coinRef}
@@ -135,8 +141,13 @@ export function Guide() {
 
       {/* Menu overlay */}
       <nav
-        className={`fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md transition-all duration-300 ${open ? "opacity-100" : "pointer-events-none opacity-0"}`}
-        style={{ backgroundColor: "var(--coin)" }}
+        className={`fixed inset-0 z-[9998] flex items-center justify-center backdrop-blur-md transition-all duration-300 ${open ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        style={{
+          backgroundColor: "var(--coin)",
+          // Same compositor-layer trick as the coin button so the menu
+          // overlay can't be painted over by an adjacent WebGL canvas.
+          transform: "translateZ(0)",
+        }}
       >
         <Link
           href="/"
