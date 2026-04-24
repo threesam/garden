@@ -25,4 +25,11 @@ export interface Sketch {
   setup: (api: SketchAPI, canvas: HTMLCanvasElement) => SketchResult | void;
   // When true, host skips 2d setup (sketch manages its own canvas/context, e.g. webgl/three)
   manualCanvas?: boolean;
+  /**
+   * When true, render at 1x CSS pixels (not devicePixelRatio). Cuts the
+   * pixel budget 4x on retina — worth it for sketches whose per-frame cost
+   * is dominated by full-canvas fills or large fill areas (day30's trail
+   * fade). Default false to preserve retina crispness for fine-detail work.
+   */
+  lowDpr?: boolean;
 }

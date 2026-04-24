@@ -5,33 +5,37 @@ import { useEffect, useRef } from "react";
 // Physics constants — kept as shader uniforms / constants where used
 const SPEED = 0.3;
 const DEFAULT_REPEL_RADIUS = 180;
-// Halved from the old 2.0 so the cursor nudges particles rather than
-// shoves them — reads as "gently parting a field" instead of a blast.
+// Cursor force. Small — the cursor parts the field rather than shoves it.
 const REPEL_STRENGTH = 1.0;
+// Applied on text-collision reflections only; the rest of the field has
+// no per-frame damping (motion is maintained by the minimum-speed clamp
+// in the vertex shader so the field stays alive regardless of cursor).
 const DAMPING = 0.85;
 
 // Pick a particle count appropriate to the device. Mobile + low-mem devices
-// get small counts so they don't OOM on the GPU buffers; desktops scale up.
-// prefers-reduced-motion gets a static, low-count snapshot. Tuned down
-// from earlier tiers (450k–700k on desktop) because the 60fps budget
-// couldn't absorb the full physics-pass cost alongside any other
-// animation on the same page. 200k is still dense enough for the ANALOG
-// tint disc to read as a solid zone.
+// get smaller counts so they don't blow memory on the GPU buffers; desktops
+// scale up. prefers-reduced-motion gets a static, low-count snapshot.
+//
+// Tiers are sized below the original 450k / 700k ceiling because the
+// physics pass runs every frame (ambient motion, not sand) and the 60fps
+// budget can't absorb the full cost alongside the gallery's other
+// canvases. 200k on mobile matches the last-known-good mobile tier the
+// user explicitly called out as "pretty damn good on mobile."
 function pickParticleCount(): { count: number; animate: boolean } {
-  if (typeof window === "undefined") return { count: 80_000, animate: true };
+  if (typeof window === "undefined") return { count: 120_000, animate: true };
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (reduceMotion) return { count: 40_000, animate: false };
+  if (reduceMotion) return { count: 60_000, animate: false };
 
   const w = window.innerWidth;
   const dm = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
   const isMobile = w < 768;
   const isLowMem = dm !== undefined && dm < 4;
 
-  if (isMobile || isLowMem) return { count: 100_000, animate: true };
-  if (w < 1280) return { count: 140_000, animate: true };
-  if (w < 1920) return { count: 200_000, animate: true };
-  return { count: 280_000, animate: true };
+  if (isMobile || isLowMem) return { count: 200_000, animate: true };
+  if (w < 1280) return { count: 240_000, animate: true };
+  if (w < 1920) return { count: 320_000, animate: true };
+  return { count: 420_000, animate: true };
 }
 
 // GLSL requires explicit decimals on float literals. JS `${n}` drops the `.0`
@@ -98,7 +102,10 @@ void main() {
     }
   }
 
-  // Maintain minimum speed
+  // Maintain minimum speed so the field stays alive — without this,
+  // particles that bounce off text or lose energy to collisions gradually
+  // settle and the scene looks dead. Reseeds a minimum velocity in the
+  // current direction of travel.
   float speedSq = dot(vel, vel);
   float minSq = (${glf(SPEED)} * 0.3) * (${glf(SPEED)} * 0.3);
   if (speedSq < minSq) {
@@ -265,7 +272,6 @@ export function ParticleTextCanvas({
     let rafId = 0;
     let isVisible = false; // start false; IntersectionObserver flips on attach
     let textColor = "#f5f0e8";
-    let goldColor = "#e8a317";
     let mouseX = -1;
     let mouseY = -1;
     let activeIdx = 0;
@@ -509,10 +515,8 @@ export function ParticleTextCanvas({
       gl!.viewport(0, 0, bufW, bufH);
 
       const containerStyle = getComputedStyle(container!);
-      // On a white background "ANYTHING BUT" needs to be dark to be
-      // readable. ANALOG stays the --coin gold.
+      // On a white background "ANYTHING BUT" needs to be dark to be readable.
       textColor = containerStyle.getPropertyValue("--black").trim() || "#111";
-      goldColor = containerStyle.getPropertyValue("--coin").trim() || "#e8a317";
 
       // Render text to visible 2D canvas. Skipped when hideText is set —
       // particles then have no obstacle and drift freely.
@@ -527,9 +531,6 @@ export function ParticleTextCanvas({
         const whiteColor =
           getComputedStyle(container!).getPropertyValue("--white").trim() ||
           "#ffffff";
-        const blackColor =
-          getComputedStyle(container!).getPropertyValue("--black").trim() ||
-          "#111";
 
         // Desktop keeps the original single-line "ANYTHING BUT ANALOG"
         // layout; mobile stacks into three lines so the word fits and

@@ -15,7 +15,6 @@ const FRAGMENT_SHADER = `
   precision highp float;
 
   uniform float uTime;
-  uniform float uInvert;
   uniform vec3 uTopColor;
   uniform vec3 uBotColor;
 
@@ -59,7 +58,9 @@ const FRAGMENT_SHADER = `
   }
 
   float cloudDensity(vec2 uv, float time, float speed, float scale, float yScale, int octaves, float threshold, float seedX, float seedY) {
-    float drift = time * speed * scale;
+    // Negative drift so sampling walks in -p.x over time; visually that
+    // translates to cloud features moving in +x (left → right).
+    float drift = -time * speed * scale;
     vec2 p = vec2(uv.x * scale + drift + seedX, uv.y * yScale + seedY);
     float n = fbm(p, octaves);
     float shaped = clamp((n - threshold) * 3.0, 0.0, 1.0);
@@ -70,13 +71,12 @@ const FRAGMENT_SHADER = `
     vec2 uv = vec2(vUv.x, 1.0 - vUv.y);
     float fade = uv.y;
 
-    float easedFade = uInvert > 0.5
-      ? 1.0 - (1.0 - fade) * (1.0 - fade)
-      : fade * fade;
+    // Quadratic ease — tighter transition near the lighter end.
+    float easedFade = fade * fade;
 
     vec3 base = mix(uTopColor, uBotColor, easedFade);
     float cloudWindow = sin(fade * 3.14159265);
-    float cloudTime = uInvert > 0.5 ? -uTime : uTime;
+    float cloudTime = uTime;
 
     float baseSpeed = 0.01;
 
@@ -122,7 +122,15 @@ function createShader(gl: WebGLRenderingContext, type: number, source: string) {
 }
 
 interface CloudCanvasProps {
-  invert?: boolean;
+  /**
+   * CSS-flip the canvas vertically. Use for the "top" placement so the
+   * sky gradient goes dark-at-page-edge → light-toward-content, while the
+   * bottom placement (no mirror) does the opposite. Shader renders the
+   * same scene both times; only the paint direction changes — so both
+   * clouds drift in the same L→R direction instead of the previous
+   * time-reversed appearance.
+   */
+  mirror?: boolean;
 }
 
 function parseHex(hex: string) {
@@ -133,7 +141,7 @@ function parseHex(hex: string) {
   ];
 }
 
-export function CloudCanvas({ invert = false }: CloudCanvasProps) {
+export function CloudCanvas({ mirror = false }: CloudCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -155,8 +163,8 @@ export function CloudCanvas({ invert = false }: CloudCanvasProps) {
       style.getPropertyValue("--black").trim() || "#1a1a14",
     );
 
-    const topColor = invert ? blackColor : whiteColor;
-    const botColor = invert ? whiteColor : blackColor;
+    const topColor = whiteColor;
+    const botColor = blackColor;
 
     // Compile shaders & link program
     const vert = createShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER);
@@ -187,18 +195,22 @@ export function CloudCanvas({ invert = false }: CloudCanvasProps) {
 
     // Uniforms
     const uTime = gl.getUniformLocation(program, "uTime");
-    const uInvert = gl.getUniformLocation(program, "uInvert");
     const uTopColor = gl.getUniformLocation(program, "uTopColor");
     const uBotColor = gl.getUniformLocation(program, "uBotColor");
 
-    gl.uniform1f(uInvert, invert ? 1.0 : 0.0);
     gl.uniform3fv(uTopColor, topColor);
     gl.uniform3fv(uBotColor, botColor);
 
     function resize() {
       if (!canvas) return;
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
+      // Render buffer at 0.5x CSS pixels. Fragment shader runs fbm with 4
+      // layers × 4 octaves per pixel — the dominant homepage GPU cost.
+      // Clouds are soft-edged noise, so the browser's bilinear upscale
+      // back to CSS size is visually indistinguishable from native-res.
+      // 4x pixel budget savings per render.
+      const RENDER_SCALE = 0.5;
+      canvas.width = Math.max(1, Math.round(canvas.offsetWidth * RENDER_SCALE));
+      canvas.height = Math.max(1, Math.round(canvas.offsetHeight * RENDER_SCALE));
       gl!.viewport(0, 0, canvas.width, canvas.height);
     }
 
@@ -220,13 +232,22 @@ export function CloudCanvas({ invert = false }: CloudCanvasProps) {
     );
     observer.observe(canvas);
 
+    // Clouds drift at baseSpeed=0.01 — slow enough that halving the
+    // paint rate to 30fps is visually indistinguishable from 60fps but
+    // halves the fragment-shader pixel budget (4-layer × 4-octave fbm
+    // per pixel is the dominant homepage GPU cost).
+    let lastRenderTime = 0;
+    const MIN_FRAME_INTERVAL = 33; // ms — targets 30fps
     function render(now: number) {
       raf = 0;
       if (!visible) return;
 
-      const time = (now - startTime) / 1000;
-      gl!.uniform1f(uTime, time);
-      gl!.drawArrays(gl!.TRIANGLE_STRIP, 0, 4);
+      if (now - lastRenderTime >= MIN_FRAME_INTERVAL) {
+        const time = (now - startTime) / 1000;
+        gl!.uniform1f(uTime, time);
+        gl!.drawArrays(gl!.TRIANGLE_STRIP, 0, 4);
+        lastRenderTime = now;
+      }
       raf = requestAnimationFrame(render);
     }
 
@@ -241,12 +262,13 @@ export function CloudCanvas({ invert = false }: CloudCanvasProps) {
       gl.deleteShader(frag);
       gl.deleteBuffer(buf);
     };
-  }, [invert]);
+  }, []);
 
   return (
     <canvas
       ref={canvasRef}
       className="absolute inset-0 h-full w-full"
+      style={mirror ? { transform: "scaleY(-1)" } : undefined}
     />
   );
 }

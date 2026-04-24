@@ -53,7 +53,11 @@ export function SketchHost({ slug, seed, active }: Props) {
     let hasSetup = false;
 
     function setupSketch() {
-      const dpr = window.devicePixelRatio || 1;
+      // Sketches with lowDpr=true opt out of retina scaling. The crowd
+      // walker sketch (day30) is the main beneficiary: full-canvas alpha
+      // fill on every other frame costs 4x more pixels at DPR=2, and that
+      // fade dominates its frame budget.
+      const dpr = sketch.lowDpr ? 1 : (window.devicePixelRatio || 1);
       const w = container!.offsetWidth;
       const h = container!.offsetHeight;
       if (w === 0 || h === 0) return;

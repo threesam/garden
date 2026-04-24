@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, type ReactNode } from "react";
+import { useRef, useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { VoronoiCanvas } from "@/components/canvas/voronoi-canvas";
 import { MetaballCanvas } from "@/components/canvas/metaball-canvas";
@@ -52,7 +52,13 @@ const UNIQUE_COUNT = UNIQUE_ITEMS.length;
 const CARD_GAP = 24;
 
 const SPEED = 30;
-const SPEED_HOVER = 8;
+
+// Number of extra cards to keep mounted on each side of the visible window.
+// One card is comfortably off-screen (gives WebGL canvases ~card-width of
+// warm-up time before they enter view, avoiding a visible cold-start flash)
+// without paying for a fourth or fifth idle canvas. At SPEED=30px/s a card
+// takes ~several seconds to traverse the viewport, so 1 is plenty.
+const LOOKAHEAD = 1;
 
 export function Gallery() {
   const stripRef = useRef<HTMLDivElement>(null);
@@ -70,6 +76,14 @@ export function Gallery() {
   });
   const rafRef = useRef(0);
   const lastRef = useRef(0);
+  // Virtualization: track which card indices have their heavy hero canvas
+  // mounted. All <Link> wrappers stay in the DOM (so measured strip width
+  // stays stable) but heroFn() only runs for indices in this range. Initial
+  // range is narrow — tick() expands it within a frame once stripW is
+  // measured. Starting narrow avoids mounting all 8 WebGL contexts on
+  // first paint only to tear most of them down immediately.
+  const [activeRange, setActiveRange] = useState<[number, number]>([0, 2]);
+  const activeRangeRef = useRef<[number, number]>([0, 2]);
 
   useEffect(() => {
     const strip = stripRef.current;
@@ -85,10 +99,18 @@ export function Gallery() {
     // UNIQUE_COUNT × stride the strip visually resets to itself —
     // the second rendered pass covers the visible gap during wrap.
     let stripW = 1; // filled in on first tick once the card has rendered
+    let measured = false;
     function measure() {
       const firstCard = strip!.firstElementChild as HTMLElement | null;
-      if (firstCard) {
+      // Only accept measurements where the card actually has a width.
+      // If tick fires before the card has laid out (offsetWidth === 0),
+      // we'd compute stripW = UNIQUE_COUNT * CARD_GAP, collapsing the
+      // virtualization stride and briefly mounting every card. Guarding
+      // on >0 keeps the initial narrow `activeRange` until real layout
+      // is available.
+      if (firstCard && firstCard.offsetWidth > 0) {
         stripW = UNIQUE_COUNT * (firstCard.offsetWidth + CARD_GAP);
+        measured = true;
       }
     }
     const ro = new ResizeObserver(measure);
@@ -117,6 +139,30 @@ export function Gallery() {
 
       offsetRef.current = ((offsetRef.current % stripW) + stripW) % stripW;
       strip!.style.transform = `translate3d(${-offsetRef.current}px,0,0)`;
+
+      // Virtualization window update. Stride = one card + gap; the visible
+      // slice of the strip is [offset, offset + sectionW]. We expand it by
+      // LOOKAHEAD cards on each side, convert to card indices, and clamp
+      // to the rendered range. setState is a no-op when the range is
+      // unchanged (React bails on Object.is-equal previous state), but we
+      // also gate via activeRangeRef to avoid allocating a new tuple.
+      // Skip entirely until `measured` — before the first card lays out,
+      // any range we compute would be based on the fake `stripW` fallback
+      // and would briefly mount every slot.
+      const stride = stripW / UNIQUE_COUNT;
+      if (measured && stride > 0) {
+        const sectionW = section.clientWidth;
+        const first = Math.floor(offsetRef.current / stride) - LOOKAHEAD;
+        const last = Math.ceil((offsetRef.current + sectionW) / stride) + LOOKAHEAD - 1;
+        const lo = Math.max(0, first);
+        const hi = Math.min(LOOPED.length - 1, last);
+        const cur = activeRangeRef.current;
+        if (cur[0] !== lo || cur[1] !== hi) {
+          activeRangeRef.current = [lo, hi];
+          setActiveRange([lo, hi]);
+        }
+      }
+
       rafRef.current = requestAnimationFrame(tick);
     }
 
@@ -194,6 +240,11 @@ export function Gallery() {
       >
         {LOOPED.map((item, i) => {
           const heroFn = HERO_MAP[item.handle];
+          // Card is visible (in the virtualization window) if its index
+          // falls within [activeRange[0], activeRange[1]]. Cards outside
+          // the range keep their <Link> wrapper (so strip width stays
+          // measured) but skip mounting the heavy WebGL heroFn().
+          const isVisible = i >= activeRange[0] && i <= activeRange[1];
 
           return (
             <Link
@@ -240,7 +291,7 @@ export function Gallery() {
                 if (label) label.style.color = "var(--white)";
               }}
             >
-              {heroFn && (
+              {heroFn && isVisible && (
                 <div className="absolute inset-0">{heroFn()}</div>
               )}
               <span

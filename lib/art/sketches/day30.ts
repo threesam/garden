@@ -12,6 +12,10 @@ export const day30: Sketch = {
   title: "the crowd",
   date: "2022-01-30",
   description: "do not hold bodies in memory longer than they need holding",
+  // Opt out of retina scaling — the dominant per-frame cost here is the
+  // full-canvas alpha fillRect. At DPR=2 that's a 4x pixel budget for
+  // essentially no visual gain on 1px strokeRect bodies.
+  lowDpr: true,
   setup(api) {
     const { ctx, w, h, rng, noise, map } = api;
 
@@ -65,13 +69,13 @@ export const day30: Sketch = {
     }
 
     const walkers: Walker[] = [];
-    // Sized so the viewport isn't saturated AND we stay under the
-    // per-frame draw budget. Each walker costs ~6 strokeRect calls,
-    // and profile shows the canvas2D fast path chokes above ~260
-    // walkers on desktop (drops below 60fps even with nothing else
-    // running). Mobile gets a proportional cut — phones pay more
-    // per walker due to higher DPR and smaller canvas-2D cache.
-    const TARGET = w < 768 ? 120 : 260;
+    // Sized to hit 60fps with comfortable headroom now that the fade
+    // runs at 1x CSS pixels (lowDpr) — the dominant remaining cost is
+    // per-walker strokeRect calls (~6 each). Desktop 180 / mobile 70
+    // sustains 60fps on a mid-retina laptop with the gallery's other
+    // sketches warm; mobile is more conservative because small-device
+    // GPUs handle the canvas-2D submit cost less gracefully.
+    const TARGET = w < 768 ? 70 : 180;
 
     const halfW = w / 2;
     const halfH = h / 2;
@@ -170,7 +174,7 @@ export const day30: Sketch = {
         // cost. Visual identical to the human eye at 60 Hz.
         frameCount++;
         if (frameCount & 1) {
-          ctx.fillStyle = "rgba(0,0,0,0.26)";
+          ctx.fillStyle = "rgba(0,0,0,0.13)";
           ctx.fillRect(0, 0, w, h);
         }
 

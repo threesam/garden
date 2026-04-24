@@ -208,11 +208,24 @@ export function MetaballCanvas({
     let raf = 0;
     let isVisible = true; // IO below flips this on attach
     const t0 = performance.now();
+    // Metaball motion is slow enough that 40fps is indistinguishable from
+    // 60fps to the eye, but the fragment-shader cost (per-pixel
+    // smooth-min over N balls) is the heaviest continuously-running
+    // thing on the homepage. Throttling cuts its share of the frame
+    // budget by a third.
+    let lastTickTime = 0;
+    const MIN_TICK_INTERVAL = 25; // ms — ~40fps
 
     function tick() {
       raf = 0;
       if (!isVisible) return;
-      const t = (performance.now() - t0) / 1000;
+      const now = performance.now();
+      if (now - lastTickTime < MIN_TICK_INTERVAL) {
+        raf = requestAnimationFrame(tick);
+        return;
+      }
+      lastTickTime = now;
+      const t = (now - t0) / 1000;
 
       // resolve attraction point (target prop wins over cursor)
       let attractX = 0;

@@ -63,7 +63,7 @@ export default async function CanvasPage({ params }: Props) {
             )}
           </>
         ) : (
-          <CloudCanvas invert />
+          <CloudCanvas mirror />
         )}
       </div>
 
