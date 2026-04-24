@@ -11,102 +11,69 @@ const VERTEX_SHADER = `
   }
 `;
 
-// Sin-free hash (Dave Hoskins variant). The classic
-// fract(sin(dot(p, ...)) * big) calls sin() 64× per pixel (4 layers ×
-// 4 octaves × 4 corner samples) and sin compiles to a multi-cycle
-// transcendental op. This variant uses only mul / add / fract — all
-// single-cycle on modern GPUs. The vec3 lift keeps the operands small
-// even at the fbm's highest octave, where the simpler IQ hash develops
-// visible tiling artifacts.
+// Live shader is now ~3 texture lookups per pixel instead of 64 hash
+// calls. The pre-baked noise texture is tileable Perlin fbm; sampling it
+// at `fract(uv * scale + offset)` plus REPEAT wrap = seamless drift in
+// every direction. Horizontal fade joins the vertical fade so the strip
+// edges blend into the page on all four sides.
 const FRAGMENT_SHADER = `
   precision highp float;
 
   uniform float uTime;
   uniform vec3 uTopColor;
   uniform vec3 uBotColor;
+  uniform sampler2D uNoise;
 
   varying vec2 vUv;
 
-  float hash(vec2 p) {
-    vec3 p3 = fract(vec3(p.xyx) * 0.1031);
-    p3 += dot(p3, p3.yzx + 33.33);
-    return fract((p3.x + p3.y) * p3.z);
-  }
-
-  float smoothNoise(vec2 p) {
-    vec2 i = floor(p);
-    vec2 f = fract(p);
-    vec2 s = f * f * (3.0 - 2.0 * f);
-
-    float n00 = hash(i);
-    float n10 = hash(i + vec2(1.0, 0.0));
-    float n01 = hash(i + vec2(0.0, 1.0));
-    float n11 = hash(i + vec2(1.0, 1.0));
-
-    float nx0 = n00 + s.x * (n10 - n00);
-    float nx1 = n01 + s.x * (n11 - n01);
-
-    return nx0 + s.y * (nx1 - nx0);
-  }
-
-  float fbm(vec2 p, int octaves) {
-    float value = 0.0;
-    float amplitude = 0.5;
-    float frequency = 1.0;
-
-    for (int i = 0; i < 8; i++) {
-      if (i >= octaves) break;
-      value += amplitude * smoothNoise(p * frequency);
-      amplitude *= 0.5;
-      frequency *= 2.0;
-    }
-
-    return value;
-  }
-
-  float cloudDensity(vec2 uv, float time, float speed, float scale, float yScale, int octaves, float threshold, float seedX, float seedY) {
-    // Negative drift so sampling walks in -p.x over time; visually that
-    // translates to cloud features moving in +x (left → right).
-    float drift = -time * speed * scale;
-    vec2 p = vec2(uv.x * scale + drift + seedX, uv.y * yScale + seedY);
-    float n = fbm(p, octaves);
+  float cloudDensity(vec2 uv, float scale, vec2 offset, float threshold) {
+    float n = texture2D(uNoise, uv * scale + offset).r;
     float shaped = clamp((n - threshold) * 3.0, 0.0, 1.0);
     return shaped * shaped;
   }
 
   void main() {
     vec2 uv = vec2(vUv.x, 1.0 - vUv.y);
-    float fade = uv.y;
 
     // Quadratic ease — tighter transition near the lighter end.
+    float fade = uv.y;
     float easedFade = fade * fade;
-
     vec3 base = mix(uTopColor, uBotColor, easedFade);
-    float cloudWindow = sin(fade * 3.14159265);
-    float cloudTime = uTime;
+
+    // Window: clouds fade to the bg color at all four edges. sin(πx) ×
+    // sin(πy) gives a smooth bell that's 1 in the middle, 0 at every
+    // edge, eliminating the hard edges that the prior vertical-only
+    // window left.
+    float cloudWindow = sin(uv.y * 3.14159265) * sin(vUv.x * 3.14159265);
 
     float baseSpeed = 0.01;
+    float t = -uTime * baseSpeed;
 
-    // 3 layers (down from 4) — the previous deep-red layer 0 contributed
-    // muddy red tints at the lowest visual saliency and consumed 25% of
-    // the per-pixel fbm cost. Pink + orange + yellow alone read as a
-    // sunset-band gradient and the perf gain is meaningful.
+    // Layer scales are 1/8th of the prior live-shader values because the
+    // pre-baked texture already contains 8 cycles of base noise.
+    //
+    // Speed multipliers are intentionally wide (1×, 3×, 6×) — the further-
+    // back the layer, the slower it drifts, mimicking atmospheric
+    // parallax. Each layer's offset rate also scales by its own scale
+    // factor because UV-space drift speed = offsetRate / scale; without
+    // that, larger-scale layers (smaller features in screen space) read
+    // as moving faster than intended.
 
-    // Layer A: pink (2x speed)
-    float dA = cloudDensity(uv, cloudTime, baseSpeed * 2.0, 2.8, 1.6, 4, 0.32, 137.0, 241.0);
-    float iA = dA * cloudWindow * 0.35;
+    // Layer A: pink, deep background (1× speed, slowest)
+    float dA = cloudDensity(uv, 0.35, vec2(t * 1.0 * 0.35 + 0.137, 0.241), 0.32);
+    float iA = dA * cloudWindow * 0.45;
     vec3 colA = vec3(230.0, 100.0, 140.0) / 255.0;
     base = mix(base, colA, iA);
 
-    // Layer B: orange (3x speed)
-    float dB = cloudDensity(uv, cloudTime, baseSpeed * 3.0, 3.8, 2.2, 4, 0.32, 274.0, 482.0);
-    float iB = dB * cloudWindow * 0.35;
+    // Layer B: orange, midground (3× speed)
+    float dB = cloudDensity(uv, 0.48, vec2(t * 3.0 * 0.48 + 0.274, 0.482), 0.32);
+    float iB = dB * cloudWindow * 0.45;
     vec3 colB = vec3(235.0, 150.0, 50.0) / 255.0;
     base = mix(base, colB, iB);
 
-    // Layer C: yellow, foreground (4x speed)
-    float dC = cloudDensity(uv, cloudTime, baseSpeed * 4.0, 5.0, 3.0, 4, 0.32, 411.0, 723.0);
-    float iC = dC * cloudWindow * 0.35;
+    // Layer C: yellow, foreground (6× speed, fastest)
+    float dC = cloudDensity(uv, 0.63, vec2(t * 6.0 * 0.63 + 0.411, 0.723), 0.32);
+    float iC = dC * cloudWindow * 0.45;
     vec3 colC = vec3(250.0, 220.0, 60.0) / 255.0;
     base = mix(base, colC, iC);
 
@@ -114,11 +81,13 @@ const FRAGMENT_SHADER = `
   }
 `;
 
-// Offscreen render scale. 0.5 was visible as upscale-block tiling on the
-// blit edges; 0.75 keeps the offscreen ~2.25× cheaper than full but the
-// 1.33× upscale is small enough that bilinear filtering hides it.
+const NOISE_SIZE = 256;
+// 0.75 keeps the offscreen-to-display upscale at 1.33×, which is fast
+// for the canvas-2D bilinear blit; dropping to 0.5 was actually slower
+// in dev because the wider upscale ratio pushes Chrome's drawImage onto
+// a slower resampling path even with the same shader behind it.
 const RENDER_SCALE = 0.75;
-const MIN_FRAME_INTERVAL = 33; // ~30fps; clouds drift slowly enough that 60fps is wasted.
+const MIN_FRAME_INTERVAL = 33; // ~30fps
 
 function compileShader(gl: WebGLRenderingContext, type: number, source: string) {
   const shader = gl.createShader(type);
@@ -141,18 +110,103 @@ function parseHex(hex: string): [number, number, number] {
   ];
 }
 
+/**
+ * Tileable Perlin fbm noise into a 1-byte/pixel array. The texture
+ * tiles seamlessly under WebGL REPEAT wrap because the underlying
+ * gradient table itself is periodic — sampling at uv=(0.001, …) and
+ * uv=(0.999, …) read essentially the same gradients, so the wrap-
+ * around at the texture edge produces no visible seam.
+ */
+function buildTileableFbmTexture(size: number): Uint8Array {
+  // 256-entry permutation table doubled to 512 so we never need a modulo
+  // in the gradient lookup. Seeded shuffle keeps regenerations stable.
+  const perm = new Uint8Array(512);
+  for (let i = 0; i < 256; i++) perm[i] = i;
+  let seed = 1337;
+  for (let i = 255; i > 0; i--) {
+    seed = (seed * 9301 + 49297) % 233280;
+    const j = Math.floor((seed / 233280) * (i + 1));
+    const tmp = perm[i];
+    perm[i] = perm[j];
+    perm[j] = tmp;
+  }
+  for (let i = 0; i < 256; i++) perm[256 + i] = perm[i];
+
+  // 8-direction gradient (Ken Perlin's improved noise table compressed).
+  function grad(hash: number, x: number, y: number) {
+    const h = hash & 7;
+    const u = h < 4 ? x : y;
+    const v = h < 4 ? y : x;
+    const a = (h & 1) === 0 ? u : -u;
+    const b = (h & 2) === 0 ? v : -v;
+    return a + b;
+  }
+
+  function fadeCurve(t: number) {
+    return t * t * t * (t * (t * 6 - 15) + 10);
+  }
+
+  function lerp(a: number, b: number, t: number) {
+    return a + t * (b - a);
+  }
+
+  // Periodic 2D Perlin. `period` controls how many noise cells fit
+  // around the cycle — passing `floor(x) % period` ensures opposite
+  // edges share gradients.
+  function perlin(x: number, y: number, period: number): number {
+    const xi = Math.floor(x);
+    const yi = Math.floor(y);
+    const px = ((xi % period) + period) % period;
+    const py = ((yi % period) + period) % period;
+    const px1 = (px + 1) % period;
+    const py1 = (py + 1) % period;
+    const fx = x - xi;
+    const fy = y - yi;
+
+    const aa = grad(perm[(perm[px] + py) & 255], fx, fy);
+    const ba = grad(perm[(perm[px1] + py) & 255], fx - 1, fy);
+    const ab = grad(perm[(perm[px] + py1) & 255], fx, fy - 1);
+    const bb = grad(perm[(perm[px1] + py1) & 255], fx - 1, fy - 1);
+
+    const u = fadeCurve(fx);
+    const v = fadeCurve(fy);
+
+    // Standard Perlin output is roughly in [-0.7, 0.7]; remap to [0, 1].
+    return Math.max(0, Math.min(1, lerp(lerp(aa, ba, u), lerp(ab, bb, u), v) * 0.5 + 0.5));
+  }
+
+  function fbm(x: number, y: number, basePeriod: number, octaves: number) {
+    let value = 0;
+    let amplitude = 0.5;
+    let frequency = 1;
+    for (let i = 0; i < octaves; i++) {
+      value += amplitude * perlin(x * frequency, y * frequency, basePeriod * frequency);
+      amplitude *= 0.5;
+      frequency *= 2;
+    }
+    return Math.max(0, Math.min(1, value));
+  }
+
+  const data = new Uint8Array(size * size);
+  // 8 cells of base-frequency noise across the texture means the
+  // smallest octave-1 features are size/8 = 32px wide — a comfortable
+  // size for the bilinear-filtered texture lookup at any cloud scale.
+  const NOISE_CELLS = 8;
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const nx = (x / size) * NOISE_CELLS;
+      const ny = (y / size) * NOISE_CELLS;
+      data[y * size + x] = Math.floor(fbm(nx, ny, NOISE_CELLS, 4) * 255);
+    }
+  }
+  return data;
+}
+
 interface SubscriberEntry {
   ctx: CanvasRenderingContext2D | null;
   visible: boolean;
 }
 
-/**
- * Module-level shared cloud pipeline. One offscreen WebGL canvas runs the
- * fragment shader once per frame; every mounted CloudCanvas subscriber
- * gets a 2D drawImage of that single render. Halves cloud GPU cost on the
- * homepage (was: two independent WebGL contexts each running the full
- * fbm shader; now: one shader run, two cheap blits).
- */
 class CloudPipeline {
   private gl: WebGLRenderingContext | null = null;
   private offscreen: HTMLCanvasElement | null = null;
@@ -160,6 +214,7 @@ class CloudPipeline {
   private vert: WebGLShader | null = null;
   private frag: WebGLShader | null = null;
   private buf: WebGLBuffer | null = null;
+  private noiseTex: WebGLTexture | null = null;
   private uTime: WebGLUniformLocation | null = null;
   private subscribers = new Map<HTMLCanvasElement, SubscriberEntry>();
   private rafId = 0;
@@ -171,13 +226,11 @@ class CloudPipeline {
       if (!this.init()) return () => {};
     }
     const ctx = canvas.getContext("2d");
-    if (ctx) {
-      // High-quality bilinear/bicubic upscale on the offscreen-blit; without
-      // it the 1.33× upscale (offscreen 0.75× → CSS 1×) shows hard pixel
-      // boundaries that read as "tiles" against the soft cloud noise.
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = "high";
-    }
+    // Default bilinear smoothing is enabled. The old "high" override had
+    // Chrome fall back to a CPU resampling path that consumed several ms
+    // per blit on each subscriber — measurable FPS drop with no visible
+    // win, since the texture-baked Perlin fbm is already soft enough that
+    // the default bilinear handles the upscale cleanly.
     this.subscribers.set(canvas, { ctx, visible: true });
     this.maybeStart();
 
@@ -201,9 +254,6 @@ class CloudPipeline {
     this.offscreen.width = 1;
     this.offscreen.height = 1;
 
-    // preserveDrawingBuffer so a 2D drawImage from this canvas reliably
-    // sees the latest WebGL contents — without it, WebGL is allowed to
-    // clear the buffer between frames and the blit would catch garbage.
     const gl = this.offscreen.getContext("webgl", {
       antialias: false,
       alpha: false,
@@ -239,13 +289,39 @@ class CloudPipeline {
     this.uTime = gl.getUniformLocation(program, "uTime");
     const uTopColor = gl.getUniformLocation(program, "uTopColor");
     const uBotColor = gl.getUniformLocation(program, "uBotColor");
+    const uNoise = gl.getUniformLocation(program, "uNoise");
 
-    // Pull palette from the document root so theme tokens flow through.
     const rootStyle = getComputedStyle(document.documentElement);
     const whiteColor = parseHex(rootStyle.getPropertyValue("--white").trim() || "#f5f4f0");
     const blackColor = parseHex(rootStyle.getPropertyValue("--black").trim() || "#1a1a14");
     gl.uniform3fv(uTopColor, whiteColor);
     gl.uniform3fv(uBotColor, blackColor);
+
+    // Pre-bake the tileable Perlin fbm. Generated once; sampled forever.
+    // ~50ms one-shot CPU work at 256² to replace ~3B GPU-ops/sec of
+    // live fbm. The pixelStorei ensures rows of the R8 texture (size
+    // not necessarily multiple of 4) upload without padding errors.
+    this.noiseTex = gl.createTexture();
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, this.noiseTex);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    const noiseData = buildTileableFbmTexture(NOISE_SIZE);
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0,
+      gl.LUMINANCE,
+      NOISE_SIZE,
+      NOISE_SIZE,
+      0,
+      gl.LUMINANCE,
+      gl.UNSIGNED_BYTE,
+      noiseData,
+    );
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.uniform1i(uNoise, 0);
 
     return true;
   }
@@ -258,6 +334,7 @@ class CloudPipeline {
       if (this.vert) this.gl.deleteShader(this.vert);
       if (this.frag) this.gl.deleteShader(this.frag);
       if (this.buf) this.gl.deleteBuffer(this.buf);
+      if (this.noiseTex) this.gl.deleteTexture(this.noiseTex);
     }
     this.gl = null;
     this.offscreen = null;
@@ -265,6 +342,7 @@ class CloudPipeline {
     this.vert = null;
     this.frag = null;
     this.buf = null;
+    this.noiseTex = null;
     this.uTime = null;
   }
 
@@ -283,9 +361,6 @@ class CloudPipeline {
 
   private syncOffscreenSize() {
     if (!this.gl || !this.offscreen) return;
-    // Size the offscreen from the largest visible subscriber so its blit
-    // never has to upscale. Smaller subscribers downscale via drawImage,
-    // which is cheap and visually fine for soft cloud noise.
     let maxW = 0;
     let maxH = 0;
     for (const [canvas, entry] of this.subscribers) {
@@ -313,9 +388,6 @@ class CloudPipeline {
       this.gl.drawArrays(this.gl.TRIANGLE_STRIP, 0, 4);
       this.lastRender = now;
 
-      // Blit to each visible subscriber. drawImage handles scaling, so
-      // subscribers can be any size and the offscreen is rendered at
-      // the largest of them (×0.5 for the existing render-scale win).
       for (const [canvas, entry] of this.subscribers) {
         if (!entry.visible || !entry.ctx) continue;
         const w = canvas.offsetWidth;
@@ -336,10 +408,9 @@ const pipeline = new CloudPipeline();
 
 interface CloudCanvasProps {
   /**
-   * CSS-flip the canvas vertically. Use for the "top" placement so the
-   * sky gradient goes dark-at-page-edge → light-toward-content; bottom
-   * placement (no mirror) does the opposite. The shader output is
-   * identical in both — only the paint direction changes.
+   * CSS-flip the canvas vertically for the "top" placement so the sky
+   * gradient goes dark-at-page-edge → light-toward-content; bottom
+   * placement (no mirror) does the opposite. Shader output is identical.
    */
   mirror?: boolean;
 }
