@@ -18,7 +18,6 @@ const HERO_MAP: Record<string, () => ReactNode> = {
       imageSrc="/assets/self-hero-mobile.png"
       scale={20}
       fit="cover"
-      renderScale={0.65}
     />
   ),
   deana: () => <EmojiCardBg />,
