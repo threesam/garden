@@ -233,8 +233,9 @@ const FRAGMENT_SHADER = `
       }
     }
 
-    // Cell strokes (faded where focus is active)
-    float edgeLine = (1.0 - smoothstep(0.04, 0.06, f2 - f1)) * (1.0 - focus);
+    // Cell strokes (faded where focus is active). Narrow smoothstep band
+    // gives a crisp near-binary line instead of a drawn/feathered look.
+    float edgeLine = (1.0 - smoothstep(0.048, 0.052, f2 - f1)) * (1.0 - focus);
     vec3 black = uInvert > 0.5 ? uTopColor : uBotColor;
     base = mix(base, black, edgeLine);
 
