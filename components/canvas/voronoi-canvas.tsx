@@ -234,12 +234,8 @@ const FRAGMENT_SHADER = `
       }
     }
 
-    // Cell strokes — constant inside (full-black plateau from the cell
-    // boundary out to 0.06 in cell-distance units), AA only on the outer
-    // edge using fwidth() so the line stays crisp at any zoom / DPR.
-    float strokeD = f2 - f1;
-    float strokeW = fwidth(strokeD);
-    float edgeLine = (1.0 - smoothstep(0.06, 0.06 + strokeW, strokeD)) * (1.0 - focus);
+    // Cell strokes (faded where focus is active).
+    float edgeLine = (1.0 - smoothstep(0.045, 0.055, f2 - f1)) * (1.0 - focus);
     vec3 black = uInvert > 0.5 ? uTopColor : uBotColor;
     base = mix(base, black, edgeLine);
 
