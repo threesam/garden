@@ -120,7 +120,7 @@ not the type to play hard-to-get, i knew she felt the same. we became inseparabl
 
 i remember the first time i met Deana's dad.
 
-had to have been a Sunday afternoon. Deana, Alena, and i were lounging about on the floor of her living room, most likely stoned, when this 6'5 tower of a human walked through the door. based on her apparent panic, Andrey was home earlier than she expected. not only was he tall, but he had to have weighed more than double me, not at all chubby, every pound earned. his massive frame held up. he began introducing himself with subharmonics that absolutely shook the house, his broken English matching his Eastern European villain aesthetic. most startling was the size of the mitt he extended to shake my hand, each finger roughly the thickness of my wrist.
+had to have been a Sunday afternoon. we were lounging about on the floor of her living room, most likely stoned, when this 6'5 tower of a human walked through the door. based on her apparent panic, Andrey was home earlier than she expected. not only was he tall, but he had to have weighed more than double me, not at all chubby, every pound earned. his massive frame held up. he began introducing himself with subharmonics that absolutely shook the house, his broken English matching his Eastern European villain aesthetic. most startling was the size of the mitt he extended to shake my hand, each finger roughly the thickness of my wrist.
 
 his smile was soft and his eyes were kind.
 
