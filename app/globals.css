@@ -91,6 +91,11 @@ body {
 }
 
 .tier-essay {
+  /* Redefine --font-sans within this scope so descendants using
+     Tailwind's font-sans utility (which resolves to var(--font-sans))
+     pick up Epilogue without us having to strip font-sans from every
+     prose element. font-mono descendants keep Recursive via --font-mono. */
+  --font-sans: var(--font-epilogue);
   font-family: var(--font-epilogue), Georgia, serif;
 }
 
