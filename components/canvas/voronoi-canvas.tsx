@@ -234,8 +234,12 @@ const FRAGMENT_SHADER = `
       }
     }
 
-    // Cell strokes (faded where focus is active).
-    float edgeLine = (1.0 - smoothstep(0.045, 0.055, f2 - f1)) * (1.0 - focus);
+    // Cell strokes — band width is set per-pixel by the screen-space
+    // derivative of f2-f1, so the line stays exactly one pixel wide
+    // regardless of zoom / DPR / cell scale.
+    float strokeD = f2 - f1;
+    float strokeW = fwidth(strokeD);
+    float edgeLine = (1.0 - smoothstep(0.05 - strokeW, 0.05 + strokeW, strokeD)) * (1.0 - focus);
     vec3 black = uInvert > 0.5 ? uTopColor : uBotColor;
     base = mix(base, black, edgeLine);
 
