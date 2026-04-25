@@ -16,6 +16,7 @@ const VERTEX_SHADER = `
 `;
 
 const FRAGMENT_SHADER = `
+  #extension GL_OES_standard_derivatives : enable
   precision highp float;
 
   uniform float uInvert;
@@ -233,10 +234,12 @@ const FRAGMENT_SHADER = `
       }
     }
 
-    // Cell strokes (faded where focus is active). Band needs to be wide
-    // enough that per-pixel sampling can anti-alias it — too narrow and
-    // the line stair-steps; too wide and it reads as drawn/feathered.
-    float edgeLine = (1.0 - smoothstep(0.045, 0.055, f2 - f1)) * (1.0 - focus);
+    // Cell strokes — band width is set per-pixel by the screen-space
+    // derivative of f2-f1, so the line stays exactly one pixel wide
+    // regardless of zoom / DPR / cell scale.
+    float strokeD = f2 - f1;
+    float strokeW = fwidth(strokeD);
+    float edgeLine = (1.0 - smoothstep(0.05 - strokeW, 0.05 + strokeW, strokeD)) * (1.0 - focus);
     vec3 black = uInvert > 0.5 ? uTopColor : uBotColor;
     base = mix(base, black, edgeLine);
 
@@ -299,6 +302,10 @@ export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mo
 
     const gl = canvas.getContext("webgl", { antialias: false, alpha: false });
     if (!gl) return;
+    // fwidth() in the cell-stroke calc anti-aliases the line at exactly
+    // the per-pixel rate of change. Falls back to the smoothstep band
+    // alone if the extension is unavailable (very rare on WebGL1).
+    gl.getExtension("OES_standard_derivatives");
 
     let raf: number;
     let visible = true;
