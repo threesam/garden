@@ -5,6 +5,7 @@ import type { SketchAPI } from "@/lib/art/types";
 import { mulberry32 } from "@/lib/art/rng";
 import { makeNoise } from "@/lib/art/noise";
 import { getSketch } from "@/lib/art/registry";
+import { shouldSkipThrottledFrame } from "@/lib/perf-flags";
 
 interface Props {
   slug: string;
@@ -125,6 +126,11 @@ export function SketchHost({ slug, seed, active }: Props) {
     function tickFrame() {
       rafId = 0;
       if (!activeRef.current || !api || !tick) return;
+      if (shouldSkipThrottledFrame(frame)) {
+        frame++;
+        rafId = requestAnimationFrame(tickFrame);
+        return;
+      }
       tick(api, frame++);
       rafId = requestAnimationFrame(tickFrame);
     }

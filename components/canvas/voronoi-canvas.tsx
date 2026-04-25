@@ -270,6 +270,10 @@ interface VoronoiCanvasProps {
   mobileImageSrc?: string;
   scale?: number;
   fit?: "contain" | "cover";
+  // Internal-framebuffer scale relative to the CSS box. Drop below 1
+  // for thumbnails / chunky-cell uses where the bilinear upscale is
+  // invisible.
+  renderScale?: number;
 }
 
 function parseHex(hex: string) {
@@ -280,7 +284,7 @@ function parseHex(hex: string) {
   ];
 }
 
-export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mobileImageSrc, scale, fit = "contain" }: VoronoiCanvasProps) {
+export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mobileImageSrc, scale, fit = "contain", renderScale = 1 }: VoronoiCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -427,8 +431,8 @@ export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mo
 
     function resize() {
       if (!canvas) return;
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
+      canvas.width = Math.max(1, Math.round(canvas.offsetWidth * renderScale));
+      canvas.height = Math.max(1, Math.round(canvas.offsetHeight * renderScale));
       gl!.viewport(0, 0, canvas.width, canvas.height);
       gl!.uniform2f(uResolution, canvas.width, canvas.height);
 
@@ -504,7 +508,7 @@ export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mo
       gl.deleteBuffer(buf);
       if (texture) gl.deleteTexture(texture);
     };
-  }, [invert, imageSrc, mobileImageSrc, showLetters, scale, fit]);
+  }, [invert, imageSrc, mobileImageSrc, showLetters, scale, fit, renderScale]);
 
   return (
     <canvas

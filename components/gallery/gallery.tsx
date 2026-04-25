@@ -8,6 +8,7 @@ import { ParticleTextCanvas } from "@/components/canvas/particle-text-canvas";
 import { SketchHost } from "@/components/art/sketch-host";
 import { EmojiCardBg } from "@/components/messages/emoji-card-bg";
 import { DanaLabel } from "@/components/messages/dana-label";
+import { setCanvasThrottled } from "@/lib/perf-flags";
 
 const HERO_MAP: Record<string, () => ReactNode> = {
   self: () => (
@@ -17,12 +18,13 @@ const HERO_MAP: Record<string, () => ReactNode> = {
       imageSrc="/assets/self-hero-mobile.png"
       scale={20}
       fit="cover"
+      renderScale={0.65}
     />
   ),
   deana: () => <EmojiCardBg />,
   shelf: () => <MetaballCanvas color={[0.91, 0.64, 0.09]} />,
   "anything-but-analog": () => (
-    <ParticleTextCanvas countOverride={10000} hideText pointSize={2} repelRadius={50} />
+    <ParticleTextCanvas countOverride={4000} hideText pointSize={2} repelRadius={50} lowDpr />
   ),
   // Under-construction routes preview their sketch background via
   // SketchHost — day30 (crowd walkers) for /thoughts and day25
@@ -123,8 +125,18 @@ export function Gallery() {
         measured = true;
       }
     }
-    const ro = new ResizeObserver(measure);
+    const ro = new ResizeObserver(() => {
+      measure();
+      wake();
+    });
     ro.observe(section);
+
+    function wake() {
+      if (!rafRef.current) {
+        lastRef.current = performance.now();
+        rafRef.current = requestAnimationFrame(tick);
+      }
+    }
 
     function tick(now: number) {
       const dt = Math.min((now - lastRef.current) / 1000, 0.1);
@@ -150,6 +162,12 @@ export function Gallery() {
       offsetRef.current = ((offsetRef.current % stripW) + stripW) % stripW;
       strip!.style.transform = `translate3d(${-offsetRef.current}px,0,0)`;
 
+      const isMoving =
+        Math.abs(speedRef.current) > 0.5 ||
+        Math.abs(drag.velocity) > 0.5 ||
+        drag.active;
+      setCanvasThrottled(isMoving);
+
       // Virtualization window update. Stride = one card + gap; the visible
       // slice of the strip is [offset, offset + sectionW]. We expand it by
       // LOOKAHEAD cards on each side, convert to card indices, and clamp
@@ -173,13 +191,28 @@ export function Gallery() {
         }
       }
 
+      // Stop scheduling the rAF when the strip has settled — wake()
+      // restarts it on any input that resumes motion.
+      const isIdle =
+        targetSpeedRef.current === 0 &&
+        speedRef.current === 0 &&
+        Math.abs(drag.velocity) < 0.5 &&
+        !drag.active;
+      if (isIdle) {
+        rafRef.current = 0;
+        setCanvasThrottled(false);
+        return;
+      }
       rafRef.current = requestAnimationFrame(tick);
     }
 
     rafRef.current = requestAnimationFrame(tick);
 
     function onEnter() { targetSpeedRef.current = 0; }
-    function onLeave() { targetSpeedRef.current = SPEED; }
+    function onLeave() {
+      targetSpeedRef.current = SPEED;
+      wake();
+    }
 
     function onDown(e: PointerEvent) {
       didDrag.current = false;
@@ -191,6 +224,7 @@ export function Gallery() {
         lastTime: performance.now(),
         velocity: 0,
       };
+      wake();
     }
 
     function onMove(e: PointerEvent) {
@@ -214,6 +248,7 @@ export function Gallery() {
         e.preventDefault();
         dragRef.current.velocity = 0;
         offsetRef.current += e.deltaX;
+        wake();
       }
     }
 
@@ -235,6 +270,8 @@ export function Gallery() {
       window.removeEventListener("pointerup", onUp);
       window.removeEventListener("pointercancel", onUp);
       section.removeEventListener("wheel", onWheel);
+      // Release the throttle so sketches/canvases on the next route run at full rate.
+      setCanvasThrottled(false);
     };
   }, []);
 
@@ -306,7 +343,7 @@ export function Gallery() {
               )}
               <span
                 data-card-label
-                className="absolute bottom-5 left-5 z-10 rounded-2xl px-4 py-2 font-mono text-3xl font-bold uppercase tracking-[0.3em] transition-colors duration-300"
+                className="absolute bottom-5 left-5 z-10 rounded-2xl p-2.5 font-mono text-xl font-bold uppercase tracking-[0.3em] transition-colors duration-300 lg:text-2xl"
                 style={{ backgroundColor: "var(--black)", color: "var(--white)" }}
               >
                 {LABEL_MAP[item.handle]?.() || item.label}
