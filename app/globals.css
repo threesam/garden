@@ -90,12 +90,11 @@ body {
   font-variation-settings: "MONO" 0, "CASL" 1, "slnt" 0;
 }
 
-.tier-essay {
-  /* Redefine --font-sans within this scope so descendants using
-     Tailwind's font-sans utility (which resolves to var(--font-sans))
-     pick up Epilogue without us having to strip font-sans from every
-     prose element. font-mono descendants keep Recursive via --font-mono. */
-  --font-sans: var(--font-epilogue);
+/* Tailwind 4's @theme inline bakes --font-sans's resolved value into
+   the .font-sans utility, so a child redefinition of --font-sans is
+   ignored. Override the utility itself within .tier-essay scope. */
+.tier-essay,
+.tier-essay .font-sans {
   font-family: var(--font-epilogue), Georgia, serif;
 }
 
