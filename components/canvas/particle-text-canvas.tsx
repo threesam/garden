@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { shouldSkipThrottledFrame } from "@/lib/perf-flags";
 
 // Physics constants — kept as shader uniforms / constants where used
 const SPEED = 0.3;
@@ -234,6 +235,9 @@ interface ParticleTextCanvasProps {
   // Cursor repulsion radius in CSS pixels. Large hero values make the
   // cursor feel commanding; smaller values (~40–60) are right for thumbs.
   repelRadius?: number;
+  // Render at 1× CSS pixels instead of devicePixelRatio. Right for
+  // small thumbnails where retina sharpness isn't worth the 4× cost.
+  lowDpr?: boolean;
 }
 
 export function ParticleTextCanvas({
@@ -241,6 +245,7 @@ export function ParticleTextCanvas({
   hideText = false,
   pointSize = 1.0,
   repelRadius,
+  lowDpr = false,
 }: ParticleTextCanvasProps = {}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const textCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -252,7 +257,7 @@ export function ParticleTextCanvas({
     const glCanvas = glCanvasRef.current;
     if (!container || !textCanvas || !glCanvas) return;
 
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = lowDpr ? 1 : (window.devicePixelRatio || 1);
     const picked = pickParticleCount();
     const PARTICLE_COUNT = countOverride ?? picked.count;
     const animate = picked.animate;
@@ -276,6 +281,7 @@ export function ParticleTextCanvas({
     let mouseY = -1;
     let activeIdx = 0;
     let particlesInitialized = false;
+    let throttleFrame = 0;
 
     // R8 letter mask in CSS pixels. Consulted at particle spawn so no
     // particle starts inside a glyph — the collision shader can't push
@@ -656,6 +662,10 @@ export function ParticleTextCanvas({
     function tick() {
       rafId = 0;
       if (!gl || !particlesInitialized || !textTexture || !isVisible) return;
+      if (animate && shouldSkipThrottledFrame(++throttleFrame)) {
+        rafId = requestAnimationFrame(tick);
+        return;
+      }
 
       const inIdx = activeIdx;
       // Static rendering for prefers-reduced-motion: skip the physics pass
@@ -778,7 +788,7 @@ export function ParticleTextCanvas({
       glCanvas.removeEventListener("webglcontextrestored", onContextRestored);
       teardownGL();
     };
-  }, [countOverride, hideText, pointSize, repelRadius]);
+  }, [countOverride, hideText, pointSize, repelRadius, lowDpr]);
 
   return (
     <div

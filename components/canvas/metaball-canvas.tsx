@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { shouldSkipThrottledFrame } from "@/lib/perf-flags";
 
 const NUM_BALLS = 12;
 const PIXEL_SIZE = 6.0;
@@ -128,12 +129,16 @@ export function MetaballCanvas({
     let pointerActive = false;
     const balls: Ball[] = [];
 
+    // The shader pixelates in world coords via `uResolution`, so dropping
+    // the framebuffer below CSS resolution is invisible — visible blocks
+    // stay PIXEL_SIZE logical pixels per side regardless.
+    const RES_SCALE = 0.5;
     function resize() {
       w = canvas!.clientWidth;
       h = canvas!.clientHeight;
-      canvas!.width = w;
-      canvas!.height = h;
-      gl!.viewport(0, 0, w, h);
+      canvas!.width = Math.max(1, Math.round(w * RES_SCALE));
+      canvas!.height = Math.max(1, Math.round(h * RES_SCALE));
+      gl!.viewport(0, 0, canvas!.width, canvas!.height);
       const rect = canvas!.getBoundingClientRect();
       rectLeft = rect.left;
       rectTop = rect.top;
@@ -207,24 +212,17 @@ export function MetaballCanvas({
 
     let raf = 0;
     let isVisible = true; // IO below flips this on attach
+    let throttleFrame = 0;
     const t0 = performance.now();
-    // Metaball motion is slow enough that 40fps is indistinguishable from
-    // 60fps to the eye, but the fragment-shader cost (per-pixel
-    // smooth-min over N balls) is the heaviest continuously-running
-    // thing on the homepage. Throttling cuts its share of the frame
-    // budget by a third.
-    let lastTickTime = 0;
-    const MIN_TICK_INTERVAL = 25; // ms — ~40fps
 
     function tick() {
       raf = 0;
       if (!isVisible) return;
-      const now = performance.now();
-      if (now - lastTickTime < MIN_TICK_INTERVAL) {
+      if (shouldSkipThrottledFrame(++throttleFrame)) {
         raf = requestAnimationFrame(tick);
         return;
       }
-      lastTickTime = now;
+      const now = performance.now();
       const t = (now - t0) / 1000;
 
       // resolve attraction point (target prop wins over cursor)
