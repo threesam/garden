@@ -240,8 +240,7 @@ const FRAGMENT_SHADER = `
     float strokeD = f2 - f1;
     float strokeW = fwidth(strokeD);
     float edgeLine = (1.0 - smoothstep(0.05 - strokeW, 0.05 + strokeW, strokeD)) * (1.0 - focus);
-    vec3 black = uInvert > 0.5 ? uTopColor : uBotColor;
-    base = mix(base, black, edgeLine);
+    base = mix(base, vec3(0.0), edgeLine);
 
     // Edge fade
     float edgeFade = smoothstep(0.0, 0.08, uv.x)
