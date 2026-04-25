@@ -234,12 +234,13 @@ const FRAGMENT_SHADER = `
       }
     }
 
-    // Cell strokes — band width is set per-pixel by the screen-space
-    // derivative of f2-f1, so the line stays exactly one pixel wide
-    // regardless of zoom / DPR / cell scale.
+    // Cell strokes — full-black plateau up to 0.045 in cell-distance
+    // units (matching the constant-band version that read well), then
+    // fwidth() scales the outer fade so it tracks per-pixel and never
+    // stair-steps.
     float strokeD = f2 - f1;
     float strokeW = fwidth(strokeD);
-    float edgeLine = (1.0 - smoothstep(0.05 - strokeW, 0.05 + strokeW, strokeD)) * (1.0 - focus);
+    float edgeLine = (1.0 - smoothstep(0.045, 0.045 + strokeW, strokeD)) * (1.0 - focus);
     base = mix(base, vec3(0.0), edgeLine);
 
     // Edge fade
