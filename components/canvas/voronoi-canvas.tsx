@@ -199,9 +199,9 @@ const FRAGMENT_SHADER = `
         blended = mix(cellSample, sharpSample, focus);
       }
 
-      // Default desaturated; focus brings color back
-      float gray = dot(blended, vec3(0.299, 0.587, 0.114));
-      base = mix(vec3(gray), blended, focus);
+      // Cells stay in the source image's colors at all times — cursor
+      // focus only sharpens (cell-center sample → fragment sample).
+      base = blended;
     } else {
       base = mix(shadow, silver, edge);
       base = mix(base, highlight, envReflect * 0.4);
