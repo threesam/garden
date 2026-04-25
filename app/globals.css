@@ -20,8 +20,9 @@
   --color-white: var(--white);
   --color-black: var(--black);
   --color-border: var(--border);
-  --font-sans: var(--font-jost);
-  --font-mono: var(--font-jost);
+  --font-sans: var(--font-recursive);
+  --font-mono: var(--font-recursive);
+  --font-essay: var(--font-epilogue);
 }
 
 @media (min-width: 768px) {
@@ -73,7 +74,24 @@
 body {
   background: var(--black);
   color: var(--foreground);
-  font-family: var(--font-jost), Arial, Helvetica, sans-serif;
+  font-family: var(--font-recursive), Arial, Helvetica, sans-serif;
+  font-variation-settings: "MONO" 0, "CASL" 0, "slnt" 0;
+}
+
+/* Tailwind's font-mono utility points at Recursive too — flipping the
+   MONO axis to 1 turns proportional letters into monospace shapes within
+   the same family, so labels mix with body text without a hand-off. */
+.font-mono {
+  font-variation-settings: "MONO" 1, "CASL" 0, "slnt" 0;
+}
+
+/* Page tiers — apply on a route's wrapper element. */
+.tier-casual {
+  font-variation-settings: "MONO" 0, "CASL" 1, "slnt" 0;
+}
+
+.tier-essay {
+  font-family: var(--font-epilogue), Georgia, serif;
 }
 
 a {
