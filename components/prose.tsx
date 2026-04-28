@@ -49,11 +49,9 @@ md.use({
         const isBottom = pos.startsWith('bottom');
         const isRight = pos.includes('right');
         const isCenter = pos.includes('center');
-        const hClass = isCenter
-          ? 'left-1/2 -translate-x-1/2 text-center'
-          : isRight
-            ? 'right-6 text-right md:right-20'
-            : 'left-6 md:left-20';
+        let hClass = 'left-6 md:left-20';
+        if (isCenter) hClass = 'left-1/2 -translate-x-1/2 text-center';
+        else if (isRight) hClass = 'right-6 text-right md:right-20';
         const vClass = isBottom
           ? 'bottom-6 md:bottom-20'
           : 'top-6 md:top-20';
