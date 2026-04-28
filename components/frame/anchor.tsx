@@ -10,7 +10,7 @@ import { CloudCanvas } from "@/components/canvas/cloud-canvas";
 // WIP pages whose own sketch background fills the screen — an extra
 // cloud strip below pushes them past 100dvh and breaks the clean layout.
 const HIDE_ON = ["/anything-but-analog"];
-const EXACT_HIDE_ON = new Set(["/", "/thoughts", "/sounds"]);
+const EXACT_HIDE_ON = new Set(["/", "/thoughts", "/sounds", "/benny", "/dad"]);
 
 export function Anchor() {
   const pathname = usePathname();

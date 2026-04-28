@@ -19,9 +19,11 @@ function lumToTone(lum: number): number {
 interface AsciiImageProps {
   srcs: string[];
   className?: string;
+  /** Inverted color scheme: light glyphs on dark bg (caller sets parent bg). */
+  inverted?: boolean;
 }
 
-export function AsciiImage({ srcs, className = "" }: AsciiImageProps) {
+export function AsciiImage({ srcs, className = "", inverted = false }: AsciiImageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -95,12 +97,15 @@ export function AsciiImage({ srcs, className = "" }: AsciiImageProps) {
 
           const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
           const tone = lumToTone(lum);
-          const idx = Math.floor(tone * (ASCII_RAMP.length - 1));
+          const effectiveTone = inverted ? 1 - tone : tone;
+          const idx = Math.floor(effectiveTone * (ASCII_RAMP.length - 1));
           const glyph = ASCII_RAMP[idx] ?? " ";
           if (glyph === " ") continue;
 
-          const alpha = 0.2 + tone * 0.75;
-          ctx.fillStyle = `rgba(20, 20, 20, ${alpha})`;
+          const alpha = 0.2 + effectiveTone * 0.75;
+          ctx.fillStyle = inverted
+            ? `rgba(245, 244, 240, ${alpha})`
+            : `rgba(20, 20, 20, ${alpha})`;
           ctx.fillText(glyph, x * cellW, y * cellH);
         }
       }

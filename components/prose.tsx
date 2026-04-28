@@ -1,6 +1,7 @@
 import { Marked } from 'marked';
 import { markedEmoji } from 'marked-emoji';
 import * as emoji from 'node-emoji';
+import { linkClasses } from './link';
 
 const emojiMap = new Proxy({} as Record<string, string>, {
   get(_, name: string) { return emoji.get(name); },
@@ -36,7 +37,7 @@ md.use({
     },
     link({ href, text }) {
       const external = href.startsWith('http') || href.startsWith('//');
-      return `<a href="${href}"${external ? ' target="_blank" rel="noopener noreferrer"' : ''} class="underline underline-offset-2 decoration-current/40 hover:opacity-70 transition-opacity">${text}</a>`;
+      return `<a href="${href}"${external ? ' target="_blank" rel="noopener noreferrer"' : ''} class="${linkClasses}">${text}</a>`;
     },
     image({ href, text }) {
       if (text && text.includes('|')) {
@@ -48,11 +49,9 @@ md.use({
         const isBottom = pos.startsWith('bottom');
         const isRight = pos.includes('right');
         const isCenter = pos.includes('center');
-        const hClass = isCenter
-          ? 'left-1/2 -translate-x-1/2 text-center'
-          : isRight
-            ? 'right-6 text-right md:right-20'
-            : 'left-6 md:left-20';
+        let hClass = 'left-6 md:left-20';
+        if (isCenter) hClass = 'left-1/2 -translate-x-1/2 text-center';
+        else if (isRight) hClass = 'right-6 text-right md:right-20';
         const vClass = isBottom
           ? 'bottom-6 md:bottom-20'
           : 'top-6 md:top-20';
