@@ -2,9 +2,9 @@ i grew up in Trenton, New Jersey.
 
 not in a romantic way. just in it. my parents got a fixer upper in a nice area. it was near a nursing home which made it feel safe. near my grandparents, which made things feel comfortable. we didn't plan to stay, but we also didn't plan well enough to leave.
 
-i was in public school there until 5th grade. 6th grade was the move up to an infamous junior high. my mom believed i needed to have a more enriched experience, a real challenge, so she got me interview-ready and into Princeton Day.
+i was in public school there until 5th grade. 6th grade was the move up to an infamous junior high. my Mom believed i needed to have a more enriched experience, a real challenge, so she got me interview-ready and into Princeton Day.
 
-i remember sitting with my dad every morning waiting for the bus to come pick me up. once onboard, the Trenton crew would drift alongside industrial warehouses — long decommissioned with barely any windows still intact — and step-change to lush, preserved, and seemingly enchanted forest, manicured lawns, amphitheaters, and a fucking hockey rink. each day i would return to the hood that raised me.
+i remember sitting with my [Dad](/dad) every morning waiting for the bus to come pick me up. once onboard, the Trenton crew would drift alongside industrial warehouses — long decommissioned with barely any windows still intact — and step-change to lush, preserved, and seemingly enchanted forest, manicured lawns, amphitheaters, and a fucking hockey rink. each day i would return to the hood that raised me.
 
 culture shock, sure. but impermanent.
 
@@ -58,7 +58,7 @@ i found a room packed to the brim with every type of person i would never expect
 
 i remember just watching. trying to understand how it worked.
 
-**then i met Benny.**
+**then i met [Benny](/benny).**
 
 he was the reason the room felt like it did. no hesitation, no filtering. just fully himself. he could pick up any instrument by ear and riff — always in service of the song, never himself.
 
@@ -88,7 +88,7 @@ music, bartending, late nights, building relationships.
 
 the kid who didn't know what to say now wouldn't shut up. talking to women all day, hitting the apps every night.
 
-but after i started talking to Deana, _i didn't want to talk to anyone else._
+but after i started talking to [Deana](/deana), _i didn't want to talk to anyone else._
 
 the first thing i said to my future wife was "hey, Blondie."
 
@@ -350,7 +350,7 @@ i watched my growing family breathe into this place and relax, Deana and me retu
 
 we'd been trying for a fourth. we _knew_ the night it happened.
 
-the next morning, Deana got a call that her friend just had her baby. while they celebrated, my mom and sister called.
+the next morning, Deana got a call that her friend just had her baby. while they celebrated, my Mom and Sister called.
 
 i took it in another room.
 

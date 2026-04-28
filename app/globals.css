@@ -98,8 +98,44 @@ body {
   font-family: var(--font-epilogue), Georgia, serif;
 }
 
-a {
-  color: inherit;
+@layer base {
+  a {
+    color: inherit;
+  }
+}
+
+@keyframes link-glitch {
+  /* accelerating blink-decay then a held transparent tail.
+     blink centers: 17, 34, 49, 62, 72, 79 (gaps 17, 15, 13, 10, 7).
+     each blink is a 6%-wide fade (3% out / 3% in) for smoothness.
+     the 6th blink doesn't recover — it gates the held transparent
+     from 79% to 100%. */
+
+  /* slow opener — held inherit */
+  0%, 14% { color: inherit; }
+
+  /* blink 1 — slowest */
+  17% { color: transparent; }
+  20%, 31% { color: inherit; }
+
+  /* blink 2 */
+  34% { color: transparent; }
+  37%, 46% { color: inherit; }
+
+  /* blink 3 */
+  49% { color: transparent; }
+  52%, 59% { color: inherit; }
+
+  /* blink 4 */
+  62% { color: transparent; }
+  65%, 69% { color: inherit; }
+
+  /* blink 5 */
+  72% { color: transparent; }
+  75% { color: inherit; }
+
+  /* blink 6 — final, never recovers; held transparent tail */
+  79%, 100% { color: transparent; }
 }
 
 .section-shell {
