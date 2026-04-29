@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { getContent } from "@/lib/content";
 import { Prose } from "@/components/prose";
+import { PlaylistSlider } from "@/components/benny/playlist-slider";
+import { BENNY_PLAYLISTS } from "./playlists";
 
 export const metadata: Metadata = {
   title: "benny — threesam",
@@ -40,6 +42,13 @@ export default async function BennyPage() {
             102 Jackson Street
           </h1>
         </div>
+      </section>
+
+      <section className="pt-12 md:pt-16">
+        <h3 className="mb-4 px-6 font-mono text-sm font-bold uppercase tracking-[0.22em] text-[var(--coin)] md:px-8">
+          playlists
+        </h3>
+        <PlaylistSlider playlists={BENNY_PLAYLISTS} />
       </section>
 
       {markdown && (
