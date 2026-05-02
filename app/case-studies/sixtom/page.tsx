@@ -2,16 +2,16 @@ import Link from "next/link";
 
 export default function SixtomCaseStudyPage() {
   return (
-    <main className="mx-auto min-h-screen max-w-4xl px-6 py-14 md:px-8">
+    <main className="mx-auto min-h-screen max-w-4xl px-6 py-12 md:px-9">
       <Link href="/resonance" className="text-xs text-zinc-400 hover:text-zinc-200">
         ← back to resonance
       </Link>
 
-      <h1 className="mt-5 text-3xl font-semibold text-zinc-100">
+      <h1 className="mt-6 text-3xl font-semibold text-zinc-100">
         Sixtom — AI-driven ecommerce systems
       </h1>
 
-      <section className="section-shell mt-8 rounded-2xl p-6">
+      <section className="section-shell mt-9 rounded-2xl p-6">
         <h2 className="font-mono text-sm uppercase tracking-[0.22em] text-zinc-300">
           problem
         </h2>
@@ -26,7 +26,7 @@ export default function SixtomCaseStudyPage() {
         <h2 className="font-mono text-sm uppercase tracking-[0.22em] text-zinc-300">
           system architecture
         </h2>
-        <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-7 text-zinc-300 md:text-base">
+        <ul className="mt-3 list-disc space-y-1.5 pl-6 text-sm leading-7 text-zinc-300 md:text-base">
           <li>Next.js application layer for storefront and internal tooling.</li>
           <li>Shopify commerce backbone for catalog, checkout, and operations.</li>
           <li>
