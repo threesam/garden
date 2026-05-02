@@ -49,11 +49,11 @@ export function Compliments() {
           const diaPct = (d / maxTotal) * 100;
           return (
             <div key={theme}>
-              <div className="flex items-center justify-between mb-0.5">
+              <div className="flex items-center justify-between mb-1.5">
                 <span className="font-mono text-[10px] text-zinc-400">{theme}</span>
                 <span className="font-mono text-[9px] text-zinc-400">{total}</span>
               </div>
-              <div className="flex h-2.5 gap-0.5 overflow-hidden rounded-full bg-zinc-100">
+              <div className="flex h-3 gap-px overflow-hidden rounded-full bg-zinc-100">
                 <div
                   className="rounded-full"
                   style={{ width: `${samPct}%`, backgroundColor: "rgba(0,0,0,0.4)" }}

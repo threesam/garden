@@ -14,11 +14,11 @@ export const metadata: Metadata = {
   description: "102,549 messages. 10 years. One conversation.",
 };
 
-const g = "gap-3 md:gap-4";
+const g = "gap-3 md:gap-6";
 
 function M({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={`rounded-3xl bg-white border border-zinc-200 p-5 md:p-6 ${className}`}>
+    <div className={`rounded-3xl bg-white border border-zinc-200 p-6 md:p-9 ${className}`}>
       {children}
     </div>
   );
@@ -30,7 +30,7 @@ function ContentSection({ children }: { children: React.ReactNode }) {
     // images, not the data cards. Content flows naturally between
     // (and past) the image sections.
     <section
-      className="w-full px-3 py-16 md:px-4 md:py-24"
+      className="w-full px-3 py-12 md:px-6 md:py-24"
       style={{ backgroundColor: "var(--white)" }}
     >
       <div className={`mx-auto w-full max-w-7xl flex flex-col ${g}`}>{children}</div>

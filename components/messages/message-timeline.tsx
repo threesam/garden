@@ -135,8 +135,8 @@ export function MessageTimeline() {
 
   return (
     <div>
-      <div className="mb-4 flex items-baseline justify-between">
-        <div className="flex gap-4">
+      <div className="mb-3 flex items-baseline justify-between">
+        <div className="flex gap-3">
           <button
             onClick={() => setTab("messages")}
             className={`font-mono text-xs tracking-[0.16em] transition-colors ${tab === "messages" ? "text-black" : "text-zinc-500 hover:text-zinc-600"}`}
@@ -154,7 +154,7 @@ export function MessageTimeline() {
           {total.toLocaleString()} total
         </span>
       </div>
-      <div className="flex gap-4 mb-4">
+      <div className="flex gap-3 mb-3">
         <span className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-500">
           <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: DIA_COLOR }} />
           dianchik

@@ -53,7 +53,7 @@ export function MilestoneCount() {
       <p className="mt-1.5 text-2xl font-bold text-black">
         {loveCount.toLocaleString()}
       </p>
-      <p className="mt-1 font-mono text-[10px] text-zinc-500">
+      <p className="mt-1.5 font-mono text-[10px] text-zinc-500">
         times and counting
       </p>
     </div>

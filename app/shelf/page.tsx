@@ -70,7 +70,7 @@ export default async function ShelfPage() {
     >
       <ShelfHero featured={featured} featuredLabel={featuredLabel} />
 
-      <section className="columns-4 gap-0 overflow-hidden py-1 sm:columns-6 md:columns-8 lg:columns-10 xl:columns-12">
+      <section className="columns-4 gap-0 overflow-hidden py-1.5 sm:columns-6 md:columns-8 lg:columns-10 xl:columns-12">
         {sorted.map((book, i) => (
           <BookCover key={book.id} book={book} eager={i < 24} />
         ))}

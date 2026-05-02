@@ -8,7 +8,7 @@ export function TotalWords() {
       <p className="mt-1.5 text-2xl font-bold text-black">
         {total.toLocaleString()}
       </p>
-      <div className="mt-3 space-y-1">
+      <div className="mt-3 space-y-1.5">
         <div className="flex justify-between font-mono text-[10px] text-zinc-500">
           <span>sam</span>
           <span>{wordsData.sam_total_words.toLocaleString()}</span>
