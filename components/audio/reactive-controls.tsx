@@ -7,13 +7,13 @@ export function ReactiveControls() {
     useAudioReactive();
 
   return (
-    <div className="space-y-4 rounded-xl border border-white/10 bg-black/35 p-5">
+    <div className="space-y-3 rounded-xl border border-white/10 bg-black/35 p-6">
       <h3 className="font-mono text-sm uppercase tracking-[0.2em] text-zinc-300">
         reaction controls
       </h3>
 
       <label className="block">
-        <div className="mb-2 flex items-center justify-between text-xs uppercase tracking-[0.15em] text-zinc-400">
+        <div className="mb-1.5 flex items-center justify-between text-xs uppercase tracking-[0.15em] text-zinc-400">
           <span>sensitivity</span>
           <span className="font-mono">{sensitivity.toFixed(2)}x</span>
         </div>
@@ -29,7 +29,7 @@ export function ReactiveControls() {
       </label>
 
       <label className="block">
-        <div className="mb-2 flex items-center justify-between text-xs uppercase tracking-[0.15em] text-zinc-400">
+        <div className="mb-1.5 flex items-center justify-between text-xs uppercase tracking-[0.15em] text-zinc-400">
           <span>smoothing</span>
           <span className="font-mono">{smoothing.toFixed(2)}</span>
         </div>
@@ -50,7 +50,7 @@ export function ReactiveControls() {
           setSensitivity(2);
           setSmoothing(0.94);
         }}
-        className="rounded-md border border-white/20 px-3 py-2 text-[11px] uppercase tracking-[0.16em] text-zinc-300 hover:border-white/40"
+        className="rounded-md border border-white/20 px-3 py-1.5 text-[11px] uppercase tracking-[0.16em] text-zinc-300 hover:border-white/40"
       >
         reset response
       </button>

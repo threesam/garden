@@ -146,13 +146,13 @@ export function HeroPlayer() {
       />
 
       {/* track selector — top of player area */}
-      <div className="pointer-events-auto mb-2 flex flex-wrap gap-1">
+      <div className="pointer-events-auto mb-1.5 flex flex-wrap gap-1.5">
         {TRACKS.map((t, i) => (
           <button
             key={t.src}
             type="button"
             onClick={() => switchTrack(i)}
-            className={`rounded-full px-2 py-1 font-mono text-[9px] tracking-[0.12em] transition ${
+            className={`rounded-full px-1.5 py-1.5 font-mono text-[9px] tracking-[0.12em] transition ${
               i === trackIndex
                 ? "bg-amber-200/20 text-amber-100"
                 : "text-zinc-500 hover:text-zinc-300"
@@ -183,7 +183,7 @@ export function HeroPlayer() {
           )}
         </button>
 
-        <div className="flex min-w-0 flex-1 items-center gap-2">
+        <div className="flex min-w-0 flex-1 items-center gap-1.5">
           <span className="shrink-0 font-mono text-[9px] text-zinc-500">
             {formatTime(progress)}
           </span>
