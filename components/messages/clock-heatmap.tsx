@@ -42,11 +42,11 @@ export function ClockHeatmap() {
           </div>
           {/* Grid */}
           {DAYS.map((day, dow) => (
-            <div key={day} className="flex items-center gap-1.5 mb-[2px]">
+            <div key={day} className="flex items-center gap-1.5 mb-px">
               <span className="w-7 font-mono text-[9px] text-zinc-500 text-right">
                 {day}
               </span>
-              <div className="flex flex-1 gap-[2px]">
+              <div className="flex flex-1 gap-px">
                 {Array.from({ length: 24 }, (_, h) => (
                   <div
                     key={h}
