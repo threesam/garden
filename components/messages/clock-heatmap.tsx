@@ -28,7 +28,7 @@ export function ClockHeatmap() {
         </span>
       </div>
       <div className="overflow-x-auto">
-        <div className="min-w-[600px]">
+        <div className="min-w-150">
           {/* Hour labels */}
           <div className="mb-1 flex" style={{ paddingLeft: 32 }}>
             {Array.from({ length: 24 }, (_, h) => (

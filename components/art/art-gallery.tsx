@@ -83,7 +83,7 @@ export function ArtGallery({ sketches, heroCount = 1, lookahead = 1, lookback = 
             key={s.slug}
             id={s.slug}
             data-art-slug={s.slug}
-            className="relative h-[100dvh] w-full snap-start overflow-hidden"
+            className="relative h-dvh w-full snap-start overflow-hidden"
             style={{ contentVisibility: "auto", containIntrinsicSize: "100dvh" }}
           >
             <SketchHost slug={s.slug} active={active} />

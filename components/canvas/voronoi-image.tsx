@@ -59,7 +59,7 @@ export function VoronoiImage({ src, alt }: VoronoiImageProps) {
 
   return (
     <div
-      className="relative my-8 rounded-lg overflow-hidden w-full md:w-[768px] md:max-w-[768px] md:left-1/2 md:-translate-x-1/2"
+      className="relative my-9 -mx-6 w-full overflow-hidden rounded-lg md:-mx-9"
       style={{ aspectRatio: aspect }}
     >
       <VoronoiCanvas imageSrc={src} invert showLetters={false} />

@@ -35,7 +35,7 @@ export default async function RawSketchPage({ params }: Props) {
   if (!sketch) notFound();
 
   return (
-    <main className="relative h-[100dvh] w-full overflow-hidden" style={{ backgroundColor: "var(--black)" }}>
+    <main className="relative h-dvh w-full overflow-hidden" style={{ backgroundColor: "var(--black)" }}>
       <SketchHost slug={sketch.slug} active />
       <div className="pointer-events-none absolute inset-x-0 top-6 z-10 flex items-baseline justify-between px-6 font-mono text-xs uppercase tracking-[0.25em] md:top-10 md:px-10 md:text-sm">
         <Link

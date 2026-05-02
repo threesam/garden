@@ -7,7 +7,7 @@ interface Props {
   /**
    * Minimum height reserved while the child isn't yet mounted. Prefer not
    * setting this when the parent already reserves space (e.g. a
-   * `min-h-[100dvh]` section). Default: no reserved height.
+   * `min-h-dvh` section). Default: no reserved height.
    */
   placeholderMinHeight?: string;
   /** How early to mount before visible. Config — not a dep. */

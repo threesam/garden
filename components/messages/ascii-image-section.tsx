@@ -23,7 +23,7 @@ export function AsciiImageSection({ src, altSrcs }: Props) {
 
   return (
     <section
-      className="relative h-[100dvh] w-full snap-start overflow-hidden"
+      className="relative h-dvh w-full snap-start overflow-hidden"
       style={{
         backgroundColor: "var(--white)",
         contentVisibility: "auto",

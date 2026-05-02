@@ -9,7 +9,7 @@ import { Gallery } from "@/components/gallery/gallery";
 // in-layout instead of pushing the page taller.
 export default function Home() {
   return (
-    <div className="flex h-[100dvh] w-full flex-col overflow-hidden">
+    <div className="flex h-dvh w-full flex-col overflow-hidden">
       <section className="relative h-[25dvh] w-full overflow-hidden">
         <CloudCanvas mirror />
       </section>

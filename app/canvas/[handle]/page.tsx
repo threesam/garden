@@ -48,7 +48,7 @@ export default async function CanvasPage({ params }: Props) {
   return (
     <div className="canvas-snap">
       <div
-        className={`relative w-full overflow-hidden ${heroImage ? "h-[100dvh]" : "h-[50dvh]"}`}
+        className={`relative w-full overflow-hidden ${heroImage ? "h-dvh" : "h-[50dvh]"}`}
       >
         {heroType === "voronoi" ? (
           <>

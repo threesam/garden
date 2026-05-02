@@ -80,7 +80,7 @@ export function ShelfHero({ featured, featuredLabel }: ShelfHeroProps) {
 
   return (
     <section
-      className="relative flex min-h-[100dvh] items-start justify-center overflow-hidden px-6 pt-24 pb-16 md:items-center md:px-10 md:py-16"
+      className="relative flex min-h-dvh items-start justify-center overflow-hidden px-6 pt-24 pb-16 md:items-center md:px-10 md:py-16"
       style={{ background: "var(--black)" }}
     >
       <div
@@ -148,7 +148,7 @@ export function ShelfHero({ featured, featuredLabel }: ShelfHeroProps) {
                   style={{
                     maxHeight: expanded && contentHeight > 0 ? `${contentHeight}px` : undefined,
                   }}
-                  className={`overflow-hidden whitespace-pre-line text-sm leading-relaxed opacity-75 transition-[max-height] duration-500 ease-out md:!max-h-none md:text-base ${expanded ? "" : "max-md:max-h-[4.5rem]"}`}
+                  className={`overflow-hidden whitespace-pre-line text-sm leading-relaxed opacity-75 transition-[max-height] duration-500 ease-out md:!max-h-none md:text-base ${expanded ? "" : "max-md:max-h-18"}`}
                 >
                   {featured.description}
                 </p>

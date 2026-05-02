@@ -21,14 +21,14 @@ export default function AnythingButAnalogPage() {
   return (
     <main
       id="art-scroller"
-      className="h-[100dvh] snap-y snap-mandatory overflow-y-scroll"
+      className="h-dvh snap-y snap-mandatory overflow-y-scroll"
       style={{ backgroundColor: "var(--black)" }}
     >
       <ArtScrollSync />
       <section
         id="hero"
         data-art-slug="hero"
-        className="relative h-[100dvh] w-full snap-start overflow-hidden"
+        className="relative h-dvh w-full snap-start overflow-hidden"
       >
         <ParticleTextCanvas />
       </section>

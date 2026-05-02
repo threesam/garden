@@ -17,14 +17,14 @@ export function AsciiHero({ src, heading, color = "white", position = "left" }: 
   const hClass = isCenter
     ? "left-1/2 -translate-x-1/2 text-center"
     : isRight
-      ? "right-6 text-right md:right-20"
-      : "left-6 md:left-20";
+      ? "right-6 text-right md:right-18"
+      : "left-6 md:left-18";
   const vClass = isBottom
-    ? "bottom-6 md:bottom-20"
-    : "top-6 md:top-20";
+    ? "bottom-6 md:bottom-18"
+    : "top-6 md:top-18";
 
   return (
-    <div className="relative my-12 -mx-6 md:mx-0 md:w-[768px] md:max-w-[768px] md:left-1/2 md:-translate-x-1/2 overflow-hidden md:rounded-lg" style={{ height: 400, backgroundColor: "var(--white)" }}>
+    <div className="relative my-12 -mx-6 overflow-hidden md:-mx-9 md:rounded-lg" style={{ height: 400, backgroundColor: "var(--white)" }}>
       <AsciiCanvas src={src} className="absolute inset-0" />
       <span
         className={`absolute ${vClass} ${hClass} font-mono text-2xl font-bold uppercase tracking-[0.1em] md:text-5xl`}

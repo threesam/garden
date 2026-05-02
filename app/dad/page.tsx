@@ -17,7 +17,7 @@ export default async function DadPage() {
       className="min-h-screen bg-zinc-900"
       style={{ color: "var(--white)" }}
     >
-      <section className="relative h-[100dvh] w-full overflow-hidden bg-zinc-900">
+      <section className="relative h-dvh w-full overflow-hidden bg-zinc-900">
         <LazyMount className="absolute inset-0">
           <AsciiImage srcs={["/assets/dad-1.jpg"]} className="h-full w-full" inverted />
         </LazyMount>
