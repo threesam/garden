@@ -13,7 +13,7 @@ const diaMax = dia[0]?.count ?? 1;
 function NameBar({ name, count, max, color }: { name: string; count: number; max: number; color: string }) {
   const pct = (count / max) * 100;
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1.5">
       <span className="w-24 shrink-0 truncate text-left font-mono text-[10px] text-zinc-400">{name}</span>
       <div className="flex-1 h-3 rounded-full overflow-hidden bg-zinc-100">
         <div
@@ -31,7 +31,7 @@ export function PetNames() {
 
   return (
     <div>
-      <div className="mb-5 flex items-baseline justify-between">
+      <div className="mb-6 flex items-baseline justify-between">
         <span className="font-mono text-xs tracking-[0.16em] text-zinc-400">
           pet names
         </span>

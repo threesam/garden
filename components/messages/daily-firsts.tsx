@@ -21,7 +21,7 @@ export function DailyFirsts() {
 
   return (
     <div>
-      <div className="mb-4 flex items-baseline justify-between">
+      <div className="mb-3 flex items-baseline justify-between">
         <span className="font-mono text-xs tracking-[0.16em] text-zinc-400">
           first message of the day
         </span>
@@ -38,14 +38,14 @@ export function DailyFirsts() {
             <p className="text-sm leading-relaxed text-black line-clamp-2">
               &quot;{f.text}&quot;
             </p>
-            <p className="mt-2 font-mono text-[9px] text-zinc-500">
+            <p className="mt-1.5 font-mono text-[9px] text-zinc-500">
               {f.sender.split(" ")[0].toLowerCase()} — {f.date}, {f.hour}:{String(f.minute ?? 0).padStart(2, "0")}
             </p>
           </div>
         ))}
       </div>
       {totalPages > 1 && (
-        <div className="mt-4 flex items-center justify-center gap-3">
+        <div className="mt-3 flex items-center justify-center gap-3">
           <button
             onClick={() => setPage((p) => Math.max(0, p - 1))}
             disabled={page === 0}
