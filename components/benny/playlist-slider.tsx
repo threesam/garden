@@ -11,13 +11,13 @@ export function PlaylistSlider({ playlists }: Props) {
   return (
     <div className="relative">
       <div
-        className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-4 md:px-8"
+        className="flex snap-x snap-mandatory overflow-x-auto pb-4 pr-6 md:pr-8"
         style={{ scrollbarWidth: "thin", scrollbarColor: "var(--coin) transparent" }}
       >
         {playlists.map((p) => (
           <div
             key={p.id}
-            className="snap-start overflow-hidden rounded-xl bg-zinc-800"
+            className="snap-start overflow-hidden rounded-xl bg-zinc-800 ml-6 md:ml-8"
             style={{ flex: `0 0 ${CARD_WIDTH}px`, height: `${CARD_HEIGHT}px` }}
           >
             <iframe
