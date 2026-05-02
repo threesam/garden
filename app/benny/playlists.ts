@@ -5,7 +5,6 @@ export type BennyPlaylist = {
 };
 
 export const BENNY_PLAYLISTS: BennyPlaylist[] = [
-  { id: "68caf9NsjvosjcawrFTqOW", name: "Liked", tracks: 552 },
   { id: "76qH1PE3VujjzRO5CUAJFA", name: "Hip-Hop / Rap", tracks: 368 },
   { id: "2xQKcjphOi57SgG06lwfuW", name: "Adult Alternative", tracks: 309 },
   { id: "414tKYdXVNODzOU2sU28kH", name: "Electronica", tracks: 245 },
@@ -35,4 +34,5 @@ export const BENNY_PLAYLISTS: BennyPlaylist[] = [
   { id: "25jmCYgPRPnqHf9NbaixDi", name: "Playlist IV", tracks: 20 },
   { id: "4PXBWEVOLuNM0WYWZhzIgz", name: "Top 25 Most Played", tracks: 21 },
   { id: "0c6d6qdx1U2YZwZxTfp7lX", name: "Playlist III", tracks: 8 },
+  { id: "68caf9NsjvosjcawrFTqOW", name: "Liked", tracks: 552 },
 ];
