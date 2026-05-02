@@ -34,23 +34,23 @@ const IMPACT_ITEMS = [
 
 export default function ResonancePage() {
   return (
-    <main className="copy-lower mx-auto min-h-screen max-w-6xl px-6 pb-16 pt-20 md:px-8">
+    <main className="copy-lower mx-auto min-h-screen max-w-6xl px-6 pb-18 pt-18 md:px-9">
       <h1 className="font-mono text-sm uppercase tracking-[0.22em] text-zinc-300">
         resonance
       </h1>
-      <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-400 md:text-base">
+      <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-400 md:text-base">
         the impact that reaches others and leaves the world better. experiences
         created for clients, generative pieces that move people, knowledge
         shared. value delivered.
       </p>
 
-      <div className="mt-8 grid gap-4 md:grid-cols-2">
+      <div className="mt-9 grid gap-3 md:grid-cols-2">
         {IMPACT_ITEMS.map((item) => (
           <WorkCard key={item.title} {...item} />
         ))}
       </div>
 
-      <section className="section-shell mt-12 rounded-2xl p-6 md:p-8">
+      <section className="section-shell mt-12 rounded-2xl p-6 md:p-9">
         <h2 className="font-mono text-sm uppercase tracking-[0.22em] text-zinc-300">
           work with me
         </h2>

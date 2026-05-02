@@ -342,7 +342,7 @@ export function Gallery() {
               )}
               <span
                 data-card-label
-                className="absolute bottom-5 left-5 z-10 rounded-2xl p-2.5 font-mono text-xl font-bold uppercase tracking-[0.3em] transition-colors duration-300 lg:text-2xl"
+                className="absolute bottom-6 left-6 z-10 rounded-2xl p-3 font-mono text-xl font-bold uppercase tracking-[0.3em] transition-colors duration-300 lg:text-2xl"
                 style={{ backgroundColor: "var(--black)", color: "var(--white)" }}
               >
                 {LABEL_MAP[item.handle]?.() || item.label}

@@ -27,10 +27,10 @@ export function FirstNight() {
         </span>
       </div>
       <p className="mb-3 font-mono text-[10px] text-zinc-500">{firstNight.date}</p>
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         {firstNight.exchange.map((msg, i) =>
           msg.sender === "ellipsis" ? (
-            <div key={i} className="py-1 text-center font-mono text-[10px] text-zinc-400">
+            <div key={i} className="py-1.5 text-center font-mono text-[10px] text-zinc-400">
               ...
             </div>
           ) : (
@@ -39,7 +39,7 @@ export function FirstNight() {
               className={`flex ${msg.sender === "sam" ? "justify-end" : "justify-start"}`}
             >
               <div
-                className={`max-w-[85%] rounded-xl px-3 py-2 text-sm leading-relaxed ${
+                className={`max-w-[85%] rounded-xl px-3 py-1.5 text-sm leading-relaxed ${
                   msg.sender === "sam"
                     ? "bg-zinc-100 text-black"
                     : "bg-amber-50 text-black"

@@ -45,7 +45,7 @@ export default async function SketchPage({ params }: Props) {
   const target = `/anything-but-analog#${sketch.slug}`;
   return (
     <main
-      className="flex h-[100dvh] items-center justify-center"
+      className="flex h-dvh items-center justify-center"
       style={{ backgroundColor: "var(--black)", color: "var(--white)" }}
     >
       <ArtRedirect target={target} />

@@ -13,7 +13,7 @@ const diaMax = dia[0]?.count ?? 1;
 function EmojiBar({ emoji, count, max, color }: { emoji: string; count: number; max: number; color: string }) {
   const pct = (count / max) * 100;
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1.5">
       <span className="text-sm w-5 text-center leading-none" style={{ fontFamily: "'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif" }}>{emoji}</span>
       <div className="flex-1 h-3 rounded-full overflow-hidden bg-zinc-100">
         <div
@@ -31,7 +31,7 @@ export function EmojiMeter() {
 
   return (
     <div>
-      <div className="mb-5 flex items-baseline justify-between">
+      <div className="mb-6 flex items-baseline justify-between">
         <span className="font-mono text-xs tracking-[0.16em] text-zinc-400">
           emoji
         </span>

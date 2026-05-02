@@ -103,7 +103,7 @@ export function MessageLengths() {
 
   return (
     <div>
-      <div className="mb-4 flex items-baseline justify-between">
+      <div className="mb-3 flex items-baseline justify-between">
         <span className="font-mono text-xs tracking-[0.16em] text-zinc-400">
           message length over time
         </span>
@@ -111,7 +111,7 @@ export function MessageLengths() {
           avg characters per message
         </span>
       </div>
-      <div className="flex gap-4 mb-4">
+      <div className="flex gap-3 mb-3">
         <span className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-400">
           <span className="inline-block h-[2px] w-3" style={{ backgroundColor: "rgba(255,255,255,0.5)" }} />
           sam

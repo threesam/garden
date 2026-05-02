@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function SoundsPage() {
   return (
     <main
-      className="relative h-[100dvh] w-full overflow-hidden"
+      className="relative h-dvh w-full overflow-hidden"
       style={{ backgroundColor: "var(--black)" }}
     >
       <SketchHost slug="25" active />

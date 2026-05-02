@@ -48,7 +48,7 @@ export default async function CanvasPage({ params }: Props) {
   return (
     <div className="canvas-snap">
       <div
-        className={`relative w-full overflow-hidden ${heroImage ? "h-[100dvh]" : "h-[50dvh]"}`}
+        className={`relative w-full overflow-hidden ${heroImage ? "h-dvh" : "h-[50dvh]"}`}
       >
         {heroType === "voronoi" ? (
           <>
@@ -69,7 +69,7 @@ export default async function CanvasPage({ params }: Props) {
 
       {markdown && (
         <section
-          className="tier-essay mx-auto max-w-3xl px-6 py-16 md:px-8 md:py-24"
+          className="tier-essay mx-auto max-w-3xl px-6 py-12 md:px-9 md:py-24"
           style={{ color: "var(--black)" }}
         >
           <Prose

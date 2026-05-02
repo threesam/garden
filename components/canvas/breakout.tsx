@@ -10,7 +10,7 @@ interface BreakoutProps {
  */
 export function Breakout({ children }: BreakoutProps) {
   return (
-    <p className="my-16 text-2xl leading-snug text-foreground md:my-24 md:text-3xl md:leading-snug">
+    <p className="my-18 text-2xl leading-snug text-foreground md:my-24 md:text-3xl md:leading-snug">
       {children}
     </p>
   );

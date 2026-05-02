@@ -19,7 +19,7 @@ function cellColor(val: number) {
 export function ClockHeatmap() {
   return (
     <div>
-      <div className="mb-4 flex items-baseline justify-between">
+      <div className="mb-3 flex items-baseline justify-between">
         <span className="font-mono text-xs tracking-[0.16em] text-zinc-400">
           when we talked
         </span>
@@ -28,9 +28,9 @@ export function ClockHeatmap() {
         </span>
       </div>
       <div className="overflow-x-auto">
-        <div className="min-w-[600px]">
+        <div className="min-w-150">
           {/* Hour labels */}
-          <div className="mb-1 flex" style={{ paddingLeft: 32 }}>
+          <div className="mb-1.5 flex" style={{ paddingLeft: 32 }}>
             {Array.from({ length: 24 }, (_, h) => (
               <span
                 key={h}
@@ -42,11 +42,11 @@ export function ClockHeatmap() {
           </div>
           {/* Grid */}
           {DAYS.map((day, dow) => (
-            <div key={day} className="flex items-center gap-1 mb-[2px]">
+            <div key={day} className="flex items-center gap-1.5 mb-px">
               <span className="w-7 font-mono text-[9px] text-zinc-500 text-right">
                 {day}
               </span>
-              <div className="flex flex-1 gap-[2px]">
+              <div className="flex flex-1 gap-px">
                 {Array.from({ length: 24 }, (_, h) => (
                   <div
                     key={h}

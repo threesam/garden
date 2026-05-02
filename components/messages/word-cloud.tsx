@@ -135,7 +135,7 @@ export function WordCloud() {
 
   return (
     <div>
-      <div className="mb-4 flex items-baseline justify-between">
+      <div className="mb-3 flex items-baseline justify-between">
         <span className="font-mono text-xs tracking-[0.16em] text-zinc-400">
           word cloud
         </span>

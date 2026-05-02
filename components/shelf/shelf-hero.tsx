@@ -80,7 +80,7 @@ export function ShelfHero({ featured, featuredLabel }: ShelfHeroProps) {
 
   return (
     <section
-      className="relative flex min-h-[100dvh] items-start justify-center overflow-hidden px-6 pt-24 pb-16 md:items-center md:px-10 md:py-16"
+      className="relative flex min-h-dvh items-start justify-center overflow-hidden px-6 pt-24 pb-18 md:items-center md:px-9 md:py-18"
       style={{ background: "var(--black)" }}
     >
       <div
@@ -119,7 +119,7 @@ export function ShelfHero({ featured, featuredLabel }: ShelfHeroProps) {
             ) : null}
           </a>
 
-          <div className="flex flex-col gap-4 md:max-w-md" style={{ color: "var(--white)" }}>
+          <div className="flex flex-col gap-3 md:max-w-md" style={{ color: "var(--white)" }}>
             <a
               href={`https://www.goodreads.com/book/show/${featured.id}`}
               target="_blank"
@@ -148,14 +148,14 @@ export function ShelfHero({ featured, featuredLabel }: ShelfHeroProps) {
                   style={{
                     maxHeight: expanded && contentHeight > 0 ? `${contentHeight}px` : undefined,
                   }}
-                  className={`overflow-hidden whitespace-pre-line text-sm leading-relaxed opacity-75 transition-[max-height] duration-500 ease-out md:!max-h-none md:text-base ${expanded ? "" : "max-md:max-h-[4.5rem]"}`}
+                  className={`overflow-hidden whitespace-pre-line text-sm leading-relaxed opacity-75 transition-[max-height] duration-500 ease-out md:!max-h-none md:text-base ${expanded ? "" : "max-md:max-h-18"}`}
                 >
                   {featured.description}
                 </p>
                 <button
                   type="button"
                   onClick={toggleExpanded}
-                  className="mt-2 font-mono text-xs uppercase tracking-[0.2em] underline underline-offset-4 transition-opacity hover:opacity-80 md:hidden"
+                  className="mt-1.5 font-mono text-xs uppercase tracking-[0.2em] underline underline-offset-4 transition-opacity hover:opacity-80 md:hidden"
                   style={{ color: "var(--coin)" }}
                 >
                   {expanded ? "show less" : "read more"}

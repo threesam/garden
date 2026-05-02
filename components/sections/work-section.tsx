@@ -33,15 +33,15 @@ const WORK_ITEMS = [
 
 export function WorkSection() {
   return (
-    <section className="section-shell mx-auto mt-12 max-w-6xl rounded-2xl p-6 md:p-8">
+    <section className="section-shell mx-auto mt-12 max-w-6xl rounded-2xl p-6 md:p-9">
       <h2 className="font-mono text-sm uppercase tracking-[0.22em] text-zinc-300">
         work / portfolio
       </h2>
-      <p className="mt-3 mb-5 max-w-3xl text-sm leading-7 text-zinc-400 md:text-base">
+      <p className="mt-3 mb-6 max-w-3xl text-sm leading-7 text-zinc-400 md:text-base">
         Technical resume and build archive: companies worked with, engineering
         projects, and selected case studies.
       </p>
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-3 md:grid-cols-2">
         {WORK_ITEMS.map((item) => (
           <WorkCard key={item.title} {...item} />
         ))}

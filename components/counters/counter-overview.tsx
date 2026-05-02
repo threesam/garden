@@ -35,11 +35,11 @@ export function CounterOverview() {
   }, []);
 
   return (
-    <section className="section-shell mx-auto mt-12 max-w-6xl rounded-2xl p-6 md:p-8">
+    <section className="section-shell mx-auto mt-12 max-w-6xl rounded-2xl p-6 md:p-9">
       <h2 className="font-mono text-sm uppercase tracking-[0.22em] text-zinc-300">
         network counters
       </h2>
-      <div className="mt-5 grid grid-cols-1 gap-3 text-sm md:grid-cols-3">
+      <div className="mt-6 grid grid-cols-1 gap-3 text-sm md:grid-cols-3">
         <CounterTile label="total visitors" value={counters.totalVisitors} />
         <CounterTile
           label="generative art viewers"
@@ -53,11 +53,11 @@ export function CounterOverview() {
 
 function CounterTile({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-black/30 px-4 py-4">
+    <div className="rounded-xl border border-white/10 bg-black/30 p-3">
       <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-400">
         {label}
       </div>
-      <div className="mt-2 text-2xl font-semibold text-zinc-100">{value}</div>
+      <div className="mt-1.5 text-2xl font-semibold text-zinc-100">{value}</div>
     </div>
   );
 }

@@ -124,7 +124,7 @@ export function MusicPlayer() {
   };
 
   return (
-    <div className="space-y-4 rounded-xl border border-white/10 bg-black/35 p-5">
+    <div className="space-y-3 rounded-xl border border-white/10 bg-black/35 p-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h3 className="font-mono text-sm uppercase tracking-[0.2em] text-zinc-300">
@@ -137,7 +137,7 @@ export function MusicPlayer() {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-1.5">
         {TRACKS.map((t, i) => (
           <button
             key={t.src}
