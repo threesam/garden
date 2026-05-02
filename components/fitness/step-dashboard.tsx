@@ -21,17 +21,17 @@ export function StepDashboard({ entries }: StepDashboardProps) {
   const maxMonthly = Math.max(1, ...monthlyTotals.map((month) => month.total));
 
   return (
-    <div className="space-y-7 rounded-xl border border-white/10 bg-black/35 p-5">
+    <div className="space-y-6 rounded-xl border border-white/10 bg-black/35 p-6">
       <div>
         <h3 className="font-mono text-sm uppercase tracking-[0.2em] text-zinc-300">
           step calendar (last 12 weeks)
         </h3>
-        <div className="mt-4 grid grid-cols-12 gap-1.5">
+        <div className="mt-3 grid grid-cols-12 gap-1.5">
           {last84Days.map((date) => (
             <div
               key={date}
               title={`${date}: ${lookup.get(date) ?? 0} steps`}
-              className={`h-4 rounded-sm ${intensityClass(lookup.get(date) ?? 0)}`}
+              className={`h-3 rounded-sm ${intensityClass(lookup.get(date) ?? 0)}`}
             />
           ))}
         </div>
@@ -41,13 +41,13 @@ export function StepDashboard({ entries }: StepDashboardProps) {
         <h3 className="font-mono text-sm uppercase tracking-[0.2em] text-zinc-300">
           weekly totals
         </h3>
-        <div className="mt-3 grid gap-2 md:grid-cols-3">
+        <div className="mt-3 grid gap-1.5 md:grid-cols-3">
           {weeklyTotals.map((week) => (
             <div key={week.label} className="rounded-lg border border-white/10 p-3">
               <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-zinc-400">
                 {week.label}
               </p>
-              <p className="mt-1 text-lg font-semibold text-zinc-100">
+              <p className="mt-1.5 text-lg font-semibold text-zinc-100">
                 {week.total.toLocaleString()} steps
               </p>
             </div>
@@ -59,11 +59,11 @@ export function StepDashboard({ entries }: StepDashboardProps) {
         <h3 className="font-mono text-sm uppercase tracking-[0.2em] text-zinc-300">
           yearly trend
         </h3>
-        <div className="mt-4 flex items-end gap-2">
+        <div className="mt-3 flex items-end gap-1.5">
           {monthlyTotals.map((month) => {
             const height = Math.max(8, (month.total / maxMonthly) * 110);
             return (
-              <div key={month.month} className="flex w-full flex-col items-center gap-1">
+              <div key={month.month} className="flex w-full flex-col items-center gap-1.5">
                 <div
                   className="w-full rounded-sm bg-gradient-to-t from-orange-600/70 to-amber-300/90"
                   style={{ height: `${height}px` }}
