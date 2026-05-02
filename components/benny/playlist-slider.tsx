@@ -11,7 +11,7 @@ export function PlaylistSlider({ playlists }: Props) {
   return (
     <div className="relative">
       <div
-        className="flex snap-x snap-mandatory overflow-x-auto pb-4 pr-6 md:pr-8"
+        className="flex snap-x snap-mandatory overflow-x-auto scroll-pl-6 pb-4 pr-6 md:scroll-pl-8 md:pr-8"
         style={{ scrollbarWidth: "thin", scrollbarColor: "var(--coin) transparent" }}
       >
         {playlists.map((p) => (
