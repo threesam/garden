@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { sampleImage, renderAsciiFrame, getGrid } from "./ascii-canvas";
 
-const FADE_MS = 500;
 const CYCLE_MS = 2000;
 
 interface AsciiGalleryProps {
@@ -15,15 +14,12 @@ interface AsciiGalleryProps {
   lowDpr?: boolean;
 }
 
+// Stack one canvas per src and crossfade with CSS opacity (transition lives
+// in .ascii-gallery-layer). The compositor handles the fade on the GPU,
+// avoiding the per-frame pixel-blend + 8K fillText calls of the prior impl.
 export function AsciiGallery({ srcs, className = "", cellSize = 3, onIndexChange, lowDpr = false }: AsciiGalleryProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  // One <canvas> per src, all stacked with absolute positioning. Each
-  // is baked once when its image loads, then we crossfade by toggling
-  // CSS opacity — the compositor handles the fade on the GPU, so the
-  // 500ms transition costs zero per-frame JS (vs the prior approach
-  // which blended pixel arrays + ran fillText for ~8K cells per frame).
   const canvasRefs = useRef<(HTMLCanvasElement | null)[]>([]);
-  const [currentIdx, setCurrentIdx] = useState(0);
   const onIndexChangeRef = useRef(onIndexChange);
   onIndexChangeRef.current = onIndexChange;
 
@@ -35,6 +31,7 @@ export function AsciiGallery({ srcs, className = "", cellSize = 3, onIndexChange
     const baked = new Set<number>();
     let lastW = 0;
     let lastH = 0;
+    let activeIdx = 0;
 
     const images = srcs.map((src) => {
       const img = new Image();
@@ -63,32 +60,51 @@ export function AsciiGallery({ srcs, className = "", cellSize = 3, onIndexChange
       lastH = h;
     }
 
-    let cycleIdx = 0;
-    let timerId: ReturnType<typeof setTimeout> | null = null;
+    function show(idx: number) {
+      const prev = canvasRefs.current[activeIdx];
+      const next = canvasRefs.current[idx];
+      if (prev) prev.style.opacity = "0";
+      if (next) next.style.opacity = "1";
+      activeIdx = idx;
+    }
 
+    let timerId: ReturnType<typeof setTimeout> | null = null;
     function scheduleNext() {
       if (srcs.length < 2) return;
       timerId = setTimeout(() => {
-        cycleIdx = (cycleIdx + 1) % srcs.length;
-        if (!baked.has(cycleIdx)) bake(cycleIdx);
-        onIndexChangeRef.current?.(cycleIdx);
-        setCurrentIdx(cycleIdx);
+        const nextIdx = (activeIdx + 1) % srcs.length;
+        if (!baked.has(nextIdx)) bake(nextIdx);
+        onIndexChangeRef.current?.(nextIdx);
+        show(nextIdx);
         scheduleNext();
       }, CYCLE_MS);
     }
 
+    // Bake idx 0 eagerly so first paint is correct. Other indices bake on
+    // their image's load event — naturally async, so each sits in its own
+    // task. Cached images (which would otherwise burst all 6 bakes into one
+    // synchronous task) get deferred to the next macrotask.
     let started = false;
-    const onLoad = (idx: number) => {
-      bake(idx);
-      if (!started && baked.has(0)) {
-        started = true;
-        scheduleNext();
+    function startIfReady() {
+      if (started || !images[0].complete || !images[0].naturalWidth) return;
+      started = true;
+      bake(0);
+      show(0);
+      scheduleNext();
+    }
+    startIfReady();
+    images[0].addEventListener("load", startIfReady);
+
+    const deferredBakes: ReturnType<typeof setTimeout>[] = [];
+    for (let i = 1; i < images.length; i++) {
+      const idx = i;
+      const onLoad = () => { if (!baked.has(idx)) bake(idx); };
+      if (images[idx].complete && images[idx].naturalWidth) {
+        deferredBakes.push(setTimeout(onLoad, 0));
+      } else {
+        images[idx].addEventListener("load", onLoad);
       }
-    };
-    images.forEach((img, i) => {
-      if (img.complete && img.naturalWidth) onLoad(i);
-      else img.onload = () => onLoad(i);
-    });
+    }
 
     let resizeTimeout: ReturnType<typeof setTimeout>;
     const ro = new ResizeObserver(() => {
@@ -97,8 +113,12 @@ export function AsciiGallery({ srcs, className = "", cellSize = 3, onIndexChange
         const w = container.offsetWidth;
         const h = container.offsetHeight;
         if (w === lastW && h === lastH) return;
+        // Only re-bake images that were already baked. New rotations re-bake
+        // on demand via scheduleNext. Skips work for srcs that may never be
+        // shown if the gallery unmounts before cycling around.
+        const previouslyBaked = Array.from(baked);
         baked.clear();
-        for (let i = 0; i < srcs.length; i++) bake(i);
+        for (const i of previouslyBaked) bake(i);
       }, 150);
     });
     ro.observe(container);
@@ -106,6 +126,7 @@ export function AsciiGallery({ srcs, className = "", cellSize = 3, onIndexChange
     return () => {
       if (timerId) clearTimeout(timerId);
       clearTimeout(resizeTimeout);
+      for (const t of deferredBakes) clearTimeout(t);
       ro.disconnect();
     };
   }, [srcs, cellSize, lowDpr]);
@@ -116,13 +137,7 @@ export function AsciiGallery({ srcs, className = "", cellSize = 3, onIndexChange
         <canvas
           key={src}
           ref={(el) => { canvasRefs.current[i] = el; }}
-          style={{
-            position: "absolute",
-            inset: 0,
-            opacity: i === currentIdx ? 1 : 0,
-            transition: `opacity ${FADE_MS}ms ease-in-out`,
-            willChange: "opacity",
-          }}
+          className="ascii-gallery-layer"
         />
       ))}
     </div>
