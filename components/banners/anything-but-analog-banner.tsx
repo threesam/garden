@@ -22,7 +22,7 @@ export function AnythingButAnalogBanner({ href }: Props) {
 
   const body = (
     <div
-      className="voronoi-banner snap-start"
+      className="voronoi-banner"
       style={{ ["--banner-aspect" as string]: String(aspect) }}
     >
       <div className="voronoi-banner-inner">

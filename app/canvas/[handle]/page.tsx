@@ -46,7 +46,7 @@ export default async function CanvasPage({ params }: Props) {
     : { processed: markdown ?? "", slots: {} };
 
   return (
-    <div className="canvas-snap">
+    <div>
       <div
         className={`relative w-full overflow-hidden ${heroImage ? "h-dvh" : "h-[50dvh]"}`}
       >
