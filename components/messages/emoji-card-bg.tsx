@@ -1,5 +1,3 @@
-"use client";
-
 import { AsciiGallery } from "@/components/ascii/ascii-gallery";
 import { DEANA_IMAGES } from "@/components/messages/deana-images";
 

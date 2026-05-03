@@ -1,4 +1,5 @@
 import type { BennyPlaylist } from "@/app/benny/playlists";
+import { LazyPlaylistCard } from "./lazy-playlist-card";
 
 type Props = {
   playlists: BennyPlaylist[];
@@ -20,14 +21,7 @@ export function PlaylistSlider({ playlists }: Props) {
             className="snap-start overflow-hidden rounded-xl bg-zinc-800 ml-6 md:ml-9"
             style={{ flex: `0 0 ${CARD_WIDTH}px`, height: `${CARD_HEIGHT}px` }}
           >
-            <iframe
-              src={`https://open.spotify.com/embed/playlist/${p.id}?theme=0`}
-              loading="lazy"
-              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-              title={p.name}
-              className="block h-full w-full"
-              style={{ border: 0 }}
-            />
+            <LazyPlaylistCard id={p.id} name={p.name} />
           </div>
         ))}
       </div>
