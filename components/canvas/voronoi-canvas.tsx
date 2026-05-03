@@ -469,13 +469,13 @@ export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mo
 
     let throttleFrame = 0;
     function render() {
-      if (!visible) {
-        raf = 0;
+      raf = 0;
+      if (!visible) return;
+      if (shouldSkipThrottledFrame(++throttleFrame)) {
+        raf = requestAnimationFrame(render);
         return;
       }
       raf = requestAnimationFrame(render);
-
-      if (shouldSkipThrottledFrame(++throttleFrame)) return;
 
       const targetInfluence = (hovering || dragging) ? 1.0 : 0.0;
       const prevInfluence = influence;
