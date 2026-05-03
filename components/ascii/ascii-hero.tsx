@@ -1,5 +1,3 @@
-"use client";
-
 import { AsciiCanvas } from "./ascii-canvas";
 
 interface AsciiHeroProps {

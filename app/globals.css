@@ -25,10 +25,12 @@
   --font-essay: var(--font-epilogue);
 }
 
-@media (min-width: 768px) {
-  html:has(.canvas-snap) {
-    scroll-snap-type: y proximity;
-  }
+.ascii-gallery-layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 500ms ease-in-out;
+  will-change: opacity;
 }
 
 .voronoi-banner {

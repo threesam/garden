@@ -15,7 +15,7 @@ const HERO_MAP: Record<string, () => ReactNode> = {
     <VoronoiCanvas
       invert
       showLetters={false}
-      imageSrc="/assets/self-hero-mobile.png"
+      imageSrc="/assets/self-hero-mobile.webp"
       scale={20}
       fit="cover"
     />
@@ -90,11 +90,12 @@ export function Gallery() {
   // Virtualization: track which card indices have their heavy hero canvas
   // mounted. All <Link> wrappers stay in the DOM (so measured strip width
   // stays stable) but heroFn() only runs for indices in this range. Initial
-  // range is narrow — tick() expands it within a frame once stripW is
-  // measured. Starting narrow avoids mounting all 8 WebGL contexts on
-  // first paint only to tear most of them down immediately.
-  const [activeRange, setActiveRange] = useState<[number, number]>([0, 2]);
-  const activeRangeRef = useRef<[number, number]>([0, 2]);
+  // range is [0, 0] and tick() expands the right edge by at most one card
+  // per frame (see "stagger initial mount" below) — full visible window
+  // fills in over ~6 frames. Starting narrow + chunked growth avoids the
+  // 50–160ms long-task burst from booting every WebGL context at once.
+  const [activeRange, setActiveRange] = useState<[number, number]>([0, 0]);
+  const activeRangeRef = useRef<[number, number]>([0, 0]);
 
   useEffect(() => {
     const strip = stripRef.current;
@@ -182,8 +183,13 @@ export function Gallery() {
         const first = Math.floor(offsetRef.current / stride) - LOOKAHEAD;
         const last = Math.ceil((offsetRef.current + sectionW) / stride) + LOOKAHEAD - 1;
         const lo = Math.max(0, first);
-        const hi = Math.min(LOOPED.length - 1, last);
+        let hi = Math.min(LOOPED.length - 1, last);
+        // Stagger initial mount: each tick can grow the right edge by at most
+        // one card. WebGL/canvas init for all 7 visible cards in a single
+        // frame produced 50–160ms long tasks for ~1s; chunking caps any
+        // single frame at one canvas's worth of init.
         const cur = activeRangeRef.current;
+        if (hi > cur[1] + 1) hi = cur[1] + 1;
         if (cur[0] !== lo || cur[1] !== hi) {
           activeRangeRef.current = [lo, hi];
           setActiveRange([lo, hi]);

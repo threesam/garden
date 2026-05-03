@@ -41,7 +41,7 @@ export function VoronoiImage({ src, alt }: VoronoiImageProps) {
 
     return (
       <div
-        className="voronoi-banner snap-start"
+        className="voronoi-banner"
         style={{ ["--banner-aspect" as string]: String(aspect) }}
       >
         <div className="voronoi-banner-inner">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { shouldSkipThrottledFrame } from "@/lib/perf-flags";
 
 const SCALE_DESKTOP = 60.0;
 const SCALE_MOBILE = 40.0;
@@ -466,9 +467,12 @@ export function VoronoiCanvas({ invert = false, showLetters = true, imageSrc, mo
     const resizeObserver = new ResizeObserver(() => resize());
     resizeObserver.observe(canvas);
 
+    let throttleFrame = 0;
     function render() {
-      if (!visible) {
-        raf = 0;
+      raf = 0;
+      if (!visible) return;
+      if (shouldSkipThrottledFrame(++throttleFrame)) {
+        raf = requestAnimationFrame(render);
         return;
       }
       raf = requestAnimationFrame(render);

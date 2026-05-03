@@ -15,7 +15,7 @@ const HERO_MAP: Record<string, "voronoi" | "cloud"> = {
 };
 
 const HERO_IMAGE_MAP: Record<string, string> = {
-  self: "/assets/self-hero.png",
+  self: "/assets/self-hero.webp",
 };
 
 const VORONOI_CONTENT_HANDLES = new Set(["self"]);
@@ -46,7 +46,7 @@ export default async function CanvasPage({ params }: Props) {
     : { processed: markdown ?? "", slots: {} };
 
   return (
-    <div className="canvas-snap">
+    <div>
       <div
         className={`relative w-full overflow-hidden ${heroImage ? "h-dvh" : "h-[50dvh]"}`}
       >

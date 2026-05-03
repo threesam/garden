@@ -26,9 +26,6 @@ function M({ children, className = "" }: { children: React.ReactNode; className?
 
 function ContentSection({ children }: { children: React.ReactNode }) {
   return (
-    // No snap-start: scroll-snap is for the filmstrip-style ASCII
-    // images, not the data cards. Content flows naturally between
-    // (and past) the image sections.
     <section
       className="w-full px-3 py-12 md:px-6 md:py-24"
       style={{ backgroundColor: "var(--white)" }}
@@ -40,10 +37,7 @@ function ContentSection({ children }: { children: React.ReactNode }) {
 
 export default function DeanaPage() {
   return (
-    <main
-      className="h-dvh snap-y snap-proximity overflow-y-scroll"
-      style={{ backgroundColor: "var(--white)" }}
-    >
+    <main style={{ backgroundColor: "var(--white)" }}>
       <AsciiImageSection src={DEANA_IMAGES[0]} />
 
       <ContentSection>
