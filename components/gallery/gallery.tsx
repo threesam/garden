@@ -15,7 +15,7 @@ const HERO_MAP: Record<string, () => ReactNode> = {
     <VoronoiCanvas
       invert
       showLetters={false}
-      imageSrc="/assets/self-hero-mobile.png"
+      imageSrc="/assets/self-hero-mobile.webp"
       scale={20}
       fit="cover"
     />

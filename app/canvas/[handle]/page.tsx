@@ -15,7 +15,7 @@ const HERO_MAP: Record<string, "voronoi" | "cloud"> = {
 };
 
 const HERO_IMAGE_MAP: Record<string, string> = {
-  self: "/assets/self-hero.png",
+  self: "/assets/self-hero.webp",
 };
 
 const VORONOI_CONTENT_HANDLES = new Set(["self"]);
