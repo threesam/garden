@@ -74,6 +74,13 @@ export function AsciiGallery({ srcs, className = "", cellSize = 3, onIndexChange
       timerId = setTimeout(() => {
         const nextIdx = (activeIdx + 1) % srcs.length;
         if (!baked.has(nextIdx)) bake(nextIdx);
+        // Skip the rotation if the next image still hasn't loaded — its
+        // onload handler will bake it, and the cycle after will pick it
+        // up. Better than fading the visible canvas to a blank one.
+        if (!baked.has(nextIdx)) {
+          scheduleNext();
+          return;
+        }
         onIndexChangeRef.current?.(nextIdx);
         show(nextIdx);
         scheduleNext();
