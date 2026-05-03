@@ -15,9 +15,11 @@ interface AsciiGalleryProps {
   className?: string;
   cellSize?: number;
   onIndexChange?: (index: number) => void;
+  /** Render at 1× CSS pixels instead of devicePixelRatio. */
+  lowDpr?: boolean;
 }
 
-export function AsciiGallery({ srcs, className = "", cellSize = 3, onIndexChange }: AsciiGalleryProps) {
+export function AsciiGallery({ srcs, className = "", cellSize = 3, onIndexChange, lowDpr = false }: AsciiGalleryProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const onIndexChangeRef = useRef(onIndexChange);
@@ -52,7 +54,7 @@ export function AsciiGallery({ srcs, className = "", cellSize = 3, onIndexChange
     }
 
     function setupCanvas(w: number, h: number) {
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = lowDpr ? 1 : (window.devicePixelRatio || 1);
       canvas!.width = w * dpr;
       canvas!.height = h * dpr;
       canvas!.style.width = `${w}px`;
@@ -72,7 +74,7 @@ export function AsciiGallery({ srcs, className = "", cellSize = 3, onIndexChange
       const { cols, rows } = getGrid(w, h, cellSize);
       const pixels = cachedSample(images[currentIdx], cols, rows, w, h);
       if (!pixels) return;
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = lowDpr ? 1 : (window.devicePixelRatio || 1);
       renderAsciiFrame(canvas.getContext("2d")!, pixels, cols, rows, w, h, dpr);
     }
 
@@ -94,7 +96,7 @@ export function AsciiGallery({ srcs, className = "", cellSize = 3, onIndexChange
 
       const startTime = performance.now();
       const blended = new Uint8ClampedArray(cur.length);
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = lowDpr ? 1 : (window.devicePixelRatio || 1);
 
       function fadeStep(now: number) {
         const t = clamp((now - startTime) / FADE_MS, 0, 1);

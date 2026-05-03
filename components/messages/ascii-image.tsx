@@ -21,9 +21,13 @@ interface AsciiImageProps {
   className?: string;
   /** Inverted color scheme: light glyphs on dark bg (caller sets parent bg). */
   inverted?: boolean;
+  /** Render at 1× CSS pixels instead of devicePixelRatio. Used by the
+   *  homepage gallery card where the canvas is small (~336px wide) and the
+   *  pixel-doubling cost outweighs the fidelity gain. */
+  lowDpr?: boolean;
 }
 
-export function AsciiImage({ srcs, className = "", inverted = false }: AsciiImageProps) {
+export function AsciiImage({ srcs, className = "", inverted = false, lowDpr = false }: AsciiImageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -76,7 +80,7 @@ export function AsciiImage({ srcs, className = "", inverted = false }: AsciiImag
     }
 
     function renderFrame(pixels: Uint8ClampedArray, cols: number, rows: number, w: number, h: number) {
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = lowDpr ? 1 : (window.devicePixelRatio || 1);
       const cellW = w / cols;
       const cellH = h / rows;
 
@@ -121,7 +125,7 @@ export function AsciiImage({ srcs, className = "", inverted = false }: AsciiImag
     }
 
     function setupCanvas(w: number, h: number) {
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = lowDpr ? 1 : (window.devicePixelRatio || 1);
       canvas!.width = w * dpr;
       canvas!.height = h * dpr;
       canvas!.style.width = `${w}px`;
