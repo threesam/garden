@@ -5,6 +5,14 @@ import { sampleImage, renderAsciiFrame, getGrid } from "./ascii-canvas";
 
 const CYCLE_MS = 2000;
 
+// Module-level scratch canvas reused across all gallery instances. sampleImage
+// uses it synchronously inside bake() and never holds onto a reference, so 12
+// homepage gallery clones can share one allocation.
+let sharedSample: HTMLCanvasElement | null = null;
+function getSampleCanvas() {
+  return sharedSample ??= document.createElement("canvas");
+}
+
 interface AsciiGalleryProps {
   srcs: string[];
   className?: string;
@@ -27,7 +35,6 @@ export function AsciiGallery({ srcs, className = "", cellSize = 3, onIndexChange
     const container = containerRef.current;
     if (!container) return;
 
-    const sample = document.createElement("canvas");
     const baked = new Set<number>();
     let lastW = 0;
     let lastH = 0;
@@ -52,7 +59,7 @@ export function AsciiGallery({ srcs, className = "", cellSize = 3, onIndexChange
       canvas.style.width = `${w}px`;
       canvas.style.height = `${h}px`;
       const { cols, rows } = getGrid(w, h, cellSize);
-      const pixels = sampleImage(img, cols, rows, w, h, sample);
+      const pixels = sampleImage(img, cols, rows, w, h, getSampleCanvas());
       if (!pixels) return;
       renderAsciiFrame(canvas.getContext("2d")!, pixels, cols, rows, w, h, dpr);
       baked.add(idx);
@@ -91,6 +98,7 @@ export function AsciiGallery({ srcs, className = "", cellSize = 3, onIndexChange
     // their image's load event — naturally async, so each sits in its own
     // task. Cached images (which would otherwise burst all 6 bakes into one
     // synchronous task) get deferred to the next macrotask.
+    const removeListeners: Array<() => void> = [];
     let started = false;
     function startIfReady() {
       if (started || !images[0].complete || !images[0].naturalWidth) return;
@@ -100,7 +108,10 @@ export function AsciiGallery({ srcs, className = "", cellSize = 3, onIndexChange
       scheduleNext();
     }
     startIfReady();
-    images[0].addEventListener("load", startIfReady);
+    if (!started) {
+      images[0].addEventListener("load", startIfReady);
+      removeListeners.push(() => images[0].removeEventListener("load", startIfReady));
+    }
 
     const deferredBakes: ReturnType<typeof setTimeout>[] = [];
     for (let i = 1; i < images.length; i++) {
@@ -110,6 +121,7 @@ export function AsciiGallery({ srcs, className = "", cellSize = 3, onIndexChange
         deferredBakes.push(setTimeout(onLoad, 0));
       } else {
         images[idx].addEventListener("load", onLoad);
+        removeListeners.push(() => images[idx].removeEventListener("load", onLoad));
       }
     }
 
@@ -134,6 +146,7 @@ export function AsciiGallery({ srcs, className = "", cellSize = 3, onIndexChange
       if (timerId) clearTimeout(timerId);
       clearTimeout(resizeTimeout);
       for (const t of deferredBakes) clearTimeout(t);
+      for (const r of removeListeners) r();
       ro.disconnect();
     };
   }, [srcs, cellSize, lowDpr]);
