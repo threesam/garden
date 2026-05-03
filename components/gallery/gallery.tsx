@@ -90,9 +90,10 @@ export function Gallery() {
   // Virtualization: track which card indices have their heavy hero canvas
   // mounted. All <Link> wrappers stay in the DOM (so measured strip width
   // stays stable) but heroFn() only runs for indices in this range. Initial
-  // range is narrow — tick() expands it within a frame once stripW is
-  // measured. Starting narrow avoids mounting all 8 WebGL contexts on
-  // first paint only to tear most of them down immediately.
+  // range is [0, 0] and tick() expands the right edge by at most one card
+  // per frame (see "stagger initial mount" below) — full visible window
+  // fills in over ~6 frames. Starting narrow + chunked growth avoids the
+  // 50–160ms long-task burst from booting every WebGL context at once.
   const [activeRange, setActiveRange] = useState<[number, number]>([0, 0]);
   const activeRangeRef = useRef<[number, number]>([0, 0]);
 

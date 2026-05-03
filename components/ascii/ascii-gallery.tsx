@@ -6,8 +6,8 @@ import { sampleImage, renderAsciiFrame, getGrid } from "./ascii-canvas";
 const CYCLE_MS = 2000;
 
 // Module-level scratch canvas reused across all gallery instances. sampleImage
-// uses it synchronously inside bake() and never holds onto a reference, so 12
-// homepage gallery clones can share one allocation.
+// uses it synchronously inside bake() and never holds onto a reference, so
+// every AsciiGallery instance on a page can share one allocation.
 let sharedSample: HTMLCanvasElement | null = null;
 function getSampleCanvas() {
   return sharedSample ??= document.createElement("canvas");
