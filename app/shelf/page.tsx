@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { ShelfHero } from "@/components/shelf/shelf-hero";
 import { getBooks, type Book } from "@/lib/goodreads";
 
@@ -29,12 +30,14 @@ function BookCover({ book, eager }: { book: Book; eager?: boolean }) {
       className="group relative block break-inside-avoid p-1.5 md:transition-[background-color,box-shadow] md:duration-300 md:ease-out md:hover:z-10 md:hover:bg-[var(--coin)] md:hover:shadow-[0_0_0_4px_var(--coin)]"
     >
       {book.coverUrl ? (
-        <img
+        <Image
           src={book.coverUrl}
           alt={book.cleanTitle}
+          width={200}
+          height={300}
           loading={eager ? "eager" : "lazy"}
-          decoding="async"
-          className="block w-full md:transition-[filter] md:duration-300 md:group-hover:grayscale"
+          sizes="(min-width: 1280px) 8vw, (min-width: 1024px) 10vw, (min-width: 768px) 12vw, (min-width: 640px) 16vw, 25vw"
+          className="block h-auto w-full md:transition-[filter] md:duration-300 md:group-hover:grayscale"
         />
       ) : (
         <div className="flex aspect-2/3 w-full items-center justify-center bg-zinc-900 p-3 text-center text-xs text-zinc-600">

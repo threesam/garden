@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { Recursive, Epilogue } from "next/font/google";
+import { Suspense } from "react";
 import { Guide } from "@/components/frame/guide";
 import { Anchor } from "@/components/frame/anchor";
 import "./globals.css";
@@ -36,18 +37,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <Script
-        src="https://analytics.sixtom.com/script.js"
-        data-website-id="2a502ffa-58a1-4057-be13-e46f0354cfb7"
-        strategy="afterInteractive"
-      />
       <body
         className={`${recursive.variable} ${epilogue.variable} antialiased`}
       >
+        <Script
+          src="https://analytics.sixtom.com/script.js"
+          data-website-id="2a502ffa-58a1-4057-be13-e46f0354cfb7"
+          strategy="afterInteractive"
+        />
         <div style={{ background: "var(--white)" }}>
           <Guide />
           {children}
-          <Anchor />
+          <Suspense fallback={null}>
+            <Anchor />
+          </Suspense>
         </div>
       </body>
     </html>

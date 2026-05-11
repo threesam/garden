@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { getContent } from "@/lib/content";
 import { Prose } from "@/components/prose";
 import { PlaylistSlider } from "@/components/benny/playlist-slider";
@@ -105,10 +106,13 @@ export default async function BennyPage() {
       </section>
 
       <div className="relative w-full">
-        <img
+        <Image
           src="/assets/sixtomidnight-banner.jpg"
           alt="Six to Midnight banner"
-          className="block w-full"
+          width={2480}
+          height={520}
+          sizes="100vw"
+          className="block h-auto w-full"
         />
       </div>
     </main>
