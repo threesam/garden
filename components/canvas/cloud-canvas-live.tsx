@@ -51,7 +51,7 @@ const FRAGMENT_SHADER = `
     // also tolerates the 30 fps render throttle without any visible
     // step.
     float baseSpeed = 0.005;
-    float t = -uTime * baseSpeed;
+    float t = uTime * baseSpeed;
 
     // Three depth layers, back→front. Larger scale = more noise cycles
     // per strip = smaller features; wider speed multipliers (1×, 3×, 6×)

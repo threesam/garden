@@ -127,7 +127,7 @@ function cloudDensity(noise, u, v, scale, offX, offY, threshold) {
 
 const noise = buildNoise(NOISE_SIZE);
 
-const t = -TIME * 0.005;
+const t = TIME * 0.005;
 const LAYERS = [
   { scale: 0.25, offX: t * 1 * 0.25 + 0.137, offY: 0.241, col: [230 / 255, 100 / 255, 140 / 255] },
   { scale: 0.5, offX: t * 3 * 0.5 + 0.274, offY: 0.482, col: [235 / 255, 150 / 255, 50 / 255] },
@@ -136,10 +136,13 @@ const LAYERS = [
 
 const pixels = Buffer.alloc(W * H * 3);
 
+// WebGL vUv.y=0 is the BOTTOM of the canvas; image pixel y=0 is the TOP
+// row. Flip vUvy so the top of the image matches the top of the rendered
+// shader frame — otherwise the baked gradient comes out upside-down.
 for (let y = 0; y < H; y++) {
   for (let x = 0; x < W; x++) {
     const vUvx = x / W;
-    const vUvy = y / H;
+    const vUvy = 1 - y / H;
     const uvX = vUvx;
     const uvY = 1 - vUvy;
 
