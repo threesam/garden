@@ -9,6 +9,7 @@ import { SketchHost } from "@/components/art/sketch-host";
 import { EmojiCardBg } from "@/components/messages/emoji-card-bg";
 import { DanaLabel } from "@/components/messages/dana-label";
 import { setCanvasThrottled } from "@/lib/perf-flags";
+import { track } from "@/lib/track";
 
 const HERO_MAP: Record<string, () => ReactNode> = {
   self: () => (
@@ -309,6 +310,7 @@ export function Gallery() {
                   return;
                 }
                 e.preventDefault();
+                track("gallery-card-click", { handle: item.handle });
                 window.location.href = item.href;
               }}
               className="group relative h-full shrink-0 overflow-hidden rounded-2xl transition-all duration-700"
