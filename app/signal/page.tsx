@@ -4,7 +4,7 @@ import { AudioReactiveProvider } from "@/components/audio/audio-reactive-provide
 import { MusicSection } from "@/components/sections/music-section";
 
 export const metadata: Metadata = {
-  title: "signal — threesam",
+  title: "signal",
   description:
     "Generative sketches, music, and audio-reactive experiments. The creative output.",
 };

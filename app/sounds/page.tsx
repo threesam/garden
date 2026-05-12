@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { SketchHost } from "@/components/art/sketch-host";
 
 export const metadata: Metadata = {
-  title: "sounds — threesam",
+  title: "sounds",
   description: "music playground (coming soon).",
 };
 

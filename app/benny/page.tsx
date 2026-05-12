@@ -10,11 +10,10 @@ import { FullBleed } from "@/components/benny/full-bleed";
 import { BENNY_PLAYLISTS } from "./playlists";
 
 export const metadata: Metadata = {
-  title: "benny — threesam",
+  title: "benny",
   description: "remembering 102 jackson street.",
-  openGraph: {
-    images: ["/og/benny.png"],
-  },
+  openGraph: { images: ["/og/benny.png"] },
+  twitter: { card: "summary_large_image", images: ["/og/benny.png"] },
 };
 
 export default async function BennyPage() {

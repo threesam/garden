@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Sixtom — AI-driven ecommerce systems",
+  description:
+    "Case study: AI-assisted workflows on a Next.js + Shopify commerce stack with event pipelines and conversion frameworks.",
+};
 
 export default function SixtomCaseStudyPage() {
   return (

@@ -5,7 +5,7 @@ import { ParticleTextCanvas } from "@/components/canvas/particle-text-canvas";
 import { visibleSketches } from "@/lib/art/registry";
 
 export const metadata: Metadata = {
-  title: "anything but analog — threesam",
+  title: "anything but analog",
   description: "generative sketches.",
   openGraph: {
     images: ["/og/anything-but-analog.png"],

@@ -5,8 +5,10 @@ import { AsciiImage } from "@/components/messages/ascii-image";
 import { LazyMount } from "@/components/lazy-mount";
 
 export const metadata: Metadata = {
-  title: "dad — threesam",
+  title: "dad",
   description: "stories about my dad.",
+  openGraph: { images: ["/og/dad.png"] },
+  twitter: { card: "summary_large_image", images: ["/og/dad.png"] },
 };
 
 export default async function DadPage() {

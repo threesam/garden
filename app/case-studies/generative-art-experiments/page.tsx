@@ -1,4 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Generative Art Experiments",
+  description:
+    "Case study: shader studies, procedural systems, and audio-reactive visual experiments.",
+  robots: { index: false, follow: true },
+};
 
 export default function GenerativeArtExperimentsPage() {
   return (

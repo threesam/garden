@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { CloudCanvas } from "@/components/canvas/cloud-canvas";
 import { VoronoiCanvas } from "@/components/canvas/voronoi-canvas";
 import { VoronoiImage } from "@/components/canvas/voronoi-image";
@@ -8,6 +9,21 @@ import { AnythingButAnalogBanner } from "@/components/banners/anything-but-analo
 
 interface Props {
   params: Promise<{ handle: string }>;
+}
+
+const OG_IMAGE_MAP: Record<string, string> = {
+  self: "/og/self.png",
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { handle } = await params;
+  const ogImage = OG_IMAGE_MAP[handle];
+  if (!ogImage) return { title: handle };
+  return {
+    title: handle,
+    openGraph: { images: [ogImage] },
+    twitter: { card: "summary_large_image", images: [ogImage] },
+  };
 }
 
 const HERO_MAP: Record<string, "voronoi" | "cloud"> = {
