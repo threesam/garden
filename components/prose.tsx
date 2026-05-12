@@ -19,7 +19,7 @@ md.use({
       if (depth === 1)
         return `<h1 class="mb-9 font-mono text-4xl font-bold uppercase tracking-[0.1em] md:text-6xl">${text}</h1>`;
       if (depth === 2)
-        return `<h2 class="mb-6 mt-18 font-mono text-3xl font-bold uppercase tracking-[0.08em] md:mt-24 md:text-5xl">${text}</h2>`;
+        return `<h2 class="mb-6 mt-24 font-mono text-3xl font-bold uppercase tracking-[0.08em] md:mt-36 md:text-5xl">${text}</h2>`;
       return false;
     },
     paragraph({ tokens }) {

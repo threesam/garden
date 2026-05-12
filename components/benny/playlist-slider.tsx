@@ -5,21 +5,17 @@ type Props = {
   playlists: BennyPlaylist[];
 };
 
-const CARD_WIDTH = 352;
 const CARD_HEIGHT = 380;
 
 export function PlaylistSlider({ playlists }: Props) {
   return (
     <div className="relative">
-      <div
-        className="flex snap-x snap-mandatory overflow-x-auto scroll-pl-6 pb-3 pr-6 md:scroll-pl-9 md:pr-9"
-        style={{ scrollbarWidth: "thin", scrollbarColor: "var(--coin) transparent" }}
-      >
+      <div className="flex snap-x snap-mandatory overflow-x-auto scroll-pl-6 pb-3 pr-6 [scrollbar-color:var(--coin)_transparent] [scrollbar-width:thin] md:scroll-pl-9 md:pr-9">
         {playlists.map((p) => (
           <div
             key={p.id}
-            className="snap-start overflow-hidden rounded-xl bg-zinc-800 ml-6 md:ml-9"
-            style={{ flex: `0 0 ${CARD_WIDTH}px`, height: `${CARD_HEIGHT}px` }}
+            className="ml-6 flex-[0_0_69vw] snap-start overflow-hidden rounded-xl bg-zinc-800 md:ml-9 md:flex-[0_0_352px]"
+            style={{ height: `${CARD_HEIGHT}px` }}
           >
             <LazyMount rootMargin="200px" className="h-full w-full">
               <iframe
@@ -27,8 +23,7 @@ export function PlaylistSlider({ playlists }: Props) {
                 loading="lazy"
                 allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                 title={p.name}
-                className="block h-full w-full"
-                style={{ border: 0 }}
+                className="block h-full w-full border-0"
               />
             </LazyMount>
           </div>
