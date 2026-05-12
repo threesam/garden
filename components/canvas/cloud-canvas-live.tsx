@@ -53,20 +53,11 @@ const FRAGMENT_SHADER = `
     float baseSpeed = 0.005;
     float t = -uTime * baseSpeed;
 
-    // Layer scales are 1/8th of the prior live-shader values because the
+    // Three depth layers, back→front. Larger scale = more noise cycles
+    // per strip = smaller features; wider speed multipliers (1×, 3×, 6×)
+    // plus the per-layer offsetRate/scale correction mimic atmospheric
+    // parallax. Scales are 1/8 of the legacy values because the
     // pre-baked texture already contains 8 cycles of base noise.
-    //
-    // Speed multipliers are intentionally wide (1×, 3×, 6×) — the further-
-    // back the layer, the slower it drifts, mimicking atmospheric
-    // parallax. Each layer's offset rate also scales by its own scale
-    // factor because UV-space drift speed = offsetRate / scale; without
-    // that, larger-scale layers (smaller features in screen space) read
-    // as moving faster than intended.
-
-    // Each layer has a wider scale range so the size step between
-    // depths is actually visible. Larger scale = more noise cycles per
-    // strip = smaller features, so back layer (0.25) reads as big slow
-    // shapes and front (1.0) as small fast specks.
 
     // Layer A: pink, deep background — largest features, slowest drift
     float dA = cloudDensity(uv, 0.25, vec2(t * 1.0 * 0.25 + 0.137, 0.241), 0.32);
@@ -428,10 +419,8 @@ interface CloudCanvasLiveProps {
   mirror?: boolean;
 }
 
-// Live WebGL shader. `cloud-canvas.tsx` lazy-loads this module behind a
-// NODE_ENV check, so the prod bundle never pulls the shader, noise
-// generator, or CloudPipeline class — production hits `cloud-sprite.tsx`
-// instead. This file stays around for visual tuning in dev only.
+// Dev-only live shader. Production swaps to a baked WebP via
+// `cloud-canvas.tsx`'s NODE_ENV branch.
 export function CloudCanvasLive({ mirror = false }: CloudCanvasLiveProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 

@@ -10,12 +10,9 @@ interface CloudCanvasProps {
   mirror?: boolean;
 }
 
-// Public entry. Dev renders the live WebGL shader (lazy-loaded so HMR
-// stays snappy and the shader can be tuned in real time). Production
-// renders a 3840×360 WebP baked from the shader — same gradient, same
-// cloud layers, zero per-frame canvas work and ~13 KB on the wire.
-// `process.env.NODE_ENV` is a build-time constant in Next.js, so the
-// dev branch is dead-code-eliminated from the prod bundle.
+// NODE_ENV is a build-time constant in Next.js, so the dev branch
+// dead-code-eliminates from prod — the live shader and noise generator
+// never enter the production runtime path.
 export function CloudCanvas({ mirror = false }: CloudCanvasProps) {
   if (process.env.NODE_ENV === "development") {
     return <CloudCanvasDev mirror={mirror} />;

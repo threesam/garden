@@ -1,19 +1,14 @@
 import Image from "next/image";
 
 interface CloudSpriteProps {
-  /**
-   * Flip the strip vertically so the darker gradient end meets the page
-   * edge ("header" placement). Unmirrored renders dark-end-down, which
-   * fits "footer" placements where the page edge sits below the strip.
-   */
   mirror?: boolean;
 }
 
-// Static replacement for the live cloud shader in production builds.
-// 3840×360 WebP (~13 KB) baked once by scripts/bake-clouds.mjs at t=0.
-// The shader's sin(π·x) horizontal window already fades the strip's
-// left/right edges to bg color, so this composites cleanly over any
-// container without seams — no JS, no canvas, no per-frame work.
+// Source is already an optimal 13 KB WebP, so `unoptimized` skips a
+// pointless `/_next/image` re-encode pass. `priority` is on because
+// every placement (homepage header + footer, canvas hero, Anchor) is
+// either above-the-fold or LazyMount-gated to "about to enter viewport"
+// — no instance benefits from the default lazy-load.
 export function CloudSprite({ mirror = false }: CloudSpriteProps) {
   return (
     <Image
@@ -21,6 +16,8 @@ export function CloudSprite({ mirror = false }: CloudSpriteProps) {
       alt=""
       fill
       sizes="100vw"
+      priority
+      unoptimized
       className="object-cover"
       style={mirror ? { transform: "scaleY(-1)" } : undefined}
     />

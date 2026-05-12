@@ -1,16 +1,16 @@
 // Bakes the live cloud shader to a static WebP. The runtime sprite
-// component renders two copies of this image side-by-side and translates
-// the strip leftward to animate drift — eliminates the WebGL context
-// and per-frame fragment shader in production.
+// renders this once via <Image fill> with optional CSS scaleY(-1) for
+// the header/footer mirror — eliminates the WebGL context and per-frame
+// fragment shader in production.
 //
-// The shader's sin(vUv.x * π) window fades both horizontal edges to
-// background color, so the seam between two tiled copies is invisible
-// without needing horizontal noise periodicity.
+// The shader's sin(vUv.x * π) horizontal window fades the strip's left
+// and right edges to bg color, so the image composites cleanly over
+// any container without seams.
 //
 // Run: node scripts/bake-clouds.mjs
 
 import sharp from "sharp";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 
 const W = 3840;

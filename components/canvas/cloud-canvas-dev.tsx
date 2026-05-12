@@ -2,19 +2,15 @@
 
 import dynamic from "next/dynamic";
 
-// `next/dynamic` code-splits the live shader into its own chunk so the
-// prod bundle's chunk graph never references it. The shader needs a DOM
-// canvas and WebGL context, so ssr: false skips the server-side render
-// attempt (which would fail on `document` / `WebGLRenderingContext`).
+// Lives in its own "use client" file so `cloud-canvas.tsx` can stay a
+// server component — `next/dynamic` with `ssr: false` (required since
+// the shader needs DOM canvas + WebGL) would otherwise force its
+// caller into client mode.
 const CloudCanvasLive = dynamic(
   () => import("./cloud-canvas-live").then((m) => m.CloudCanvasLive),
   { ssr: false },
 );
 
-interface CloudCanvasDevProps {
-  mirror?: boolean;
-}
-
-export function CloudCanvasDev({ mirror = false }: CloudCanvasDevProps) {
+export function CloudCanvasDev({ mirror = false }: { mirror?: boolean }) {
   return <CloudCanvasLive mirror={mirror} />;
 }
