@@ -5,7 +5,6 @@ type Props = {
   playlists: BennyPlaylist[];
 };
 
-const CARD_WIDTH = 352;
 const CARD_HEIGHT = 380;
 
 export function PlaylistSlider({ playlists }: Props) {
@@ -18,8 +17,8 @@ export function PlaylistSlider({ playlists }: Props) {
         {playlists.map((p) => (
           <div
             key={p.id}
-            className="snap-start overflow-hidden rounded-xl bg-zinc-800 ml-6 md:ml-9"
-            style={{ flex: `0 0 ${CARD_WIDTH}px`, height: `${CARD_HEIGHT}px` }}
+            className="ml-6 flex-[0_0_69vw] snap-start overflow-hidden rounded-xl bg-zinc-800 md:ml-9 md:flex-[0_0_352px]"
+            style={{ height: `${CARD_HEIGHT}px` }}
           >
             <LazyMount rootMargin="200px" className="h-full w-full">
               <iframe

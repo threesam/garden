@@ -2,6 +2,8 @@ Located in the historic Mill Hill Park of Trenton, NJ, sixtomidnight production 
 
 ## Music Recording and Production
 
+<!-- soundcloud -->
+
 We have accrued extensive knowledge of methods to record, and utilize, a wide array of session instruments in multi-tracked recordings. From sax to vibraslap, we accommodate musicians, of any skill level, by providing the right microphone and a stellar atmosphere to extract and capture solid performances. As weathered instrumentalists ourselves, we can drop a bassline, or guitar riff to help fill-out arrangements; and if not us, we can co-opt another session instrumentalist from our network of extremely talented musicians; we seek, more than anything else, to community-build and help art support art.
 
 During out client consultations, we listen to intent with the hope of actualizing those ideas and, maybe, expanding the scope. Sometimes, the singer/songwriter actually wants more than their keyboard and voice on their record. We have and will continue to accumulate "the toys" to provide us, and our clients, with fresh production avenues. Along with our ever-growing cache of guitars, bass, uke, banjo, keys, percussion, etc., we have an appreciation of electronic instruments that is near geek-level. We can and will fill out arrangements, score TV/film, or create jingles efficiently while using our full arsenal of electro toys, if necessary.
@@ -10,11 +12,15 @@ Our studio is not genre-specific. We have wide-ranging experience in the product
 
 ## Audio Meets Video
 
+<!-- video -->
+
 We recognize entertainment as a fluid binding of senses. The experience of music is most enjoyed as the combination of audio and visual elements; they feed each other. As such, our interest in visual accompaniments is ever-present in our approach to potential clients; we can deliver video-recording/editing, co/ghost writing, photography, art (in various mediums), as well as digital/analog editing, branding and distribution. Whether the need is for some rap lyrics over a prerecorded beat with a music video and album art, or a video advertisement for a local business with originally scored music, we want to say yes. As every need is unique, flexibility is a hallmark of each of our various audio/visual services.
 
 Moreover, while our physical address is in Trenton, if necessary, our studio is fully mobile and we can travel to document and/or produce events or performances—regardless of location the fidelity of our recordings remains consistent. With this in mind, often the best performances are achieved when the performer is comfortable, and there is an enriched environment to craft. This is why we have done our best to create an immersive atmosphere at the studio to bolster the creative process.
 
 ## Marketing Makes, the World Takes
+
+<!-- photo-mosaic -->
 
 For the veteran or the beginner, the recording session is something important—a step to make permanent the sounds they make or hear. This is why every session, either in Trenton or elsewhere, can be captured with creative photography and multiple and dynamic camera angles for future editing, as well as be live-streamed to audiences on Facebook or YouTube. The whole experience, we firmly believe, is worth remembering and sharing. Depending on intent, marketing to a larger audience and branding content is a vital step in allowing entertainment-based media to have staying power.
 
@@ -23,5 +29,7 @@ Photography is a huge part of our in-house marketing; whether we are taking arti
 Another way to make a movement stronger is by seeking and collaborating with like-minded creators. Building up individuals and then combining multiple efforts toward a common goal is a huge source of progress. It is our goal to make sure that any vision has all of the components necessary to succeed; this usually involves persistence first, and recognizing and manipulating the status quo to break through it. We come across unique performers routinely, and with our collective years of experience in marketing and advertising in our day-jobs, we have found that promotion, itself, is an art. By staying current on the shifting state of multimedia flux, we enjoy treading new ground and are prepared to identify and explore your specific needs in engaging with hypermedia.
 
 ## Come Hang
+
+<!-- playlists -->
 
 We cannot emphasize enough the importance of community (although we have tried) and the positive effect that this focus can have on society. This is why we are committed to serving our community with events that bring various forms of art together: stay connected through Facebook and Instagram for upcoming events. If your intention is to host a private event, any and all of the attention to detail that we seek in our aforementioned services are available to make the occasion as memorable as possible.
