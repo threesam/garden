@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { CloudCanvas } from "@/components/canvas/cloud-canvas";
+import { LazyMount } from "@/components/lazy-mount";
 
 // Pages where the ambient cloud footer would compete with the page's own
 // full-bleed animations / immersive scroll experience. Also hidden on `/`
@@ -19,8 +20,8 @@ export function Anchor() {
     return null;
   }
   return (
-    <div className="relative h-[30dvh] w-full md:h-[50dvh]">
+    <LazyMount className="relative h-[30dvh] w-full md:h-[50dvh]" rootMargin="200px">
       <CloudCanvas />
-    </div>
+    </LazyMount>
   );
 }
