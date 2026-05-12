@@ -3,10 +3,10 @@ import { Gallery } from "@/components/gallery/gallery";
 
 // Homepage lays out into a single viewport: 25dvh clouds on top (CSS-mirrored
 // so the darker end meets the page edge), 50dvh gallery strip, 25dvh clouds
-// below (unmirrored — darker end at page bottom). Both share the same shader
-// and animate L→R in the same direction. No page scroll. The shared bottom
-// Anchor from layout.tsx is suppressed on `/` so the 25dvh footer cloud fits
-// in-layout instead of pushing the page taller.
+// below (unmirrored — darker end at page bottom). Both render the same baked
+// sky WebP; the prod build skips the WebGL shader entirely. No page scroll.
+// The shared bottom Anchor from layout.tsx is suppressed on `/` so the 25dvh
+// footer cloud fits in-layout instead of pushing the page taller.
 export default function Home() {
   return (
     <div className="flex h-dvh w-full flex-col overflow-hidden">
