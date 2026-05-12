@@ -3,36 +3,30 @@
 import { useEffect } from "react";
 import { track } from "@/lib/track";
 
-// Delegated click listener at the document root. Captures every left-click
-// on an anchor whose href resolves to a different host than the current
-// page — covers markdown-rendered links, raw <a> tags, and Next <Link>
-// (which renders <a> under the hood). Use capture phase so we still fire
-// when an inner handler calls stopPropagation.
+// Capture phase so an inner stopPropagation can't hide the click; both
+// click and auxclick are bound because modern browsers fire auxclick
+// (not click) for middle-click "open in new tab" on button=1.
 export function OutboundTracker() {
   useEffect(() => {
     function onClick(event: MouseEvent) {
-      if (event.button !== 0) return;
-      const target = event.target as HTMLElement | null;
-      const anchor = target?.closest("a");
+      if (event.button !== 0 && event.button !== 1) return;
+      const anchor = (event.target as HTMLElement | null)?.closest("a");
       if (!anchor) return;
-      const href = anchor.getAttribute("href");
-      if (!href) return;
-      let url: URL;
-      try {
-        url = new URL(href, window.location.href);
-      } catch {
-        return;
-      }
-      if (!/^https?:$/.test(url.protocol)) return;
-      if (url.host === window.location.host) return;
+      const href = anchor.href;
+      if (!href.startsWith("http:") && !href.startsWith("https:")) return;
+      if (anchor.origin === window.location.origin) return;
       track("outbound-click", {
-        host: url.host,
-        path: url.pathname,
+        host: anchor.host,
+        path: anchor.pathname,
         from: window.location.pathname,
       });
     }
     document.addEventListener("click", onClick, true);
-    return () => document.removeEventListener("click", onClick, true);
+    document.addEventListener("auxclick", onClick, true);
+    return () => {
+      document.removeEventListener("click", onClick, true);
+      document.removeEventListener("auxclick", onClick, true);
+    };
   }, []);
 
   return null;
