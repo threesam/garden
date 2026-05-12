@@ -30,10 +30,7 @@ function trackEmbed(user: string, slug: string) {
 
 export function SoundcloudSlider() {
   return (
-    <div
-      className="flex snap-x snap-mandatory overflow-x-auto scroll-pl-6 pb-3 pr-6 md:gap-9 md:overflow-x-visible md:pb-0 md:pl-9 md:pr-9"
-      style={{ scrollbarWidth: "thin", scrollbarColor: "var(--coin) transparent" }}
-    >
+    <div className="flex snap-x snap-mandatory overflow-x-auto scroll-pl-6 pb-3 pr-6 [scrollbar-color:var(--coin)_transparent] [scrollbar-width:thin] md:gap-9 md:overflow-x-visible md:pb-0 md:pl-9 md:pr-9">
       {TRACKS.map((t) => (
         <div
           key={`${t.user}/${t.slug}`}
@@ -46,8 +43,7 @@ export function SoundcloudSlider() {
               loading="lazy"
               allow="autoplay"
               title={t.title}
-              className="block h-full w-full"
-              style={{ border: 0 }}
+              className="block h-full w-full border-0"
             />
           </LazyMount>
         </div>

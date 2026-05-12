@@ -11,9 +11,6 @@ interface Props {
   label?: string;
 }
 
-// Static shell until clicked — the 129MB MP4 isn't fetched on page load.
-// Click swaps in a real <video> with autoplay + controls so the audio
-// (the point of this clip) plays from the first frame.
 export function InlineVideo({ src, poster, width, height, label }: Props) {
   const [playing, setPlaying] = useState(false);
 

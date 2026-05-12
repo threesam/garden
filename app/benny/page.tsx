@@ -6,6 +6,7 @@ import { SoundcloudSlider } from "@/components/benny/soundcloud-slider";
 import { SixToMidnightBanner } from "@/components/benny/banner";
 import { BennyPhotoMosaic } from "@/components/benny/photo-mosaic";
 import { InlineVideo } from "@/components/benny/inline-video";
+import { FullBleed } from "@/components/benny/full-bleed";
 import { BENNY_PLAYLISTS } from "./playlists";
 
 export const metadata: Metadata = {
@@ -57,12 +58,12 @@ export default async function BennyPage() {
               content={markdown}
               slots={{
                 soundcloud: (
-                  <div className="relative left-1/2 my-9 w-screen -translate-x-1/2">
+                  <FullBleed>
                     <SoundcloudSlider />
-                  </div>
+                  </FullBleed>
                 ),
                 video: (
-                  <div className="relative left-1/2 my-9 w-screen -translate-x-1/2">
+                  <FullBleed>
                     <InlineVideo
                       src="/assets/benny/DSC_0347.mp4"
                       poster="/assets/benny/DSC_0347-poster.jpg"
@@ -70,13 +71,17 @@ export default async function BennyPage() {
                       height={720}
                       label="play studio footage"
                     />
-                  </div>
+                  </FullBleed>
                 ),
-                "photo-mosaic": <BennyPhotoMosaic />,
+                "photo-mosaic": (
+                  <FullBleed>
+                    <BennyPhotoMosaic />
+                  </FullBleed>
+                ),
                 playlists: (
-                  <div className="relative left-1/2 my-9 w-screen -translate-x-1/2">
+                  <FullBleed>
                     <PlaylistSlider playlists={BENNY_PLAYLISTS} />
-                  </div>
+                  </FullBleed>
                 ),
               }}
             />

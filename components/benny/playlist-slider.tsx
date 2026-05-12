@@ -10,10 +10,7 @@ const CARD_HEIGHT = 380;
 export function PlaylistSlider({ playlists }: Props) {
   return (
     <div className="relative">
-      <div
-        className="flex snap-x snap-mandatory overflow-x-auto scroll-pl-6 pb-3 pr-6 md:scroll-pl-9 md:pr-9"
-        style={{ scrollbarWidth: "thin", scrollbarColor: "var(--coin) transparent" }}
-      >
+      <div className="flex snap-x snap-mandatory overflow-x-auto scroll-pl-6 pb-3 pr-6 [scrollbar-color:var(--coin)_transparent] [scrollbar-width:thin] md:scroll-pl-9 md:pr-9">
         {playlists.map((p) => (
           <div
             key={p.id}
@@ -26,8 +23,7 @@ export function PlaylistSlider({ playlists }: Props) {
                 loading="lazy"
                 allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                 title={p.name}
-                className="block h-full w-full"
-                style={{ border: 0 }}
+                className="block h-full w-full border-0"
               />
             </LazyMount>
           </div>
