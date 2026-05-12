@@ -6,7 +6,6 @@ import { getContent } from "@/lib/content";
 import { Prose } from "@/components/prose";
 import { MessageTimeline } from "@/components/messages/message-timeline";
 import { AnythingButAnalogBanner } from "@/components/banners/anything-but-analog-banner";
-import { ScrollDepth } from "@/components/analytics/scroll-depth";
 import { ogAndTwitter } from "@/lib/seo";
 
 interface Props {
@@ -61,7 +60,6 @@ export default async function CanvasPage({ params }: Props) {
 
   return (
     <div>
-      {markdown && <ScrollDepth />}
       <div
         className={`relative w-full overflow-hidden ${heroImage ? "h-dvh" : "h-[50dvh]"}`}
       >

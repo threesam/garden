@@ -8,7 +8,6 @@ import { SixToMidnightBanner } from "@/components/benny/banner";
 import { BennyPhotoMosaic } from "@/components/benny/photo-mosaic";
 import { InlineVideo } from "@/components/benny/inline-video";
 import { FullBleed } from "@/components/benny/full-bleed";
-import { ScrollDepth } from "@/components/analytics/scroll-depth";
 import { BENNY_PLAYLISTS } from "./playlists";
 
 export const metadata: Metadata = {
@@ -25,7 +24,6 @@ export default async function BennyPage() {
       className="min-h-screen bg-zinc-900"
       style={{ color: "var(--white)" }}
     >
-      <ScrollDepth />
       <section className="relative grid min-h-[80vh] place-content-center overflow-hidden text-center">
         <video
           autoPlay

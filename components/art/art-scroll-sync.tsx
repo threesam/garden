@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { track } from "@/lib/track";
 
 /**
  * Keeps the URL hash in sync with the currently-centered scroll-snap section,
@@ -48,7 +47,6 @@ export function ArtScrollSync() {
         if (best && best !== currentSlug) {
           currentSlug = best;
           history.replaceState(null, "", `#${best}`);
-          track("art-sketch-view", { slug: best });
         }
       },
       {
