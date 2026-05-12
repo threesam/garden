@@ -35,9 +35,6 @@ function BookCover({ book }: { book: Book }) {
           alt={book.cleanTitle}
           width={200}
           height={300}
-          // The covers grid is below a full-viewport ShelfHero, so none of
-          // these are above-the-fold on initial paint. Let the browser's
-          // native lazy loading defer everything until the user scrolls.
           loading="lazy"
           sizes="(min-width: 1280px) 8vw, (min-width: 1024px) 10vw, (min-width: 768px) 12vw, (min-width: 640px) 16vw, 25vw"
           className="block h-auto w-full md:transition-[filter] md:duration-300 md:group-hover:grayscale"

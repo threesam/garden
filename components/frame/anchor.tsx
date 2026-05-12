@@ -20,6 +20,7 @@ export function Anchor() {
     return null;
   }
   return (
+    // 200px scroll-ahead so the WebGL context warms before the user reaches it.
     <LazyMount className="relative h-[30dvh] w-full md:h-[50dvh]" rootMargin="200px">
       <CloudCanvas />
     </LazyMount>
