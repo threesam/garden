@@ -4,7 +4,7 @@ import { ShelfHero } from "@/components/shelf/shelf-hero";
 import { getBooks, type Book } from "@/lib/goodreads";
 
 export const metadata: Metadata = {
-  title: "shelf — threesam",
+  title: "shelf",
   description: "Books, media, and the things that shape how I think.",
 };
 

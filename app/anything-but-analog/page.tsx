@@ -3,13 +3,12 @@ import { ArtGallery } from "@/components/art/art-gallery";
 import { ArtScrollSync } from "@/components/art/art-scroll-sync";
 import { ParticleTextCanvas } from "@/components/canvas/particle-text-canvas";
 import { visibleSketches } from "@/lib/art/registry";
+import { ogAndTwitter } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "anything but analog — threesam",
+  title: "anything but analog",
   description: "generative sketches.",
-  openGraph: {
-    images: ["/og/anything-but-analog.png"],
-  },
+  ...ogAndTwitter("/og/anything-but-analog.png"),
 };
 
 export default function AnythingButAnalogPage() {

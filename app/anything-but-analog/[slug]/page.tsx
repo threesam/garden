@@ -18,10 +18,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!sketch) return { title: "not found" };
   const ogUrl = `/og/anything-but-analog/${sketch.slug}.png`;
   return {
-    title: `${sketch.title} — anything but analog — threesam`,
+    title: `${sketch.title} — anything but analog`,
     description: `${sketch.title} (${sketch.date}), generative sketch.`,
     openGraph: {
-      title: `${sketch.title} — threesam`,
+      title: `${sketch.title}`,
       description: `${sketch.title} (${sketch.date}).`,
       images: [ogUrl],
     },

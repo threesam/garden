@@ -1,4 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "CRO & Ecommerce Systems",
+  description:
+    "Case study: experimentation frameworks, instrumentation strategies, and conversion system architecture.",
+  robots: { index: false, follow: true },
+};
 
 export default function CroEcommerceSystemsPage() {
   return (

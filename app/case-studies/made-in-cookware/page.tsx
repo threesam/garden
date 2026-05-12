@@ -1,4 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Made In Cookware",
+  description:
+    "Case study: headless commerce implementation notes, architecture decisions, and performance learnings.",
+  robots: { index: false, follow: true },
+};
 
 export default function MadeInCookwarePage() {
   return (

@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const sketch = getSketch(slug);
   if (!sketch) return { title: "not found" };
   return {
-    title: `${sketch.title} — raw — threesam`,
+    title: `${sketch.title} — raw`,
     description: `${sketch.title} (${sketch.date}), raw sketch view.`,
   };
 }

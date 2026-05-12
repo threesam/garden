@@ -3,7 +3,7 @@ import Link from "next/link";
 import { WorkCard } from "@/components/portfolio/work-card";
 
 export const metadata: Metadata = {
-  title: "resonance — threesam",
+  title: "resonance",
   description:
     "The impact that reaches others. Client work, case studies, and value delivered.",
 };

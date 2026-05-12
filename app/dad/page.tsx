@@ -3,10 +3,12 @@ import { getContent } from "@/lib/content";
 import { Prose } from "@/components/prose";
 import { AsciiImage } from "@/components/messages/ascii-image";
 import { LazyMount } from "@/components/lazy-mount";
+import { ogAndTwitter } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "dad — threesam",
+  title: "dad",
   description: "stories about my dad.",
+  ...ogAndTwitter("/og/dad.png"),
 };
 
 export default async function DadPage() {

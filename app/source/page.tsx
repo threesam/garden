@@ -4,7 +4,7 @@ import type { StepEntry } from "@/types/fitness";
 import stepData from "@/data/steps.mock.json";
 
 export const metadata: Metadata = {
-  title: "source — threesam",
+  title: "source",
   description:
     "Body, mind, 20 years of holistic discipline. The foundation everything is built on.",
 };
