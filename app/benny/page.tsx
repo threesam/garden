@@ -12,6 +12,9 @@ import { BENNY_PLAYLISTS } from "./playlists";
 export const metadata: Metadata = {
   title: "benny — threesam",
   description: "remembering 102 jackson street.",
+  openGraph: {
+    images: ["/og/benny.png"],
+  },
 };
 
 export default async function BennyPage() {
