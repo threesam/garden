@@ -105,9 +105,9 @@ async function renderDefault() {
   return { out, bytes: png.length, glyphs: 0 };
 }
 
-for (const target of TARGETS) {
-  const result = await render(target);
-  console.log(`${result.out} — ${result.glyphs} glyphs, ${result.bytes} bytes`);
-}
-const def = await renderDefault();
+const [results, def] = await Promise.all([
+  Promise.all(TARGETS.map(render)),
+  renderDefault(),
+]);
+for (const r of results) console.log(`${r.out} — ${r.glyphs} glyphs, ${r.bytes} bytes`);
 console.log(`${def.out} — ${def.bytes} bytes`);

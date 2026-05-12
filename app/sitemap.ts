@@ -1,7 +1,6 @@
 import type { MetadataRoute } from "next";
 import { visibleSketches } from "@/lib/art/registry";
-
-const SITE_URL = "https://threesam.com";
+import { SITE_URL } from "@/lib/seo";
 
 const STATIC_ROUTES = [
   "/",

@@ -8,12 +8,12 @@ import { LazyWordCloud } from "@/components/messages/lazy-word-cloud";
 import { TotalWords, BusiestDay, MostWords } from "@/components/messages/word-stats";
 import { LazyMount } from "@/components/lazy-mount";
 import { DEANA_IMAGES } from "@/components/messages/deana-images";
+import { ogAndTwitter } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "deana",
   description: "102,549 messages. 10 years. One conversation.",
-  openGraph: { images: ["/og/deana.png"] },
-  twitter: { card: "summary_large_image", images: ["/og/deana.png"] },
+  ...ogAndTwitter("/og/deana.png"),
 };
 
 const g = "gap-3 md:gap-6";

@@ -3,12 +3,12 @@ import { getContent } from "@/lib/content";
 import { Prose } from "@/components/prose";
 import { AsciiImage } from "@/components/messages/ascii-image";
 import { LazyMount } from "@/components/lazy-mount";
+import { ogAndTwitter } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "dad",
   description: "stories about my dad.",
-  openGraph: { images: ["/og/dad.png"] },
-  twitter: { card: "summary_large_image", images: ["/og/dad.png"] },
+  ...ogAndTwitter("/og/dad.png"),
 };
 
 export default async function DadPage() {

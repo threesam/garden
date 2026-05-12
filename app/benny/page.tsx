@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getContent } from "@/lib/content";
+import { ogAndTwitter } from "@/lib/seo";
 import { Prose } from "@/components/prose";
 import { PlaylistSlider } from "@/components/benny/playlist-slider";
 import { SoundcloudSlider } from "@/components/benny/soundcloud-slider";
@@ -12,8 +13,7 @@ import { BENNY_PLAYLISTS } from "./playlists";
 export const metadata: Metadata = {
   title: "benny",
   description: "remembering 102 jackson street.",
-  openGraph: { images: ["/og/benny.png"] },
-  twitter: { card: "summary_large_image", images: ["/og/benny.png"] },
+  ...ogAndTwitter("/og/benny.png"),
 };
 
 export default async function BennyPage() {
