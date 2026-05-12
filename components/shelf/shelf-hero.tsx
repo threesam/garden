@@ -119,7 +119,14 @@ export function ShelfHero({ featured, featuredLabel }: ShelfHeroProps) {
                 priority
                 sizes="(min-width: 768px) 40vw, 90vw"
                 style={{ "--shadow-rgb": `${Math.round(color[0] * 255)} ${Math.round(color[1] * 255)} ${Math.round(color[2] * 255)}` } as React.CSSProperties}
-                className="block h-auto w-full shadow-[0_20px_50px_-15px_rgb(var(--shadow-rgb)/0.45)] transition duration-700 group-hover/cover:-translate-y-1 group-hover/cover:-rotate-[1.3deg] group-hover/cover:shadow-[0_50px_120px_-20px_rgb(var(--shadow-rgb)/0.8)] md:h-auto md:max-h-[60dvh] md:w-auto"
+                // Goodreads covers are low-resolution (~317×475). Letting
+                // the browser pick intrinsic size renders them tiny because
+                // sharp's AVIF output carries a density hint that scales
+                // down further. Clamp an explicit hero width so the cover
+                // reads as a proper "now reading" centerpiece regardless
+                // of source resolution. Height auto + max-h-[60dvh] keeps
+                // the aspect ratio and prevents overflow on short windows.
+                className="block w-full max-w-[18rem] shadow-[0_20px_50px_-15px_rgb(var(--shadow-rgb)/0.45)] transition duration-700 group-hover/cover:-translate-y-1 group-hover/cover:-rotate-[1.3deg] group-hover/cover:shadow-[0_50px_120px_-20px_rgb(var(--shadow-rgb)/0.8)] md:max-h-[60dvh] md:w-[clamp(18rem,32vw,26rem)] md:max-w-none md:object-contain"
               />
             ) : null}
           </a>
