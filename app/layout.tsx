@@ -4,6 +4,7 @@ import { Recursive, Epilogue } from "next/font/google";
 import { Suspense } from "react";
 import { Guide } from "@/components/frame/guide";
 import { Anchor } from "@/components/frame/anchor";
+import { OutboundTracker } from "@/components/analytics/outbound-tracker";
 import { SITE_URL, SITE_DESCRIPTION } from "@/lib/seo";
 import "./globals.css";
 
@@ -98,6 +99,7 @@ export default function RootLayout({
           data-website-id="2a502ffa-58a1-4057-be13-e46f0354cfb7"
           strategy="afterInteractive"
         />
+        <OutboundTracker />
         <script
           type="application/ld+json"
           // eslint-disable-next-line react/no-danger

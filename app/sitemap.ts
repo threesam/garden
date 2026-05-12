@@ -2,11 +2,12 @@ import type { MetadataRoute } from "next";
 import { visibleSketches } from "@/lib/art/registry";
 import { SITE_URL } from "@/lib/seo";
 
+// Only routes reachable from the homepage (directly via the Gallery, or
+// indirectly via /canvas/self's body links to /benny and /dad). Orphan
+// pages — /signal, /source, /resonance, /case-studies/* — are excluded
+// until something on the navigable surface links to them.
 const STATIC_ROUTES = [
   "/",
-  "/signal",
-  "/source",
-  "/resonance",
   "/canvas/self",
   "/shelf",
   "/sounds",
@@ -15,7 +16,6 @@ const STATIC_ROUTES = [
   "/deana",
   "/benny",
   "/anything-but-analog",
-  "/case-studies/sixtom",
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
