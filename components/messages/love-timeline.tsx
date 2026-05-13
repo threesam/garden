@@ -16,32 +16,32 @@ export function LoveTimeline() {
   return (
     <div className="my-12 rounded-2xl border border-white/5 bg-black p-6 md:p-9">
       <div className="mb-6 flex items-baseline justify-between">
-        <span className="font-mono text-xs tracking-[0.16em] text-zinc-600">
+        <span className="font-mono text-xs tracking-[0.16em] text-zinc-400">
           &quot;i love you&quot;
         </span>
-        <span className="font-mono text-[10px] text-zinc-600">
+        <span className="font-mono text-[10px] text-zinc-400">
           {count.toLocaleString()} times
         </span>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         {firstSam && (
           <div className="rounded-lg border border-white/5 p-3">
-            <span className="font-mono text-[10px] text-zinc-600">sam, first</span>
+            <span className="font-mono text-[10px] text-zinc-400">sam, first</span>
             <p className="mt-1.5 text-sm leading-relaxed text-zinc-300">
               &quot;{firstSam.text}&quot;
             </p>
-            <p className="mt-1.5 font-mono text-[10px] text-zinc-600">
+            <p className="mt-1.5 font-mono text-[10px] text-zinc-400">
               {firstSam.date}
             </p>
           </div>
         )}
         {firstDia && (
           <div className="rounded-lg border border-white/5 p-3">
-            <span className="font-mono text-[10px] text-zinc-600">dianchik, first</span>
+            <span className="font-mono text-[10px] text-zinc-400">dianchik, first</span>
             <p className="mt-1.5 text-sm leading-relaxed text-zinc-300">
               &quot;{firstDia.text}&quot;
             </p>
-            <p className="mt-1.5 font-mono text-[10px] text-zinc-600">
+            <p className="mt-1.5 font-mono text-[10px] text-zinc-400">
               {firstDia.date}
             </p>
           </div>
