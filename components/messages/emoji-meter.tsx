@@ -21,7 +21,7 @@ function EmojiBar({ emoji, count, max, color }: { emoji: string; count: number; 
           style={{ width: `${pct}%`, backgroundColor: color }}
         />
       </div>
-      <span className="font-mono text-[9px] text-zinc-500 w-10 text-right">{count}</span>
+      <span className="font-mono text-[9px] text-zinc-600 w-10 text-right">{count}</span>
     </div>
   );
 }
@@ -32,18 +32,18 @@ export function EmojiMeter() {
   return (
     <div>
       <div className="mb-6 flex items-baseline justify-between">
-        <span className="font-mono text-xs tracking-[0.16em] text-zinc-400">
+        <span className="font-mono text-xs tracking-[0.16em] text-zinc-600">
           emoji
         </span>
-        <span className="font-mono text-[10px] text-zinc-500">
+        <span className="font-mono text-[10px] text-zinc-600">
           {(emojiData.sam_total + emojiData.dia_total).toLocaleString()} total
         </span>
       </div>
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
           <div className="mb-3 flex items-baseline justify-between">
-            <span className="font-mono text-[10px] text-zinc-400">dianchik</span>
-            <span className="font-mono text-[9px] text-zinc-400">
+            <span className="font-mono text-[10px] text-zinc-600">dianchik</span>
+            <span className="font-mono text-[9px] text-zinc-600">
               {emojiData.dia_unique} unique
             </span>
           </div>
@@ -55,8 +55,8 @@ export function EmojiMeter() {
         </div>
         <div>
           <div className="mb-3 flex items-baseline justify-between">
-            <span className="font-mono text-[10px] text-zinc-400">sam</span>
-            <span className="font-mono text-[9px] text-zinc-400">
+            <span className="font-mono text-[10px] text-zinc-600">sam</span>
+            <span className="font-mono text-[9px] text-zinc-600">
               {emojiData.sam_unique} unique
             </span>
           </div>

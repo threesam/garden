@@ -22,10 +22,10 @@ export function DailyFirsts() {
   return (
     <div>
       <div className="mb-3 flex items-baseline justify-between">
-        <span className="font-mono text-xs tracking-[0.16em] text-zinc-400">
+        <span className="font-mono text-xs tracking-[0.16em] text-zinc-600">
           first message of the day
         </span>
-        <span className="font-mono text-[10px] text-zinc-500">
+        <span className="font-mono text-[10px] text-zinc-600">
           {firsts.length} days
         </span>
       </div>
@@ -38,7 +38,7 @@ export function DailyFirsts() {
             <p className="text-sm leading-relaxed text-black line-clamp-2">
               &quot;{f.text}&quot;
             </p>
-            <p className="mt-1.5 font-mono text-[9px] text-zinc-500">
+            <p className="mt-1.5 font-mono text-[9px] text-zinc-600">
               {f.sender.split(" ")[0].toLowerCase()} — {f.date}, {f.hour}:{String(f.minute ?? 0).padStart(2, "0")}
             </p>
           </div>
@@ -49,17 +49,17 @@ export function DailyFirsts() {
           <button
             onClick={() => setPage((p) => Math.max(0, p - 1))}
             disabled={page === 0}
-            className="font-mono text-[10px] text-zinc-500 hover:text-black disabled:opacity-30"
+            className="font-mono text-[10px] text-zinc-600 hover:text-black disabled:opacity-30"
           >
             prev
           </button>
-          <span className="font-mono text-[10px] text-zinc-400">
+          <span className="font-mono text-[10px] text-zinc-600">
             {page + 1} / {totalPages}
           </span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
             disabled={page === totalPages - 1}
-            className="font-mono text-[10px] text-zinc-500 hover:text-black disabled:opacity-30"
+            className="font-mono text-[10px] text-zinc-600 hover:text-black disabled:opacity-30"
           >
             next
           </button>

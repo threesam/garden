@@ -14,13 +14,13 @@ export function MilestoneSam() {
   if (!firstSam) return null;
   return (
     <div>
-      <span className="font-mono text-[10px] text-zinc-500">
+      <span className="font-mono text-[10px] text-zinc-600">
         first &quot;love you&quot; — sam
       </span>
       <p className="mt-1.5 text-sm leading-relaxed text-black">
         &quot;{firstSam.text}&quot;
       </p>
-      <p className="mt-1.5 font-mono text-[10px] text-zinc-500">
+      <p className="mt-1.5 font-mono text-[10px] text-zinc-600">
         {firstSam.date}
       </p>
     </div>
@@ -31,13 +31,13 @@ export function MilestoneDia() {
   if (!firstDia) return null;
   return (
     <div>
-      <span className="font-mono text-[10px] text-zinc-500">
+      <span className="font-mono text-[10px] text-zinc-600">
         first &quot;love you&quot; — dianchik
       </span>
       <p className="mt-1.5 text-sm leading-relaxed text-black">
         &quot;{firstDia.text}&quot;
       </p>
-      <p className="mt-1.5 font-mono text-[10px] text-zinc-500">
+      <p className="mt-1.5 font-mono text-[10px] text-zinc-600">
         {firstDia.date}
       </p>
     </div>
@@ -47,13 +47,13 @@ export function MilestoneDia() {
 export function MilestoneCount() {
   return (
     <div>
-      <span className="font-mono text-[10px] text-zinc-500">
+      <span className="font-mono text-[10px] text-zinc-600">
         &quot;i love you&quot;
       </span>
       <p className="mt-1.5 text-2xl font-bold text-black">
         {loveCount.toLocaleString()}
       </p>
-      <p className="mt-1.5 font-mono text-[10px] text-zinc-500">
+      <p className="mt-1.5 font-mono text-[10px] text-zinc-600">
         times and counting
       </p>
     </div>

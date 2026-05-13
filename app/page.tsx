@@ -9,7 +9,7 @@ import { Gallery } from "@/components/gallery/gallery";
 // footer cloud fits in-layout instead of pushing the page taller.
 export default function Home() {
   return (
-    <div className="flex h-dvh w-full flex-col overflow-hidden">
+    <main className="flex h-dvh w-full flex-col overflow-hidden">
       <section className="relative h-[25dvh] w-full overflow-hidden">
         <CloudCanvas mirror />
       </section>
@@ -19,6 +19,6 @@ export default function Home() {
       <section className="relative h-[25dvh] w-full overflow-hidden">
         <CloudCanvas />
       </section>
-    </div>
+    </main>
   );
 }

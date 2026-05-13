@@ -139,27 +139,27 @@ export function MessageTimeline() {
         <div className="flex gap-3">
           <button
             onClick={() => setTab("messages")}
-            className={`font-mono text-xs tracking-[0.16em] transition-colors ${tab === "messages" ? "text-black" : "text-zinc-500 hover:text-zinc-600"}`}
+            className={`font-mono text-xs tracking-[0.16em] transition-colors ${tab === "messages" ? "text-black" : "text-zinc-600 hover:text-black"}`}
           >
             messages
           </button>
           <button
             onClick={() => setTab("media")}
-            className={`font-mono text-xs tracking-[0.16em] transition-colors ${tab === "media" ? "text-black" : "text-zinc-500 hover:text-zinc-600"}`}
+            className={`font-mono text-xs tracking-[0.16em] transition-colors ${tab === "media" ? "text-black" : "text-zinc-600 hover:text-black"}`}
           >
             media
           </button>
         </div>
-        <span className="font-mono text-[10px] text-zinc-500">
+        <span className="font-mono text-[10px] text-zinc-600">
           {total.toLocaleString()} total
         </span>
       </div>
       <div className="flex gap-3 mb-3">
-        <span className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-500">
+        <span className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-600">
           <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: DIA_COLOR }} />
           dianchik
         </span>
-        <span className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-500">
+        <span className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-600">
           <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: SAM_COLOR }} />
           sam
         </span>
@@ -167,7 +167,7 @@ export function MessageTimeline() {
       <div style={{ height: 220 }}>
         <canvas ref={canvasRef} />
       </div>
-      <p className="mt-3 font-mono text-[10px] text-zinc-500">
+      <p className="mt-3 font-mono text-[10px] text-zinc-600">
         {chartData.labels[0]} — {chartData.labels[chartData.labels.length - 1]}
       </p>
     </div>

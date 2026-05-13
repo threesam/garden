@@ -25,21 +25,21 @@ export function Compliments() {
   return (
     <div>
       <div className="mb-6 flex items-baseline justify-between">
-        <span className="font-mono text-xs tracking-[0.16em] text-zinc-400">
+        <span className="font-mono text-xs tracking-[0.16em] text-zinc-600">
           compliments
         </span>
-        <span className="font-mono text-[10px] text-zinc-500">
+        <span className="font-mono text-[10px] text-zinc-600">
           {(complimentsData.sam_total + complimentsData.dia_total).toLocaleString()} total
         </span>
       </div>
       <div className="mb-3 grid grid-cols-2 gap-3">
         <div className="rounded-lg border border-zinc-200 p-3 text-center">
           <p className="text-xl font-bold text-black">{complimentsData.sam_total}</p>
-          <p className="font-mono text-[10px] text-zinc-500">from sam</p>
+          <p className="font-mono text-[10px] text-zinc-600">from sam</p>
         </div>
         <div className="rounded-lg border border-zinc-200 p-3 text-center">
           <p className="text-xl font-bold text-black">{complimentsData.dia_total}</p>
-          <p className="font-mono text-[10px] text-zinc-500">from dianchik</p>
+          <p className="font-mono text-[10px] text-zinc-600">from dianchik</p>
         </div>
       </div>
       <div className="space-y-1.5">
@@ -50,8 +50,8 @@ export function Compliments() {
           return (
             <div key={theme}>
               <div className="flex items-center justify-between mb-1.5">
-                <span className="font-mono text-[10px] text-zinc-400">{theme}</span>
-                <span className="font-mono text-[9px] text-zinc-400">{total}</span>
+                <span className="font-mono text-[10px] text-zinc-600">{theme}</span>
+                <span className="font-mono text-[9px] text-zinc-600">{total}</span>
               </div>
               <div className="flex h-3 gap-px overflow-hidden rounded-full bg-zinc-100">
                 <div
@@ -68,11 +68,11 @@ export function Compliments() {
         })}
       </div>
       <div className="mt-3 flex gap-3">
-        <span className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-500">
+        <span className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-600">
           <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: "rgba(0,0,0,0.4)" }} />
           sam
         </span>
-        <span className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-500">
+        <span className="flex items-center gap-1.5 font-mono text-[10px] text-zinc-600">
           <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: "rgba(180,140,20,0.7)" }} />
           dianchik
         </span>

@@ -10,7 +10,7 @@ const photos = Array.from({ length: PHOTO_COUNT }, (_, i) => {
 export function BennyPhotoMosaic() {
   return (
     <div className="max-h-dvh overflow-hidden">
-      <div className="columns-4 gap-1 sm:columns-6 lg:columns-8 xl:columns-10 [&>*]:mb-1">
+      <div className="mosaic">
         {photos.map((src) => (
           <Image
             key={src}
@@ -20,7 +20,7 @@ export function BennyPhotoMosaic() {
             height={600}
             loading="lazy"
             sizes="(min-width: 1280px) 9vw, (min-width: 1024px) 12vw, (min-width: 640px) 16vw, 24vw"
-            className="block w-full break-inside-avoid"
+            className="block w-full"
           />
         ))}
       </div>

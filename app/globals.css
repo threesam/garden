@@ -153,3 +153,36 @@ body {
 .title-up {
   text-transform: uppercase;
 }
+
+/* Photo mosaic. Multi-column is the baseline (works everywhere). Browsers
+ * that ship CSS Grid Masonry get the upgrade — source-order preservation
+ * and predictable reflow on breakpoint changes (multi-column re-balances
+ * columns when count changes, which produces a visible reshuffle). */
+.mosaic {
+  columns: 4;
+  column-gap: 0.25rem;
+}
+.mosaic > * { margin-bottom: 0.25rem; break-inside: avoid; }
+@media (min-width: 640px) { .mosaic { columns: 6; } }
+@media (min-width: 1024px) { .mosaic { columns: 8; } }
+@media (min-width: 1280px) { .mosaic { columns: 10; } }
+
+@supports (grid-template-rows: masonry) {
+  .mosaic {
+    display: grid;
+    columns: unset;
+    gap: 0.25rem;
+    grid-template-rows: masonry;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .mosaic > * { margin-bottom: 0; }
+  @media (min-width: 640px) {
+    .mosaic { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  }
+  @media (min-width: 1024px) {
+    .mosaic { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+  }
+  @media (min-width: 1280px) {
+    .mosaic { grid-template-columns: repeat(10, minmax(0, 1fr)); }
+  }
+}

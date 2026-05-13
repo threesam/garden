@@ -136,7 +136,7 @@ export function WordCloud() {
   return (
     <div>
       <div className="mb-3 flex items-baseline justify-between">
-        <span className="font-mono text-xs tracking-[0.16em] text-zinc-400">
+        <span className="font-mono text-xs tracking-[0.16em] text-zinc-600">
           word cloud
         </span>
         <div className="flex gap-3">
@@ -145,7 +145,7 @@ export function WordCloud() {
               key={w}
               onClick={() => setWho(w)}
               className={`font-mono text-[10px] tracking-wider transition-colors ${
-                who === w ? "text-black" : "text-zinc-400 hover:text-zinc-600"
+                who === w ? "text-black" : "text-zinc-600 hover:text-black"
               }`}
             >
               {w}

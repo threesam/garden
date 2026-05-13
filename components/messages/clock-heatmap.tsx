@@ -20,10 +20,10 @@ export function ClockHeatmap() {
   return (
     <div>
       <div className="mb-3 flex items-baseline justify-between">
-        <span className="font-mono text-xs tracking-[0.16em] text-zinc-400">
+        <span className="font-mono text-xs tracking-[0.16em] text-zinc-600">
           when we talked
         </span>
-        <span className="font-mono text-[10px] text-zinc-500">
+        <span className="font-mono text-[10px] text-zinc-600">
           hour of day x day of week
         </span>
       </div>
@@ -34,7 +34,7 @@ export function ClockHeatmap() {
             {Array.from({ length: 24 }, (_, h) => (
               <span
                 key={h}
-                className="flex-1 text-center font-mono text-[8px] text-zinc-400"
+                className="flex-1 text-center font-mono text-[8px] text-zinc-600"
               >
                 {h % 6 === 0 ? `${h}` : ""}
               </span>
@@ -43,7 +43,7 @@ export function ClockHeatmap() {
           {/* Grid */}
           {DAYS.map((day, dow) => (
             <div key={day} className="flex items-center gap-1.5 mb-px">
-              <span className="w-7 font-mono text-[9px] text-zinc-500 text-right">
+              <span className="w-7 font-mono text-[9px] text-zinc-600 text-right">
                 {day}
               </span>
               <div className="flex flex-1 gap-px">
