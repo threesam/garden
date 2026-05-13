@@ -14,14 +14,14 @@ function NameBar({ name, count, max, color }: { name: string; count: number; max
   const pct = (count / max) * 100;
   return (
     <div className="flex items-center gap-1.5">
-      <span className="w-24 shrink-0 truncate text-left font-mono text-[10px] text-zinc-400">{name}</span>
+      <span className="w-24 shrink-0 truncate text-left font-mono text-[10px] text-zinc-600">{name}</span>
       <div className="flex-1 h-3 rounded-full overflow-hidden bg-zinc-100">
         <div
           className="h-full rounded-full"
           style={{ width: `${pct}%`, backgroundColor: color }}
         />
       </div>
-      <span className="font-mono text-[9px] text-zinc-500 w-10 text-right">{count}</span>
+      <span className="font-mono text-[9px] text-zinc-600 w-10 text-right">{count}</span>
     </div>
   );
 }
@@ -32,14 +32,14 @@ export function PetNames() {
   return (
     <div>
       <div className="mb-6 flex items-baseline justify-between">
-        <span className="font-mono text-xs tracking-[0.16em] text-zinc-400">
+        <span className="font-mono text-xs tracking-[0.16em] text-zinc-600">
           pet names
         </span>
       </div>
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
           <div className="mb-3">
-            <span className="font-mono text-[10px] text-zinc-400">dianchik calls him</span>
+            <span className="font-mono text-[10px] text-zinc-600">dianchik calls him</span>
           </div>
           <div className="space-y-1.5">
             {dia.slice(0, show).map((p) => (
@@ -49,7 +49,7 @@ export function PetNames() {
         </div>
         <div>
           <div className="mb-3">
-            <span className="font-mono text-[10px] text-zinc-400">sam calls her</span>
+            <span className="font-mono text-[10px] text-zinc-600">sam calls her</span>
           </div>
           <div className="space-y-1.5">
             {sam.slice(0, show).map((p) => (

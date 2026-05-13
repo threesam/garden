@@ -19,18 +19,18 @@ export function FirstNight() {
   return (
     <div>
       <div className="flex items-baseline justify-between mb-3">
-        <span className="font-mono text-xs tracking-[0.16em] text-zinc-400">
+        <span className="font-mono text-xs tracking-[0.16em] text-zinc-600">
           first night
         </span>
-        <span className="font-mono text-[10px] text-zinc-400">
+        <span className="font-mono text-[10px] text-zinc-600">
           {firstNight.album}
         </span>
       </div>
-      <p className="mb-3 font-mono text-[10px] text-zinc-500">{firstNight.date}</p>
+      <p className="mb-3 font-mono text-[10px] text-zinc-600">{firstNight.date}</p>
       <div className="space-y-1.5">
         {firstNight.exchange.map((msg, i) =>
           msg.sender === "ellipsis" ? (
-            <div key={i} className="py-1.5 text-center font-mono text-[10px] text-zinc-400">
+            <div key={i} className="py-1.5 text-center font-mono text-[10px] text-zinc-600">
               ...
             </div>
           ) : (
