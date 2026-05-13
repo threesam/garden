@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
+import { useVideoVisibility } from "@/lib/use-video-visibility";
 
 interface Props {
   src: string;
@@ -11,21 +12,31 @@ interface Props {
   label?: string;
 }
 
+function PlayingVideo({ src, poster }: { src: string; poster: string }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  // autoplay=false: only pause/resume if the user is actively watching.
+  // A user who clicks play then scrolls away gets a clean pause; if they
+  // scroll back, the hook resumes from where they left off.
+  useVideoVisibility(ref, { autoplay: false });
+  return (
+    <video
+      ref={ref}
+      src={src}
+      poster={poster}
+      controls
+      autoPlay
+      playsInline
+      preload="auto"
+      className="block w-full"
+    />
+  );
+}
+
 export function InlineVideo({ src, poster, width, height, label }: Props) {
   const [playing, setPlaying] = useState(false);
 
   if (playing) {
-    return (
-      <video
-        src={src}
-        poster={poster}
-        controls
-        autoPlay
-        playsInline
-        preload="auto"
-        className="block w-full"
-      />
-    );
+    return <PlayingVideo src={src} poster={poster} />;
   }
 
   return (

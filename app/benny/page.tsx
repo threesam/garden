@@ -8,6 +8,7 @@ import { SixToMidnightBanner } from "@/components/benny/banner";
 import { BennyPhotoMosaic } from "@/components/benny/photo-mosaic";
 import { InlineVideo } from "@/components/benny/inline-video";
 import { FullBleed } from "@/components/benny/full-bleed";
+import { Video } from "@/components/video";
 import { BENNY_PLAYLISTS } from "./playlists";
 
 export const metadata: Metadata = {
@@ -25,7 +26,7 @@ export default async function BennyPage() {
       style={{ color: "var(--white)" }}
     >
       <section className="relative grid min-h-[80vh] place-content-center overflow-hidden text-center">
-        <video
+        <Video
           autoPlay
           loop
           muted
@@ -34,10 +35,11 @@ export default async function BennyPage() {
           poster="/assets/sixtomidnight-tribute-poster.jpg"
           className="absolute inset-0 h-full w-full object-cover opacity-50"
           aria-label="six to midnight productions montage"
-        >
-          <source src="/assets/sixtomidnight-tribute.webm" type="video/webm" />
-          <source src="/assets/sixtomidnight-tribute.mp4" type="video/mp4" />
-        </video>
+          sources={[
+            { src: "/assets/sixtomidnight-tribute.webm", type: "video/webm" },
+            { src: "/assets/sixtomidnight-tribute.mp4", type: "video/mp4" },
+          ]}
+        />
         <div className="relative z-10 px-6">
           <h2 className="font-mono text-sm uppercase tracking-[0.22em] text-[var(--coin)] md:text-base">
             remembering

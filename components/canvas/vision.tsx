@@ -1,3 +1,5 @@
+import { Video } from "@/components/video";
+
 interface VisionProps {
   src: string;
   poster?: string;
@@ -10,7 +12,7 @@ interface VisionProps {
 export function Vision({ src, poster }: VisionProps) {
   return (
     <section className="w-full">
-      <video
+      <Video
         className="h-auto w-full"
         src={src}
         poster={poster}
