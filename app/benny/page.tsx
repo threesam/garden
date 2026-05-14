@@ -74,6 +74,14 @@ export default async function BennyPage() {
                       width={1280}
                       height={720}
                       label="play the podcast"
+                      tracks={[
+                        {
+                          src: "/assets/benny/the_podcast.vtt",
+                          srclang: "en",
+                          label: "English",
+                          default: true,
+                        },
+                      ]}
                     />
                   </FullBleed>
                 ),

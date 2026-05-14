@@ -4,15 +4,23 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import { useVideoVisibility } from "@/lib/use-video-visibility";
 
+interface Track {
+  src: string;
+  srclang: string;
+  label: string;
+  default?: boolean;
+}
+
 interface Props {
   src: string;
   poster: string;
   width: number;
   height: number;
   label?: string;
+  tracks?: Track[];
 }
 
-function PlayingVideo({ src, poster }: { src: string; poster: string }) {
+function PlayingVideo({ src, poster, tracks }: { src: string; poster: string; tracks?: Track[] }) {
   const ref = useRef<HTMLVideoElement>(null);
   // autoplay=false: only pause/resume if the user is actively watching.
   // A user who clicks play then scrolls away gets a clean pause; if they
@@ -28,15 +36,26 @@ function PlayingVideo({ src, poster }: { src: string; poster: string }) {
       playsInline
       preload="auto"
       className="block w-full"
-    />
+    >
+      {tracks?.map((t) => (
+        <track
+          key={t.src}
+          kind="subtitles"
+          src={t.src}
+          srcLang={t.srclang}
+          label={t.label}
+          default={t.default}
+        />
+      ))}
+    </video>
   );
 }
 
-export function InlineVideo({ src, poster, width, height, label }: Props) {
+export function InlineVideo({ src, poster, width, height, label, tracks }: Props) {
   const [playing, setPlaying] = useState(false);
 
   if (playing) {
-    return <PlayingVideo src={src} poster={poster} />;
+    return <PlayingVideo src={src} poster={poster} tracks={tracks} />;
   }
 
   return (
