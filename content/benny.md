@@ -18,10 +18,6 @@ We recognize entertainment as a fluid binding of senses. The experience of music
 
 Moreover, while our physical address is in Trenton, if necessary, our studio is fully mobile and we can travel to document and/or produce events or performances—regardless of location the fidelity of our recordings remains consistent. With this in mind, often the best performances are achieved when the performer is comfortable, and there is an enriched environment to craft. This is why we have done our best to create an immersive atmosphere at the studio to bolster the creative process.
 
-## The Podcast
-
-<!-- podcast -->
-
 ## Marketing Makes, the World Takes
 
 <!-- photo-mosaic -->

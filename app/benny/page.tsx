@@ -77,17 +77,6 @@ export default async function BennyPage() {
                     />
                   </FullBleed>
                 ),
-                podcast: (
-                  <FullBleed>
-                    <InlineVideo
-                      src="/assets/benny/the_podcast.mp4"
-                      poster="/assets/benny/the_podcast-poster.jpg"
-                      width={1280}
-                      height={720}
-                      label="play the podcast"
-                    />
-                  </FullBleed>
-                ),
                 "photo-mosaic": (
                   <FullBleed>
                     <BennyPhotoMosaic />
