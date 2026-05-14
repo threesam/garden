@@ -69,11 +69,11 @@ export default async function BennyPage() {
                 video: (
                   <FullBleed>
                     <InlineVideo
-                      src="/assets/benny/DSC_0347.mp4"
-                      poster="/assets/benny/DSC_0347-poster.jpg"
+                      src="/assets/benny/the_podcast.mp4"
+                      poster="/assets/benny/the_podcast-poster.jpg"
                       width={1280}
                       height={720}
-                      label="play studio footage"
+                      label="play the podcast"
                     />
                   </FullBleed>
                 ),
