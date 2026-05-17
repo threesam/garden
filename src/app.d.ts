@@ -5,5 +5,10 @@ declare global {
     // interface PageData {}
     // interface Platform {}
   }
+  interface Window {
+    umami?: {
+      track: (name: string, data?: Record<string, string | number | boolean | undefined>) => void;
+    };
+  }
 }
 export {};

@@ -1,6 +1,7 @@
 <script lang="ts">
   import '../app.css';
   import Nav from '$lib/components/Nav.svelte';
+  import OutboundTracker from '$lib/components/OutboundTracker.svelte';
   import { PERSON_JSON_LD, WEBSITE_JSON_LD } from '$lib/seo';
 
   let { children } = $props();
@@ -22,6 +23,7 @@
   {@html `<script type="application/ld+json">${JSON.stringify(WEBSITE_JSON_LD)}</script>`}
 </svelte:head>
 
+<OutboundTracker />
 <Nav />
 <div style="background: var(--white)">
   {@render children()}
