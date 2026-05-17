@@ -1,6 +1,10 @@
 <script lang="ts">
   import SeoHead from "$lib/components/SeoHead.svelte";
   import { BENNY_PLAYLISTS } from "$lib/benny/playlists";
+  import Video from "$lib/components/Video.svelte";
+  import SixToMidnightBanner from "$lib/components/benny/SixToMidnightBanner.svelte";
+  import SoundcloudSlider from "$lib/components/benny/SoundcloudSlider.svelte";
+  import BennyPhotoMosaic from "$lib/components/benny/BennyPhotoMosaic.svelte";
   import type { PageData } from "./$types";
 
   let { data }: { data: PageData } = $props();
@@ -16,9 +20,20 @@
 
 <main class="min-h-screen bg-zinc-900" style="color: var(--white);">
   <section class="relative grid min-h-[80vh] place-content-center overflow-hidden text-center">
-    <!-- Phase 5: Video component (autoPlay loop muted playsInline) -->
-    <!-- poster="/assets/sixtomidnight-tribute-poster.jpg" -->
-    <!-- sources: sixtomidnight-tribute.webm + sixtomidnight-tribute.mp4 -->
+    <Video
+      autoplay
+      loop
+      muted
+      playsinline
+      preload="metadata"
+      poster="/assets/sixtomidnight-tribute-poster.jpg"
+      class="absolute inset-0 h-full w-full object-cover opacity-50"
+      aria-label="six to midnight productions montage"
+      sources={[
+        { src: "/assets/sixtomidnight-tribute.webm", type: "video/webm" },
+        { src: "/assets/sixtomidnight-tribute.mp4", type: "video/mp4" },
+      ]}
+    />
     <div class="relative z-10 px-6">
       <h2 class="font-mono text-sm uppercase tracking-[0.22em] text-[var(--coin)] md:text-base">
         remembering
@@ -32,7 +47,7 @@
     </div>
   </section>
 
-  <!-- Phase 5: SixToMidnightBanner -->
+  <SixToMidnightBanner />
 
   {#if parts}
     <section>
@@ -42,7 +57,7 @@
             {@html part.html}
           {:else if part.name === "soundcloud"}
             <div class="-mx-6 md:-mx-9 my-9">
-              <!-- Phase 5: SoundcloudSlider -->
+              <SoundcloudSlider />
             </div>
           {:else if part.name === "video"}
             <div class="-mx-6 md:-mx-9 my-9">
@@ -59,7 +74,7 @@
             </div>
           {:else if part.name === "photo-mosaic"}
             <div class="-mx-6 md:-mx-9 my-9">
-              <!-- Phase 5: BennyPhotoMosaic -->
+              <BennyPhotoMosaic />
             </div>
           {:else if part.name === "playlists"}
             <div class="-mx-6 md:-mx-9 my-9 overflow-x-auto snap-x snap-mandatory flex gap-4 px-6 py-3 md:px-9">

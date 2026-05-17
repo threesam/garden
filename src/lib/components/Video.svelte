@@ -26,6 +26,7 @@
     muted?: boolean;
     playsinline?: boolean;
     preload?: '' | 'none' | 'metadata' | 'auto';
+    'aria-label'?: string;
     class?: string;
     children?: import('svelte').Snippet;
   }
@@ -41,6 +42,7 @@
     muted = false,
     playsinline = false,
     preload = 'metadata',
+    'aria-label': ariaLabel,
     class: klass = '',
     children,
   }: Props = $props();
@@ -64,6 +66,7 @@
   muted={muted || undefined}
   playsinline={playsinline || undefined}
   {preload}
+  aria-label={ariaLabel}
   class={klass}
   use:videoVisibility={{ autoplay }}
 >
