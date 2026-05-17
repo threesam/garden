@@ -5,6 +5,7 @@
   import SixToMidnightBanner from "$lib/components/benny/SixToMidnightBanner.svelte";
   import SoundcloudSlider from "$lib/components/benny/SoundcloudSlider.svelte";
   import BennyPhotoMosaic from "$lib/components/benny/BennyPhotoMosaic.svelte";
+  import PlaylistSlider from "$lib/components/benny/PlaylistSlider.svelte";
   import type { PageData } from "./$types";
 
   let { data }: { data: PageData } = $props();
@@ -77,18 +78,8 @@
               <BennyPhotoMosaic />
             </div>
           {:else if part.name === "playlists"}
-            <div class="relative left-1/2 my-9 w-screen -translate-x-1/2 overflow-x-auto snap-x snap-mandatory flex gap-4 px-6 py-3 md:px-9">
-              {#each BENNY_PLAYLISTS as playlist (playlist.id)}
-                <a
-                  href={`https://open.spotify.com/playlist/${playlist.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="snap-start flex-shrink-0 rounded-xl bg-zinc-800 p-4 text-sm hover:bg-zinc-700 transition-colors"
-                >
-                  <p class="font-mono text-xs uppercase tracking-[0.12em] text-[var(--coin)] mb-1">{playlist.tracks} tracks</p>
-                  <p class="font-sans text-base text-white">{playlist.name}</p>
-                </a>
-              {/each}
+            <div class="relative left-1/2 my-9 w-screen -translate-x-1/2">
+              <PlaylistSlider playlists={BENNY_PLAYLISTS} />
             </div>
           {/if}
         {/each}
