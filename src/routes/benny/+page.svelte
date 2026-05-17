@@ -37,7 +37,7 @@
   {#if parts}
     <section>
       <div class="mx-auto max-w-3xl px-6 py-18 md:px-9 md:py-24">
-        {#each parts as part}
+        {#each parts as part, i (i)}
           {#if part.type === "html"}
             {@html part.html}
           {:else if part.name === "soundcloud"}
