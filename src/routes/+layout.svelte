@@ -2,6 +2,7 @@
   import '../app.css';
   import Nav from '$lib/components/Nav.svelte';
   import OutboundTracker from '$lib/components/OutboundTracker.svelte';
+  import Anchor from '$lib/components/frame/Anchor.svelte';
   import { PERSON_JSON_LD, WEBSITE_JSON_LD } from '$lib/seo';
 
   let { children } = $props();
@@ -28,3 +29,4 @@
 <div style="background: var(--white)">
   {@render children()}
 </div>
+<Anchor />
