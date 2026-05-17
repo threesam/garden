@@ -56,16 +56,16 @@
           {#if part.type === "html"}
             {@html part.html}
           {:else if part.name === "soundcloud"}
-            <div class="-mx-6 md:-mx-9 my-9">
+            <div class="relative left-1/2 my-9 w-screen -translate-x-1/2">
               <SoundcloudSlider />
             </div>
           {:else if part.name === "video"}
-            <div class="-mx-6 md:-mx-9 my-9">
+            <div class="relative left-1/2 my-9 w-screen -translate-x-1/2">
               <video
                 controls
                 preload="metadata"
                 poster="/assets/benny/the_podcast-poster.jpg"
-                class="w-full"
+                class="w-full aspect-video block"
                 aria-label="play the podcast"
               >
                 <source src="/assets/benny/the_podcast.mp4" type="video/mp4" />
@@ -73,11 +73,11 @@
               </video>
             </div>
           {:else if part.name === "photo-mosaic"}
-            <div class="-mx-6 md:-mx-9 my-9">
+            <div class="relative left-1/2 my-9 w-screen -translate-x-1/2">
               <BennyPhotoMosaic />
             </div>
           {:else if part.name === "playlists"}
-            <div class="-mx-6 md:-mx-9 my-9 overflow-x-auto snap-x snap-mandatory flex gap-4 px-6 py-3 md:px-9">
+            <div class="relative left-1/2 my-9 w-screen -translate-x-1/2 overflow-x-auto snap-x snap-mandatory flex gap-4 px-6 py-3 md:px-9">
               {#each BENNY_PLAYLISTS as playlist (playlist.id)}
                 <a
                   href={`https://open.spotify.com/playlist/${playlist.id}`}

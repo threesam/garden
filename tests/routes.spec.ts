@@ -18,7 +18,13 @@ test.describe('smoke', () => {
     test(`200 + marker visible: ${path}`, async ({ page }) => {
       const errors: string[] = [];
       page.on('pageerror', e => errors.push(String(e)));
-      page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+      page.on('console', m => {
+        if (m.type() !== 'error') return;
+        const text = m.text();
+        // Ignore macOS browser-internal media controls icon errors (not app code)
+        if (text.startsWith('Button failed to load, iconName =')) return;
+        errors.push(text);
+      });
       const resp = await page.goto(path);
       expect(resp?.status()).toBe(200);
       const marker = ROUTE_MARKERS[path];

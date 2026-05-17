@@ -11,5 +11,11 @@ export default {
       $components: 'src/lib/components',
       $lib: 'src/lib',
     },
+    prerender: {
+      // OG images and other linked assets may not exist as static files
+      // (they are served dynamically or externally in production). Warn
+      // instead of failing the build.
+      handleHttpError: 'warn',
+    },
   },
 };

@@ -270,212 +270,212 @@ export interface VoronoiParams {
 }
 
 export const voronoi: Action<HTMLCanvasElement, VoronoiParams> = (node, initialParams) => {
-  $effect(() => {
-    const params: VoronoiParams = initialParams ?? {};
-    const {
-      invert = false,
-      showLetters = true,
-      imageSrc,
-      mobileImageSrc,
-      scale,
-      fit = 'contain',
-      renderScale = 1,
-    } = params;
+  const params: VoronoiParams = initialParams ?? {};
+  const {
+    invert = false,
+    showLetters = true,
+    imageSrc,
+    mobileImageSrc,
+    scale,
+    fit = 'contain',
+    renderScale = 1,
+  } = params;
 
-    const activeImageSrc =
-      mobileImageSrc && window.innerWidth < MOBILE_BREAK ? mobileImageSrc : imageSrc;
+  const activeImageSrc =
+    mobileImageSrc && window.innerWidth < MOBILE_BREAK ? mobileImageSrc : imageSrc;
 
-    const glRaw = node.getContext('webgl', { antialias: false, alpha: false });
-    if (!glRaw) return;
-    // Narrowed alias so closures (resize, render) don't see the nullable type.
-    const gl: WebGLRenderingContext = glRaw;
-    gl.getExtension('OES_standard_derivatives');
+  const glRaw = node.getContext('webgl', { antialias: false, alpha: false });
+  if (!glRaw) return {};
+  // Narrowed alias so closures (resize, render) don't see the nullable type.
+  const gl: WebGLRenderingContext = glRaw;
+  gl.getExtension('OES_standard_derivatives');
 
-    let raf = 0;
-    let visible = true;
-    let hovering = false;
-    let dragging = false;
-    let influence = 0;
-    const mouseUv = { x: -10, y: -10 };
-    const smoothMouse = { x: -10, y: -10 };
+  let raf = 0;
+  let visible = true;
+  let hovering = false;
+  let dragging = false;
+  let influence = 0;
+  const mouseUv = { x: -10, y: -10 };
+  const smoothMouse = { x: -10, y: -10 };
 
-    const style = getComputedStyle(node);
-    const whiteColor = parseHex(style.getPropertyValue('--white').trim() || '#f5f4f0');
-    const blackColor = parseHex(style.getPropertyValue('--black').trim() || '#1a1a14');
+  const style = getComputedStyle(node);
+  const whiteColor = parseHex(style.getPropertyValue('--white').trim() || '#f5f4f0');
+  const blackColor = parseHex(style.getPropertyValue('--black').trim() || '#1a1a14');
 
-    const topColor = invert ? blackColor : whiteColor;
-    const botColor = invert ? whiteColor : blackColor;
+  const topColor = invert ? blackColor : whiteColor;
+  const botColor = invert ? whiteColor : blackColor;
 
-    const vert = createShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER);
-    const frag = createShader(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER);
-    if (!vert || !frag) return;
+  const vert = createShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER);
+  const frag = createShader(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER);
+  if (!vert || !frag) return {};
 
-    const program = gl.createProgram()!;
-    gl.attachShader(program, vert);
-    gl.attachShader(program, frag);
-    gl.linkProgram(program);
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      console.error('Program link error:', gl.getProgramInfoLog(program));
-      return;
-    }
-    gl.useProgram(program);
+  const program = gl.createProgram()!;
+  gl.attachShader(program, vert);
+  gl.attachShader(program, frag);
+  gl.linkProgram(program);
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    console.error('Program link error:', gl.getProgramInfoLog(program));
+    return {};
+  }
+  gl.useProgram(program);
 
-    const quad = new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]);
-    const buf = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-    gl.bufferData(gl.ARRAY_BUFFER, quad, gl.STATIC_DRAW);
-    const aPosition = gl.getAttribLocation(program, 'aPosition');
-    gl.enableVertexAttribArray(aPosition);
-    gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0);
+  const quad = new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, quad, gl.STATIC_DRAW);
+  const aPosition = gl.getAttribLocation(program, 'aPosition');
+  gl.enableVertexAttribArray(aPosition);
+  gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0);
 
-    const uInvert = gl.getUniformLocation(program, 'uInvert');
-    const uInfluence = gl.getUniformLocation(program, 'uInfluence');
-    const uResolution = gl.getUniformLocation(program, 'uResolution');
-    const uMouse = gl.getUniformLocation(program, 'uMouse');
-    const uTopColor = gl.getUniformLocation(program, 'uTopColor');
-    const uBotColor = gl.getUniformLocation(program, 'uBotColor');
-    const uScale = gl.getUniformLocation(program, 'uScale');
-    const uImage = gl.getUniformLocation(program, 'uImage');
-    const uHasImage = gl.getUniformLocation(program, 'uHasImage');
-    const uImageAspect = gl.getUniformLocation(program, 'uImageAspect');
-    const uLetters = gl.getUniformLocation(program, 'uLetters');
-    const uCoverFit = gl.getUniformLocation(program, 'uCoverFit');
+  const uInvert = gl.getUniformLocation(program, 'uInvert');
+  const uInfluence = gl.getUniformLocation(program, 'uInfluence');
+  const uResolution = gl.getUniformLocation(program, 'uResolution');
+  const uMouse = gl.getUniformLocation(program, 'uMouse');
+  const uTopColor = gl.getUniformLocation(program, 'uTopColor');
+  const uBotColor = gl.getUniformLocation(program, 'uBotColor');
+  const uScale = gl.getUniformLocation(program, 'uScale');
+  const uImage = gl.getUniformLocation(program, 'uImage');
+  const uHasImage = gl.getUniformLocation(program, 'uHasImage');
+  const uImageAspect = gl.getUniformLocation(program, 'uImageAspect');
+  const uLetters = gl.getUniformLocation(program, 'uLetters');
+  const uCoverFit = gl.getUniformLocation(program, 'uCoverFit');
 
-    gl.uniform1f(uInvert, invert ? 1.0 : 0.0);
-    gl.uniform3fv(uTopColor, topColor);
-    gl.uniform3fv(uBotColor, botColor);
-    gl.uniform1i(uImage, 0);
-    gl.uniform1f(uHasImage, 0.0);
-    gl.uniform1f(uImageAspect, 1.0);
-    gl.uniform1f(uLetters, showLetters ? 1.0 : 0.0);
-    gl.uniform1f(uCoverFit, fit === 'cover' ? 1.0 : 0.0);
+  gl.uniform1f(uInvert, invert ? 1.0 : 0.0);
+  gl.uniform3fv(uTopColor, topColor);
+  gl.uniform3fv(uBotColor, botColor);
+  gl.uniform1i(uImage, 0);
+  gl.uniform1f(uHasImage, 0.0);
+  gl.uniform1f(uImageAspect, 1.0);
+  gl.uniform1f(uLetters, showLetters ? 1.0 : 0.0);
+  gl.uniform1f(uCoverFit, fit === 'cover' ? 1.0 : 0.0);
 
-    let needsRender = true;
-    let texture: WebGLTexture | null = null;
-    let alive = true;
+  let needsRender = true;
+  let texture: WebGLTexture | null = null;
+  let alive = true;
 
-    if (activeImageSrc) {
-      texture = gl.createTexture();
+  if (activeImageSrc) {
+    texture = gl.createTexture();
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(
+      gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0,
+      gl.RGBA, gl.UNSIGNED_BYTE,
+      new Uint8Array([0, 0, 0, 0]),
+    );
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      if (!alive) return;
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, texture);
-      gl.texImage2D(
-        gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0,
-        gl.RGBA, gl.UNSIGNED_BYTE,
-        new Uint8Array([0, 0, 0, 0]),
-      );
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = () => {
-        if (!alive) return;
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
-        gl.uniform1f(uImageAspect, img.width / img.height);
-        gl.uniform1f(uHasImage, 1.0);
-        needsRender = true;
-        if (visible && !raf) raf = requestAnimationFrame(render);
-      };
-      img.src = activeImageSrc;
-    }
-
-    function updateMouseUv(e: MouseEvent | Touch) {
-      const rect = node.getBoundingClientRect();
-      mouseUv.x = (e.clientX - rect.left) / rect.width;
-      mouseUv.y = 1.0 - (e.clientY - rect.top) / rect.height;
-    }
-
-    const onMouseEnter = () => { hovering = true; };
-    const onMouseLeave = () => { hovering = false; dragging = false; };
-    const onMouseMove = (e: MouseEvent) => updateMouseUv(e);
-    const onMouseDown = () => { dragging = true; };
-    const onMouseUp = () => { dragging = false; };
-    const onTouchStart = (e: TouchEvent) => {
-      hovering = true; dragging = true;
-      if (e.touches[0]) updateMouseUv(e.touches[0]);
-    };
-    const onTouchMove = (e: TouchEvent) => {
-      if (e.touches[0]) updateMouseUv(e.touches[0]);
-    };
-    const onTouchEnd = () => { hovering = false; dragging = false; };
-
-    node.addEventListener('mouseenter', onMouseEnter);
-    node.addEventListener('mouseleave', onMouseLeave);
-    node.addEventListener('mousemove', onMouseMove);
-    node.addEventListener('mousedown', onMouseDown);
-    window.addEventListener('mouseup', onMouseUp);
-    node.addEventListener('touchstart', onTouchStart, { passive: true });
-    node.addEventListener('touchmove', onTouchMove, { passive: true });
-    node.addEventListener('touchend', onTouchEnd);
-
-    function resize() {
-      node.width = Math.max(1, Math.round(node.offsetWidth * renderScale));
-      node.height = Math.max(1, Math.round(node.offsetHeight * renderScale));
-      gl.viewport(0, 0, node.width, node.height);
-      gl.uniform2f(uResolution, node.width, node.height);
-      const resolvedScale = scale ?? (node.offsetWidth < MOBILE_BREAK ? SCALE_MOBILE : SCALE_DESKTOP);
-      gl.uniform1f(uScale, resolvedScale);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+      gl.uniform1f(uImageAspect, img.width / img.height);
+      gl.uniform1f(uHasImage, 1.0);
       needsRender = true;
-    }
+      if (visible && !raf) raf = requestAnimationFrame(render);
+    };
+    img.src = activeImageSrc;
+  }
 
-    resize();
+  function updateMouseUv(e: MouseEvent | Touch) {
+    const rect = node.getBoundingClientRect();
+    mouseUv.x = (e.clientX - rect.left) / rect.width;
+    mouseUv.y = 1.0 - (e.clientY - rect.top) / rect.height;
+  }
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        const wasVisible = visible;
-        visible = entry?.isIntersecting ?? true;
-        if (visible && !wasVisible && !raf) {
-          raf = requestAnimationFrame(render);
-        }
-      },
-      { threshold: 0 },
-    );
-    observer.observe(node);
+  const onMouseEnter = () => { hovering = true; };
+  const onMouseLeave = () => { hovering = false; dragging = false; };
+  const onMouseMove = (e: MouseEvent) => updateMouseUv(e);
+  const onMouseDown = () => { dragging = true; };
+  const onMouseUp = () => { dragging = false; };
+  const onTouchStart = (e: TouchEvent) => {
+    hovering = true; dragging = true;
+    if (e.touches[0]) updateMouseUv(e.touches[0]);
+  };
+  const onTouchMove = (e: TouchEvent) => {
+    if (e.touches[0]) updateMouseUv(e.touches[0]);
+  };
+  const onTouchEnd = () => { hovering = false; dragging = false; };
 
-    const resizeObserver = new ResizeObserver(() => resize());
-    resizeObserver.observe(node);
+  node.addEventListener('mouseenter', onMouseEnter);
+  node.addEventListener('mouseleave', onMouseLeave);
+  node.addEventListener('mousemove', onMouseMove);
+  node.addEventListener('mousedown', onMouseDown);
+  window.addEventListener('mouseup', onMouseUp);
+  node.addEventListener('touchstart', onTouchStart, { passive: true });
+  node.addEventListener('touchmove', onTouchMove, { passive: true });
+  node.addEventListener('touchend', onTouchEnd);
 
-    let throttleFrame = 0;
-    function render() {
-      raf = 0;
-      if (!visible) return;
-      if (shouldSkipThrottledFrame(++throttleFrame)) {
+  function resize() {
+    node.width = Math.max(1, Math.round(node.offsetWidth * renderScale));
+    node.height = Math.max(1, Math.round(node.offsetHeight * renderScale));
+    gl.viewport(0, 0, node.width, node.height);
+    gl.uniform2f(uResolution, node.width, node.height);
+    const resolvedScale = scale ?? (node.offsetWidth < MOBILE_BREAK ? SCALE_MOBILE : SCALE_DESKTOP);
+    gl.uniform1f(uScale, resolvedScale);
+    needsRender = true;
+  }
+
+  resize();
+
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      const wasVisible = visible;
+      visible = entry?.isIntersecting ?? true;
+      if (visible && !wasVisible && !raf) {
         raf = requestAnimationFrame(render);
-        return;
       }
+    },
+    { threshold: 0 },
+  );
+  observer.observe(node);
+
+  const resizeObserver = new ResizeObserver(() => resize());
+  resizeObserver.observe(node);
+
+  let throttleFrame = 0;
+  function render() {
+    raf = 0;
+    if (!visible) return;
+    if (shouldSkipThrottledFrame(++throttleFrame)) {
       raf = requestAnimationFrame(render);
-
-      const targetInfluence = (hovering || dragging) ? 1.0 : 0.0;
-      const prevInfluence = influence;
-      influence += (targetInfluence - influence) * 0.08;
-      if (Math.abs(influence) < 0.001) influence = 0;
-
-      const prevMx = smoothMouse.x;
-      const prevMy = smoothMouse.y;
-      smoothMouse.x += (mouseUv.x - smoothMouse.x) * 0.1;
-      smoothMouse.y += (mouseUv.y - smoothMouse.y) * 0.1;
-
-      const changed =
-        Math.abs(influence - prevInfluence) > 0.0005 ||
-        Math.abs(smoothMouse.x - prevMx) > 0.0005 ||
-        Math.abs(smoothMouse.y - prevMy) > 0.0005;
-
-      if (changed || needsRender) {
-        needsRender = false;
-        gl.uniform1f(uInfluence, influence);
-        gl.uniform2f(uMouse, smoothMouse.x, smoothMouse.y);
-        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-      }
+      return;
     }
-
     raf = requestAnimationFrame(render);
 
-    return () => {
+    const targetInfluence = (hovering || dragging) ? 1.0 : 0.0;
+    const prevInfluence = influence;
+    influence += (targetInfluence - influence) * 0.08;
+    if (Math.abs(influence) < 0.001) influence = 0;
+
+    const prevMx = smoothMouse.x;
+    const prevMy = smoothMouse.y;
+    smoothMouse.x += (mouseUv.x - smoothMouse.x) * 0.1;
+    smoothMouse.y += (mouseUv.y - smoothMouse.y) * 0.1;
+
+    const changed =
+      Math.abs(influence - prevInfluence) > 0.0005 ||
+      Math.abs(smoothMouse.x - prevMx) > 0.0005 ||
+      Math.abs(smoothMouse.y - prevMy) > 0.0005;
+
+    if (changed || needsRender) {
+      needsRender = false;
+      gl.uniform1f(uInfluence, influence);
+      gl.uniform2f(uMouse, smoothMouse.x, smoothMouse.y);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
+  }
+
+  raf = requestAnimationFrame(render);
+
+  return {
+    destroy() {
       alive = false;
       observer.disconnect();
       resizeObserver.disconnect();
@@ -493,6 +493,6 @@ export const voronoi: Action<HTMLCanvasElement, VoronoiParams> = (node, initialP
       gl.deleteShader(frag);
       gl.deleteBuffer(buf);
       if (texture) gl.deleteTexture(texture);
-    };
-  });
+    },
+  };
 };
