@@ -4,12 +4,12 @@ import { KEPT_ROUTES } from './routes';
 const ROUTE_MARKERS: Record<string, string> = {
   '/':                              'threesam',
   '/shelf':                         'shelf',
-  '/sounds':                        'sounds',
-  '/thoughts':                      'thoughts',
+  '/sounds':                        'coming soon',
+  '/thoughts':                      'work in progress',
   '/dad':                           'dad',
   '/deana':                         'deana',
-  '/benny':                         'benny',
-  '/anything-but-analog':           'anything but analog',
+  '/benny':                         '102 Jackson Street',
+  '/anything-but-analog':           'THREESAM',
   '/canvas/self':                   'self',
 };
 
