@@ -1,5 +1,6 @@
 <script lang="ts">
   import SeoHead from "$lib/components/SeoHead.svelte";
+  import ShelfHero from "$lib/components/ShelfHero.svelte";
   import type { PageData } from "./$types";
 
   let { data }: { data: PageData } = $props();
@@ -16,7 +17,7 @@
   class="copy-lower min-h-screen pb-18"
   style="background: linear-gradient(to bottom, var(--black) 40%, var(--white)); color: var(--white);"
 >
-  <!-- Phase 5: ShelfHero featured={featured} featuredLabel={featuredLabel} -->
+  <ShelfHero {featured} {featuredLabel} />
 
   <section class="columns-4 gap-0 overflow-hidden py-1.5 sm:columns-6 md:columns-8 lg:columns-10 xl:columns-12">
     {#each sorted as book (book.id)}
