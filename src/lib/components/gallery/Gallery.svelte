@@ -242,6 +242,7 @@
 <section
 	class="h-full w-full cursor-grab overflow-hidden active:cursor-grabbing"
 	style="touch-action: none; padding: {CARD_GAP}px;"
+	data-gallery-strip
 >
 	<div
 		bind:this={stripEl}

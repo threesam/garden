@@ -56,10 +56,13 @@ test.describe('visual parity', () => {
       });
       await page.waitForTimeout(800);
 
-      // Mask all canvas elements AND voronoi banner wrappers (dynamic aspect ratio)
+      // Mask all canvas elements, voronoi banner wrappers (dynamic aspect
+      // ratio), and the gallery carousel strip (card positions are
+      // animation-frame-dependent even after RAF freeze).
       const masks = [
         ...await page.locator('canvas').all(),
         ...await page.locator('.voronoi-banner').all(),
+        ...await page.locator('[data-gallery-strip]').all(),
       ];
 
       const fullPage = !VIEWPORT_ONLY_LABELS.has(label);
