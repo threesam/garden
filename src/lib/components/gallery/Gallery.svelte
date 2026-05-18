@@ -57,7 +57,6 @@
 		let activeRangeRef: [number, number] = [0, 0];
 		let stripW = 1;
 		let measured = false;
-		let didDrag = false;
 
 		const drag = {
 			active: false,
@@ -212,8 +211,12 @@
 		};
 	});
 
+	// Shared flag written by onMount pointer handlers, read by handleClick.
+	// Must be module-level so both the onMount closure and handleClick share the binding.
+	let didDrag = false;
+
 	function handleClick(e: MouseEvent, item: { href: string; handle: string }) {
-		if ((e.currentTarget as HTMLElement).dataset.didDrag === 'true') {
+		if (didDrag) {
 			e.preventDefault();
 			return;
 		}
