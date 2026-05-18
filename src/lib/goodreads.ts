@@ -1,4 +1,5 @@
 import { XMLParser } from "fast-xml-parser";
+import { createTtlCache } from "./server/ttl-cache";
 
 const USER_ID = "151736867";
 const RSS_BASE = `https://www.goodreads.com/review/list_rss/${USER_ID}`;
@@ -40,9 +41,9 @@ export interface Book {
 
 const parser = new XMLParser();
 
-// In-memory cache with 24-hour TTL.
+// In-memory cache with 24-hour TTL. maxEntries=64 covers all paginated shelf URLs.
 const CACHE_TTL_MS = 86400 * 1000;
-const cache = new Map<string, { data: RawEntry[]; ts: number }>();
+const cache = createTtlCache<RawEntry[]>({ ttlMs: CACHE_TTL_MS, maxEntries: 64 });
 
 function stripHtml(html: string): string {
   if (!html) return "";
@@ -99,7 +100,7 @@ function parseEntry(entry: RawEntry): Book {
 async function fetchPage(shelf: string, page: number): Promise<RawEntry[]> {
   const url = `${RSS_BASE}?shelf=${shelf}&page=${page}&per_page=100`;
   const cached = cache.get(url);
-  if (cached && Date.now() - cached.ts < CACHE_TTL_MS) return cached.data;
+  if (cached !== undefined) return cached;
   const res = await fetch(url);
   if (!res.ok) return [];
   const xml = await res.text();
@@ -107,7 +108,7 @@ async function fetchPage(shelf: string, page: number): Promise<RawEntry[]> {
   const items = parsed?.rss?.channel?.item;
   if (!items) return [];
   const data: RawEntry[] = Array.isArray(items) ? items : [items];
-  cache.set(url, { data, ts: Date.now() });
+  cache.set(url, data);
   return data;
 }
 

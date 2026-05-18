@@ -1,12 +1,15 @@
 import type { RequestHandler } from './$types';
 import sharp from 'sharp';
+import { createTtlCache } from '$lib/server/ttl-cache';
 
 // Allowed origin hosts — prevents open redirect abuse.
 const ALLOWED_HOSTS = new Set(['images.gr-assets.com', 'i.gr-assets.com', 's.gr-assets.com']);
 
-// In-memory response cache keyed by url+width.
-const cache = new Map<string, { data: ArrayBuffer; type: string; ts: number }>();
-const CACHE_TTL_MS = 86400 * 1000; // 24 hours
+// In-memory response cache keyed by url+width; bounded to 500 entries.
+const cache = createTtlCache<{ data: ArrayBuffer; type: string }>({
+  ttlMs: 86400 * 1000,
+  maxEntries: 500,
+});
 
 export const GET: RequestHandler = async ({ url }) => {
   const src = url.searchParams.get('url');
@@ -27,7 +30,7 @@ export const GET: RequestHandler = async ({ url }) => {
 
   const cacheKey = `${src}@${w}`;
   const hit = cache.get(cacheKey);
-  if (hit && Date.now() - hit.ts < CACHE_TTL_MS) {
+  if (hit) {
     return new Response(hit.data, {
       headers: {
         'Content-Type': hit.type,
@@ -49,7 +52,7 @@ export const GET: RequestHandler = async ({ url }) => {
     resizedBuf.byteOffset,
     resizedBuf.byteOffset + resizedBuf.byteLength
   ) as ArrayBuffer;
-  cache.set(cacheKey, { data, type: 'image/webp', ts: Date.now() });
+  cache.set(cacheKey, { data, type: 'image/webp' });
 
   return new Response(data, {
     headers: {
