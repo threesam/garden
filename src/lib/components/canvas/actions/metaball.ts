@@ -146,7 +146,13 @@ export const metaball: Action<HTMLCanvasElement, MetaballParams> = (node, initia
   }
 
   function updatePointer(clientX: number, clientY: number) {
-    // Use the cached rect (kept fresh by updateRect via scroll listener).
+    // Re-read rect on every call: an ancestor may translate via
+    // transform: translate3d (e.g. the Gallery auto-scroll strip), which
+    // doesn't fire a scroll event and leaves a cached rect stale.
+    // pointermove is browser-throttled so this read is cheap.
+    const rect = node.getBoundingClientRect();
+    rectLeft = rect.left;
+    rectTop = rect.top;
     pointerX = clientX - rectLeft;
     pointerY = clientY - rectTop;
     pointerActive = true;

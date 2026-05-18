@@ -1,0 +1,22 @@
+import { chromium } from '@playwright/test';
+const b = await chromium.launch({ headless: true });
+const ctx = await b.newContext({ viewport: { width: 1280, height: 800 } });
+const p = await ctx.newPage();
+await p.goto('http://localhost:3000/', { waitUntil: 'networkidle' });
+await p.waitForTimeout(2500);
+await p.evaluate(() => { for (let i = 1; i < 99999; i++) { try { cancelAnimationFrame(i); } catch {} } });
+const shelf = p.locator('a[href="/shelf"]').first();
+await shelf.hover({ force: true });
+await p.waitForTimeout(1500);
+await shelf.screenshot({ path: 'qa-results-v2/shelf-hover-after.png' });
+// Also screenshot prod for comparison
+const p2 = await ctx.newPage();
+await p2.goto('https://threesam.com/', { waitUntil: 'networkidle' });
+await p2.waitForTimeout(2500);
+await p2.evaluate(() => { for (let i = 1; i < 99999; i++) { try { cancelAnimationFrame(i); } catch {} } });
+const prodShelf = p2.locator('a[href="/shelf"]').first();
+await prodShelf.hover({ force: true });
+await p2.waitForTimeout(1500);
+await prodShelf.screenshot({ path: 'qa-results-v2/shelf-hover-prod.png' });
+await b.close();
+console.log('done');
