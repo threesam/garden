@@ -4,7 +4,7 @@
   import Gallery from '$lib/components/gallery/Gallery.svelte';
 </script>
 
-<SeoHead canonical="/" />
+<SeoHead canonical="/" preloadImage="/assets/clouds.webp" />
 
 <!--
   Homepage lays out into a single viewport: 25dvh clouds on top (CSS-mirrored

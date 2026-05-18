@@ -15,7 +15,7 @@ for (const src of SOURCES) {
     const before = (await stat(src)).size;
     const dest = src.replace(/\.png$/, '.webp');
     await sharp(src)
-      .webp({ quality: 80 })
+      .webp({ quality: 70 })
       .toFile(dest);
     const after = (await stat(dest)).size;
     const pct = Math.round((1 - after / before) * 100);

@@ -6,8 +6,10 @@
     description?: string;
     ogImage?: string;
     canonical?: string;
+    /** URL of the hero LCP image to preload. Adds a high-priority preload hint. */
+    preloadImage?: string;
   }
-  let { title, description, ogImage, canonical }: Props = $props();
+  let { title, description, ogImage, canonical, preloadImage }: Props = $props();
 
   const resolvedTitle = $derived(resolveTitle(title));
   const resolvedDescription = $derived(description ?? SITE_DESCRIPTION);
@@ -20,6 +22,9 @@
 </script>
 
 <svelte:head>
+  {#if preloadImage}
+    <link rel="preload" as="image" href={preloadImage} fetchpriority="high" />
+  {/if}
   <title>{resolvedTitle}</title>
   <meta name="description" content={resolvedDescription} />
   <link rel="canonical" href={`${SITE_URL}${resolvedCanonical}`} />
