@@ -27,6 +27,7 @@
       muted
       playsinline
       preload="metadata"
+      fetchpriority="high"
       poster="/assets/sixtomidnight-tribute-poster.jpg"
       class="absolute inset-0 h-full w-full object-cover opacity-50"
       aria-label="six to midnight productions montage"

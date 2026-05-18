@@ -25,6 +25,7 @@
     muted?: boolean;
     playsinline?: boolean;
     preload?: '' | 'none' | 'metadata' | 'auto';
+    fetchpriority?: 'high' | 'low' | 'auto';
     'aria-label'?: string;
     class?: string;
     children?: import('svelte').Snippet;
@@ -41,6 +42,7 @@
     muted = false,
     playsinline = false,
     preload = 'metadata',
+    fetchpriority,
     'aria-label': ariaLabel,
     class: klass = '',
     children,
@@ -56,6 +58,7 @@
   Accepts either a single src or a sources array for multi-codec
   (webm + mp4 fallback), and an optional tracks array for subtitles.
 -->
+<!-- fetchpriority is a valid HTML attribute but absent from Svelte's HTMLVideoAttributes -->
 <video
   src={effectiveSrc}
   {poster}
@@ -65,6 +68,7 @@
   muted={muted || undefined}
   playsinline={playsinline || undefined}
   {preload}
+  {...(fetchpriority ? ({ fetchpriority } as Record<string, string>) : {})}
   aria-label={ariaLabel}
   class={klass}
   use:videoVisibility={{ autoplay }}
