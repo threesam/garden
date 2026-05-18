@@ -12,6 +12,12 @@ const emojiMap = new Proxy({} as Record<string, string>, {
   },
 });
 
+// Known intrinsic dimensions for inline (non-banner) images.
+// Allows browsers to reserve layout space before image loads, preventing CLS.
+const knownDimensions: Record<string, { w: number; h: number }> = {
+  '/assets/chip-malt-new-address.png': { w: 1142, h: 134 },
+};
+
 export function createMarkdownRenderer(): Marked {
   const md = new Marked();
 
@@ -44,11 +50,6 @@ export function createMarkdownRenderer(): Marked {
         return `<a href="${href}"${external ? ' target="_blank" rel="noopener noreferrer"' : ""} class="${linkClasses}">${text}</a>`;
       },
       image({ href, text }) {
-        // Known intrinsic dimensions for inline (non-banner) images.
-        // Allows browsers to reserve layout space before image loads, preventing CLS.
-        const knownDimensions: Record<string, { w: number; h: number }> = {
-          '/assets/chip-malt-new-address.png': { w: 1142, h: 134 },
-        };
         if (text && text.includes("|")) {
           const parts = text.split("|");
           const heading = parts[0].trim().replace(/\\n/g, "<br/>");
