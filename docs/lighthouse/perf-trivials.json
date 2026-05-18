@@ -1,0 +1,65 @@
+[
+  {
+    "route": "/",
+    "perf": 89,
+    "a11y": 100,
+    "bp": 100,
+    "seo": 100
+  },
+  {
+    "route": "/shelf",
+    "perf": 89,
+    "a11y": 100,
+    "bp": 96,
+    "seo": 100
+  },
+  {
+    "route": "/sounds",
+    "perf": 96,
+    "a11y": 100,
+    "bp": 100,
+    "seo": 100
+  },
+  {
+    "route": "/thoughts",
+    "perf": 96,
+    "a11y": 100,
+    "bp": 100,
+    "seo": 100
+  },
+  {
+    "route": "/dad",
+    "perf": 71,
+    "a11y": 100,
+    "bp": 100,
+    "seo": 100
+  },
+  {
+    "route": "/deana",
+    "perf": 96,
+    "a11y": 100,
+    "bp": 100,
+    "seo": 100
+  },
+  {
+    "route": "/benny",
+    "perf": 91,
+    "a11y": 100,
+    "bp": 100,
+    "seo": 100
+  },
+  {
+    "route": "/anything-but-analog",
+    "perf": 95,
+    "a11y": 100,
+    "bp": 100,
+    "seo": 100
+  },
+  {
+    "route": "/canvas/self",
+    "perf": 76,
+    "a11y": 100,
+    "bp": 100,
+    "seo": 100
+  }
+]
