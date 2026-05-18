@@ -146,9 +146,7 @@ export const metaball: Action<HTMLCanvasElement, MetaballParams> = (node, initia
   }
 
   function updatePointer(clientX: number, clientY: number) {
-    const rect = node.getBoundingClientRect();
-    rectLeft = rect.left;
-    rectTop = rect.top;
+    // Use the cached rect (kept fresh by updateRect via scroll listener).
     pointerX = clientX - rectLeft;
     pointerY = clientY - rectTop;
     pointerActive = true;

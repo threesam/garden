@@ -417,7 +417,11 @@ export const voronoi: Action<HTMLCanvasElement, VoronoiParams> = (node, initialP
   );
   observer.observe(node);
 
-  const resizeObserver = new ResizeObserver(() => resize());
+  let resizeTimer = 0;
+  const resizeObserver = new ResizeObserver(() => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resize, 100) as unknown as number;
+  });
   resizeObserver.observe(node);
 
   let throttleFrame = 0;
@@ -458,6 +462,7 @@ export const voronoi: Action<HTMLCanvasElement, VoronoiParams> = (node, initialP
   return {
     destroy() {
       alive = false;
+      clearTimeout(resizeTimer);
       observer.disconnect();
       resizeObserver.disconnect();
       if (raf) cancelAnimationFrame(raf);
