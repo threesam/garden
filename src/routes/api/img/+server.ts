@@ -1,4 +1,5 @@
 import type { RequestHandler } from './$types';
+import { error } from '@sveltejs/kit';
 import sharp from 'sharp';
 import { createTtlCache } from '$lib/server/ttl-cache';
 
@@ -13,7 +14,8 @@ const cache = createTtlCache<{ data: ArrayBuffer; type: string }>({
 
 export const GET: RequestHandler = async ({ url }) => {
   const src = url.searchParams.get('url');
-  const w = Math.min(Math.max(parseInt(url.searchParams.get('w') ?? '400', 10), 32), 1200);
+  const wRaw = Number(url.searchParams.get('w'));
+  const w = Number.isFinite(wRaw) ? Math.min(Math.max(wRaw, 32), 1200) : 400;
 
   if (!src) return new Response('missing url', { status: 400 });
 
@@ -43,10 +45,17 @@ export const GET: RequestHandler = async ({ url }) => {
   if (!upstream.ok) return new Response('upstream error', { status: 502 });
 
   const inputBuf = await upstream.arrayBuffer();
-  const resizedBuf = await sharp(inputBuf)
-    .resize({ width: w, withoutEnlargement: true })
-    .webp({ quality: 80 })
-    .toBuffer();
+
+  let resizedBuf: Buffer;
+  try {
+    resizedBuf = await sharp(inputBuf)
+      .resize({ width: w, withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toBuffer();
+  } catch (err) {
+    console.error('[api/img] sharp pipeline failed', { src, w, err });
+    throw error(502, 'image processing failed');
+  }
 
   const data = resizedBuf.buffer.slice(
     resizedBuf.byteOffset,
