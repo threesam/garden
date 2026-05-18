@@ -1,5 +1,6 @@
 <script lang="ts">
   import { preloadCode } from '$app/navigation';
+  import { NAV_ROUTES } from '$lib/nav';
 
   let open = $state(false);
   let hovered = $state(false);
@@ -16,8 +17,8 @@
   function handleCoinMouseEnter() {
     if (!locked) hovered = true;
     // Warm all route JS chunks on first coin hover — no-op on subsequent calls.
-    for (const route of ['/', '/shelf', '/sounds', '/thoughts', '/dad', '/deana', '/benny', '/anything-but-analog', '/canvas/self']) {
-      preloadCode(route);
+    for (const r of NAV_ROUTES) {
+      preloadCode(r.href);
     }
   }
 
