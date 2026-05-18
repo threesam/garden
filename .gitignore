@@ -13,12 +13,12 @@
 # testing
 /coverage
 
-# next.js
-/.next/
-/out/
+# sveltekit
+/.svelte-kit/
+/build
 
 # production
-/build
+/out
 
 # misc
 .DS_Store
@@ -41,13 +41,12 @@ data/finance/
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts
 
 # git worktrees
 .worktrees/
 
 # large media imports
-public/assets/messages/
+static/assets/messages/
 data/messages/dianchik/conversation.json
 data/messages/dianchik/combined.json
 data/messages/dianchik/imessage.json

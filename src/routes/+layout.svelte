@@ -1,0 +1,30 @@
+<script lang="ts">
+  import '../app.css';
+  import Guide from '$lib/components/frame/Guide.svelte';
+  import OutboundTracker from '$lib/components/OutboundTracker.svelte';
+  import Anchor from '$lib/components/frame/Anchor.svelte';
+  import { PERSON_JSON_LD_STRING, WEBSITE_JSON_LD_STRING } from '$lib/seo';
+
+  let { children } = $props();
+</script>
+
+<svelte:head>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+  <!-- Load font CSS non-blocking (media=print swap trick, safe in svelte:head via @html) -->
+  {@html `<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Recursive:slnt,wght,CASL,CRSV,MONO@-15..0,300..1000,0..1,0..1,0..1&family=Epilogue:wght@400;500;700&display=swap"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Recursive:slnt,wght,CASL,CRSV,MONO@-15..0,300..1000,0..1,0..1,0..1&family=Epilogue:wght@400;500;700&display=swap"></noscript>`}
+  <script
+    src="https://analytics.sixtom.com/script.js"
+    data-website-id="2a502ffa-58a1-4057-be13-e46f0354cfb7"
+    async
+  ></script>
+  {@html `<script type="application/ld+json">${PERSON_JSON_LD_STRING}</script>`}
+  {@html `<script type="application/ld+json">${WEBSITE_JSON_LD_STRING}</script>`}
+</svelte:head>
+
+<OutboundTracker />
+<Guide />
+<div style="background: var(--white)">
+  {@render children()}
+</div>
+<Anchor />
