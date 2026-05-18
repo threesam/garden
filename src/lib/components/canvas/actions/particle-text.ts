@@ -649,7 +649,13 @@ export const particleText: Action<HTMLCanvasElement, ParticleTextParams> = (node
   io.observe(container);
 
   const onMove = (e: PointerEvent) => {
-    // Use the cached rect (kept fresh by updateRect via scroll + resize).
+    // Read rect on every move: parents may translate (e.g. Gallery
+    // auto-scroll uses transform: translate3d, which doesn't fire scroll
+    // and would leave a cached rect stale). pointermove is throttled by
+    // the browser, so the layout read here is bounded.
+    const rect = container.getBoundingClientRect();
+    rectLeft = rect.left;
+    rectTop = rect.top;
     mouseX = e.clientX - rectLeft;
     mouseY = e.clientY - rectTop;
   };
