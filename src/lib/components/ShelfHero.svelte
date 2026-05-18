@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import MetaballCanvas from '$lib/components/canvas/MetaballCanvas.svelte';
 	import { extractDominantColor } from '$lib/dominant-color';
+	import { proxyImg } from '$lib/img';
 	import type { Book } from '$lib/goodreads';
 
 	// --black #1a1a14 as normalized RGB
@@ -35,7 +36,7 @@
 			return;
 		}
 		let cancelled = false;
-		extractDominantColor(`/api/img?url=${encodeURIComponent(featured.coverUrl)}&w=200`).then((c) => {
+		extractDominantColor(proxyImg(featured.coverUrl, 200)).then((c) => {
 			if (cancelled) return;
 			if (c) color = c;
 			metaballsHidden = false;
@@ -115,7 +116,7 @@
 				{#if featured.coverUrl}
 					<img
 						bind:this={coverEl}
-						src="/api/img?url={encodeURIComponent(featured.coverUrl)}&w=400"
+						src={proxyImg(featured.coverUrl, 400)}
 						alt={featured.cleanTitle}
 						width="400"
 						height="600"

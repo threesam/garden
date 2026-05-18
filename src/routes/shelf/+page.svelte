@@ -1,6 +1,7 @@
 <script lang="ts">
   import SeoHead from "$lib/components/SeoHead.svelte";
   import ShelfHero from "$lib/components/ShelfHero.svelte";
+  import { proxyImg } from "$lib/img";
   import type { PageData } from "./$types";
 
   let { data }: { data: PageData } = $props();
@@ -29,7 +30,7 @@
       >
         {#if book.coverUrl}
           <img
-            src="/api/img?url={encodeURIComponent(book.coverUrl)}&w=200"
+            src={proxyImg(book.coverUrl, 200)}
             alt={book.cleanTitle}
             width="200"
             height="300"
