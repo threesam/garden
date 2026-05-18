@@ -7,6 +7,12 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   reporter: 'list',
+  webServer: {
+    command: 'pnpm preview --port 3000',
+    port: 3000,
+    reuseExistingServer: !process.env.CI,
+    timeout: 60_000,
+  },
   use: {
     baseURL: 'http://localhost:3000',
     trace: 'retain-on-failure',
