@@ -30,21 +30,29 @@
   const isRight = $derived(pos.includes('right'));
   const isCenter = $derived(pos.includes('center'));
 
-  const hClass = $derived(
-    isCenter
-      ? 'left-1/2 -translate-x-1/2 text-center'
-      : isRight
-        ? 'right-6 text-right md:right-20'
-        : 'left-6 md:left-20'
-  );
+  const H_CLASSES: Record<'center' | 'right' | 'left', string> = {
+    center: 'left-1/2 -translate-x-1/2 text-center',
+    right: 'right-6 text-right md:right-20',
+    left: 'left-6 md:left-20',
+  };
+  const hPos = $derived.by(() => {
+    if (isCenter) return 'center' as const;
+    if (isRight) return 'right' as const;
+    return 'left' as const;
+  });
+  const hClass = $derived(H_CLASSES[hPos]);
 
-  const vClass = $derived(
-    isBottom
-      ? 'bottom-6 md:bottom-20'
-      : isMiddleVertical
-        ? 'top-1/2 -translate-y-1/2'
-        : 'top-6 md:top-20'
-  );
+  const V_CLASSES: Record<'bottom' | 'middle' | 'top', string> = {
+    bottom: 'bottom-6 md:bottom-20',
+    middle: 'top-1/2 -translate-y-1/2',
+    top: 'top-6 md:top-20',
+  };
+  const vPos = $derived.by(() => {
+    if (isBottom) return 'bottom' as const;
+    if (isMiddleVertical) return 'middle' as const;
+    return 'top' as const;
+  });
+  const vClass = $derived(V_CLASSES[vPos]);
 </script>
 
 {#if isBanner}

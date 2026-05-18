@@ -14,7 +14,6 @@
     default?: boolean;
   }
 
-  // Mirror React original's VideoHTMLAttributes subset that callers use.
   interface Props {
     src?: string;
     sources?: Source[];
