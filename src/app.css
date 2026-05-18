@@ -20,8 +20,8 @@
   --color-white: var(--white);
   --color-black: var(--black);
   --color-border: var(--border);
-  --font-sans: "Recursive", Arial, Helvetica, sans-serif;
-  --font-mono: "Recursive", monospace;
+  --font-sans: "Recursive Variable", Arial, Helvetica, sans-serif;
+  --font-mono: "Recursive Variable", monospace;
   --font-essay: "Epilogue", Georgia, serif;
 }
 
@@ -78,7 +78,7 @@
 body {
   background: var(--black);
   color: var(--foreground);
-  font-family: "Recursive", Arial, Helvetica, sans-serif;
+  font-family: "Recursive Variable", Arial, Helvetica, sans-serif;
   font-variation-settings: "MONO" 0, "CASL" 0, "slnt" 0;
 }
 

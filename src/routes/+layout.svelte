@@ -1,5 +1,14 @@
 <script lang="ts">
   import '../app.css';
+  // Self-hosted fonts via @fontsource (drops Google Fonts CDN dependency)
+  // wght = proportional weight axis (300-1000); mono = MONO axis (proportional↔mono);
+  // casl = CASL axis (casual glyphs). slnt is always 0 so omitted.
+  import '@fontsource-variable/recursive/wght.css';
+  import '@fontsource-variable/recursive/mono.css';
+  import '@fontsource-variable/recursive/casl.css';
+  import '@fontsource/epilogue/400.css';
+  import '@fontsource/epilogue/500.css';
+  import '@fontsource/epilogue/700.css';
   import Guide from '$lib/components/frame/Guide.svelte';
   import OutboundTracker from '$lib/components/OutboundTracker.svelte';
   import Anchor from '$lib/components/frame/Anchor.svelte';
@@ -9,10 +18,6 @@
 </script>
 
 <svelte:head>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
-  <!-- Load font CSS non-blocking (media=print swap trick, safe in svelte:head via @html) -->
-  {@html `<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Recursive:slnt,wght,CASL,CRSV,MONO@-15..0,300..1000,0..1,0..1,0..1&family=Epilogue:wght@400;500;700&display=swap"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Recursive:slnt,wght,CASL,CRSV,MONO@-15..0,300..1000,0..1,0..1,0..1&family=Epilogue:wght@400;500;700&display=swap"></noscript>`}
   <script
     src="https://analytics.sixtom.com/script.js"
     data-website-id="2a502ffa-58a1-4057-be13-e46f0354cfb7"
