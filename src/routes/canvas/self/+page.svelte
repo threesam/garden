@@ -4,6 +4,7 @@
   import Prose from '$lib/components/Prose.svelte';
   import VoronoiCanvas from '$lib/components/canvas/VoronoiCanvas.svelte';
   import VoronoiImage from '$lib/components/canvas/VoronoiImage.svelte';
+  import AnythingButAnalogBanner from '$lib/components/banners/AnythingButAnalogBanner.svelte';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -29,7 +30,7 @@
 
   // createRawSnippet mounts VoronoiImage components into Prose's slot system,
   // bypassing SSR hydration issues with {@html} markers.
-  const proseSlots = $derived(
+  const voronoiSlots = $derived(
     Object.fromEntries(
       Object.entries(extracted.banners).map(([id, banner]) => {
         const src = banner.src;
@@ -47,6 +48,23 @@
       })
     )
   );
+
+  // The <!-- anything-but-analog --> slot in self.md renders the ABA full-bleed banner.
+  const abaSnippet = createRawSnippet(() => ({
+    render: () => `<div data-aba-slot></div>`,
+    setup(node: Element) {
+      const instance = mount(AnythingButAnalogBanner, {
+        target: node,
+        props: { href: '/anything-but-analog' },
+      });
+      return () => unmount(instance);
+    },
+  }));
+
+  const proseSlots = $derived({
+    'anything-but-analog': abaSnippet,
+    ...voronoiSlots,
+  });
 </script>
 
 <SeoHead
