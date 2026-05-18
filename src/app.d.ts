@@ -11,4 +11,11 @@ declare global {
     };
   }
 }
+
+declare module 'svelte/elements' {
+  interface HTMLVideoAttributes {
+    fetchpriority?: 'high' | 'low' | 'auto';
+  }
+}
+
 export {};
