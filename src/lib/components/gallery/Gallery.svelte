@@ -222,21 +222,7 @@
 		window.location.href = item.href;
 	}
 
-	function onCardMouseEnter(e: MouseEvent) {
-		const card = e.currentTarget as HTMLElement;
-		card.style.borderColor = 'var(--coin)';
-		card.style.transform = 'rotate(-1.3deg)';
-		const label = card.querySelector('[data-card-label]') as HTMLElement | null;
-		if (label) label.style.color = 'var(--coin)';
-	}
 
-	function onCardMouseLeave(e: MouseEvent) {
-		const card = e.currentTarget as HTMLElement;
-		card.style.borderColor = 'var(--black)';
-		card.style.transform = 'rotate(0deg)';
-		const label = card.querySelector('[data-card-label]') as HTMLElement | null;
-		if (label) label.style.color = 'var(--white)';
-	}
 </script>
 
 <section
@@ -256,10 +242,8 @@
 				href={item.href}
 				draggable="false"
 				onclick={(e) => handleClick(e, item)}
-				onmouseenter={onCardMouseEnter}
-				onmouseleave={onCardMouseLeave}
-				class="group relative h-full shrink-0 overflow-hidden rounded-2xl transition-all duration-700"
-				style="aspect-ratio: 4 / 5; background-color: {BG_MAP[item.handle as ItemHandle] ?? 'var(--black)'}; border: 3px solid var(--black); display: block;"
+				class="gallery-card group relative h-full shrink-0 overflow-hidden rounded-2xl transition-all duration-700"
+				style="aspect-ratio: 4 / 5; background-color: {BG_MAP[item.handle as ItemHandle] ?? 'var(--black)'}; display: block;"
 			>
 				{#if visible}
 					<div class="absolute inset-0">
@@ -299,3 +283,19 @@
 		{/each}
 	</div>
 </section>
+
+<style>
+  /* Gallery card: border + rotate + label color driven by CSS :hover,
+     no JS DOM queries needed. */
+  .gallery-card {
+    border: 3px solid var(--black);
+    transition: border-color 700ms, transform 700ms;
+  }
+  .gallery-card:hover {
+    border-color: var(--coin);
+    transform: rotate(-1.3deg);
+  }
+  .gallery-card:hover [data-card-label] {
+    color: var(--coin) !important;
+  }
+</style>
