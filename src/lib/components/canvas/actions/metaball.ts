@@ -1,5 +1,6 @@
 import type { Action } from 'svelte/action';
 import { shouldSkipThrottledFrame } from '$lib/perf-flags';
+import { compileShader } from '$lib/canvas/gl-utils';
 
 const NUM_BALLS = 12;
 const PIXEL_SIZE = 6.0;
@@ -54,13 +55,6 @@ interface Ball {
   r: number;
 }
 
-function createShader(gl: WebGLRenderingContext, type: number, source: string) {
-  const s = gl.createShader(type)!;
-  gl.shaderSource(s, source);
-  gl.compileShader(s);
-  return s;
-}
-
 export interface MetaballParams {
   color?: [number, number, number];
   trackCursor?: boolean;
@@ -75,8 +69,9 @@ export const metaball: Action<HTMLCanvasElement, MetaballParams> = (node, initia
   // Narrowed alias so nested functions don't see the nullable type.
   const gl: WebGLRenderingContext = glRaw;
 
-  const vs = createShader(gl, gl.VERTEX_SHADER, VERT);
-  const fs = createShader(gl, gl.FRAGMENT_SHADER, FRAG);
+  const vs = compileShader(gl, gl.VERTEX_SHADER, VERT);
+  const fs = compileShader(gl, gl.FRAGMENT_SHADER, FRAG);
+  if (!vs || !fs) return {};
   const prog = gl.createProgram()!;
   gl.attachShader(prog, vs);
   gl.attachShader(prog, fs);

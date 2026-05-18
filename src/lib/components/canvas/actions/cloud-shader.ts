@@ -1,4 +1,6 @@
 import type { Action } from 'svelte/action';
+import { compileShader } from '$lib/canvas/gl-utils';
+import { parseHex } from '$lib/canvas/color';
 
 // ─── GLSL ────────────────────────────────────────────────────────────────────
 
@@ -149,27 +151,6 @@ function buildTileableFbmTexture(size: number): Uint8Array {
 }
 
 // ─── Shared WebGL pipeline ────────────────────────────────────────────────────
-
-function compileShader(gl: WebGLRenderingContext, type: number, source: string) {
-  const shader = gl.createShader(type);
-  if (!shader) return null;
-  gl.shaderSource(shader, source);
-  gl.compileShader(shader);
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    console.error('Shader compile error:', gl.getShaderInfoLog(shader));
-    gl.deleteShader(shader);
-    return null;
-  }
-  return shader;
-}
-
-function parseHex(hex: string): [number, number, number] {
-  return [
-    parseInt(hex.slice(1, 3), 16) / 255,
-    parseInt(hex.slice(3, 5), 16) / 255,
-    parseInt(hex.slice(5, 7), 16) / 255,
-  ];
-}
 
 interface SubscriberEntry {
   ctx: CanvasRenderingContext2D | null;
