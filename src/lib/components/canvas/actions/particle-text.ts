@@ -207,6 +207,8 @@ export const particleText: Action<HTMLCanvasElement, ParticleTextParams> = (node
   let textColor = '#f5f0e8';
   let mouseX = -1;
   let mouseY = -1;
+  let rectLeft = 0;
+  let rectTop = 0;
   let activeIdx = 0;
   let particlesInitialized = false;
   let throttleFrame = 0;
@@ -400,6 +402,12 @@ export const particleText: Action<HTMLCanvasElement, ParticleTextParams> = (node
     particlesInitialized = true;
   }
 
+  function updateRect() {
+    const rect = container.getBoundingClientRect();
+    rectLeft = rect.left;
+    rectTop = rect.top;
+  }
+
   function rebuildText() {
     if (!gl) return;
     w = container.offsetWidth;
@@ -545,6 +553,7 @@ export const particleText: Action<HTMLCanvasElement, ParticleTextParams> = (node
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
     if (!particlesInitialized) initParticleBuffers();
+    updateRect();
   }
 
   function tick() {
@@ -640,9 +649,9 @@ export const particleText: Action<HTMLCanvasElement, ParticleTextParams> = (node
   io.observe(container);
 
   const onMove = (e: PointerEvent) => {
-    const rect = container.getBoundingClientRect();
-    mouseX = e.clientX - rect.left;
-    mouseY = e.clientY - rect.top;
+    // Use the cached rect (kept fresh by updateRect via scroll + resize).
+    mouseX = e.clientX - rectLeft;
+    mouseY = e.clientY - rectTop;
   };
   const onLeave = () => {
     mouseX = -1;
@@ -650,6 +659,7 @@ export const particleText: Action<HTMLCanvasElement, ParticleTextParams> = (node
   };
   container.addEventListener('pointermove', onMove);
   container.addEventListener('pointerleave', onLeave);
+  window.addEventListener('scroll', updateRect, { passive: true });
 
   return {
     destroy() {
@@ -659,6 +669,7 @@ export const particleText: Action<HTMLCanvasElement, ParticleTextParams> = (node
       io.disconnect();
       container.removeEventListener('pointermove', onMove);
       container.removeEventListener('pointerleave', onLeave);
+      window.removeEventListener('scroll', updateRect);
       node.removeEventListener('webglcontextlost', onContextLost);
       node.removeEventListener('webglcontextrestored', onContextRestored);
       teardownGL();
