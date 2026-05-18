@@ -489,7 +489,10 @@ export const particleText: Action<HTMLCanvasElement, ParticleTextParams> = (node
       } else {
         const prefix = 'ANYTHING BUT ';
         const highlight = 'ANALOG';
-        const fontSize = w >= 1920 ? 120 : w >= 1280 ? 96 : 72;
+        let fontSize: number;
+        if (w >= 1920) fontSize = 120;
+        else if (w >= 1280) fontSize = 96;
+        else fontSize = 72;
         const fontStr = `bold ${fontSize}px Jost, sans-serif`;
         tCtx.font = fontStr;
         tCtx.textAlign = 'left';
