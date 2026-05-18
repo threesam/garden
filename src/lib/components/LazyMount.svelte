@@ -3,9 +3,8 @@
 
   interface Props {
     /**
-     * How early to mount before visible. Snapshot on mount — prop
-     * changes after mount have no effect (mirrors React original's
-     * rootMarginRef snapshot).
+     * How early to mount before visible. Snapshotted on mount — prop
+     * changes after mount have no effect.
      */
     rootMargin?: string;
     /**
@@ -35,9 +34,7 @@
       visible = true;
       return;
     }
-    // Capture rootMargin in a closure-local variable so prop identity
-    // changes after mount have no effect (mirrors React original's
-    // rootMarginRef snapshot).
+    // Snapshot rootMargin so prop changes after mount have no effect.
     const margin = rootMargin;
     const io = new IntersectionObserver(
       (entries) => {

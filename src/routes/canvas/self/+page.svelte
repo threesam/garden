@@ -10,7 +10,7 @@
   let { markdown } = $derived(data);
 
   // Extract banner images (alt contains "|") from the markdown,
-  // replacing each with a <!-- slot-id --> marker — mirrors Next.js extractVoronoiImages.
+  // replacing each with a <!-- slot-id --> marker.
   type BannerSlot = { src: string; alt: string };
 
   const extracted = $derived.by(() => {
@@ -27,8 +27,8 @@
     return { processed, banners };
   });
 
-  // Build a Record<string, Snippet> for the prose slot system.
-  // createRawSnippet wraps a Svelte component as a programmatic snippet.
+  // createRawSnippet mounts VoronoiImage components into Prose's slot system,
+  // bypassing SSR hydration issues with {@html} markers.
   const proseSlots = $derived(
     Object.fromEntries(
       Object.entries(extracted.banners).map(([id, banner]) => {
@@ -56,23 +56,21 @@
   canonical="/canvas/self"
 />
 
-<div>
-  <div class="relative h-dvh w-full overflow-hidden">
-    <VoronoiCanvas invert imageSrc="/assets/self-hero.webp" showLetters={false} fit="cover" />
-    <h1
-      class="pointer-events-none absolute bottom-6 left-6 z-10 font-mono text-3xl font-bold uppercase tracking-[0.1em] md:bottom-20 md:left-20 md:text-8xl"
-      style="color: white"
-    >
-      self
-    </h1>
-  </div>
-
-  {#if markdown}
-    <section
-      class="tier-essay mx-auto max-w-3xl px-6 py-12 md:px-9 md:py-24"
-      style="color: var(--black)"
-    >
-      <Prose content={extracted.processed} slots={proseSlots} />
-    </section>
-  {/if}
+<div class="relative h-dvh w-full overflow-hidden">
+  <VoronoiCanvas invert imageSrc="/assets/self-hero.webp" showLetters={false} fit="cover" />
+  <h1
+    class="pointer-events-none absolute bottom-6 left-6 z-10 font-mono text-3xl font-bold uppercase tracking-[0.1em] md:bottom-20 md:left-20 md:text-8xl"
+    style="color: var(--white)"
+  >
+    self
+  </h1>
 </div>
+
+{#if markdown}
+  <section
+    class="tier-essay mx-auto max-w-3xl px-6 py-12 md:px-9 md:py-24"
+    style="color: var(--black)"
+  >
+    <Prose content={extracted.processed} slots={proseSlots} />
+  </section>
+{/if}

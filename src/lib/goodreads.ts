@@ -40,7 +40,7 @@ export interface Book {
 
 const parser = new XMLParser();
 
-// In-memory cache with 24-hour TTL — mirrors Next.js `{ next: { revalidate: 86400 } }`.
+// In-memory cache with 24-hour TTL.
 const CACHE_TTL_MS = 86400 * 1000;
 const cache = new Map<string, { data: RawEntry[]; ts: number }>();
 

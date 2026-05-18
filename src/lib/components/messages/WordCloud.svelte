@@ -79,11 +79,16 @@
 		canvas.style.width = `${width}px`;
 		canvas.style.height = `${height}px`;
 
-		const words = who === 'sam' ? sam : who === 'dianchik' ? dia : both;
+		const wordsByWho: Record<Who, typeof sam> = { sam, dianchik: dia, both };
+		const words = wordsByWho[who];
 		const max = words[0]?.count ?? 1;
 
-		const baseColor =
-			who === 'sam' ? [30, 30, 30] : who === 'dianchik' ? [180, 140, 20] : [60, 60, 60];
+		const colorByWho: Record<Who, [number, number, number]> = {
+			sam: [30, 30, 30],
+			dianchik: [180, 140, 20],
+			both: [60, 60, 60],
+		};
+		const baseColor = colorByWho[who];
 
 		const cacheKey = `${who}:${width}`;
 		const cached = layoutCache.get(cacheKey);
