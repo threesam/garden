@@ -29,7 +29,7 @@
       >
         {#if book.coverUrl}
           <img
-            src={book.coverUrl}
+            src="/api/img?url={encodeURIComponent(book.coverUrl)}&w=200"
             alt={book.cleanTitle}
             width="200"
             height="300"
