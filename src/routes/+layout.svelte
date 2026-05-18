@@ -11,10 +11,8 @@
 <svelte:head>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
-  <link
-    rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Recursive:slnt,wght,CASL,CRSV,MONO@-15..0,300..1000,0..1,0..1,0..1&family=Epilogue:wght@400;500;700&display=swap"
-  />
+  <!-- Load font CSS non-blocking (media=print swap trick, safe in svelte:head via @html) -->
+  {@html `<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Recursive:slnt,wght,CASL,CRSV,MONO@-15..0,300..1000,0..1,0..1,0..1&family=Epilogue:wght@400;500;700&display=swap"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Recursive:slnt,wght,CASL,CRSV,MONO@-15..0,300..1000,0..1,0..1,0..1&family=Epilogue:wght@400;500;700&display=swap"></noscript>`}
   <script
     src="https://analytics.sixtom.com/script.js"
     data-website-id="2a502ffa-58a1-4057-be13-e46f0354cfb7"
