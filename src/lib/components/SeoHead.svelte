@@ -21,6 +21,7 @@
   <link rel="canonical" href={`${SITE_URL}${resolvedCanonical}`} />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="threesam" />
+  <meta property="og:url" content={`${SITE_URL}${resolvedCanonical}`} />
   <meta property="og:title" content={resolvedTitle} />
   <meta property="og:description" content={resolvedDescription} />
   <meta property="og:image" content={resolvedOg} />
