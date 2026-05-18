@@ -12,6 +12,11 @@ export interface SketchHostParams {
 	 * runs cleanup, and clears the canvas pixel buffer.
 	 */
 	active: boolean;
+	/**
+	 * When false, the canvas does not receive pointer events, preventing any
+	 * mouse/touch reactivity in the sketch. Defaults to true.
+	 */
+	interactive?: boolean;
 }
 
 /**
@@ -48,6 +53,10 @@ export const sketchHost: Action<HTMLCanvasElement, SketchHostParams> = (
 	let activeRef = params.active;
 
 	const container = canvas.parentElement as HTMLElement;
+
+	function applyInteractive() {
+		canvas.style.pointerEvents = params.interactive === false ? 'none' : '';
+	}
 
 	function setupSketch() {
 		const dpr = sketch.lowDpr ? 1 : (window.devicePixelRatio || 1);
@@ -138,6 +147,7 @@ export const sketchHost: Action<HTMLCanvasElement, SketchHostParams> = (
 		}
 	}
 
+	applyInteractive();
 	stateSync();
 
 	const ro = new ResizeObserver(() => {
@@ -155,15 +165,17 @@ export const sketchHost: Action<HTMLCanvasElement, SketchHostParams> = (
 		update(newParams: SketchHostParams) {
 			const wasActive = activeRef;
 			activeRef = newParams.active;
-			// If only active changed, sync without full teardown.
+			// If only active/interactive changed, sync without full teardown.
 			if (newParams.slug === params.slug && newParams.seed === params.seed) {
 				if (wasActive !== newParams.active) stateSync();
 				params = { ...newParams };
+				applyInteractive();
 				return;
 			}
 			// slug/seed changed — full re-init.
 			params = { ...newParams };
 			if (hasSetup) teardownSketch();
+			applyInteractive();
 			stateSync();
 		},
 		destroy() {

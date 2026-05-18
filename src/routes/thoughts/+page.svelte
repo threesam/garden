@@ -14,7 +14,7 @@
   style="background-color: var(--black);"
 >
   <div class="absolute inset-0">
-    <SketchHost slug="30" active />
+    <SketchHost slug="30" active interactive={false} />
   </div>
   <div class="pointer-events-none absolute inset-0 grid place-items-center">
     <h1

@@ -265,7 +265,7 @@
 						{:else if item.handle === 'anything-but-analog'}
 							<ParticleTextCanvas countOverride={4000} hideText pointSize={2} repelRadius={50} lowDpr />
 						{:else if item.handle === 'thoughts'}
-							<SketchHost slug="30" active />
+							<SketchHost slug="30" active interactive={false} />
 						{:else if item.handle === 'sounds'}
 							<SketchHost slug="25" active />
 						{/if}
