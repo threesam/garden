@@ -155,6 +155,10 @@ function buildTileableFbmTexture(size: number): Uint8Array {
 interface SubscriberEntry {
   ctx: CanvasRenderingContext2D | null;
   visible: boolean;
+  /** Cached layout size refreshed by ResizeObserver — avoids per-frame layout reads. */
+  w: number;
+  h: number;
+  ro: ResizeObserver;
 }
 
 class CloudPipeline {
@@ -176,9 +180,22 @@ class CloudPipeline {
       if (!this.init()) return () => {};
     }
     const ctx = canvas.getContext('2d');
-    this.subscribers.set(canvas, { ctx, visible: true });
+    const entry: SubscriberEntry = {
+      ctx,
+      visible: true,
+      w: canvas.offsetWidth,
+      h: canvas.offsetHeight,
+      ro: new ResizeObserver(() => {
+        entry.w = canvas.offsetWidth;
+        entry.h = canvas.offsetHeight;
+      }),
+    };
+    entry.ro.observe(canvas);
+    this.subscribers.set(canvas, entry);
     this.maybeStart();
     return () => {
+      const e = this.subscribers.get(canvas);
+      if (e) e.ro.disconnect();
       this.subscribers.delete(canvas);
       if (this.subscribers.size === 0) this.teardown();
     };
@@ -306,10 +323,10 @@ class CloudPipeline {
     if (!this.gl || !this.offscreen) return;
     let maxW = 0;
     let maxH = 0;
-    for (const [canvas, entry] of this.subscribers) {
+    for (const [, entry] of this.subscribers) {
       if (!entry.visible) continue;
-      if (canvas.offsetWidth > maxW) maxW = canvas.offsetWidth;
-      if (canvas.offsetHeight > maxH) maxH = canvas.offsetHeight;
+      if (entry.w > maxW) maxW = entry.w;
+      if (entry.h > maxH) maxH = entry.h;
     }
     const w = Math.max(1, Math.round(maxW * RENDER_SCALE));
     const h = Math.max(1, Math.round(maxH * RENDER_SCALE));
@@ -333,8 +350,7 @@ class CloudPipeline {
 
       for (const [canvas, entry] of this.subscribers) {
         if (!entry.visible || !entry.ctx) continue;
-        const w = canvas.offsetWidth;
-        const h = canvas.offsetHeight;
+        const { w, h } = entry;
         if (canvas.width !== w || canvas.height !== h) {
           canvas.width = w;
           canvas.height = h;
