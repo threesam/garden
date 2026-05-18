@@ -17,6 +17,7 @@
   description="remembering 102 jackson street."
   ogImage="/og/benny.png"
   canonical="/benny"
+  preloadImage="/assets/sixtomidnight-tribute-poster.jpg"
 />
 
 <main class="min-h-screen bg-zinc-900" style="color: var(--white);">

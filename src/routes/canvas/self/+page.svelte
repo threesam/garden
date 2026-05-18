@@ -72,6 +72,7 @@
   description="growing up in trenton, making art, and finding a way through."
   ogImage="/og/self.png"
   canonical="/canvas/self"
+  preloadImage="/assets/self-hero.webp"
 />
 
 <div class="relative h-dvh w-full overflow-hidden">

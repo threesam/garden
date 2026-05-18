@@ -14,6 +14,7 @@
   description="stories about my dad."
   ogImage="/og/dad.png"
   canonical="/dad"
+  preloadImage="/assets/dad-1.jpg"
 />
 
 <main class="min-h-screen bg-zinc-900" style="color: var(--white);">
