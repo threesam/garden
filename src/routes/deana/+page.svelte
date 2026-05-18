@@ -1,15 +1,27 @@
 <script lang="ts">
   import SeoHead from "$lib/components/SeoHead.svelte";
   import LazyMount from "$lib/components/LazyMount.svelte";
+  // AsciiImageSection is above-the-fold — keep eager.
   import AsciiImageSection from "$lib/components/messages/AsciiImageSection.svelte";
-  import MessageTimeline from "$lib/components/messages/MessageTimeline.svelte";
-  import ClockHeatmap from "$lib/components/messages/ClockHeatmap.svelte";
-  import LazyWordCloud from "$lib/components/messages/LazyWordCloud.svelte";
-  import TotalWords from "$lib/components/messages/TotalWords.svelte";
-  import BusiestDay from "$lib/components/messages/BusiestDay.svelte";
-  import MostWords from "$lib/components/messages/MostWords.svelte";
-  import EmojiMeter from "$lib/components/messages/EmojiMeter.svelte";
-  import PetNames from "$lib/components/messages/PetNames.svelte";
+
+  // All below-the-fold components are dynamically imported so their
+  // modules are excluded from the initial page bundle.
+  const loadMessageTimeline = () =>
+    import("$lib/components/messages/MessageTimeline.svelte");
+  const loadClockHeatmap = () =>
+    import("$lib/components/messages/ClockHeatmap.svelte");
+  const loadLazyWordCloud = () =>
+    import("$lib/components/messages/LazyWordCloud.svelte");
+  const loadTotalWords = () =>
+    import("$lib/components/messages/TotalWords.svelte");
+  const loadBusiestDay = () =>
+    import("$lib/components/messages/BusiestDay.svelte");
+  const loadMostWords = () =>
+    import("$lib/components/messages/MostWords.svelte");
+  const loadEmojiMeter = () =>
+    import("$lib/components/messages/EmojiMeter.svelte");
+  const loadPetNames = () =>
+    import("$lib/components/messages/PetNames.svelte");
 
   const DEANA_IMAGES = [
     "/assets/deana-6.jpg",
@@ -39,9 +51,12 @@
   >
     <div class="mx-auto w-full max-w-7xl flex flex-col {g}">
       <LazyMount>
-        <div class="rounded-3xl bg-white border border-zinc-200 p-6 md:p-9">
-          <MessageTimeline />
-        </div>
+        {#await loadMessageTimeline() then mod}
+          {@const MessageTimeline = mod.default}
+          <div class="rounded-3xl bg-white border border-zinc-200 p-6 md:p-9">
+            <MessageTimeline />
+          </div>
+        {/await}
       </LazyMount>
     </div>
   </section>
@@ -54,9 +69,12 @@
   >
     <div class="mx-auto w-full max-w-7xl flex flex-col {g}">
       <LazyMount>
-        <div class="rounded-3xl bg-white border border-zinc-200 p-6 md:p-9">
-          <ClockHeatmap />
-        </div>
+        {#await loadClockHeatmap() then mod}
+          {@const ClockHeatmap = mod.default}
+          <div class="rounded-3xl bg-white border border-zinc-200 p-6 md:p-9">
+            <ClockHeatmap />
+          </div>
+        {/await}
       </LazyMount>
     </div>
   </section>
@@ -71,17 +89,29 @@
       <LazyMount>
         <div class="grid grid-cols-1 md:grid-cols-3 {g}">
           <div class="rounded-3xl bg-white border border-zinc-200 p-6 md:p-9 md:col-span-2">
-            <LazyWordCloud />
+            {#await loadLazyWordCloud() then mod}
+              {@const LazyWordCloud = mod.default}
+              <LazyWordCloud />
+            {/await}
           </div>
           <div class="grid grid-rows-3 {g}">
             <div class="rounded-3xl bg-white border border-zinc-200 p-6 md:p-9 flex items-center">
-              <TotalWords />
+              {#await loadTotalWords() then mod}
+                {@const TotalWords = mod.default}
+                <TotalWords />
+              {/await}
             </div>
             <div class="rounded-3xl bg-white border border-zinc-200 p-6 md:p-9 flex items-center">
-              <BusiestDay />
+              {#await loadBusiestDay() then mod}
+                {@const BusiestDay = mod.default}
+                <BusiestDay />
+              {/await}
             </div>
             <div class="rounded-3xl bg-white border border-zinc-200 p-6 md:p-9 flex items-center">
-              <MostWords />
+              {#await loadMostWords() then mod}
+                {@const MostWords = mod.default}
+                <MostWords />
+              {/await}
             </div>
           </div>
         </div>
@@ -99,10 +129,16 @@
       <LazyMount>
         <div class="grid grid-cols-1 md:grid-cols-2 {g}">
           <div class="rounded-3xl bg-white border border-zinc-200 p-6 md:p-9">
-            <EmojiMeter />
+            {#await loadEmojiMeter() then mod}
+              {@const EmojiMeter = mod.default}
+              <EmojiMeter />
+            {/await}
           </div>
           <div class="rounded-3xl bg-white border border-zinc-200 p-6 md:p-9">
-            <PetNames />
+            {#await loadPetNames() then mod}
+              {@const PetNames = mod.default}
+              <PetNames />
+            {/await}
           </div>
         </div>
       </LazyMount>

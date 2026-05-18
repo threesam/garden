@@ -1,11 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import VoronoiCanvas from '$lib/components/canvas/VoronoiCanvas.svelte';
-	import MetaballCanvas from '$lib/components/canvas/MetaballCanvas.svelte';
-	import ParticleTextCanvas from '$lib/components/canvas/ParticleTextCanvas.svelte';
-	import EmojiCardBg from '$lib/components/messages/EmojiCardBg.svelte';
+	import type { Component } from 'svelte';
 	import DanaLabel from '$lib/components/messages/DanaLabel.svelte';
-	import SketchHost from '$lib/components/art/SketchHost.svelte';
 	import { setCanvasThrottled } from '$lib/perf-flags';
 
 	type ItemHandle =
@@ -37,12 +33,33 @@
 	};
 
 	let stripEl: HTMLDivElement | undefined = $state();
-	// Virtualization window: only cards in [lo, hi] mount their heavy canvas.
 	let activeRange = $state<[number, number]>([0, 0]);
 
-	// Track active state for SketchHost cards.
 	function isActive(i: number): boolean {
 		return i >= activeRange[0] && i <= activeRange[1];
+	}
+
+	// Canvas modules loaded on demand, cached by handle.
+	const moduleCache = new Map<string, Promise<Component<any>>>();
+
+	function getCanvasModule(handle: string): Promise<Component<any>> {
+		if (moduleCache.has(handle)) return moduleCache.get(handle)!;
+		let p: Promise<Component<any>>;
+		if (handle === 'self') {
+			p = import('$lib/components/canvas/VoronoiCanvas.svelte').then((m) => m.default);
+		} else if (handle === 'deana') {
+			p = import('$lib/components/messages/EmojiCardBg.svelte').then((m) => m.default);
+		} else if (handle === 'shelf') {
+			p = import('$lib/components/canvas/MetaballCanvas.svelte').then((m) => m.default);
+		} else if (handle === 'anything-but-analog') {
+			p = import('$lib/components/canvas/ParticleTextCanvas.svelte').then((m) => m.default);
+		} else if (handle === 'thoughts' || handle === 'sounds') {
+			p = import('$lib/components/art/SketchHost.svelte').then((m) => m.default);
+		} else {
+			p = Promise.resolve(undefined as unknown as Component<any>);
+		}
+		moduleCache.set(handle, p);
+		return p;
 	}
 
 	onMount(() => {
@@ -211,8 +228,6 @@
 		};
 	});
 
-	// Shared flag written by onMount pointer handlers, read by handleClick.
-	// Must be module-level so both the onMount closure and handleClick share the binding.
 	let didDrag = false;
 
 	function handleClick(e: MouseEvent, item: { href: string; handle: string }) {
@@ -224,8 +239,6 @@
 		window.umami?.track('gallery-card-click', { handle: item.handle });
 		window.location.href = item.href;
 	}
-
-
 </script>
 
 <section
@@ -250,25 +263,27 @@
 			>
 				{#if visible}
 					<div class="absolute inset-0">
-						{#if item.handle === 'self'}
-							<VoronoiCanvas
-								invert
-								showLetters={false}
-								imageSrc="/assets/self-hero-mobile.webp"
-								scale={20}
-								fit="cover"
-							/>
-						{:else if item.handle === 'deana'}
-							<EmojiCardBg />
-						{:else if item.handle === 'shelf'}
-							<MetaballCanvas color={[0.91, 0.64, 0.09]} />
-						{:else if item.handle === 'anything-but-analog'}
-							<ParticleTextCanvas countOverride={4000} hideText pointSize={2} repelRadius={50} lowDpr />
-						{:else if item.handle === 'thoughts'}
-							<SketchHost slug="30" active interactive={false} />
-						{:else if item.handle === 'sounds'}
-							<SketchHost slug="25" active />
-						{/if}
+						{#await getCanvasModule(item.handle) then CanvasComp}
+							{#if item.handle === 'self'}
+								<CanvasComp
+									invert
+									showLetters={false}
+									imageSrc="/assets/self-hero-mobile.webp"
+									scale={20}
+									fit="cover"
+								/>
+							{:else if item.handle === 'deana'}
+								<CanvasComp />
+							{:else if item.handle === 'shelf'}
+								<CanvasComp color={[0.91, 0.64, 0.09]} />
+							{:else if item.handle === 'anything-but-analog'}
+								<CanvasComp countOverride={4000} hideText pointSize={2} repelRadius={50} lowDpr />
+							{:else if item.handle === 'thoughts'}
+								<CanvasComp slug="30" active interactive={false} />
+							{:else if item.handle === 'sounds'}
+								<CanvasComp slug="25" active />
+							{/if}
+						{/await}
 					</div>
 				{/if}
 				<span
@@ -288,8 +303,6 @@
 </section>
 
 <style>
-  /* Gallery card: border + rotate + label color driven by CSS :hover,
-     no JS DOM queries needed. */
   .gallery-card {
     border: 3px solid var(--black);
     transition: border-color 700ms, transform 700ms;
