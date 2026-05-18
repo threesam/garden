@@ -44,6 +44,11 @@ export function createMarkdownRenderer(): Marked {
         return `<a href="${href}"${external ? ' target="_blank" rel="noopener noreferrer"' : ""} class="${linkClasses}">${text}</a>`;
       },
       image({ href, text }) {
+        // Known intrinsic dimensions for inline (non-banner) images.
+        // Allows browsers to reserve layout space before image loads, preventing CLS.
+        const knownDimensions: Record<string, { w: number; h: number }> = {
+          '/assets/chip-malt-new-address.png': { w: 1142, h: 134 },
+        };
         if (text && text.includes("|")) {
           const parts = text.split("|");
           const heading = parts[0].trim().replace(/\\n/g, "<br/>");
@@ -58,7 +63,9 @@ export function createMarkdownRenderer(): Marked {
           const vClass = isBottom ? "bottom-6 md:bottom-18" : "top-6 md:top-18";
           return `<div class="relative my-12 -mx-6 md:-mx-9"><img src="${href}" alt="${heading}" class="w-full md:rounded-lg" loading="lazy" /><span class="absolute ${vClass} ${hClass} font-mono text-2xl font-bold uppercase tracking-[0.1em] md:text-5xl" style="color: ${color}">${heading}</span></div>`;
         }
-        return `<img src="${href}" alt="${text ?? ""}" class="relative my-9 -mx-6 block w-full rounded-lg md:-mx-9" loading="lazy" />`;
+        const dims = knownDimensions[href];
+        const dimAttrs = dims ? ` width="${dims.w}" height="${dims.h}"` : '';
+        return `<img src="${href}" alt="${text ?? ""}"${dimAttrs} class="relative my-9 -mx-6 block w-full rounded-lg md:-mx-9" loading="lazy" />`;
       },
     },
   });
