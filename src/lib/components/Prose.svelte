@@ -2,12 +2,14 @@
   import { Marked } from "marked";
   import { markedEmoji } from "marked-emoji";
   import * as emoji from "node-emoji";
+  import type { Snippet } from "svelte";
 
   interface Props {
     content: string;
+    slots?: Record<string, Snippet>;
   }
 
-  let { content }: Props = $props();
+  let { content, slots }: Props = $props();
 
   const emojiMap = new Proxy({} as Record<string, string>, {
     get(_, name: string) {
@@ -68,8 +70,41 @@
     },
   });
 
-  const html = $derived(md.parse(content) as string);
+  // When slots are provided, split content on <!-- slot-id --> markers
+  // and interleave the HTML chunks with Svelte snippet slots.
+  type Part = { type: "html"; html: string } | { type: "slot"; id: string };
+
+  const parts = $derived.by((): Part[] => {
+    if (!slots) return [{ type: "html", html: md.parse(content) as string }];
+
+    const result: Part[] = [];
+    const pattern = /<!--\s*([\w-]+)\s*-->/g;
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+
+    while ((match = pattern.exec(content)) !== null) {
+      const before = content.slice(lastIndex, match.index);
+      if (before.trim()) {
+        result.push({ type: "html", html: md.parse(before) as string });
+      }
+      result.push({ type: "slot", id: match[1] });
+      lastIndex = match.index + match[0].length;
+    }
+
+    const remaining = content.slice(lastIndex);
+    if (remaining.trim()) {
+      result.push({ type: "html", html: md.parse(remaining) as string });
+    }
+
+    return result;
+  });
 </script>
 
 <!-- Content is author-controlled markdown from content/ directory -->
-{@html html}
+{#each parts as part}
+  {#if part.type === "html"}
+    {@html part.html}
+  {:else if part.type === "slot" && slots?.[part.id]}
+    {@render slots[part.id]()}
+  {/if}
+{/each}
