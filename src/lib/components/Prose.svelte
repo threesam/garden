@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createMarkdownRenderer } from "$lib/markdown";
+  import { markdownRenderer } from "$lib/markdown";
   import type { Snippet } from "svelte";
 
   interface Props {
@@ -9,7 +9,7 @@
 
   let { content, slots }: Props = $props();
 
-  const md = createMarkdownRenderer();
+  const md = markdownRenderer;
 
   // When slots are provided, split content on <!-- slot-id --> markers
   // and interleave the HTML chunks with Svelte snippet slots.

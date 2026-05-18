@@ -69,8 +69,11 @@ export type ContentPart =
   | { type: "html"; html: string }
   | { type: "slot"; name: string };
 
+// Module-level singleton — avoids re-instantiating Marked + plugins per call.
+export const markdownRenderer = createMarkdownRenderer();
+
 export function splitMarkdownContent(markdown: string): ContentPart[] {
-  const md = createMarkdownRenderer();
+  const md = markdownRenderer;
   const parts: ContentPart[] = [];
   const pattern = /<!--\s*([\w-]+)\s*-->/g;
   let lastIndex = 0;
