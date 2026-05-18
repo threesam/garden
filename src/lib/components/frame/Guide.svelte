@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { preloadCode } from '$app/navigation';
+  import { NAV_ROUTES } from '$lib/nav';
+
   let open = $state(false);
   let hovered = $state(false);
   let locked = $state(false);
@@ -13,6 +16,10 @@
 
   function handleCoinMouseEnter() {
     if (!locked) hovered = true;
+    // Warm all route JS chunks on first coin hover — no-op on subsequent calls.
+    for (const r of NAV_ROUTES) {
+      preloadCode(r.href);
+    }
   }
 
   function handleCoinMouseLeave() {
@@ -90,6 +97,7 @@
   <a
     href="/"
     onclick={() => (open = false)}
+    data-sveltekit-preload-code="hover"
     class="font-mono text-2xl font-bold tracking-[0.3em] transition-transform duration-300 hover:scale-110 hover:duration-[4000ms] hover:ease-out"
     style="color:var(--black)"
   >

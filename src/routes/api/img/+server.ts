@@ -36,7 +36,7 @@ export const GET: RequestHandler = async ({ url }) => {
     return new Response(hit.data, {
       headers: {
         'Content-Type': hit.type,
-        'Cache-Control': 'public, max-age=86400, s-maxage=86400',
+        'Cache-Control': 'public, max-age=86400, stale-while-revalidate=604800',
       },
     });
   }
@@ -66,7 +66,7 @@ export const GET: RequestHandler = async ({ url }) => {
   return new Response(data, {
     headers: {
       'Content-Type': 'image/webp',
-      'Cache-Control': 'public, max-age=86400, s-maxage=86400',
+      'Cache-Control': 'public, max-age=86400, stale-while-revalidate=604800',
     },
   });
 };

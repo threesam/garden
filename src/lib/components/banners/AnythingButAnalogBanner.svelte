@@ -8,7 +8,7 @@
 
 	let { href }: Props = $props();
 
-	const IMG_SRC = '/assets/anything-but-analog.png';
+	const IMG_SRC = '/assets/anything-but-analog.webp';
 	const INITIAL_ASPECT = 1052 / 1156;
 
 	let aspect = $state(INITIAL_ASPECT);

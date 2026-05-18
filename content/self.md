@@ -50,7 +50,7 @@ but Valerie — who couldn't have weighed more than 90 pounds — was so thrille
 
 so i went.
 
-![THE VELVET DOOR|white|bottom-left](/assets/velvet-door.png)
+![THE VELVET DOOR|white|bottom-left](/assets/velvet-door.webp)
 
 it was a small bar. normal enough when walking in: bartenders pouring perfectly foamed beers from the tap, decanting wine, concocting sangria. as we walked past the bar, a deep growl started to rattle my ribs. there was a velvet curtain. i walked through and into a different world.
 
@@ -82,7 +82,7 @@ but often Benny would tell me an insane, terrifying, hilarious story from his da
 
 those nights became the ritual.
 
-![BLONDIE|white](/assets/blondie.png)
+![BLONDIE|white](/assets/blondie.webp)
 
 music, bartending, late nights, building relationships.
 
@@ -332,7 +332,7 @@ i needed to understand every layer. every decision. if something broke, i wanted
 
 but there was a big world outside of my little corner of remote work, and i wanted to explore it.
 
-![NOMAD|white|right](/assets/adventure.png)
+![NOMAD|white|right](/assets/adventure.webp)
 
 so we started traveling because we could. our families were sad to see us go but, for the most part, cheering us on toward adventure.
 
@@ -366,7 +366,7 @@ we hosted family often. we made new friends. but Pennsylvania wasn't home anymor
 
 so we moved to Austin.
 
-![CHEAT CODE|white|right](/assets/dissonance.png)
+![CHEAT CODE|white|right](/assets/dissonance.webp)
 
 we had our yearly onsite in January. i attempted the in-office visit without letting my company know that i'd moved. when i did my civic duty and updated my address to the beautifully tax-free state of Texas, i learned that moving is actually a big enough deal to trigger notifications.
 

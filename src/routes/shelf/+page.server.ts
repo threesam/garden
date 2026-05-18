@@ -1,6 +1,8 @@
 import { getBooks } from "$lib/goodreads";
 import type { PageServerLoad } from "./$types";
 
+export const prerender = true;
+
 const CURRENT_MAX_AGE_MS = 1000 * 60 * 60 * 24 * 90;
 
 export const load: PageServerLoad = async () => {
