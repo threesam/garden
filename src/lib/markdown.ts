@@ -1,6 +1,7 @@
 import { Marked } from "marked";
 import { markedEmoji } from "marked-emoji";
 import * as emoji from "node-emoji";
+import { linkClasses } from "$lib/components/link";
 
 const emojiMap = new Proxy({} as Record<string, string>, {
   get(_, name: string) {
@@ -40,7 +41,7 @@ export function createMarkdownRenderer(): Marked {
       },
       link({ href, text }) {
         const external = href.startsWith("http") || href.startsWith("//");
-        return `<a href="${href}"${external ? ' target="_blank" rel="noopener noreferrer"' : ""} class="underline underline-offset-2 hover:opacity-70 transition-opacity">${text}</a>`;
+        return `<a href="${href}"${external ? ' target="_blank" rel="noopener noreferrer"' : ""} class="${linkClasses}">${text}</a>`;
       },
       image({ href, text }) {
         if (text && text.includes("|")) {
