@@ -101,7 +101,8 @@
 </script>
 
 <!-- Content is author-controlled markdown from content/ directory -->
-{#each parts as part}
+<!-- {@html} is safe here: content is author-controlled markdown, not user input -->
+{#each parts as part (part.type === "html" ? part.html : part.id)}
   {#if part.type === "html"}
     {@html part.html}
   {:else if part.type === "slot" && slots?.[part.id]}
