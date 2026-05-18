@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { page } from '$app/stores';
-
   let open = $state(false);
   let hovered = $state(false);
   let locked = $state(false);

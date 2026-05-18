@@ -1,6 +1,6 @@
 <script lang="ts">
   import '../app.css';
-  import Nav from '$lib/components/Nav.svelte';
+  import Guide from '$lib/components/frame/Guide.svelte';
   import OutboundTracker from '$lib/components/OutboundTracker.svelte';
   import Anchor from '$lib/components/frame/Anchor.svelte';
   import { PERSON_JSON_LD_STRING, WEBSITE_JSON_LD_STRING } from '$lib/seo';
@@ -23,7 +23,7 @@
 </svelte:head>
 
 <OutboundTracker />
-<Nav />
+<Guide />
 <div style="background: var(--white)">
   {@render children()}
 </div>
