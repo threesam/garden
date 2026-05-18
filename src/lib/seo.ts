@@ -36,3 +36,7 @@ export const WEBSITE_JSON_LD = {
   description: SITE_DESCRIPTION,
   author: { '@type': 'Person', name: "Sam D'Angelo", url: SITE_URL },
 };
+
+// Pre-stringified once at module load to avoid per-render JSON.stringify calls.
+export const PERSON_JSON_LD_STRING = JSON.stringify(PERSON_JSON_LD);
+export const WEBSITE_JSON_LD_STRING = JSON.stringify(WEBSITE_JSON_LD);

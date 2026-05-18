@@ -109,6 +109,9 @@ export const HIDDEN_SLUGS = new Set<string>([
 
 export const visibleSketches: Sketch[] = sketches.filter((s) => !HIDDEN_SLUGS.has(s.slug));
 
+// O(1) slug lookup built once at module load.
+const sketchBySlug = new Map<string, Sketch>(sketches.map((s) => [s.slug, s] as const));
+
 export function getSketch(slug: string): Sketch | null {
-  return sketches.find((s) => s.slug === slug) ?? null;
+  return sketchBySlug.get(slug) ?? null;
 }
