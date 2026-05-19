@@ -1,6 +1,13 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "sveltekit",
+  "redirects": [
+    {
+      "source": "/canvas/self",
+      "destination": "/self",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/_app/immutable/(.*)",
