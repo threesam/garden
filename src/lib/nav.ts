@@ -5,7 +5,7 @@ export interface NavRoute {
 
 export const NAV_ROUTES: NavRoute[] = [
   { href: '/',                    label: 'home' },
-  { href: '/canvas/self',         label: 'self' },
+  { href: '/self',                 label: 'self' },
   { href: '/anything-but-analog', label: 'analog' },
   { href: '/dad',                 label: 'dad' },
   { href: '/deana',               label: 'D-ANA' },

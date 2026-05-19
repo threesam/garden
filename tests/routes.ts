@@ -7,5 +7,5 @@ export const KEPT_ROUTES = [
   { path: '/deana',                         label: 'deana' },
   { path: '/benny',                         label: 'benny' },
   { path: '/anything-but-analog',           label: 'aba-index' },
-  { path: '/canvas/self',                   label: 'canvas-self' },
+  { path: '/self',                           label: 'self' },
 ];

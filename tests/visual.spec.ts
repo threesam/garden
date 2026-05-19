@@ -16,7 +16,7 @@ async function freezePage(page: import('@playwright/test').Page) {
 
 // Routes where the full-page height is unstable due to content-visibility: auto
 // reflow when Playwright disables animations. For these we capture viewport only.
-const VIEWPORT_ONLY_LABELS = new Set(['canvas-self']);
+const VIEWPORT_ONLY_LABELS = new Set(['self']);
 
 test.describe('visual parity', () => {
   for (const { path, label } of KEPT_ROUTES) {

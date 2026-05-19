@@ -12,7 +12,7 @@ const ROUTES = [
   '/deana',
   '/benny',
   '/anything-but-analog',
-  '/canvas/self',
+  '/self',
 ];
 
 const chrome = await launch({ chromeFlags: ['--headless=new'] });

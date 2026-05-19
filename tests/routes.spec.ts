@@ -10,7 +10,7 @@ const ROUTE_MARKERS: Record<string, string> = {
   '/deana':                         'deana',
   '/benny':                         '102 Jackson Street',
   '/anything-but-analog':           'THREESAM',
-  '/canvas/self':                   'self',
+  '/self':                          'self',
 };
 
 test.describe('smoke', () => {

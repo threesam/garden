@@ -13,7 +13,7 @@
 		| 'sounds';
 
 	const UNIQUE_ITEMS: { label: string; handle: ItemHandle; href: string }[] = [
-		{ label: 'self', handle: 'self', href: '/canvas/self' },
+		{ label: 'self', handle: 'self', href: '/self' },
 		{ label: 'D-ANA', handle: 'deana', href: '/deana' },
 		{ label: 'shelf', handle: 'shelf', href: '/shelf' },
 		{ label: 'analog', handle: 'anything-but-analog', href: '/anything-but-analog' },

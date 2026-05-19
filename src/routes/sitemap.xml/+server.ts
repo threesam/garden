@@ -3,7 +3,7 @@ import { SITE_URL } from '$lib/seo';
 
 const STATIC_ROUTES = [
   '/',
-  '/canvas/self',
+  '/self',
   '/shelf',
   '/sounds',
   '/thoughts',
