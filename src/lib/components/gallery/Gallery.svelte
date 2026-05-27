@@ -167,7 +167,9 @@
 		// hydration or the LCP paint. timeout guarantees they still appear on
 		// busy main threads; rAF fallback covers browsers without rIC.
 		const useIdle = typeof requestIdleCallback === 'function';
-		const arm = () => { canvasesArmed = true; };
+		function arm() {
+			canvasesArmed = true;
+		}
 		const armHandle = useIdle
 			? requestIdleCallback(arm, { timeout: 2000 })
 			: requestAnimationFrame(() => requestAnimationFrame(arm));
