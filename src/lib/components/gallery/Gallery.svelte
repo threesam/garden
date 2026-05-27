@@ -34,9 +34,15 @@
 
 	let stripEl: HTMLDivElement | undefined = $state();
 	let activeRange = $state<[number, number]>([0, 0]);
+	// Canvas mounting is held off the critical path: the strip translates
+	// immediately (cheap), but the per-card canvases — shader compiles,
+	// particle inits, the heavy lazy chunks — only mount once the page has
+	// painted and the main thread goes idle. They fade in regardless, so the
+	// deferral is invisible while keeping hydration/LCP free of canvas work.
+	let canvasesArmed = $state(false);
 
 	function isActive(i: number): boolean {
-		return i >= activeRange[0] && i <= activeRange[1];
+		return canvasesArmed && i >= activeRange[0] && i <= activeRange[1];
 	}
 
 	// Canvas modules loaded on demand, cached by handle.
@@ -157,6 +163,15 @@
 
 		rafRef = requestAnimationFrame(tick);
 
+		// Arm canvases at first idle so their setup never competes with
+		// hydration or the LCP paint. timeout guarantees they still appear on
+		// busy main threads; rAF fallback covers browsers without rIC.
+		const useIdle = typeof requestIdleCallback === 'function';
+		const arm = () => { canvasesArmed = true; };
+		const armHandle = useIdle
+			? requestIdleCallback(arm, { timeout: 2000 })
+			: requestAnimationFrame(() => requestAnimationFrame(arm));
+
 		const ro = new ResizeObserver(() => {
 			measure();
 			wake();
@@ -216,6 +231,8 @@
 
 		return () => {
 			cancelAnimationFrame(rafRef);
+			if (useIdle) cancelIdleCallback(armHandle);
+			else cancelAnimationFrame(armHandle);
 			ro.disconnect();
 			section.removeEventListener('mouseenter', onEnter);
 			section.removeEventListener('mouseleave', onLeave);
@@ -257,6 +274,7 @@
 			<a
 				href={item.href}
 				draggable="false"
+				data-sveltekit-preload-data="off"
 				onclick={(e) => handleClick(e, item)}
 				class="gallery-card group relative h-full shrink-0 overflow-hidden rounded-2xl transition-all duration-700"
 				style="aspect-ratio: 4 / 5; background-color: {BG_MAP[item.handle as ItemHandle] ?? 'var(--black)'}; display: block;"
