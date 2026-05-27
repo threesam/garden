@@ -1,5 +1,6 @@
 import type { Action } from 'svelte/action';
-import { getSketch } from '$lib/art/registry';
+import type { Sketch } from '$lib/art/types';
+import { loadSketch } from '$lib/art/load-sketch';
 import { mulberry32 } from '$lib/art/rng';
 import { makeNoise } from '$lib/art/noise';
 import { shouldSkipThrottledFrame } from '$lib/perf-flags';
@@ -33,9 +34,9 @@ export const sketchHost: Action<HTMLCanvasElement, SketchHostParams> = (
 ) => {
 	let params = { ...initialParams };
 
-	const maybeSketch = getSketch(params.slug);
-	if (!maybeSketch) return {};
-	const sketch = maybeSketch;
+	// Resolved asynchronously once the sketch's chunk loads (see `load` below).
+	let sketch: Sketch | null = null;
+	let destroyed = false;
 
 	const actualSeed = params.seed ?? Math.floor(Math.random() * 1_000_000);
 	const rng = mulberry32(actualSeed);
@@ -59,6 +60,7 @@ export const sketchHost: Action<HTMLCanvasElement, SketchHostParams> = (
 	}
 
 	function setupSketch() {
+		if (!sketch) return;
 		const dpr = sketch.lowDpr ? 1 : (window.devicePixelRatio || 1);
 		const w = container.offsetWidth;
 		const h = container.offsetHeight;
@@ -147,8 +149,21 @@ export const sketchHost: Action<HTMLCanvasElement, SketchHostParams> = (
 		}
 	}
 
+	// Fetch the sketch's chunk on demand, then sync. The token guards against a
+	// slug change landing while a previous load is still in flight (stale result
+	// is dropped), and `destroyed` guards against resolving after teardown.
+	let loadToken = 0;
+	function load(slug: string) {
+		const token = ++loadToken;
+		loadSketch(slug).then((s) => {
+			if (destroyed || token !== loadToken) return;
+			sketch = s;
+			stateSync();
+		});
+	}
+
 	applyInteractive();
-	stateSync();
+	load(params.slug);
 
 	const ro = new ResizeObserver(() => {
 		clearTimeout(resizeTimeout);
@@ -172,13 +187,15 @@ export const sketchHost: Action<HTMLCanvasElement, SketchHostParams> = (
 				applyInteractive();
 				return;
 			}
-			// slug/seed changed — full re-init.
+			// slug/seed changed — full re-init against a freshly loaded chunk.
 			params = { ...newParams };
 			if (hasSetup) teardownSketch();
+			sketch = null;
 			applyInteractive();
-			stateSync();
+			load(newParams.slug);
 		},
 		destroy() {
+			destroyed = true;
 			clearTimeout(resizeTimeout);
 			ro.disconnect();
 			if (hasSetup) teardownSketch();

@@ -34,9 +34,15 @@
 
 	let stripEl: HTMLDivElement | undefined = $state();
 	let activeRange = $state<[number, number]>([0, 0]);
+	// Canvas mounting is held off the critical path: the strip translates
+	// immediately (cheap), but the per-card canvases — shader compiles,
+	// particle inits, the heavy lazy chunks — only mount once the page has
+	// painted and the main thread goes idle. They fade in regardless, so the
+	// deferral is invisible while keeping hydration/LCP free of canvas work.
+	let canvasesArmed = $state(false);
 
 	function isActive(i: number): boolean {
-		return i >= activeRange[0] && i <= activeRange[1];
+		return canvasesArmed && i >= activeRange[0] && i <= activeRange[1];
 	}
 
 	// Canvas modules loaded on demand, cached by handle.
@@ -157,6 +163,17 @@
 
 		rafRef = requestAnimationFrame(tick);
 
+		// Arm canvases at first idle so their setup never competes with
+		// hydration or the LCP paint. timeout guarantees they still appear on
+		// busy main threads; rAF fallback covers browsers without rIC.
+		const useIdle = typeof requestIdleCallback === 'function';
+		function arm() {
+			canvasesArmed = true;
+		}
+		const armHandle = useIdle
+			? requestIdleCallback(arm, { timeout: 2000 })
+			: requestAnimationFrame(() => requestAnimationFrame(arm));
+
 		const ro = new ResizeObserver(() => {
 			measure();
 			wake();
@@ -216,6 +233,8 @@
 
 		return () => {
 			cancelAnimationFrame(rafRef);
+			if (useIdle) cancelIdleCallback(armHandle);
+			else cancelAnimationFrame(armHandle);
 			ro.disconnect();
 			section.removeEventListener('mouseenter', onEnter);
 			section.removeEventListener('mouseleave', onLeave);
@@ -257,9 +276,10 @@
 			<a
 				href={item.href}
 				draggable="false"
+				data-sveltekit-preload-data="off"
 				onclick={(e) => handleClick(e, item)}
-				class="gallery-card group relative h-full shrink-0 overflow-hidden rounded-2xl transition-all duration-700"
-				style="aspect-ratio: 4 / 5; background-color: {BG_MAP[item.handle as ItemHandle] ?? 'var(--black)'}; display: block;"
+				class="gallery-card group relative block h-full shrink-0 overflow-hidden rounded-2xl border-2 border-[var(--black)] transition-[border-color,transform] duration-700 hover:border-[var(--coin)] hover:[transform:rotate(-1.3deg)]"
+				style="aspect-ratio: 4 / 5; background-color: {BG_MAP[item.handle as ItemHandle] ?? 'var(--black)'};"
 			>
 				{#if visible}
 					<div class="absolute inset-0">
@@ -288,8 +308,7 @@
 				{/if}
 				<span
 					data-card-label
-					class="absolute bottom-6 left-6 z-10 rounded-2xl p-3 font-mono text-xl font-bold uppercase tracking-[0.3em] transition-colors duration-300 lg:text-2xl"
-					style="background-color: var(--black); color: var(--white);"
+					class="absolute bottom-6 left-6 z-10 rounded-2xl bg-[var(--black)] p-3 font-mono text-xl font-bold uppercase tracking-[0.3em] text-[var(--white)] transition-colors duration-300 group-hover:text-[var(--coin)] lg:text-2xl"
 				>
 					{#if item.handle === 'deana'}
 						<DanaLabel />
@@ -301,17 +320,3 @@
 		{/each}
 	</div>
 </section>
-
-<style>
-  .gallery-card {
-    border: 3px solid var(--black);
-    transition: border-color 700ms, transform 700ms;
-  }
-  .gallery-card:hover {
-    border-color: var(--coin);
-    transform: rotate(-1.3deg);
-  }
-  .gallery-card:hover [data-card-label] {
-    color: var(--coin) !important;
-  }
-</style>
