@@ -1,5 +1,6 @@
 <script lang="ts">
   import SeoHead from "$lib/components/SeoHead.svelte";
+  import { collectionPageNode } from "$lib/seo";
   import ShelfHero from "$lib/components/ShelfHero.svelte";
   import { proxyImg } from "$lib/img";
   import type { PageData } from "./$types";
@@ -12,6 +13,10 @@
   title="shelf"
   description="Books, media, and the things that shape how I think."
   canonical="/shelf"
+  schema={collectionPageNode({
+    path: "/shelf",
+    name: "shelf — threesam",
+  })}
 />
 
 <main

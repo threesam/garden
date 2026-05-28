@@ -1,12 +1,17 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import SeoHead from '$lib/components/SeoHead.svelte';
+  import { creativeWorkNode } from '$lib/seo';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
 
   const target = $derived(`/anything-but-analog#${data.slug}`);
-  const ogUrl = $derived(`/og/anything-but-analog/${data.slug}.png`);
+  // Per-slug OG images aren't generated; use the section's generic 1200×630 card.
+  const ogUrl = '/og/anything-but-analog.png';
+  const description = $derived(
+    data.description ?? `${data.title} (${data.date}), generative sketch.`,
+  );
 
   onMount(() => {
     window.location.replace(target);
@@ -15,9 +20,15 @@
 
 <SeoHead
   title="{data.title} — anything but analog"
-  description="{data.title} ({data.date}), generative sketch."
+  {description}
   ogImage={ogUrl}
   canonical="/anything-but-analog/{data.slug}"
+  schema={creativeWorkNode({
+    path: `/anything-but-analog/${data.slug}`,
+    name: data.title,
+    image: ogUrl,
+    datePublished: data.date,
+  })}
 />
 
 <!--

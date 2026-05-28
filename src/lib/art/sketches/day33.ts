@@ -7,7 +7,7 @@ import type { Sketch } from "../types";
 export const day33: Sketch = {
   slug: "33",
   title: "self view",
-  date: "2022-02-xx",
+  date: "2022-02",
   setup(api, canvas) {
     const { ctx, w, h } = api;
     let video: HTMLVideoElement | null = null;

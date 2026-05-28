@@ -1,5 +1,6 @@
 <script lang="ts">
   import SeoHead from '$lib/components/SeoHead.svelte';
+  import { collectionPageNode } from '$lib/seo';
   import ParticleTextCanvas from '$lib/components/canvas/ParticleTextCanvas.svelte';
   import ArtScrollSync from '$lib/components/art/ArtScrollSync.svelte';
   import ArtGallery from '$lib/components/art/ArtGallery.svelte';
@@ -17,6 +18,10 @@
   description="generative sketches."
   ogImage="/og/anything-but-analog.png"
   canonical="/anything-but-analog"
+  schema={collectionPageNode({
+    path: '/anything-but-analog',
+    name: 'anything but analog — threesam',
+  })}
 />
 
 <main

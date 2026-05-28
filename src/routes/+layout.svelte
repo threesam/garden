@@ -12,7 +12,6 @@
   import Guide from '$lib/components/frame/Guide.svelte';
   import OutboundTracker from '$lib/components/OutboundTracker.svelte';
   import Anchor from '$lib/components/frame/Anchor.svelte';
-  import { PERSON_JSON_LD_STRING, WEBSITE_JSON_LD_STRING } from '$lib/seo';
 
   let { children } = $props();
 </script>
@@ -23,8 +22,6 @@
     data-website-id="2a502ffa-58a1-4057-be13-e46f0354cfb7"
     async
   ></script>
-  {@html `<script type="application/ld+json">${PERSON_JSON_LD_STRING}</script>`}
-  {@html `<script type="application/ld+json">${WEBSITE_JSON_LD_STRING}</script>`}
 </svelte:head>
 
 <OutboundTracker />
