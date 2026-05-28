@@ -21,6 +21,39 @@ export const KNOWS_ABOUT = [
 export const PERSON_ID = `${SITE_URL}/#person`;
 export const WEBSITE_ID = `${SITE_URL}/#website`;
 
+/**
+ * The site's content pages in one place — the single source consumed by both
+ * the sitemap and /llms.txt, so a new page is added once rather than in two
+ * formats. (The homepage gallery curates its own visual subset separately, as
+ * its cards carry per-handle canvas wiring beyond a plain path/label.)
+ */
+export const SITE_PAGES: Array<{ path: string; label: string; blurb: string }> = [
+  {
+    path: "/self",
+    label: "self",
+    blurb: "Sam's story — growing up in Trenton, making art, and finding a way through.",
+  },
+  {
+    path: "/anything-but-analog",
+    label: "anything but analog",
+    blurb: "Generative art — code-driven visual sketches.",
+  },
+  {
+    path: "/deana",
+    label: "deana",
+    blurb: "A data-art project on 102,549 messages across 10 years — one conversation.",
+  },
+  { path: "/benny", label: "benny", blurb: "Remembering 102 Jackson Street." },
+  { path: "/dad", label: "dad", blurb: "Stories about Sam's dad." },
+  {
+    path: "/shelf",
+    label: "shelf",
+    blurb: "Books, media, and the things that shape how Sam thinks.",
+  },
+  { path: "/thoughts", label: "thoughts", blurb: "Essays (work in progress)." },
+  { path: "/sounds", label: "sounds", blurb: "Music playground (coming soon)." },
+];
+
 export interface PageMeta {
   title?: string;
   description?: string;
@@ -88,20 +121,16 @@ export function buildGraph(...nodes: object[]) {
 
 // ---- Per-page node builders -----------------------------------------------
 // Each returns a single @graph member (no @context — the graph owns that) that
-// references the Person/WebSite by @id. Pass to <SeoHead schema={...} />.
+// references the Person/WebSite by @id. Pass to <SeoHead schema={...} />, which
+// injects the page's `description` so it can't drift from the <meta> description.
 
 /** Profile/about page anchored to the Person entity (e.g. /self). */
-export function profilePageNode(opts: {
-  path: string;
-  name: string;
-  description: string;
-}) {
+export function profilePageNode(opts: { path: string; name: string }) {
   return {
     "@type": "ProfilePage",
     "@id": `${absUrl(opts.path)}#webpage`,
     url: absUrl(opts.path),
     name: opts.name,
-    description: opts.description,
     isPartOf: { "@id": WEBSITE_ID },
     about: { "@id": PERSON_ID },
     mainEntity: { "@id": PERSON_ID },
@@ -112,7 +141,6 @@ export function profilePageNode(opts: {
 export function articleNode(opts: {
   path: string;
   headline: string;
-  description: string;
   image?: string;
   datePublished?: string;
 }) {
@@ -120,7 +148,6 @@ export function articleNode(opts: {
     "@type": "Article",
     "@id": `${absUrl(opts.path)}#article`,
     headline: opts.headline,
-    description: opts.description,
     url: absUrl(opts.path),
     isPartOf: { "@id": WEBSITE_ID },
     author: { "@id": PERSON_ID },
@@ -132,34 +159,24 @@ export function articleNode(opts: {
 }
 
 /** An index page grouping many works (e.g. /shelf, /anything-but-analog). */
-export function collectionPageNode(opts: {
-  path: string;
-  name: string;
-  description: string;
-}) {
+export function collectionPageNode(opts: { path: string; name: string }) {
   return {
     "@type": "CollectionPage",
     "@id": `${absUrl(opts.path)}#webpage`,
     url: absUrl(opts.path),
     name: opts.name,
-    description: opts.description,
     isPartOf: { "@id": WEBSITE_ID },
     author: { "@id": PERSON_ID },
   };
 }
 
 /** The essays section (/thoughts). */
-export function blogNode(opts: {
-  path: string;
-  name: string;
-  description: string;
-}) {
+export function blogNode(opts: { path: string; name: string }) {
   return {
     "@type": "Blog",
     "@id": `${absUrl(opts.path)}#blog`,
     url: absUrl(opts.path),
     name: opts.name,
-    description: opts.description,
     isPartOf: { "@id": WEBSITE_ID },
     author: { "@id": PERSON_ID },
   };
@@ -169,7 +186,6 @@ export function blogNode(opts: {
 export function creativeWorkNode(opts: {
   path: string;
   name: string;
-  description: string;
   image?: string;
   datePublished?: string;
 }) {
@@ -177,7 +193,6 @@ export function creativeWorkNode(opts: {
     "@type": "CreativeWork",
     "@id": `${absUrl(opts.path)}#creativework`,
     name: opts.name,
-    description: opts.description,
     url: absUrl(opts.path),
     creator: { "@id": PERSON_ID },
     isPartOf: { "@id": `${SITE_URL}/anything-but-analog#webpage` },

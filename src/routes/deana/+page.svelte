@@ -45,7 +45,6 @@
   schema={articleNode({
     path: "/deana",
     headline: "deana",
-    description: "102,549 messages. 10 years. One conversation.",
     image: "/og/deana.png",
   })}
 />

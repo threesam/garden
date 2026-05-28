@@ -78,7 +78,6 @@
   schema={profilePageNode({
     path: '/self',
     name: 'self — threesam',
-    description: 'growing up in trenton, making art, and finding a way through.',
   })}
 />
 

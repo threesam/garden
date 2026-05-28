@@ -1,38 +1,11 @@
-import { SITE_URL, SITE_DESCRIPTION, PERSON_NAME, PERSON_ALT, KNOWS_ABOUT } from '$lib/seo';
+import { SITE_URL, SITE_DESCRIPTION, PERSON_NAME, PERSON_ALT, KNOWS_ABOUT, SITE_PAGES } from '$lib/seo';
 
 export const prerender = true;
 
-// Curated digest of the site for LLMs / answer engines (see llmstxt.org).
-// Kept hand-picked and concise on purpose — it's a map, not a dump.
-const PAGES: Array<{ path: string; label: string; blurb: string }> = [
-  {
-    path: '/self',
-    label: 'self',
-    blurb: "Sam's story — growing up in Trenton, making art, and finding a way through.",
-  },
-  {
-    path: '/anything-but-analog',
-    label: 'anything but analog',
-    blurb: 'Generative art — code-driven visual sketches.',
-  },
-  {
-    path: '/deana',
-    label: 'deana',
-    blurb: 'A data-art project on 102,549 messages across 10 years — one conversation.',
-  },
-  { path: '/benny', label: 'benny', blurb: 'Remembering 102 Jackson Street.' },
-  { path: '/dad', label: 'dad', blurb: "Stories about Sam's dad." },
-  {
-    path: '/shelf',
-    label: 'shelf',
-    blurb: 'Books, media, and the things that shape how Sam thinks.',
-  },
-  { path: '/thoughts', label: 'thoughts', blurb: 'Essays (work in progress).' },
-  { path: '/sounds', label: 'sounds', blurb: 'Music playground (coming soon).' },
-];
-
+// Curated digest of the site for LLMs / answer engines (see llmstxt.org). The
+// page list is the shared SITE_PAGES source (also feeds the sitemap).
 export function GET() {
-  const pages = PAGES.map((p) => `- [${p.label}](${SITE_URL}${p.path}): ${p.blurb}`).join('\n');
+  const pages = SITE_PAGES.map((p) => `- [${p.label}](${SITE_URL}${p.path}): ${p.blurb}`).join('\n');
 
   const body = `# threesam — ${PERSON_NAME}
 

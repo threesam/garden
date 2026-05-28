@@ -11,7 +11,6 @@
   schema={blogNode({
     path: "/thoughts",
     name: "thoughts — threesam",
-    description: "essays (work in progress).",
   })}
 />
 

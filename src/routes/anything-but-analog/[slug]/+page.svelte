@@ -7,7 +7,11 @@
   let { data }: { data: PageData } = $props();
 
   const target = $derived(`/anything-but-analog#${data.slug}`);
-  const ogUrl = $derived(`/og/anything-but-analog/${data.slug}.png`);
+  // Per-slug OG images aren't generated; use the section's generic 1200×630 card.
+  const ogUrl = '/og/anything-but-analog.png';
+  const description = $derived(
+    data.description ?? `${data.title} (${data.date}), generative sketch.`,
+  );
 
   onMount(() => {
     window.location.replace(target);
@@ -16,13 +20,12 @@
 
 <SeoHead
   title="{data.title} — anything but analog"
-  description="{data.title} ({data.date}), generative sketch."
+  {description}
   ogImage={ogUrl}
   canonical="/anything-but-analog/{data.slug}"
   schema={creativeWorkNode({
     path: `/anything-but-analog/${data.slug}`,
     name: data.title,
-    description: data.description ?? `${data.title} (${data.date}), generative sketch.`,
     image: ogUrl,
     datePublished: data.date,
   })}

@@ -23,7 +23,6 @@
   schema={articleNode({
     path: "/benny",
     headline: "benny — remembering 102 Jackson Street",
-    description: "remembering 102 jackson street.",
     image: "/og/benny.png",
   })}
 />

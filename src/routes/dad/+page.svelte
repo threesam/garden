@@ -19,7 +19,6 @@
   schema={articleNode({
     path: "/dad",
     headline: "dad",
-    description: "stories about my dad.",
     image: "/og/dad.png",
   })}
 />

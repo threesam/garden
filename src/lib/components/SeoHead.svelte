@@ -12,8 +12,6 @@
     ogType?: string;
     /** Alt text for the social image. Falls back to the resolved page title. */
     ogImageAlt?: string;
-    /** ISO date for article:published_time (only emitted when ogType is 'article'). */
-    publishedTime?: string;
     /** Page-specific schema.org node(s) merged into the JSON-LD @graph (with Person + WebSite). */
     schema?: object | object[];
   }
@@ -25,7 +23,6 @@
     preloadImage,
     ogType = 'website',
     ogImageAlt,
-    publishedTime,
     schema,
   }: Props = $props();
 
@@ -38,12 +35,14 @@
   });
   const resolvedCanonical = $derived(canonical ?? '/');
   const resolvedImageAlt = $derived(ogImageAlt ?? resolvedTitle);
-  // Pre-stringified @graph: shared Person + WebSite plus any page node(s).
+  // Pre-stringified @graph: shared Person + WebSite plus any page node(s). The
+  // page description is folded into each node so schema can't drift from <meta>.
   const graphScript = $derived.by(() => {
     let nodes: object[] = [];
     if (Array.isArray(schema)) nodes = schema;
     else if (schema) nodes = [schema];
-    return jsonLdToScript(buildGraph(...nodes));
+    const described = nodes.map((n) => ({ ...n, description: resolvedDescription }));
+    return jsonLdToScript(buildGraph(...described));
   });
 </script>
 
@@ -63,9 +62,6 @@
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content={resolvedImageAlt} />
-  {#if ogType === 'article' && publishedTime}
-    <meta property="article:published_time" content={publishedTime} />
-  {/if}
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={resolvedTitle} />
   <meta name="twitter:description" content={resolvedDescription} />

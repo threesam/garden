@@ -21,7 +21,6 @@
   schema={collectionPageNode({
     path: '/anything-but-analog',
     name: 'anything but analog — threesam',
-    description: 'generative sketches.',
   })}
 />
 

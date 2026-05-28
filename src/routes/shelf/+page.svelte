@@ -16,7 +16,6 @@
   schema={collectionPageNode({
     path: "/shelf",
     name: "shelf — threesam",
-    description: "Books, media, and the things that shape how I think.",
   })}
 />
 

@@ -1,17 +1,8 @@
 import { visibleSketches } from '$lib/art/registry';
-import { SITE_URL } from '$lib/seo';
+import { SITE_URL, SITE_PAGES } from '$lib/seo';
 
-const STATIC_ROUTES = [
-  '/',
-  '/self',
-  '/shelf',
-  '/sounds',
-  '/thoughts',
-  '/dad',
-  '/deana',
-  '/benny',
-  '/anything-but-analog',
-];
+// Home + the shared content-page list (single source: SITE_PAGES in $lib/seo).
+const STATIC_ROUTES = ['/', ...SITE_PAGES.map((p) => p.path)];
 
 export const prerender = true;
 
