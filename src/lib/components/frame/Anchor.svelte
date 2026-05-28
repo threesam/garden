@@ -24,6 +24,6 @@
     <LazyMount class="relative h-[30dvh] w-full md:h-[50dvh]" rootMargin="200px">
       <CloudCanvas />
     </LazyMount>
-    <BrandSignoff />
+    <BrandSignoff tone="light" />
   </div>
 {/if}
