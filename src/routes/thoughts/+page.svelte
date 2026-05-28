@@ -1,5 +1,6 @@
 <script lang="ts">
   import SeoHead from "$lib/components/SeoHead.svelte";
+  import { blogNode } from "$lib/seo";
   import SketchHost from "$lib/components/art/SketchHost.svelte";
 </script>
 
@@ -7,6 +8,11 @@
   title="thoughts"
   description="essays (work in progress)."
   canonical="/thoughts"
+  schema={blogNode({
+    path: "/thoughts",
+    name: "thoughts — threesam",
+    description: "essays (work in progress).",
+  })}
 />
 
 <main

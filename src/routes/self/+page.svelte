@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createRawSnippet, mount, unmount } from 'svelte';
   import SeoHead from '$lib/components/SeoHead.svelte';
+  import { profilePageNode } from '$lib/seo';
   import Prose from '$lib/components/Prose.svelte';
   import VoronoiCanvas from '$lib/components/canvas/VoronoiCanvas.svelte';
   import VoronoiImage from '$lib/components/canvas/VoronoiImage.svelte';
@@ -73,6 +74,12 @@
   ogImage="/og/self.png"
   canonical="/self"
   preloadImage="/assets/self-hero.webp"
+  ogType="profile"
+  schema={profilePageNode({
+    path: '/self',
+    name: 'self — threesam',
+    description: 'growing up in trenton, making art, and finding a way through.',
+  })}
 />
 
 <div class="relative h-dvh w-full overflow-hidden">

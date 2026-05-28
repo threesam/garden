@@ -1,5 +1,6 @@
 <script lang="ts">
   import SeoHead from "$lib/components/SeoHead.svelte";
+  import { articleNode } from "$lib/seo";
   import Prose from "$lib/components/Prose.svelte";
   import LazyMount from "$lib/components/LazyMount.svelte";
   import AsciiImage from "$lib/components/messages/AsciiImage.svelte";
@@ -14,6 +15,13 @@
   description="stories about my dad."
   ogImage="/og/dad.png"
   canonical="/dad"
+  ogType="article"
+  schema={articleNode({
+    path: "/dad",
+    headline: "dad",
+    description: "stories about my dad.",
+    image: "/og/dad.png",
+  })}
 />
 
 <main class="min-h-screen bg-zinc-900" style="color: var(--white);">

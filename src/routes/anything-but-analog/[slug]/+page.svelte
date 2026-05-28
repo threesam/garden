@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import SeoHead from '$lib/components/SeoHead.svelte';
+  import { creativeWorkNode } from '$lib/seo';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -18,6 +19,13 @@
   description="{data.title} ({data.date}), generative sketch."
   ogImage={ogUrl}
   canonical="/anything-but-analog/{data.slug}"
+  schema={creativeWorkNode({
+    path: `/anything-but-analog/${data.slug}`,
+    name: data.title,
+    description: data.description ?? `${data.title} (${data.date}), generative sketch.`,
+    image: ogUrl,
+    datePublished: data.date,
+  })}
 />
 
 <!--

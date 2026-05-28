@@ -16,22 +16,24 @@ const STATIC_ROUTES = [
 export const prerender = true;
 
 export async function GET() {
-  const now = new Date().toISOString();
-  const entries: Array<{ url: string; lastmod: string }> = [
-    ...STATIC_ROUTES.map((p) => ({ url: `${SITE_URL}${p}`, lastmod: now })),
+  // Only emit <lastmod> where we have a real content date; stamping every
+  // static route with the build time is meaningless and search engines learn
+  // to distrust it.
+  const entries: Array<{ url: string; lastmod?: string }> = [
+    ...STATIC_ROUTES.map((p) => ({ url: `${SITE_URL}${p}` })),
     ...visibleSketches.map((s) => ({
       url: `${SITE_URL}/anything-but-analog/${s.slug}`,
-      lastmod: s.date ? new Date(s.date).toISOString() : now,
+      lastmod: s.date ? new Date(s.date).toISOString() : undefined,
     })),
   ];
 
   const body = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${entries
-  .map(
-    (e) =>
-      `  <url><loc>${e.url}</loc><lastmod>${e.lastmod}</lastmod></url>`,
-  )
+  .map((e) => {
+    const lastmod = e.lastmod ? `<lastmod>${e.lastmod}</lastmod>` : '';
+    return `  <url><loc>${e.url}</loc>${lastmod}</url>`;
+  })
   .join('\n')}
 </urlset>`;
 

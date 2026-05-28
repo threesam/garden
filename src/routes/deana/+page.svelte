@@ -1,5 +1,6 @@
 <script lang="ts">
   import SeoHead from "$lib/components/SeoHead.svelte";
+  import { articleNode } from "$lib/seo";
   import LazyMount from "$lib/components/LazyMount.svelte";
   // AsciiImageSection is above-the-fold — keep eager.
   import AsciiImageSection from "$lib/components/messages/AsciiImageSection.svelte";
@@ -40,6 +41,13 @@
   description="102,549 messages. 10 years. One conversation."
   ogImage="/og/deana.png"
   canonical="/deana"
+  ogType="article"
+  schema={articleNode({
+    path: "/deana",
+    headline: "deana",
+    description: "102,549 messages. 10 years. One conversation.",
+    image: "/og/deana.png",
+  })}
 />
 
 <main style="background-color: var(--white);">

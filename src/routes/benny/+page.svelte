@@ -1,5 +1,6 @@
 <script lang="ts">
   import SeoHead from "$lib/components/SeoHead.svelte";
+  import { articleNode } from "$lib/seo";
   import { BENNY_PLAYLISTS } from "$lib/benny/playlists";
   import Video from "$lib/components/Video.svelte";
   import SixToMidnightBanner from "$lib/components/benny/SixToMidnightBanner.svelte";
@@ -18,6 +19,13 @@
   ogImage="/og/benny.png"
   canonical="/benny"
   preloadImage="/assets/sixtomidnight-tribute-poster.jpg"
+  ogType="article"
+  schema={articleNode({
+    path: "/benny",
+    headline: "benny — remembering 102 Jackson Street",
+    description: "remembering 102 jackson street.",
+    image: "/og/benny.png",
+  })}
 />
 
 <main class="min-h-screen bg-zinc-900" style="color: var(--white);">
