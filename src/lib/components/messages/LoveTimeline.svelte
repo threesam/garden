@@ -13,7 +13,7 @@
 </script>
 
 {#if firstSam || firstDia}
-	<div class="my-12 rounded-2xl border border-white/5 bg-black p-6 md:p-9">
+	<div class="my-12 rounded-2xl border border-white/5 bg-[var(--black)] p-6 md:p-9">
 		<div class="mb-6 flex items-baseline justify-between">
 			<span class="font-mono text-xs tracking-[0.16em] text-zinc-400">"i love you"</span>
 			<span class="font-mono text-[10px] text-zinc-400">{count.toLocaleString()} times</span>

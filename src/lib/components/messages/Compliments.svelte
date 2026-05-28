@@ -32,11 +32,11 @@
 	</div>
 	<div class="mb-3 grid grid-cols-2 gap-3">
 		<div class="rounded-lg border border-zinc-200 p-3 text-center">
-			<p class="text-xl font-bold text-black">{complimentsData.sam_total}</p>
+			<p class="text-xl font-bold text-[var(--black)]">{complimentsData.sam_total}</p>
 			<p class="font-mono text-[10px] text-zinc-600">from sam</p>
 		</div>
 		<div class="rounded-lg border border-zinc-200 p-3 text-center">
-			<p class="text-xl font-bold text-black">{complimentsData.dia_total}</p>
+			<p class="text-xl font-bold text-[var(--black)]">{complimentsData.dia_total}</p>
 			<p class="font-mono text-[10px] text-zinc-600">from dianchik</p>
 		</div>
 	</div>

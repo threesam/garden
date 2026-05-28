@@ -2,6 +2,7 @@
   import { page } from '$app/stores';
   import LazyMount from '$lib/components/LazyMount.svelte';
   import CloudCanvas from '$lib/components/canvas/CloudCanvas.svelte';
+  import BrandSignoff from '$lib/components/frame/BrandSignoff.svelte';
 
   // Pages where the ambient cloud footer competes with the page's own
   // full-bleed animations / immersive scroll. /thoughts and /sounds are
@@ -19,7 +20,10 @@
 
 {#if !hidden}
   <!-- 200px scroll-ahead so the WebGL context warms before the user reaches it -->
-  <LazyMount class="relative h-[30dvh] w-full md:h-[50dvh]" rootMargin="200px">
-    <CloudCanvas />
-  </LazyMount>
+  <div class="relative w-full">
+    <LazyMount class="relative h-[30dvh] w-full md:h-[50dvh]" rootMargin="200px">
+      <CloudCanvas />
+    </LazyMount>
+    <BrandSignoff tone="light" />
+  </div>
 {/if}

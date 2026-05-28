@@ -9,7 +9,7 @@ const ROUTE_MARKERS: Record<string, string> = {
   '/dad':                           'dad',
   '/deana':                         'deana',
   '/benny':                         '102 Jackson Street',
-  '/anything-but-analog':           'THREESAM',
+  '/anything-but-analog':           'go home',
   '/self':                          'self',
 };
 

@@ -23,8 +23,8 @@
   })}
 />
 
-<main class="min-h-screen bg-zinc-900" style="color: var(--white);">
-  <section class="relative h-dvh w-full overflow-hidden bg-zinc-900">
+<main class="min-h-screen bg-[var(--black)]" style="color: var(--white);">
+  <section class="relative h-dvh w-full overflow-hidden bg-[var(--black)]">
     <LazyMount class="absolute inset-0">
       <AsciiImage srcs={["/assets/dad-1.webp"]} class="h-full w-full" inverted />
     </LazyMount>

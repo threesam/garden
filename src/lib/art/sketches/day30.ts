@@ -148,7 +148,7 @@ export const day30: Sketch = {
       if (rng() > minPossible) ctx.strokeRect(0, 0, q, ll * (1 + rng() * 0.3));
     }
 
-    ctx.fillStyle = "rgb(0,0,0)";
+    ctx.fillStyle = "#1a1a14"; // --black (canvas can't read CSS vars)
     ctx.fillRect(0, 0, w, h);
 
     // Wrap window extends slightly beyond the viewport so walkers don't
@@ -207,7 +207,10 @@ export const day30: Sketch = {
         // cost. Visual identical to the human eye at 60 Hz.
         frameCount++;
         if (frameCount & 1) {
-          ctx.fillStyle = "rgba(0,0,0,0.13)";
+          // --black channels (#1a1a14), not pure black — otherwise this
+          // per-frame fade converges the backdrop back to #000 and undoes the
+          // brand-black fill above.
+          ctx.fillStyle = "rgba(26,26,20,0.13)";
           ctx.fillRect(0, 0, w, h);
         }
 

@@ -6,7 +6,7 @@
 
 <div>
 	<span class="font-mono text-[10px] text-zinc-600">words written</span>
-	<p class="mt-1.5 text-2xl font-bold text-black">{total.toLocaleString()}</p>
+	<p class="mt-1.5 text-2xl font-bold text-[var(--black)]">{total.toLocaleString()}</p>
 	<div class="mt-3 space-y-1.5">
 		<div class="flex justify-between font-mono text-[10px] text-zinc-600">
 			<span>sam</span>

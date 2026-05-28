@@ -27,7 +27,7 @@
   })}
 />
 
-<main class="min-h-screen bg-zinc-900" style="color: var(--white);">
+<main class="min-h-screen bg-[var(--black)]" style="color: var(--white);">
   <section class="relative grid min-h-[80vh] place-content-center overflow-hidden text-center">
     <Video
       autoplay
