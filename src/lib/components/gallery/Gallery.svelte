@@ -127,11 +127,15 @@
 			offsetRef = ((offsetRef % stripW) + stripW) % stripW;
 			stripEl!.style.transform = `translate3d(${-offsetRef}px,0,0)`;
 
-			const isMoving =
-				Math.abs(speedRef) > 0.5 ||
-				Math.abs(drag.velocity) > 0.5 ||
-				drag.active;
-			setCanvasThrottled(isMoving);
+			// Throttle canvas work only while actively autoscrolling or being
+			// dragged/flung — NOT while the strip glides to a stop on hover.
+			// Otherwise the cursor-reactive cards (analog repel, shelf metaballs)
+			// stay at 30fps through the ~0.6s deceleration and feel laggy the moment
+			// you hover to interact. Ample headroom exists (60fps holds at 6x CPU)
+			// to run them full-rate during the brief glide.
+			const autoscrolling = targetSpeedRef !== 0 && Math.abs(speedRef) > 0.5;
+			const dragging = drag.active || Math.abs(drag.velocity) > 0.5;
+			setCanvasThrottled(autoscrolling || dragging);
 
 			const stride = stripW / UNIQUE_COUNT;
 			if (measured && stride > 0) {

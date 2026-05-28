@@ -434,15 +434,18 @@ export const voronoi: Action<HTMLCanvasElement, VoronoiParams> = (node, initialP
     }
     raf = requestAnimationFrame(render);
 
+    // Snappy easings so the image-reveal tracks the cursor near-instantly; a
+    // touch of smoothing still avoids per-pixel jitter. The previous 0.08/0.1
+    // rates trailed the cursor ~0.5s and read as lag.
     const targetInfluence = (hovering || dragging) ? 1.0 : 0.0;
     const prevInfluence = influence;
-    influence += (targetInfluence - influence) * 0.08;
+    influence += (targetInfluence - influence) * 0.3;
     if (Math.abs(influence) < 0.001) influence = 0;
 
     const prevMx = smoothMouse.x;
     const prevMy = smoothMouse.y;
-    smoothMouse.x += (mouseUv.x - smoothMouse.x) * 0.1;
-    smoothMouse.y += (mouseUv.y - smoothMouse.y) * 0.1;
+    smoothMouse.x += (mouseUv.x - smoothMouse.x) * 0.5;
+    smoothMouse.y += (mouseUv.y - smoothMouse.y) * 0.5;
 
     const changed =
       Math.abs(influence - prevInfluence) > 0.0005 ||
