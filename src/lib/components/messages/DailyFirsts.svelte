@@ -26,7 +26,7 @@
 	<div class="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
 		{#each slice as f (f.date)}
 			<div class="rounded-lg border border-zinc-200 p-3">
-				<p class="line-clamp-2 text-sm leading-relaxed text-black">"{f.text}"</p>
+				<p class="line-clamp-2 text-sm leading-relaxed text-[var(--black)]">"{f.text}"</p>
 				<p class="mt-1.5 font-mono text-[9px] text-zinc-600">
 					{f.sender.split(' ')[0].toLowerCase()} — {f.date}, {f.hour}:{String(f.minute ?? 0).padStart(2, '0')}
 				</p>
@@ -38,7 +38,7 @@
 			<button
 				onclick={() => (page = Math.max(0, page - 1))}
 				disabled={page === 0}
-				class="font-mono text-[10px] text-zinc-600 hover:text-black disabled:opacity-30"
+				class="font-mono text-[10px] text-zinc-600 hover:text-[var(--black)] disabled:opacity-30"
 			>
 				prev
 			</button>
@@ -46,7 +46,7 @@
 			<button
 				onclick={() => (page = Math.min(totalPages - 1, page + 1))}
 				disabled={page === totalPages - 1}
-				class="font-mono text-[10px] text-zinc-600 hover:text-black disabled:opacity-30"
+				class="font-mono text-[10px] text-zinc-600 hover:text-[var(--black)] disabled:opacity-30"
 			>
 				next
 			</button>

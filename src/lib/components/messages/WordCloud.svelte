@@ -152,8 +152,8 @@
 				<button
 					onclick={() => (who = w as Who)}
 					class="font-mono text-[10px] tracking-wider transition-colors {who === w
-						? 'text-black'
-						: 'text-zinc-600 hover:text-black'}"
+						? 'text-[var(--black)]'
+						: 'text-zinc-600 hover:text-[var(--black)]'}"
 				>
 					{w}
 				</button>

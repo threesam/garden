@@ -124,16 +124,16 @@
 			<button
 				onclick={() => (tab = 'messages')}
 				class="font-mono text-xs tracking-[0.16em] transition-colors {tab === 'messages'
-					? 'text-black'
-					: 'text-zinc-600 hover:text-black'}"
+					? 'text-[var(--black)]'
+					: 'text-zinc-600 hover:text-[var(--black)]'}"
 			>
 				messages
 			</button>
 			<button
 				onclick={() => (tab = 'media')}
 				class="font-mono text-xs tracking-[0.16em] transition-colors {tab === 'media'
-					? 'text-black'
-					: 'text-zinc-600 hover:text-black'}"
+					? 'text-[var(--black)]'
+					: 'text-zinc-600 hover:text-[var(--black)]'}"
 			>
 				media
 			</button>

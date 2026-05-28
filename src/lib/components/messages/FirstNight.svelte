@@ -30,8 +30,8 @@
 					<div class="flex {msg.sender === 'sam' ? 'justify-end' : 'justify-start'}">
 						<div
 							class="max-w-[85%] rounded-xl px-3 py-1.5 text-sm leading-relaxed {msg.sender === 'sam'
-								? 'bg-zinc-100 text-black'
-								: 'bg-amber-50 text-black'}"
+								? 'bg-zinc-100 text-[var(--black)]'
+								: 'bg-amber-50 text-[var(--black)]'}"
 						>
 							<p class="whitespace-pre-line">{msg.text}</p>
 						</div>

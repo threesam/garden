@@ -43,7 +43,7 @@
             class="block h-auto w-full md:transition-[filter] md:duration-300 md:group-hover:grayscale"
           />
         {:else}
-          <div class="flex aspect-2/3 w-full items-center justify-center bg-zinc-900 p-3 text-center text-xs text-zinc-600">
+          <div class="flex aspect-2/3 w-full items-center justify-center bg-[var(--black)] p-3 text-center text-xs text-zinc-600">
             {book.cleanTitle}
           </div>
         {/if}

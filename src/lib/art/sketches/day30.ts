@@ -148,7 +148,7 @@ export const day30: Sketch = {
       if (rng() > minPossible) ctx.strokeRect(0, 0, q, ll * (1 + rng() * 0.3));
     }
 
-    ctx.fillStyle = "rgb(0,0,0)";
+    ctx.fillStyle = "#1a1a14"; // --black (canvas can't read CSS vars)
     ctx.fillRect(0, 0, w, h);
 
     // Wrap window extends slightly beyond the viewport so walkers don't
