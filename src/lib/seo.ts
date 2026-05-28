@@ -112,7 +112,7 @@ const WEBSITE_NODE = {
  * (always present, so every page reinforces them) plus any page-specific nodes,
  * all cross-linked by @id.
  */
-export function buildGraph(...nodes: object[]) {
+export function buildGraph(...nodes: object[]): object {
   return {
     "@context": "https://schema.org",
     "@graph": [PERSON_NODE, WEBSITE_NODE, ...nodes],
@@ -125,7 +125,7 @@ export function buildGraph(...nodes: object[]) {
 // injects the page's `description` so it can't drift from the <meta> description.
 
 /** Profile/about page anchored to the Person entity (e.g. /self). */
-export function profilePageNode(opts: { path: string; name: string }) {
+export function profilePageNode(opts: { path: string; name: string }): object {
   return {
     "@type": "ProfilePage",
     "@id": `${absUrl(opts.path)}#webpage`,
@@ -143,7 +143,7 @@ export function articleNode(opts: {
   headline: string;
   image?: string;
   datePublished?: string;
-}) {
+}): object {
   const node: Record<string, unknown> = {
     "@type": "Article",
     "@id": `${absUrl(opts.path)}#article`,
@@ -159,7 +159,7 @@ export function articleNode(opts: {
 }
 
 /** An index page grouping many works (e.g. /shelf, /anything-but-analog). */
-export function collectionPageNode(opts: { path: string; name: string }) {
+export function collectionPageNode(opts: { path: string; name: string }): object {
   return {
     "@type": "CollectionPage",
     "@id": `${absUrl(opts.path)}#webpage`,
@@ -171,7 +171,7 @@ export function collectionPageNode(opts: { path: string; name: string }) {
 }
 
 /** The essays section (/thoughts). */
-export function blogNode(opts: { path: string; name: string }) {
+export function blogNode(opts: { path: string; name: string }): object {
   return {
     "@type": "Blog",
     "@id": `${absUrl(opts.path)}#blog`,
@@ -188,7 +188,7 @@ export function creativeWorkNode(opts: {
   name: string;
   image?: string;
   datePublished?: string;
-}) {
+}): object {
   const node: Record<string, unknown> = {
     "@type": "CreativeWork",
     "@id": `${absUrl(opts.path)}#creativework`,
