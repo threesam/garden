@@ -1,9 +1,9 @@
 import type { Sketch } from "../types";
 
-// Abstract forest — recursively-branching L-system-ish trees that tile the
-// canvas: one tree per grid cell, the cells shaped to the tree's tall aspect
-// and the base length sized to the cell, so canopies fill the screen without
-// overlapping their neighbors.
+// Abstract forest — recursively-branching L-system-ish trees packed across
+// the canvas: one tree per circle of a circle-packing layout (see below), the
+// base length sized to the circle, so canopies fill the screen at varied sizes
+// without overlapping their neighbors.
 export const day23: Sketch = {
   slug: "23",
   title: "abstract plants",
