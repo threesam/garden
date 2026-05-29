@@ -1,27 +1,27 @@
 <script lang="ts">
   import SeoHead from "$lib/components/SeoHead.svelte";
-  import SketchHost from "$lib/components/art/SketchHost.svelte";
+  import type { PageData } from "./$types";
+
+  let { data }: { data: PageData } = $props();
+  let { manifest } = $derived(data);
 </script>
 
-<SeoHead
-  title="sounds"
-  description="music playground (coming soon)."
-  canonical="/sounds"
-/>
+<SeoHead title="sounds" description="music — demos and scores." canonical="/sounds" />
 
-<main
-  class="relative h-dvh w-full overflow-hidden"
-  style="background-color: var(--black);"
->
-  <div class="absolute inset-0">
-    <SketchHost slug="25" active />
-  </div>
-  <div class="pointer-events-none absolute inset-0 grid place-items-center">
-    <h1
-      class="font-mono text-4xl font-bold uppercase tracking-[0.2em] md:text-7xl"
-      style="color: var(--white); mix-blend-mode: difference;"
-    >
-      coming soon
-    </h1>
-  </div>
+<main style="background:var(--black); color:var(--white); min-height:100dvh; padding:2rem;">
+  <h1 class="font-mono uppercase">sounds</h1>
+
+  <section>
+    <h2 class="font-mono uppercase">demos</h2>
+    {#each manifest.demos.eps as ep (ep.id)}
+      <h3>{ep.label}</h3>
+    {/each}
+    {#if manifest.demos.singles.length === 0 && manifest.demos.eps.length === 0}
+      <p>no tracks yet — run the ingest.</p>
+    {/if}
+  </section>
+
+  <section>
+    <h2 class="font-mono uppercase">scores</h2>
+  </section>
 </main>
