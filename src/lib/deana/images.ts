@@ -1,8 +1,9 @@
-// Pre-baked ASCII renders of the deana photos (see scripts/generate-deana-ascii.mjs).
-// The raw source photos live in static/assets and are the build-time inputs to that
-// script; at runtime the app only references these baked prints, so the homepage card
-// + /deana sections don't convert pixels to ASCII in JS on load. `sm` is for the small
-// homepage card, `lg` for full-width /deana sections — wired up via srcset.
+// The deana photos drive two ASCII render paths:
+//  - DEANA_PHOTOS (raw webp): the /deana page renders these to ASCII on a <canvas>
+//    at runtime (AsciiImage) so its full-bleed sections stay crisp at any size/DPR.
+//  - DEANA_ASCII (pre-baked, see scripts/generate-deana-ascii.mjs): the homepage
+//    gallery card shows these static prints instead of running the ~960ms ASCII
+//    conversion on the homepage's critical path. sm = card, lg = retina, via srcset.
 const ASCII_BASES = [
 	"deana-6",
 	"deana-5",
@@ -16,6 +17,8 @@ export interface AsciiSrc {
 	sm: string;
 	lg: string;
 }
+
+export const DEANA_PHOTOS: string[] = ASCII_BASES.map((base) => `/assets/${base}.webp`);
 
 export const DEANA_ASCII: AsciiSrc[] = ASCII_BASES.map((base) => ({
 	sm: `/assets/deana-ascii/${base}-sm.webp`,

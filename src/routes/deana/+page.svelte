@@ -4,7 +4,7 @@
   import LazyMount from "$lib/components/LazyMount.svelte";
   // AsciiImageSection is above-the-fold — keep eager.
   import AsciiImageSection from "$lib/components/messages/AsciiImageSection.svelte";
-  import { DEANA_ASCII } from "$lib/deana/images.js";
+  import { DEANA_PHOTOS } from "$lib/deana/images.js";
 
   // All below-the-fold components are dynamically imported so their
   // modules are excluded from the initial page bundle.
@@ -42,7 +42,7 @@
 />
 
 <main style="background-color: var(--white);">
-  <AsciiImageSection src={DEANA_ASCII[0]} />
+  <AsciiImageSection src={DEANA_PHOTOS[0]} />
 
   <section
     class="w-full px-3 py-12 md:px-6 md:py-24"
@@ -60,7 +60,7 @@
     </div>
   </section>
 
-  <AsciiImageSection src={DEANA_ASCII[1]} />
+  <AsciiImageSection src={DEANA_PHOTOS[1]} />
 
   <section
     class="w-full px-3 py-12 md:px-6 md:py-24"
@@ -78,7 +78,7 @@
     </div>
   </section>
 
-  <AsciiImageSection src={DEANA_ASCII[2]} />
+  <AsciiImageSection src={DEANA_PHOTOS[2]} />
 
   <section
     class="w-full px-3 py-12 md:px-6 md:py-24"
@@ -118,7 +118,7 @@
     </div>
   </section>
 
-  <AsciiImageSection src={DEANA_ASCII[3]} />
+  <AsciiImageSection src={DEANA_PHOTOS[3]} />
 
   <section
     class="w-full px-3 py-12 md:px-6 md:py-24"
