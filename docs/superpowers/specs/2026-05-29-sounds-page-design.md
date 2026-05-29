@@ -20,7 +20,7 @@ audio-reactive backdrop driven by the playing track.
   below so it isn't lost).
 - **Phase 3 — LATER.** Styled player UI: cover grid, version-stack reveal,
   HMBM cue-sheet timeline.
-- **Later.** Hosting (Vercel Blob), naming the two untitled tracks.
+- **Done (2026-05-29).** Hosting on Cloudflare R2 (bucket `threesam-sounds`, public r2.dev, `pnpm sounds:deploy`). **Later:** custom domain for scale, naming the two untitled tracks.
 
 Do **not** build the sketch or styling in Phase 1.
 
@@ -107,8 +107,9 @@ static/audio/sounds/
 
 The folder + filenames are the durable source of truth. A mis-group is fixed by
 moving/renaming a file, never by re-parsing FL names. Audio is **gitignored**
-(local-first); only `manifest.json` is committed. (Consequence: a deployed build
-has no audio until hosting is decided — acceptable per local-first.)
+(local-first); only `manifest.json` is committed. Audio + covers are hosted on
+**Cloudflare R2** (`pnpm sounds:deploy`); the page serves them from
+`PUBLIC_SOUNDS_BASE` in prod and from `static/` in dev.
 
 ## Ingest pipeline — `scripts/sounds-ingest.mjs`
 
@@ -197,4 +198,4 @@ Make the existing `day25` "eye ocean" the visualizer. **Do not build in Phase 1.
 
 - `untitled_0` and `untitled_00` need real titles (not on SoundCloud).
 - `climate change` and the 7 other `☁` tracks are lossy-only (no master).
-- Hosting: revisit Vercel Blob when the catalog audio needs to ship in prod.
+- Hosting: Cloudflare R2 (bucket `threesam-sounds`). Set `PUBLIC_SOUNDS_BASE` in Vercel for prod; consider a custom domain (`audio.threesam.com`) for scale — r2.dev is rate-limited.
