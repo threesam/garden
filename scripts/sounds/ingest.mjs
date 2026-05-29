@@ -10,8 +10,9 @@
 //   loudnorm=I=-14:TP=-1:LRA=11   — normalize to a consistent perceived loudness
 import { readdirSync, statSync, existsSync, readFileSync, mkdirSync, copyFileSync, writeFileSync, rmSync } from "node:fs";
 import { join, extname, basename, dirname } from "node:path";
-import { homedir } from "node:os";
-import { execFileSync } from "node:child_process";
+import { homedir, cpus } from "node:os";
+import { execFile, execFileSync } from "node:child_process";
+import { promisify } from "node:util";
 import { createHash } from "node:crypto";
 import { AUDIO_EXTS, DEFAULT_ART_MIN, analyze, canon, buildCatalog } from "./grouping.mjs";
 
@@ -41,7 +42,7 @@ function walk(root, rel = "") {
     const st = statSync(join(root, childRel));
     if (st.isDirectory()) out.push(...walk(root, childRel));
     else if (st.isFile() && AUDIO_EXTS.has(extname(e).toLowerCase()))
-      out.push({ rel: childRel, size: st.size, date: fmtDate(st.birthtime), abs: join(root, childRel) });
+      out.push({ rel: childRel, date: fmtDate(st.birthtime), abs: join(root, childRel) });
   }
   return out;
 }
@@ -53,7 +54,7 @@ function scanFL() {
     if (!existsSync(dir)) continue;
     for (const f of walk(dir)) {
       const ext = extname(f.rel).toLowerCase();
-      files.push({ sub, rel: f.rel, ext, stem: basename(f.rel, ext).toLowerCase(), dir: dirname(f.rel), size: f.size, date: f.date, abs: f.abs });
+      files.push({ sub, rel: f.rel, ext, stem: basename(f.rel, ext).toLowerCase(), dir: dirname(f.rel), date: f.date, abs: f.abs });
     }
   }
   return files;
@@ -78,7 +79,7 @@ function loadSC() {
     const d = JSON.parse(line); const id = String(d.id); const a = analyze(d.title);
     const up = d.upload_date || ""; const date = up.length === 8 ? `${up.slice(0, 4)}-${up.slice(4, 6)}-${up.slice(6)}` : "1970-01-01";
     const audioPath = audioById.get(id) || null;
-    return { id, title: d.title, cleanTitle: a.title, variant: a.variant, slug: canon(d.title), date, artPath: artById.get(id) || null, isDefaultArt: !artById.has(id) || defaults.has(hashById.get(id)), audioPath, size: audioPath ? statSync(audioPath).size : 0 };
+    return { id, title: d.title, cleanTitle: a.title, variant: a.variant, slug: canon(d.title), date, artPath: artById.get(id) || null, isDefaultArt: !artById.has(id) || defaults.has(hashById.get(id)), audioPath };
   });
 }
 
@@ -98,18 +99,25 @@ console.log(`ffmpeg: ${FFMPEG}\nfilter: ${AUDIO_FILTER}\n`);
 // fresh output tree so removed/renamed tracks don't linger
 rmSync(AUDIO_OUT_ROOT, { recursive: true, force: true });
 
+// Encodes are independent → run a bounded pool across cores (ffmpeg loudnorm is
+// largely single-threaded, so sequential left most cores idle).
+const pexec = promisify(execFile);
+const CONCURRENCY = Math.min(cpus().length, 6);
 let done = 0;
 const failures = [];
-for (const conv of conversions) {
-  mkdirSync(dirname(conv.to), { recursive: true });
-  try {
-    execFileSync(FFMPEG, ["-y", "-i", conv.from, "-af", AUDIO_FILTER, "-codec:a", "libmp3lame", "-b:a", "192k", conv.to], { stdio: ["ignore", "ignore", "pipe"] });
-  } catch (err) {
-    failures.push({ from: conv.from, msg: String(err.stderr || err).slice(-200) });
-    continue;
+const queue = [...conversions];
+async function encodeWorker() {
+  for (let conv = queue.shift(); conv; conv = queue.shift()) {
+    mkdirSync(dirname(conv.to), { recursive: true });
+    try {
+      await pexec(FFMPEG, ["-y", "-i", conv.from, "-af", AUDIO_FILTER, "-codec:a", "libmp3lame", "-b:a", "192k", conv.to]);
+      if (++done % 10 === 0) console.log(`  …encoded ${done}/${conversions.length}`);
+    } catch (err) {
+      failures.push({ from: conv.from, msg: String(err.stderr || err).slice(-200) });
+    }
   }
-  if (++done % 10 === 0) console.log(`  …encoded ${done}/${conversions.length}`);
 }
+await Promise.all(Array.from({ length: CONCURRENCY }, encodeWorker));
 for (const cov of covers) { mkdirSync(dirname(cov.to), { recursive: true }); copyFileSync(cov.from, cov.to); }
 writeFileSync(MANIFEST, JSON.stringify(manifest, null, 2) + "\n");
 

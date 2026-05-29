@@ -1,5 +1,6 @@
 <script lang="ts">
   import SeoHead from "$lib/components/SeoHead.svelte";
+  import { collectionPageNode } from "$lib/seo";
   import type { PageData } from "./$types";
   import type { Song } from "$lib/sounds/types";
 
@@ -7,7 +8,12 @@
   let { manifest } = $derived(data);
 </script>
 
-<SeoHead title="sounds" description="music — demos and scores." canonical="/sounds" />
+<SeoHead
+  title="sounds"
+  description="music — demos and scores."
+  canonical="/sounds"
+  schema={collectionPageNode({ path: "/sounds", name: "sounds — threesam" })}
+/>
 
 {#snippet song(s: Song)}
   <article style="margin:1rem 0;">

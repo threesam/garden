@@ -4,11 +4,14 @@
 // The rules here are the locked content model (see
 // docs/superpowers/specs/2026-05-29-sounds-page-design.md). A mis-group is
 // fixed by editing these rules, never downstream.
+//
+// Public surface: AUDIO_EXTS, DEFAULT_ART_MIN, analyze, canon, buildCatalog.
+// Everything else is module-internal.
 
 export const AUDIO_EXTS = new Set([".wav", ".flac", ".mp3", ".aiff", ".aif"]);
-export const EXT_RANK = { ".wav": 0, ".flac": 1, ".aiff": 2, ".aif": 2, ".mp3": 3 };
+const EXT_RANK = { ".wav": 0, ".flac": 1, ".aiff": 2, ".aif": 2, ".mp3": 3 };
 export const DEFAULT_ART_MIN = 3; // an art hash shared by ≥ this many tracks = avatar default
-export const EP_PROJECTS = new Set(["404", "fa11faster"]);
+const EP_PROJECTS = new Set(["404", "fa11faster"]);
 
 // Files matching a NOISE rule are set aside, never published.
 const NOISE_RULES = [
@@ -35,18 +38,19 @@ const VARIANT_RULES = [
 ];
 
 // Manual same-song merges the filename heuristic can't infer. slug → canonical.
-export const ALIASES = {
+const ALIASES = {
   "server-error": "identity-theft-is-not-a-joke",
   "make-it-obvious": "obvious",
 };
+const aliasSlug = (s) => ALIASES[s] ?? s; // single source of alias resolution
 
 // Scores: which files survive curation.
-export const SCORE_KEEP = {
+const SCORE_KEEP = {
   hmbm: (rec) => rec.kind === "cue",
   "sk+w": (rec) => ["polka-dot-dress", "quintessentially-unaware"].includes(rec.slug),
 };
 
-export const slugify = (s) =>
+const slugify = (s) =>
   s.toLowerCase().replace(/['’`]/g, "").replace(/&/g, " and ").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 
 export function analyze(nameNoExt) {
@@ -72,12 +76,9 @@ export function analyze(nameNoExt) {
 }
 
 // Canonical song slug for matching across sources (FL + soundcloud).
-export const canon = (title) => {
-  const s = slugify(analyze(title).title);
-  return ALIASES[s] ?? s;
-};
+export const canon = (title) => aliasSlug(slugify(analyze(title).title));
 
-export function resolveProject(sub, rel) {
+function resolveProject(sub, rel) {
   const file = rel.split("/").pop();
   if (sub === "me") {
     if (rel.startsWith("actually trying/the way/")) return { collection: "demos", project: "404", label: "404" };
@@ -94,7 +95,7 @@ export function resolveProject(sub, rel) {
   return { collection: "demos", project: "early", label: "early singles" };
 }
 
-export function scoreKind(rel, file) {
+function scoreKind(rel, file) {
   if (rel.includes("hmbm - foley/")) return "foley";
   if (/\d{1,2}:\d{2}:\d{2}/.test(file)) return "cue";
   if (/^hmbm\b/i.test(file)) return "theme";
@@ -103,7 +104,7 @@ export function scoreKind(rel, file) {
 
 // Same folder + filename stem across extensions = one render exported twice.
 // Keep the most master-y (wav > flac > mp3). files: [{sub,rel,ext,stem,dir,…}]
-export function dedupeByStem(files) {
+function dedupeByStem(files) {
   const byStem = new Map();
   const dropped = [];
   for (const r of files) {
@@ -119,8 +120,8 @@ export function dedupeByStem(files) {
 }
 
 // Build the manifest + a conversion plan from already-read descriptors.
-//   flFiles:  [{ sub, rel, ext, stem, dir, size, date, abs }]
-//   scTracks: [{ id, title, cleanTitle, variant, slug, date, artPath, isDefaultArt, audioPath, size }]
+//   flFiles:  [{ sub, rel, ext, stem, dir, date, abs }]
+//   scTracks: [{ id, title, cleanTitle, variant, slug, date, artPath, isDefaultArt, audioPath }]
 // Returns { manifest, conversions, covers, flags }.
 export function buildCatalog({ flFiles, scTracks }) {
   const ignored = [];
@@ -135,7 +136,7 @@ export function buildCatalog({ flFiles, scTracks }) {
     const a = analyze(file.replace(/\.[^.]+$/, ""));
     if (a.noise) { ignored.push({ reason: a.noise, path: `${r.sub}/${r.rel}` }); continue; }
     const loc = resolveProject(r.sub, r.rel);
-    const rec = { ...r, file, title: a.title, variant: a.variant, slug: slugify(a.title), ...loc, source: "local" };
+    const rec = { ...r, file, title: a.title, variant: a.variant, slug: aliasSlug(slugify(a.title)), ...loc, source: "local" };
     if (loc.collection === "scores") scoreFiles.push({ ...rec, kind: scoreKind(r.rel, file) });
     else demoFiles.push(rec);
   }
@@ -145,9 +146,8 @@ export function buildCatalog({ flFiles, scTracks }) {
 
   const songMap = new Map();
   for (const r of demoFiles) {
-    const slug = ALIASES[r.slug] ?? r.slug;
-    if (!songMap.has(slug)) songMap.set(slug, { slug, versions: [] });
-    songMap.get(slug).versions.push(r);
+    if (!songMap.has(r.slug)) songMap.set(r.slug, { slug: r.slug, versions: [] });
+    songMap.get(r.slug).versions.push(r);
   }
   for (const [slug, list] of scByCanon) {
     if (songMap.has(slug)) continue; // local master wins; SC is just metadata here
@@ -155,7 +155,7 @@ export function buildCatalog({ flFiles, scTracks }) {
     if (!withAudio.length) continue;
     songMap.set(slug, {
       slug,
-      versions: withAudio.map((t) => ({ source: "soundcloud", date: t.date, variant: t.variant, project: "", label: "", audioPath: t.audioPath, size: t.size })),
+      versions: withAudio.map((t) => ({ source: "soundcloud", date: t.date, variant: t.variant, project: "", audioPath: t.audioPath })),
     });
   }
 
@@ -172,7 +172,7 @@ export function buildCatalog({ flFiles, scTracks }) {
     const isEP = EP_PROJECTS.has(project);
 
     const matches = scByCanon.get(song.slug) || [];
-    const primary = matches.find((t) => t.variant === "main" && t.slug === song.slug) || matches.find((t) => !t.isDefaultArt) || matches[0];
+    const primary = matches.find((t) => t.variant === "main") || matches.find((t) => !t.isDefaultArt) || matches[0];
     const title = primary?.cleanTitle || newest.title || song.slug;
     const coverTrack = matches.find((t) => !t.isDefaultArt) || null;
     const untitled = song.slug.startsWith("untitled");

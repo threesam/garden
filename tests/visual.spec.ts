@@ -26,7 +26,7 @@ const SKIP_VISUAL_PARITY = new Set(['sounds']);
 test.describe('visual parity', () => {
   for (const { path, label } of KEPT_ROUTES) {
     test(`${label} ${path}`, async ({ page }) => {
-      test.skip(SKIP_VISUAL_PARITY.has(label), `${label} under active redesign — see docs/superpowers/plans/2026-05-29-sounds-page-phase-1.md`);
+      test.skip(SKIP_VISUAL_PARITY.has(label), `${label} under active redesign — re-enable after Phase 3 styling + prod update`);
       await freezePage(page);
       await page.goto(path, { waitUntil: 'networkidle' });
       await page.addStyleTag({
