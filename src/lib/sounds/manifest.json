@@ -1,4 +1,642 @@
 {
-  "demos": { "eps": [], "singles": [] },
-  "scores": { "hmbm": [], "skw": [] }
+  "demos": {
+    "eps": [
+      {
+        "id": "404",
+        "label": "404",
+        "songs": [
+          {
+            "slug": "natural-causes",
+            "title": "natural causes",
+            "versions": [
+              {
+                "date": "2025-12-01",
+                "variant": "limited",
+                "src": "/audio/sounds/demos/404/natural-causes/2025-12-01__limited.mp3",
+                "source": "local",
+                "lossy": false
+              },
+              {
+                "date": "2025-08-23",
+                "variant": "main",
+                "src": "/audio/sounds/demos/404/natural-causes/2025-08-23__main.mp3",
+                "source": "local",
+                "lossy": false
+              },
+              {
+                "date": "2025-03-12",
+                "variant": "main",
+                "src": "/audio/sounds/demos/404/natural-causes/2025-03-12__main.mp3",
+                "source": "local",
+                "lossy": false
+              }
+            ],
+            "latest": "2025-12-01",
+            "cover": "/audio/sounds/covers/natural-causes.jpg",
+            "untitled": false
+          },
+          {
+            "slug": "identity-theft-is-not-a-joke",
+            "title": "identity theft is not a joke",
+            "versions": [
+              {
+                "date": "2025-04-04",
+                "variant": "mixed",
+                "src": "/audio/sounds/demos/404/identity-theft-is-not-a-joke/2025-04-04__mixed.mp3",
+                "source": "local",
+                "lossy": false
+              },
+              {
+                "date": "2025-04-02",
+                "variant": "main",
+                "src": "/audio/sounds/demos/404/identity-theft-is-not-a-joke/2025-04-02__main.mp3",
+                "source": "local",
+                "lossy": false
+              },
+              {
+                "date": "2023-08-14",
+                "variant": "main",
+                "src": "/audio/sounds/demos/404/identity-theft-is-not-a-joke/2023-08-14__main.mp3",
+                "source": "local",
+                "lossy": false
+              },
+              {
+                "date": "2023-08-04",
+                "variant": "main",
+                "src": "/audio/sounds/demos/404/identity-theft-is-not-a-joke/2023-08-04__main.mp3",
+                "source": "local",
+                "lossy": false
+              }
+            ],
+            "latest": "2025-04-04",
+            "cover": "/audio/sounds/covers/identity-theft-is-not-a-joke.jpg",
+            "untitled": false
+          },
+          {
+            "slug": "silent",
+            "title": "silent",
+            "versions": [
+              {
+                "date": "2025-03-23",
+                "variant": "mixed",
+                "src": "/audio/sounds/demos/404/silent/2025-03-23__mixed.mp3",
+                "source": "local",
+                "lossy": false
+              },
+              {
+                "date": "2025-03-15",
+                "variant": "main",
+                "src": "/audio/sounds/demos/404/silent/2025-03-15__main.mp3",
+                "source": "local",
+                "lossy": false
+              },
+              {
+                "date": "2022-11-22",
+                "variant": "main",
+                "src": "/audio/sounds/demos/404/silent/2022-11-22__main.mp3",
+                "source": "local",
+                "lossy": false
+              }
+            ],
+            "latest": "2025-03-23",
+            "cover": "/audio/sounds/covers/silent.jpg",
+            "untitled": false
+          }
+        ]
+      },
+      {
+        "id": "fa11faster",
+        "label": "fa11faster",
+        "songs": [
+          {
+            "slug": "untitled-00",
+            "title": "untitled 00",
+            "versions": [
+              {
+                "date": "2025-03-05",
+                "variant": "main",
+                "src": "/audio/sounds/demos/fa11faster/untitled-00/2025-03-05__main.mp3",
+                "source": "local",
+                "lossy": false
+              }
+            ],
+            "latest": "2025-03-05",
+            "cover": null,
+            "untitled": true
+          },
+          {
+            "slug": "lilboots",
+            "title": "lilboots",
+            "versions": [
+              {
+                "date": "2025-03-02",
+                "variant": "main",
+                "src": "/audio/sounds/demos/fa11faster/lilboots/2025-03-02__main.mp3",
+                "source": "local",
+                "lossy": false
+              }
+            ],
+            "latest": "2025-03-02",
+            "cover": null,
+            "untitled": false
+          }
+        ]
+      }
+    ],
+    "singles": [
+      {
+        "slug": "greedy",
+        "title": "greedy",
+        "versions": [
+          {
+            "date": "2024-05-27",
+            "variant": "main",
+            "src": "/audio/sounds/demos/greedy/2024-05-27__main.mp3",
+            "source": "local",
+            "lossy": false
+          }
+        ],
+        "latest": "2024-05-27",
+        "cover": null,
+        "untitled": false
+      },
+      {
+        "slug": "yeah-im-hungry",
+        "title": "yeah, i’m hungry",
+        "versions": [
+          {
+            "date": "2024-05-27",
+            "variant": "main",
+            "src": "/audio/sounds/demos/yeah-im-hungry/2024-05-27__main.mp3",
+            "source": "local",
+            "lossy": false
+          }
+        ],
+        "latest": "2024-05-27",
+        "cover": null,
+        "untitled": false
+      },
+      {
+        "slug": "nutcracker",
+        "title": "nutcracker",
+        "versions": [
+          {
+            "date": "2023-12-10",
+            "variant": "instrumental",
+            "src": "/audio/sounds/demos/nutcracker/2023-12-10__instrumental.mp3",
+            "source": "local",
+            "lossy": false
+          },
+          {
+            "date": "2023-12-10",
+            "variant": "not-raw",
+            "src": "/audio/sounds/demos/nutcracker/2023-12-10__not-raw.mp3",
+            "source": "local",
+            "lossy": false
+          },
+          {
+            "date": "2023-12-09",
+            "variant": "raw",
+            "src": "/audio/sounds/demos/nutcracker/2023-12-09__raw.mp3",
+            "source": "local",
+            "lossy": false
+          }
+        ],
+        "latest": "2023-12-10",
+        "cover": null,
+        "untitled": false
+      },
+      {
+        "slug": "loading-screen",
+        "title": "loading screen",
+        "versions": [
+          {
+            "date": "2023-07-31",
+            "variant": "main",
+            "src": "/audio/sounds/demos/loading-screen/2023-07-31__main.mp3",
+            "source": "local",
+            "lossy": false
+          }
+        ],
+        "latest": "2023-07-31",
+        "cover": "/audio/sounds/covers/loading-screen.jpg",
+        "untitled": false
+      },
+      {
+        "slug": "untitled-0",
+        "title": "untitled 0",
+        "versions": [
+          {
+            "date": "2023-06-26",
+            "variant": "main",
+            "src": "/audio/sounds/demos/untitled-0/2023-06-26__main.mp3",
+            "source": "local",
+            "lossy": false
+          }
+        ],
+        "latest": "2023-06-26",
+        "cover": null,
+        "untitled": true
+      },
+      {
+        "slug": "azaleas",
+        "title": "azaleas",
+        "versions": [
+          {
+            "date": "2023-06-19",
+            "variant": "main",
+            "src": "/audio/sounds/demos/azaleas/2023-06-19__main.mp3",
+            "source": "local",
+            "lossy": false
+          }
+        ],
+        "latest": "2023-06-19",
+        "cover": "/audio/sounds/covers/azaleas.jpg",
+        "untitled": false
+      },
+      {
+        "slug": "koda",
+        "title": "koda",
+        "versions": [
+          {
+            "date": "2023-04-02",
+            "variant": "main",
+            "src": "/audio/sounds/demos/koda/2023-04-02__main.mp3",
+            "source": "local",
+            "lossy": false
+          }
+        ],
+        "latest": "2023-04-02",
+        "cover": "/audio/sounds/covers/koda.jpg",
+        "untitled": false
+      },
+      {
+        "slug": "juni-gets-a-song",
+        "title": "juni gets a song",
+        "versions": [
+          {
+            "date": "2023-02-05",
+            "variant": "main",
+            "src": "/audio/sounds/demos/juni-gets-a-song/2023-02-05__main.mp3",
+            "source": "local",
+            "lossy": false
+          }
+        ],
+        "latest": "2023-02-05",
+        "cover": "/audio/sounds/covers/juni-gets-a-song.jpg",
+        "untitled": false
+      },
+      {
+        "slug": "grown",
+        "title": "grown",
+        "versions": [
+          {
+            "date": "2023-01-08",
+            "variant": "main",
+            "src": "/audio/sounds/demos/grown/2023-01-08__main.mp3",
+            "source": "local",
+            "lossy": false
+          }
+        ],
+        "latest": "2023-01-08",
+        "cover": "/audio/sounds/covers/grown.jpg",
+        "untitled": false
+      },
+      {
+        "slug": "little-die",
+        "title": "little die",
+        "versions": [
+          {
+            "date": "2022-12-31",
+            "variant": "main",
+            "src": "/audio/sounds/demos/little-die/2022-12-31__main.mp3",
+            "source": "local",
+            "lossy": false
+          }
+        ],
+        "latest": "2022-12-31",
+        "cover": "/audio/sounds/covers/little-die.jpg",
+        "untitled": false
+      },
+      {
+        "slug": "christmas-caroling-2022",
+        "title": "christmas caroling 2022",
+        "versions": [
+          {
+            "date": "2022-12-26",
+            "variant": "main",
+            "src": "/audio/sounds/demos/christmas-caroling-2022/2022-12-26__main.mp3",
+            "source": "soundcloud",
+            "lossy": true
+          }
+        ],
+        "latest": "2022-12-26",
+        "cover": "/audio/sounds/covers/christmas-caroling-2022.jpg",
+        "untitled": false
+      },
+      {
+        "slug": "free-beach",
+        "title": "free beach",
+        "versions": [
+          {
+            "date": "2022-12-11",
+            "variant": "main",
+            "src": "/audio/sounds/demos/free-beach/2022-12-11__main.mp3",
+            "source": "local",
+            "lossy": false
+          }
+        ],
+        "latest": "2022-12-11",
+        "cover": "/audio/sounds/covers/free-beach.jpg",
+        "untitled": false
+      },
+      {
+        "slug": "obvious",
+        "title": "obvious",
+        "versions": [
+          {
+            "date": "2022-11-30",
+            "variant": "main",
+            "src": "/audio/sounds/demos/obvious/2022-11-30__main.mp3",
+            "source": "local",
+            "lossy": false
+          },
+          {
+            "date": "2022-10-11",
+            "variant": "acoustic-guitar",
+            "src": "/audio/sounds/demos/obvious/2022-10-11__acoustic-guitar.mp3",
+            "source": "local",
+            "lossy": false
+          },
+          {
+            "date": "2022-10-10",
+            "variant": "main",
+            "src": "/audio/sounds/demos/obvious/2022-10-10__main.mp3",
+            "source": "local",
+            "lossy": false
+          }
+        ],
+        "latest": "2022-11-30",
+        "cover": "/audio/sounds/covers/obvious.jpg",
+        "untitled": false
+      },
+      {
+        "slug": "imposter-syndrome",
+        "title": "imposter syndrome",
+        "versions": [
+          {
+            "date": "2022-11-18",
+            "variant": "main",
+            "src": "/audio/sounds/demos/imposter-syndrome/2022-11-18__main.mp3",
+            "source": "soundcloud",
+            "lossy": true
+          },
+          {
+            "date": "2022-10-12",
+            "variant": "main",
+            "src": "/audio/sounds/demos/imposter-syndrome/2022-10-12__main.mp3",
+            "source": "soundcloud",
+            "lossy": true
+          }
+        ],
+        "latest": "2022-11-18",
+        "cover": "/audio/sounds/covers/imposter-syndrome.jpg",
+        "untitled": false
+      },
+      {
+        "slug": "the-hey-blinkins",
+        "title": "the hey blinkins",
+        "versions": [
+          {
+            "date": "2022-11-13",
+            "variant": "main",
+            "src": "/audio/sounds/demos/the-hey-blinkins/2022-11-13__main.mp3",
+            "source": "soundcloud",
+            "lossy": true
+          }
+        ],
+        "latest": "2022-11-13",
+        "cover": "/audio/sounds/covers/the-hey-blinkins.jpg",
+        "untitled": false
+      },
+      {
+        "slug": "take-your-time",
+        "title": "take your time",
+        "versions": [
+          {
+            "date": "2022-11-10",
+            "variant": "main",
+            "src": "/audio/sounds/demos/take-your-time/2022-11-10__main.mp3",
+            "source": "soundcloud",
+            "lossy": true
+          }
+        ],
+        "latest": "2022-11-10",
+        "cover": "/audio/sounds/covers/take-your-time.jpg",
+        "untitled": false
+      },
+      {
+        "slug": "climate-change",
+        "title": "climate change",
+        "versions": [
+          {
+            "date": "2022-11-09",
+            "variant": "main",
+            "src": "/audio/sounds/demos/climate-change/2022-11-09__main.mp3",
+            "source": "soundcloud",
+            "lossy": true
+          }
+        ],
+        "latest": "2022-11-09",
+        "cover": "/audio/sounds/covers/climate-change.jpg",
+        "untitled": false
+      },
+      {
+        "slug": "ladybug",
+        "title": "ladybug",
+        "versions": [
+          {
+            "date": "2022-11-03",
+            "variant": "main",
+            "src": "/audio/sounds/demos/ladybug/2022-11-03__main.mp3",
+            "source": "local",
+            "lossy": false
+          }
+        ],
+        "latest": "2022-11-03",
+        "cover": "/audio/sounds/covers/ladybug.jpg",
+        "untitled": false
+      },
+      {
+        "slug": "the-comedown",
+        "title": "the comedown",
+        "versions": [
+          {
+            "date": "2022-10-15",
+            "variant": "main",
+            "src": "/audio/sounds/demos/the-comedown/2022-10-15__main.mp3",
+            "source": "local",
+            "lossy": false
+          }
+        ],
+        "latest": "2022-10-15",
+        "cover": "/audio/sounds/covers/the-comedown.jpg",
+        "untitled": false
+      },
+      {
+        "slug": "stelliferous",
+        "title": "stelliferous",
+        "versions": [
+          {
+            "date": "2022-10-13",
+            "variant": "main",
+            "src": "/audio/sounds/demos/stelliferous/2022-10-13__main.mp3",
+            "source": "soundcloud",
+            "lossy": true
+          }
+        ],
+        "latest": "2022-10-13",
+        "cover": "/audio/sounds/covers/stelliferous.jpg",
+        "untitled": false
+      },
+      {
+        "slug": "where-is-phoenix-s-mind",
+        "title": "where is phoenix s mind?",
+        "versions": [
+          {
+            "date": "2022-10-12",
+            "variant": "main",
+            "src": "/audio/sounds/demos/where-is-phoenix-s-mind/2022-10-12__main.mp3",
+            "source": "soundcloud",
+            "lossy": true
+          }
+        ],
+        "latest": "2022-10-12",
+        "cover": null,
+        "untitled": false
+      }
+    ]
+  },
+  "scores": {
+    "hmbm": [
+      {
+        "timecode": "00:10:04–00:11:00",
+        "start": 604,
+        "src": "/audio/sounds/scores/hmbm/00-10-04-00-11-00.mp3",
+        "date": "2024-09-19"
+      },
+      {
+        "timecode": "00:12:32–00:13:05",
+        "start": 752,
+        "src": "/audio/sounds/scores/hmbm/00-12-32-00-13-05.mp3",
+        "date": "2024-10-19"
+      },
+      {
+        "timecode": "00:23:40–00:25:00",
+        "start": 1420,
+        "src": "/audio/sounds/scores/hmbm/00-23-40-00-25-00.mp3",
+        "date": "2024-12-15"
+      },
+      {
+        "timecode": "00:25:49–00:26:31",
+        "start": 1549,
+        "src": "/audio/sounds/scores/hmbm/00-25-49-00-26-31.mp3",
+        "date": "2024-12-23"
+      },
+      {
+        "timecode": "00:30:36–00:32:26",
+        "start": 1836,
+        "src": "/audio/sounds/scores/hmbm/00-30-36-00-32-26.mp3",
+        "date": "2024-12-29"
+      },
+      {
+        "timecode": "00:34:34–00:35:08",
+        "start": 2074,
+        "src": "/audio/sounds/scores/hmbm/00-34-34-00-35-08-part-1.mp3",
+        "date": "2025-01-26"
+      },
+      {
+        "timecode": "00:34:34–00:35:08",
+        "start": 2074,
+        "src": "/audio/sounds/scores/hmbm/00-34-34-00-35-08.mp3",
+        "date": "2025-01-25"
+      },
+      {
+        "timecode": "00:47:51–00:48:16",
+        "start": 2871,
+        "src": "/audio/sounds/scores/hmbm/00-47-51-00-48-16.mp3",
+        "date": "2025-01-25"
+      },
+      {
+        "timecode": "00:49:24–00:52:18",
+        "start": 2964,
+        "src": "/audio/sounds/scores/hmbm/00-49-24-00-52-18.mp3",
+        "date": "2025-01-25"
+      },
+      {
+        "timecode": "00:54:10–00:54:53",
+        "start": 3250,
+        "src": "/audio/sounds/scores/hmbm/00-54-10-00-54-53.mp3",
+        "date": "2025-01-25"
+      },
+      {
+        "timecode": "00:56:59–00:58:21",
+        "start": 3419,
+        "src": "/audio/sounds/scores/hmbm/00-56-59-00-58-21.mp3",
+        "date": "2025-01-25"
+      },
+      {
+        "timecode": "00:59:08–00:59:31",
+        "start": 3548,
+        "src": "/audio/sounds/scores/hmbm/00-59-08-00-59-31.mp3",
+        "date": "2025-01-25"
+      },
+      {
+        "timecode": "01:00:09–01:00:19",
+        "start": 3609,
+        "src": "/audio/sounds/scores/hmbm/01-00-09-01-00-19.mp3",
+        "date": "2025-01-25"
+      },
+      {
+        "timecode": "01:20:12–null",
+        "start": 4812,
+        "src": "/audio/sounds/scores/hmbm/01-20-12-null.mp3",
+        "date": "2025-01-26"
+      }
+    ],
+    "skw": [
+      {
+        "slug": "quintessentially-unaware",
+        "title": "quintessentially unaware",
+        "versions": [
+          {
+            "date": "2024-09-12",
+            "variant": "main",
+            "src": "/audio/sounds/scores/skw/quintessentially-unaware/2024-09-12__main.mp3",
+            "source": "local",
+            "lossy": false
+          }
+        ],
+        "latest": "2024-09-12",
+        "cover": null,
+        "untitled": false
+      },
+      {
+        "slug": "polka-dot-dress",
+        "title": "polka-dot dress",
+        "versions": [
+          {
+            "date": "2023-05-30",
+            "variant": "main",
+            "src": "/audio/sounds/scores/skw/polka-dot-dress/2023-05-30__main.mp3",
+            "source": "local",
+            "lossy": false
+          }
+        ],
+        "latest": "2023-05-30",
+        "cover": null,
+        "untitled": false
+      }
+    ]
+  }
 }
