@@ -59,8 +59,12 @@ export const day21: Sketch = {
     ctx.fillRect(0, 0, w, h);
     ctx.lineWidth = 1;
 
+    // Once every revealed particle has died the field has settled, so skip the
+    // per-frame loop entirely instead of scanning all ~10k dead vectors forever.
+    let deadCount = 0;
     return {
       tick(_, frame) {
+        if (deadCount >= vectors.length) return;
         const revealed = Math.min(frame + 1, vectors.length);
         for (let i = 0; i < revealed; i++) {
           const v = vectors[i];
@@ -85,6 +89,7 @@ export const day21: Sketch = {
             v.age > maxAge
           ) {
             v.dead = true;
+            deadCount++;
             continue;
           }
 
