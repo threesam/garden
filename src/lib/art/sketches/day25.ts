@@ -82,8 +82,8 @@ export const day25: Sketch = {
 
     eyes.sort((a, b) => a.pz - b.pz);
 
-    ctx.fillStyle = "rgb(0,0,0)";
-    ctx.fillRect(0, 0, w, h);
+    // No opaque background fill: the transparent canvas lets the SketchHost's
+    // --black show through, so the homepage card isn't true black.
     ctx.save();
     ctx.translate(w, h / 3);
 
