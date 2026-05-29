@@ -5,7 +5,7 @@
   import type { Song } from "$lib/sounds/types";
 
   let { data }: { data: PageData } = $props();
-  let { manifest } = $derived(data);
+  let { manifest, base } = $derived(data);
 </script>
 
 <SeoHead
@@ -19,7 +19,7 @@
   <article style="margin:1rem 0;">
     <div style="display:flex; gap:0.75rem; align-items:flex-start;">
       {#if s.cover}
-        <img src={s.cover} alt={s.title} width="64" height="64" loading="lazy" style="display:block;" />
+        <img src={base + s.cover} alt={s.title} width="64" height="64" loading="lazy" style="display:block;" />
       {:else}
         <div style="width:64px;height:64px;display:grid;place-items:center;background:var(--black);color:var(--coin);font-family:monospace;font-size:1.5rem;border:1px solid var(--coin);">?</div>
       {/if}
@@ -28,7 +28,7 @@
         {#each s.versions as v (v.src)}
           <div style="margin:0.25rem 0;">
             <small style="font-family:monospace;opacity:0.7;">{v.date} · {v.variant}{#if v.lossy} · 128k{/if}</small>
-            <audio controls preload="none" src={v.src} style="display:block;width:100%;max-width:24rem;"></audio>
+            <audio controls preload="none" src={base + v.src} style="display:block;width:100%;max-width:24rem;"></audio>
           </div>
         {/each}
       </div>
@@ -52,7 +52,7 @@
     {#each manifest.scores.hmbm as cue (cue.src)}
       <li>
         <span>{cue.timecode}</span>
-        <audio controls preload="none" src={cue.src} style="display:block;width:100%;max-width:24rem;margin:0.25rem 0;"></audio>
+        <audio controls preload="none" src={base + cue.src} style="display:block;width:100%;max-width:24rem;margin:0.25rem 0;"></audio>
       </li>
     {/each}
   </ol>
