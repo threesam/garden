@@ -1,0 +1,6 @@
+# Local-only / generated. Vercel builds fresh; /sounds audio + covers are served
+# from Cloudflare R2 (PUBLIC_SOUNDS_BASE), never from these local files.
+sc-inventory/
+static/audio/sounds/
+test-results/
+.playwright-mcp/
