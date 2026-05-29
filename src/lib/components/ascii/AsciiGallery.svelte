@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { SvelteSet } from 'svelte/reactivity';
-	import type { AsciiSrc } from '$lib/deana/images.js';
+	import { asciiSrcset, type AsciiSrc } from '$lib/deana/images.js';
 
 	interface Props {
 		srcs: AsciiSrc[];
@@ -31,8 +31,6 @@
 		}, CYCLE_MS);
 		return () => clearInterval(id);
 	});
-
-	const srcset = (s: AsciiSrc) => `${s.sm} 380w, ${s.lg} 900w`;
 </script>
 
 <div class={className}>
@@ -41,7 +39,7 @@
 			<img
 				class="ascii-gallery-layer"
 				src={s.lg}
-				srcset={srcset(s)}
+				srcset={asciiSrcset(s)}
 				{sizes}
 				alt=""
 				loading={i === 0 ? 'eager' : 'lazy'}

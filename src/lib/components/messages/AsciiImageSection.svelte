@@ -1,7 +1,7 @@
 <script lang="ts">
 	import DanaLabel from './DanaLabel.svelte';
 	import LazyMount from '$lib/components/LazyMount.svelte';
-	import type { AsciiSrc } from '$lib/deana/images.js';
+	import { asciiSrcset, type AsciiSrc } from '$lib/deana/images.js';
 
 	interface Props {
 		src: AsciiSrc;
@@ -17,7 +17,7 @@
 	<LazyMount class="absolute inset-0">
 		<img
 			src={src.lg}
-			srcset="{src.sm} 380w, {src.lg} 900w"
+			srcset={asciiSrcset(src)}
 			sizes="100vw"
 			alt=""
 			class="h-full w-full object-cover"

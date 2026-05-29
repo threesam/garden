@@ -16,7 +16,7 @@ import { mkdirSync } from "node:fs";
 import { join, parse } from "node:path";
 
 // Raw deana photos stay in static/assets (served in dev, fine); prod uses these
-// baked ASCII prints. Source list mirrors DEANA_IMAGES in $lib/deana/images.ts.
+// baked ASCII prints. Source list mirrors ASCII_BASES in $lib/deana/images.ts.
 const SRC_DIR = "static/assets";
 const SRC_FILES = [
   "deana-6.webp",
@@ -59,6 +59,7 @@ async function bake(src) {
   // already matches the photo's, so no distortion).
   const { data } = await sharp(src)
     .resize(cols, rows, { fit: "fill" })
+    .toColourspace("srgb") // guarantee 3 channels so the RGB indexing below holds
     .removeAlpha()
     .raw()
     .toBuffer({ resolveWithObject: true });
