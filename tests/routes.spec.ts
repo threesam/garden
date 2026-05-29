@@ -4,7 +4,7 @@ import { KEPT_ROUTES } from './routes';
 const ROUTE_MARKERS: Record<string, string> = {
   '/':                              'threesam',
   '/shelf':                         'shelf',
-  '/sounds':                        'demos',
+  '/sounds':                        'singles',
   '/thoughts':                      'work in progress',
   '/dad':                           'dad',
   '/deana':                         'deana',
