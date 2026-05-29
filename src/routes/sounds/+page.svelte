@@ -14,11 +14,15 @@
     if (audioEl) attach(audioEl);
   });
 
+  const url = (p: string) => base + p; // manifest path → R2 origin (prod) / static (dev)
+
   // fan tilt per version index (0 = newest, on top, flat)
   const fan = (i: number) => (i === 0 ? 0 : (i % 2 ? -1 : 1) * (4 + i * 1.6));
 
-  const play = (song: Song, v = song.versions[0]) =>
-    playTrack({ src: base + v.src, title: song.title, variant: v.variant, slug: song.slug });
+  const play = (song: Song) => {
+    const v = song.versions[0];
+    playTrack({ src: url(v.src), title: song.title, variant: v.variant, slug: song.slug });
+  };
 
   const isCurrent = (song: Song) => player.track?.slug === song.slug;
 
@@ -38,12 +42,13 @@
 <EyeOcean />
 
 {#snippet stack(song: Song)}
-  <figure class="stack" class:playing={isCurrent(song) && player.playing}>
+  {@const active = isCurrent(song) && player.playing}
+  <figure class="stack" class:playing={active}>
     <div class="deck">
       {#each song.versions as v, i (v.src)}
         <div class="card" style="--rot:{fan(i)}deg; z-index:{40 - i};">
           {#if song.cover}
-            <img src={base + song.cover} alt="" draggable="false" />
+            <img src={url(song.cover)} alt="" draggable="false" />
           {:else}
             <span class="ph">?</span>
           {/if}
@@ -51,10 +56,10 @@
       {/each}
       <button
         class="play"
-        aria-label={isCurrent(song) && player.playing ? `pause ${song.title}` : `play ${song.title}`}
+        aria-label={active ? `pause ${song.title}` : `play ${song.title}`}
         onclick={() => play(song)}
       >
-        {#if isCurrent(song) && player.playing}❚❚{:else}▶{/if}
+        {#if active}❚❚{:else}▶{/if}
       </button>
     </div>
     <figcaption>
@@ -87,8 +92,8 @@
           <li>
             <button
               class="cue"
-              class:on={player.track?.src === base + cue.src && player.playing}
-              onclick={() => playTrack({ src: base + cue.src, title: `HMBM ${cue.timecode}`, variant: "cue", slug: cue.src })}
+              class:on={player.track?.src === url(cue.src) && player.playing}
+              onclick={() => playTrack({ src: url(cue.src), title: `HMBM ${cue.timecode}`, variant: "cue", slug: cue.src })}
             >▸ {cue.timecode}</button>
           </li>
         {/each}

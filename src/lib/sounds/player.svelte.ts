@@ -20,7 +20,6 @@ export const player = $state({
   duration: 0,
   // normalized 0..1 frequency-band energy, smoothed
   bass: 0,
-  mid: 0,
   treble: 0,
   amp: 0,
 });
@@ -30,6 +29,7 @@ let ctx: AudioContext | null = null;
 let analyser: AnalyserNode | null = null;
 let freq: Uint8Array<ArrayBuffer> | null = null;
 let raf = 0;
+let lastUi = 0;
 
 export function attach(node: HTMLAudioElement) {
   el = node;
@@ -56,8 +56,13 @@ const bandAvg = (data: Uint8Array, lo: number, hi: number) => {
 };
 
 function loop() {
+  if (!player.playing) { raf = 0; return; } // stop the loop when paused/stopped
   raf = requestAnimationFrame(loop);
-  if (el) {
+  const now = performance.now();
+  // bands feed the canvas (read in its own rAF) → full rate; the transport's
+  // time readout + scrubber only need ~10fps, so throttle those reactive writes.
+  if (el && now - lastUi >= 100) {
+    lastUi = now;
     player.currentTime = el.currentTime;
     player.duration = Number.isFinite(el.duration) ? el.duration : 0;
   }
@@ -65,7 +70,6 @@ function loop() {
     analyser.getByteFrequencyData(freq);
     const n = freq.length;
     player.bass = bandAvg(freq, 0, Math.max(1, Math.floor(n * 0.12)));
-    player.mid = bandAvg(freq, Math.floor(n * 0.12), Math.floor(n * 0.45));
     player.treble = bandAvg(freq, Math.floor(n * 0.45), n);
     player.amp = bandAvg(freq, 0, n);
   }
