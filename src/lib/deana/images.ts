@@ -1,8 +1,29 @@
-export const DEANA_IMAGES = [
-	"/assets/deana-6.webp",
-	"/assets/deana-5.webp",
-	"/assets/deana-hero-3.webp",
-	"/assets/deana-hero.webp",
-	"/assets/deana-hero-5.webp",
-	"/assets/deana-hero-6.webp",
+// The deana photos drive two ASCII render paths:
+//  - DEANA_PHOTOS (raw webp): the /deana page renders these to ASCII on a <canvas>
+//    at runtime (AsciiImage) so its full-bleed sections stay crisp at any size/DPR.
+//  - DEANA_ASCII (pre-baked, see scripts/generate-deana-ascii.mjs): the homepage
+//    gallery card shows these static prints instead of running the ~960ms ASCII
+//    conversion on the homepage's critical path. sm = card, lg = retina, via srcset.
+const ASCII_BASES = [
+	"deana-6",
+	"deana-5",
+	"deana-hero-3",
+	"deana-hero",
+	"deana-hero-5",
+	"deana-hero-6",
 ];
+
+export interface AsciiSrc {
+	sm: string;
+	lg: string;
+}
+
+export const DEANA_PHOTOS: string[] = ASCII_BASES.map((base) => `/assets/${base}.webp`);
+
+export const DEANA_ASCII: AsciiSrc[] = ASCII_BASES.map((base) => ({
+	sm: `/assets/deana-ascii/${base}-sm.webp`,
+	lg: `/assets/deana-ascii/${base}-lg.webp`,
+}));
+
+// Widths match SM_W / LG_W in scripts/generate-deana-ascii.mjs.
+export const asciiSrcset = (s: AsciiSrc): string => `${s.sm} 380w, ${s.lg} 900w`;

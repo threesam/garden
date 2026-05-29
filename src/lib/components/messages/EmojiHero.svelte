@@ -1,6 +1,6 @@
 <script lang="ts">
 	import AsciiGallery from '$lib/components/ascii/AsciiGallery.svelte';
-	import { DEANA_IMAGES } from '$lib/deana/images.js';
+	import { DEANA_ASCII } from '$lib/deana/images.js';
 
 	const CHARS = ['I', '_', 'E', '-'];
 
@@ -12,8 +12,9 @@
 	style="background-color: var(--white);"
 >
 	<AsciiGallery
-		srcs={DEANA_IMAGES}
+		srcs={DEANA_ASCII}
 		class="absolute inset-0"
+		sizes="100vw"
 		onIndexChange={(idx) => (charIdx = idx % CHARS.length)}
 	/>
 	<div class="pointer-events-none absolute inset-0 flex items-end justify-start p-6 md:p-18">

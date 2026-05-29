@@ -1,157 +1,62 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { SvelteSet } from 'svelte/reactivity';
-	import { sampleImage, renderAsciiFrame, getGrid } from '$lib/ascii/ascii-utils.js';
+	import { asciiSrcset, type AsciiSrc } from '$lib/deana/images.js';
 
 	interface Props {
-		srcs: string[];
+		srcs: AsciiSrc[];
 		class?: string;
-		cellSize?: number;
+		/** <img sizes> hint — small for the card, full-width for /deana. */
+		sizes?: string;
 		onIndexChange?: (index: number) => void;
-		/** Render at 1× CSS pixels instead of devicePixelRatio. */
-		lowDpr?: boolean;
 	}
 
-	let {
-		srcs,
-		class: className = '',
-		cellSize = 3,
-		onIndexChange,
-		lowDpr = false
-	}: Props = $props();
+	let { srcs, class: className = '', sizes = '100vw', onIndexChange }: Props = $props();
 
 	const CYCLE_MS = 2000;
 
-	let containerEl: HTMLDivElement | undefined = $state();
-	let canvasEls: (HTMLCanvasElement | undefined)[] = $state([]);
-
-	// Module-level scratch canvas reused across all gallery instances.
-	let sharedSample: HTMLCanvasElement | null = null;
-	function getSampleCanvas() {
-		if (!sharedSample) sharedSample = document.createElement('canvas');
-		return sharedSample;
-	}
+	let active = $state(0);
+	// Only the first image is mounted up-front; the rest mount one cycle ahead of
+	// being shown, so the page fetches one image on load instead of converting six
+	// photos to ASCII in JS (which cost ~960ms of main-thread script-eval).
+	const mounted = new SvelteSet<number>([0]);
 
 	onMount(() => {
-		const container = containerEl as HTMLDivElement;
-		if (!container) return;
-
-		const baked = new SvelteSet<number>();
-		let lastW = 0;
-		let lastH = 0;
-		let activeIdx = 0;
-
-		const images = srcs.map((src) => {
-			const img = new Image();
-			img.src = src;
-			return img;
-		});
-
-		function bake(idx: number) {
-			const canvas = canvasEls[idx];
-			const img = images[idx];
-			if (!canvas || !img.complete || !img.naturalWidth) return;
-			const w = container.offsetWidth;
-			const h = container.offsetHeight;
-			if (w === 0 || h === 0) return;
-			const dpr = lowDpr ? 1 : window.devicePixelRatio || 1;
-			canvas.width = w * dpr;
-			canvas.height = h * dpr;
-			canvas.style.width = `${w}px`;
-			canvas.style.height = `${h}px`;
-			const { cols, rows } = getGrid(w, h, cellSize);
-			const pixels = sampleImage(img, cols, rows, w, h, getSampleCanvas());
-			if (!pixels) return;
-			renderAsciiFrame(canvas.getContext('2d')!, pixels, cols, rows, w, h, dpr);
-			baked.add(idx);
-			lastW = w;
-			lastH = h;
-		}
-
-		function show(idx: number) {
-			const prev = canvasEls[activeIdx];
-			const next = canvasEls[idx];
-			if (prev) prev.style.opacity = '0';
-			if (next) next.style.opacity = '1';
-			activeIdx = idx;
-		}
-
-		let timerId: ReturnType<typeof setTimeout> | null = null;
-		function scheduleNext() {
-			if (srcs.length < 2) return;
-			timerId = setTimeout(() => {
-				const nextIdx = (activeIdx + 1) % srcs.length;
-				if (!baked.has(nextIdx)) bake(nextIdx);
-				// Skip rotation if the next image hasn't loaded yet — its onload
-				// will bake it and the next cycle will pick it up.
-				if (!baked.has(nextIdx)) {
-					scheduleNext();
-					return;
-				}
-				onIndexChange?.(nextIdx);
-				show(nextIdx);
-				scheduleNext();
-			}, CYCLE_MS);
-		}
-
-		const removeListeners: Array<() => void> = [];
-		let started = false;
-		function startIfReady() {
-			if (started || !images[0].complete || !images[0].naturalWidth) return;
-			started = true;
-			bake(0);
-			show(0);
-			scheduleNext();
-		}
-		startIfReady();
-		if (!started) {
-			images[0].addEventListener('load', startIfReady);
-			removeListeners.push(() => images[0].removeEventListener('load', startIfReady));
-		}
-
-		const deferredBakes: ReturnType<typeof setTimeout>[] = [];
-		for (let i = 1; i < images.length; i++) {
-			const idx = i;
-			const onLoad = () => {
-				if (!baked.has(idx)) bake(idx);
-			};
-			if (images[idx].complete && images[idx].naturalWidth) {
-				deferredBakes.push(setTimeout(onLoad, 0));
-			} else {
-				images[idx].addEventListener('load', onLoad);
-				removeListeners.push(() => images[idx].removeEventListener('load', onLoad));
-			}
-		}
-
-		let resizeTimeout: ReturnType<typeof setTimeout>;
-		const ro = new ResizeObserver(() => {
-			clearTimeout(resizeTimeout);
-			resizeTimeout = setTimeout(() => {
-				const w = container.offsetWidth;
-				const h = container.offsetHeight;
-				if (w === lastW && h === lastH) return;
-				const previouslyBaked = Array.from(baked);
-				baked.clear();
-				for (const i of previouslyBaked) bake(i);
-			}, 150);
-		});
-		ro.observe(container);
-
-		return () => {
-			if (timerId) clearTimeout(timerId);
-			clearTimeout(resizeTimeout);
-			for (const t of deferredBakes) clearTimeout(t);
-			for (const r of removeListeners) r();
-			ro.disconnect();
-		};
+		if (srcs.length < 2) return;
+		mounted.add(1);
+		const id = setInterval(() => {
+			active = (active + 1) % srcs.length;
+			onIndexChange?.(active);
+			mounted.add((active + 1) % srcs.length);
+		}, CYCLE_MS);
+		return () => clearInterval(id);
 	});
 </script>
 
-<div bind:this={containerEl} class={className}>
-	{#each srcs as src, i (src)}
-		<canvas
-			bind:this={canvasEls[i]}
-			class="ascii-gallery-layer"
-		></canvas>
+<div class={className}>
+	{#each srcs as s, i (s.lg)}
+		{#if mounted.has(i)}
+			<img
+				class="ascii-gallery-layer"
+				src={s.lg}
+				srcset={asciiSrcset(s)}
+				{sizes}
+				alt=""
+				loading={i === 0 ? 'eager' : 'lazy'}
+				fetchpriority={i === 0 ? 'high' : 'auto'}
+				style="opacity: {i === active ? 1 : 0};"
+			/>
+		{/if}
 	{/each}
 </div>
+
+<style>
+	.ascii-gallery-layer {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: opacity 0.6s ease;
+	}
+</style>
