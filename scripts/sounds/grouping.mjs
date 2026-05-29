@@ -44,6 +44,9 @@ const ALIASES = {
 };
 const aliasSlug = (s) => ALIASES[s] ?? s; // single source of alias resolution
 
+// Killed entirely (duplicate / unwanted takes), by canonical slug.
+const DROP = new Set(["greedy"]); // duplicate of "yeah, i'm hungry"
+
 // Scores: which files survive curation.
 const SCORE_KEEP = {
   hmbm: (rec) => rec.kind === "cue",
@@ -139,6 +142,7 @@ export function buildCatalog({ flFiles, scTracks }) {
     // Fall back to the filename stem if the title is empty (e.g. a file named
     // exactly after a variant word like "raw.wav") so it never collapses to "".
     const slug = aliasSlug(slugify(a.title) || slugify(r.stem));
+    if (DROP.has(slug)) { ignored.push({ reason: "dropped (killed)", path: `${r.sub}/${r.rel}` }); continue; }
     const rec = { ...r, file, title: a.title || r.stem, variant: a.variant, slug, ...loc, source: "local" };
     if (loc.collection === "scores") scoreFiles.push({ ...rec, kind: scoreKind(r.rel, file) });
     else demoFiles.push(rec);

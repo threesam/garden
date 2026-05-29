@@ -145,22 +145,6 @@
     ],
     "singles": [
       {
-        "slug": "greedy",
-        "title": "greedy",
-        "versions": [
-          {
-            "date": "2024-05-27",
-            "variant": "main",
-            "src": "/audio/sounds/demos/greedy/2024-05-27__main.mp3",
-            "source": "local",
-            "lossy": false
-          }
-        ],
-        "latest": "2024-05-27",
-        "cover": null,
-        "untitled": false
-      },
-      {
         "slug": "yeah-im-hungry",
         "title": "yeah, i’m hungry",
         "versions": [
