@@ -9,8 +9,8 @@ export interface SketchHostParams {
 	slug: string;
 	seed?: number;
 	/**
-	 * When true the sketch ticks. When false it tears down — cancels its rAF,
-	 * runs cleanup, and clears the canvas pixel buffer.
+	 * When true the sketch ticks. When false it stops ticking (frees the CPU)
+	 * but keeps the last frame painted so it can be faded out.
 	 */
 	active: boolean;
 	/**
@@ -117,9 +117,9 @@ export const sketchHost: Action<HTMLCanvasElement, SketchHostParams> = (
 		cleanup = null;
 		tick = null;
 		api = null;
-		// Release the canvas pixel buffer.
-		canvas.width = 0;
-		canvas.height = 0;
+		// Stop ticking (frees the CPU — the expensive part) but keep the last
+		// frame painted so an overlay can fade it out smoothly instead of it
+		// blanking instantly. The buffer is reset by the next setup().
 		hasSetup = false;
 	}
 

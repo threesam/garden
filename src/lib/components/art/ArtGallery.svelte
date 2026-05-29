@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
 	import SketchHost from './SketchHost.svelte';
 
 	export interface SketchMeta {
@@ -12,7 +13,9 @@
 		sketches: SketchMeta[];
 		/** Number of hero/non-sketch sections before this list. */
 		heroCount?: number;
-		/** How many sketches to keep active ahead of current. */
+		/** How many sketches to keep active ahead of current. 0 = only the
+		 * in-view sketch ticks (others tear down — keeps heavy sketches from
+		 * running simultaneously). */
 		lookahead?: number;
 		/** How many previous sketches to keep (handles scroll-up). */
 		lookback?: number;
@@ -21,7 +24,7 @@
 	let {
 		sketches,
 		heroCount = 1,
-		lookahead = 1,
+		lookahead = 0,
 		lookback = 0,
 	}: Props = $props();
 
@@ -66,7 +69,15 @@
 		class="relative h-dvh w-full snap-start overflow-hidden"
 		style="content-visibility: auto; contain-intrinsic-size: 100dvh;"
 	>
-		<SketchHost slug={s.slug} {active} />
+		<SketchHost slug={s.slug} {active} bgClass="bg-[#000]" />
+		<!-- True-black overlay over each sketch: fades both ways (transition:fade)
+		     so scrolling back and forth smoothly reveals / hides the sketch. -->
+		{#if !active}
+			<div
+				class="pointer-events-none absolute inset-0 z-[5] bg-[#000]"
+				transition:fade={{ duration: 1000 }}
+			></div>
+		{/if}
 		<span
 			class="pointer-events-none absolute top-5 left-5 z-10 grid place-items-center font-mono text-xs font-bold uppercase tracking-[0.12em] md:top-6 md:left-8"
 			style="width: 40px; height: 40px; border-radius: 50%; background-color: var(--black); color: var(--white); box-shadow: inset 0 0 0 1.5px var(--white), 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);"

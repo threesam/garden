@@ -5,8 +5,8 @@
 		slug: string;
 		seed?: number;
 		/**
-		 * When true the sketch ticks. When false it tears down — cancels its rAF,
-		 * runs cleanup, and clears the canvas pixel buffer.
+		 * When true the sketch ticks. When false it stops ticking (frees the CPU)
+		 * but keeps the last frame painted so it can be faded out.
 		 */
 		active: boolean;
 		/**
@@ -14,13 +14,15 @@
 		 * mouse/touch reactivity in the sketch. Defaults to true.
 		 */
 		interactive?: boolean;
+		/** Tailwind class for the canvas backdrop. Defaults to bg-[var(--black)]. */
+		bgClass?: string;
 	}
 
-	let { slug, seed, active, interactive = true }: Props = $props();
+	let { slug, seed, active, interactive = true, bgClass = 'bg-[var(--black)]' }: Props = $props();
 
 	const params = $derived({ slug, seed, active, interactive });
 </script>
 
-<div class="relative h-full w-full" style="background-color: var(--black);">
+<div class="relative h-full w-full {bgClass}">
 	<canvas class="absolute inset-0" use:sketchHost={params}></canvas>
 </div>
