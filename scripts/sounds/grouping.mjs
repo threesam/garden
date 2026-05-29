@@ -136,7 +136,10 @@ export function buildCatalog({ flFiles, scTracks }) {
     const a = analyze(file.replace(/\.[^.]+$/, ""));
     if (a.noise) { ignored.push({ reason: a.noise, path: `${r.sub}/${r.rel}` }); continue; }
     const loc = resolveProject(r.sub, r.rel);
-    const rec = { ...r, file, title: a.title, variant: a.variant, slug: aliasSlug(slugify(a.title)), ...loc, source: "local" };
+    // Fall back to the filename stem if the title is empty (e.g. a file named
+    // exactly after a variant word like "raw.wav") so it never collapses to "".
+    const slug = aliasSlug(slugify(a.title) || slugify(r.stem));
+    const rec = { ...r, file, title: a.title || r.stem, variant: a.variant, slug, ...loc, source: "local" };
     if (loc.collection === "scores") scoreFiles.push({ ...rec, kind: scoreKind(r.rel, file) });
     else demoFiles.push(rec);
   }
@@ -165,6 +168,19 @@ export function buildCatalog({ flFiles, scTracks }) {
   const singles = [];
   const flags = { untitled: [], placeholders: [] };
 
+  // Guarantee every emitted URL is unique: two versions sharing date+variant (or
+  // two cues, etc.) would otherwise write the same file (silent overwrite) and
+  // collide the page's keyed {#each} (duplicate-key → prerender failure).
+  const usedUrls = new Set();
+  const uniqueUrl = (url) => {
+    if (!usedUrls.has(url)) { usedUrls.add(url); return url; }
+    let i = 2;
+    let alt = url.replace(/\.mp3$/, `-${i}.mp3`);
+    while (usedUrls.has(alt)) alt = url.replace(/\.mp3$/, `-${++i}.mp3`);
+    usedUrls.add(alt);
+    return alt;
+  };
+
   for (const song of songMap.values()) {
     song.versions.sort((a, b) => b.date.localeCompare(a.date));
     const newest = song.versions[0];
@@ -179,9 +195,8 @@ export function buildCatalog({ flFiles, scTracks }) {
 
     const dir = isEP ? `demos/${project}/${song.slug}` : `demos/${song.slug}`;
     const versions = song.versions.map((v) => {
-      const file = `${v.date}__${v.variant}.mp3`;
-      const url = `/audio/sounds/${dir}/${file}`;
-      conversions.push({ from: v.source === "soundcloud" ? v.audioPath : v.abs, to: `static${url}`, copy: v.source === "soundcloud" });
+      const url = uniqueUrl(`/audio/sounds/${dir}/${v.date}__${v.variant}.mp3`);
+      conversions.push({ from: v.source === "soundcloud" ? v.audioPath : v.abs, to: `static${url}` });
       return { date: v.date, variant: v.variant, src: url, source: v.source, lossy: v.source === "soundcloud" };
     });
 
@@ -205,7 +220,8 @@ export function buildCatalog({ flFiles, scTracks }) {
   }
 
   for (const ep of eps.values()) ep.songs.sort((a, b) => b.latest.localeCompare(a.latest));
-  const epList = [...eps.values()].sort((a, b) => (a.id === "404" ? -1 : 1));
+  const epOrder = ["404", "fa11faster"];
+  const epList = [...eps.values()].sort((a, b) => epOrder.indexOf(a.id) - epOrder.indexOf(b.id));
   singles.sort((a, b) => b.latest.localeCompare(a.latest));
 
   const excluded = [];
@@ -220,12 +236,12 @@ export function buildCatalog({ flFiles, scTracks }) {
       const timecode = m ? `${m[1]}:${m[2]}:${m[3]}–${m[4]}` : f.file;
       // unique per-cue filename (two cues can share a start time, e.g. "… - Part_1")
       const cueSlug = f.file.replace(/\.[^.]+$/, "").replace(/^hmbm__/i, "").replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
-      const url = `/audio/sounds/scores/hmbm/${cueSlug}.mp3`;
-      conversions.push({ from: f.abs, to: `static${url}`, copy: false });
+      const url = uniqueUrl(`/audio/sounds/scores/hmbm/${cueSlug}.mp3`);
+      conversions.push({ from: f.abs, to: `static${url}` });
       hmbm.push({ timecode, start, src: url, date: f.date });
     } else {
-      const url = `/audio/sounds/scores/skw/${f.slug}/${f.date}__${f.variant}.mp3`;
-      conversions.push({ from: f.abs, to: `static${url}`, copy: false });
+      const url = uniqueUrl(`/audio/sounds/scores/skw/${f.slug}/${f.date}__${f.variant}.mp3`);
+      conversions.push({ from: f.abs, to: `static${url}` });
       skw.push({ slug: f.slug, title: f.title, versions: [{ date: f.date, variant: f.variant, src: url, source: "local", lossy: false }], latest: f.date, cover: null, untitled: false });
     }
   }

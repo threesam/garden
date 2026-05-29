@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 // Preview port is configurable so concurrent git worktrees don't collide on 3000.
-const PORT = Number(process.env.PREVIEW_PORT ?? 3000);
+const PORT = Number(process.env.PREVIEW_PORT) || 3000;
 
 export default defineConfig({
   testDir: './tests',

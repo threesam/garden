@@ -86,3 +86,23 @@ test("cues that share a start time get distinct filenames", () => {
   const srcs = manifest.scores.hmbm.map((c) => c.src);
   assert.equal(new Set(srcs).size, 2, "no filename collision for same-start cues");
 });
+
+test("two versions sharing date+variant get distinct srcs (no overwrite)", () => {
+  const flFiles = [
+    fl("me", "silent.wav", "2022-11-22"),
+    fl("me", "actually trying/the way/silent.wav", "2022-11-22"), // same slug+date+variant, different folder
+  ];
+  const { manifest, conversions } = buildCatalog({ flFiles, scTracks: [] });
+  const all = [...manifest.demos.eps.flatMap((e) => e.songs), ...manifest.demos.singles];
+  const silent = all.find((s) => s.slug === "silent");
+  assert.equal(silent.versions.length, 2);
+  assert.equal(new Set(silent.versions.map((v) => v.src)).size, 2, "version srcs unique");
+  assert.equal(new Set(conversions.map((c) => c.to)).size, conversions.length, "no two conversions write the same path");
+});
+
+test("a file named only after a variant word keeps a non-empty slug", () => {
+  const { manifest } = buildCatalog({ flFiles: [fl("me", "raw.wav", "2023-01-01")], scTracks: [] });
+  const s = manifest.demos.singles.find((x) => x.slug === "raw");
+  assert.ok(s, "slug falls back to the stem instead of collapsing to empty");
+  assert.ok(!s.versions[0].src.includes("//"), "no double-slash in path");
+});

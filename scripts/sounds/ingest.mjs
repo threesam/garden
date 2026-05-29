@@ -75,7 +75,7 @@ function loadSC() {
   for (const [id, p] of artById) { const h = createHash("md5").update(readFileSync(p)).digest("hex"); hashById.set(id, h); hashCount.set(h, (hashCount.get(h) || 0) + 1); }
   const defaults = new Set([...hashCount].filter(([, n]) => n >= DEFAULT_ART_MIN).map(([h]) => h));
 
-  return readFileSync(meta, "utf8").trim().split("\n").map((line) => {
+  return readFileSync(meta, "utf8").trim().split("\n").filter((line) => line.trim()).map((line) => {
     const d = JSON.parse(line); const id = String(d.id); const a = analyze(d.title);
     const up = d.upload_date || ""; const date = up.length === 8 ? `${up.slice(0, 4)}-${up.slice(4, 6)}-${up.slice(6)}` : "1970-01-01";
     const audioPath = audioById.get(id) || null;
@@ -110,7 +110,7 @@ async function encodeWorker() {
   for (let conv = queue.shift(); conv; conv = queue.shift()) {
     mkdirSync(dirname(conv.to), { recursive: true });
     try {
-      await pexec(FFMPEG, ["-y", "-i", conv.from, "-af", AUDIO_FILTER, "-codec:a", "libmp3lame", "-b:a", "192k", conv.to]);
+      await pexec(FFMPEG, ["-nostats", "-loglevel", "error", "-y", "-i", conv.from, "-af", AUDIO_FILTER, "-codec:a", "libmp3lame", "-b:a", "192k", conv.to], { maxBuffer: 64 * 1024 * 1024 });
       if (++done % 10 === 0) console.log(`  …encoded ${done}/${conversions.length}`);
     } catch (err) {
       failures.push({ from: conv.from, msg: String(err.stderr || err).slice(-200) });
@@ -119,6 +119,7 @@ async function encodeWorker() {
 }
 await Promise.all(Array.from({ length: CONCURRENCY }, encodeWorker));
 for (const cov of covers) { mkdirSync(dirname(cov.to), { recursive: true }); copyFileSync(cov.from, cov.to); }
+mkdirSync(dirname(MANIFEST), { recursive: true });
 writeFileSync(MANIFEST, JSON.stringify(manifest, null, 2) + "\n");
 
 console.log(`\nencoded ${done}/${conversions.length} audio files, ${covers.length} covers → ${AUDIO_OUT_ROOT}/`);
