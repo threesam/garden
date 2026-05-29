@@ -14,6 +14,7 @@
     "test:smoke": "playwright test tests/routes.spec.ts",
     "lint": "eslint .",
     "wasm:build": "cargo build --manifest-path rust/garden_math/Cargo.toml --target wasm32-unknown-unknown --release && cp rust/garden_math/target/wasm32-unknown-unknown/release/garden_math.wasm static/wasm/garden_math.wasm",
+    "bake:deana": "node scripts/generate-deana-ascii.mjs",
     "lh": "node scripts/lighthouse.mjs"
   },
   "devDependencies": {

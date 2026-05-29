@@ -1,17 +1,13 @@
 <script lang="ts">
-	import AsciiImage from './AsciiImage.svelte';
 	import DanaLabel from './DanaLabel.svelte';
 	import LazyMount from '$lib/components/LazyMount.svelte';
+	import type { AsciiSrc } from '$lib/deana/images.js';
 
 	interface Props {
-		src: string;
-		/** Optional secondary src for crossfade cycling. */
-		altSrcs?: string[];
+		src: AsciiSrc;
 	}
 
-	let { src, altSrcs }: Props = $props();
-
-	const srcs = $derived(altSrcs?.length ? [src, ...altSrcs] : [src]);
+	let { src }: Props = $props();
 </script>
 
 <section
@@ -19,7 +15,14 @@
 	style="background-color: var(--white); content-visibility: auto; contain-intrinsic-size: 100vw 100dvh;"
 >
 	<LazyMount class="absolute inset-0">
-		<AsciiImage {srcs} class="h-full w-full" />
+		<img
+			src={src.lg}
+			srcset="{src.sm} 380w, {src.lg} 900w"
+			sizes="100vw"
+			alt=""
+			class="h-full w-full object-cover"
+			loading="lazy"
+		/>
 	</LazyMount>
 	<span
 		class="pointer-events-none absolute bottom-6 left-6 z-10 font-mono text-2xl font-bold uppercase tracking-[0.3em] md:bottom-10 md:left-10 md:text-5xl"
