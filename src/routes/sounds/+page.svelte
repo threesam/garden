@@ -88,22 +88,20 @@
 
   <section class="scores">
     <h2>scores</h2>
-    <h3>HMBM <span class="dim">· {manifest.scores.hmbm.length} cues</span></h3>
-    <ol class="cues">
-      {#each manifest.scores.hmbm as cue (cue.src)}
-        <li>
-          <button
-            class="cue"
-            class:on={player.track?.src === url(cue.src) && player.playing}
-            onclick={() => { trackEvent("sounds-play", { slug: "hmbm", variant: cue.timecode }); playTrack({ src: url(cue.src), title: `HMBM ${cue.timecode}`, variant: "cue", slug: cue.src }); }}
-          >▸ {cue.timecode}</button>
-        </li>
-      {/each}
-    </ol>
     {#if manifest.scores.skw.length}
       <h3>sk+w</h3>
       <div class="grid skw">{#each manifest.scores.skw as s (s.slug)}{@render stack(s)}{/each}</div>
     {/if}
+    <h3>HMBM <span class="dim">· film score · {manifest.scores.hmbm.length} cues</span></h3>
+    <div class="cue-slider">
+      {#each manifest.scores.hmbm as cue (cue.src)}
+        <button
+          class="cue-chip"
+          class:on={player.track?.src === url(cue.src) && player.playing}
+          onclick={() => { trackEvent("sounds-play", { slug: "hmbm", variant: cue.timecode }); playTrack({ src: url(cue.src), title: `HMBM ${cue.timecode}`, variant: "cue", slug: cue.src }); }}
+        >▸ {cue.timecode}</button>
+      {/each}
+    </div>
   </section>
 </main>
 
@@ -274,31 +272,35 @@
     margin: 1.4rem 0 0.8rem;
     opacity: 0.85;
   }
-  .cues {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-rows: repeat(7, auto); /* 14 cues → 2 columns of 7 */
-    grid-auto-flow: column;
-    gap: 0.3rem 1.6rem;
+  /* HMBM cue filmstrip — horizontal slider */
+  .cue-slider {
+    display: flex;
+    gap: 0.6rem;
+    overflow-x: auto;
+    padding-bottom: 0.6rem;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+    scrollbar-color: var(--coin) transparent;
   }
-  .cue {
-    background: none;
-    border: 0;
+  .cue-chip {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    border: 1px solid color-mix(in srgb, var(--coin) 35%, transparent);
+    border-radius: 7px;
+    background: rgba(0, 0, 0, 0.4);
     color: var(--white);
     font: inherit;
-    font-size: 0.74rem;
+    font-size: 0.72rem;
     letter-spacing: 0.04em;
+    white-space: nowrap;
+    padding: 0.55rem 0.75rem;
     cursor: pointer;
-    padding: 0.15rem 0;
-    opacity: 0.78;
-    text-align: left;
+    transition: background 0.18s, color 0.18s;
   }
-  .cue:hover,
-  .cue.on {
-    color: var(--coin);
-    opacity: 1;
+  .cue-chip:hover,
+  .cue-chip.on {
+    background: var(--coin);
+    color: var(--black);
   }
   .skw {
     margin-top: 0.5rem;
