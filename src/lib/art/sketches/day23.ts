@@ -1,8 +1,9 @@
 import type { Sketch } from "../types";
 
-// Abstract forest — recursively-branching L-system-ish trees scattered
-// randomly across the whole canvas. Size is purely a function of a
-// low-frequency "flow" noise field: closer to the flow = larger tree.
+// Abstract forest — recursively-branching L-system-ish trees that tile the
+// canvas: one tree per grid cell, the cells shaped to the tree's tall aspect
+// and the base length sized to the cell, so canopies fill the screen without
+// overlapping their neighbors.
 export const day23: Sketch = {
   slug: "23",
   title: "abstract plants",
@@ -10,62 +11,53 @@ export const day23: Sketch = {
   setup(api) {
     const { ctx, w, h, rng, noise, map } = api;
     const multi = 0.05;
-    // Very-low-frequency noise for the flow field: ~2–3 cycles across the
-    // viewport so zones are large enough to read as "river" vs "dry" at a
-    // glance, not as a fine-grained texture.
-    const flowMulti = 0.003;
-    const maxLength = 25;
     const minLength = 7;
     const angle = (30 * Math.PI) / 180;
-    const minScale = 0.25;
-    const maxScale = 1.3;
-    // Smoothstep edges stretch mid-range flow values toward the extremes —
-    // otherwise raw value noise sits around 0.5 most places and the big-vs-
-    // small gap ends up invisible.
-    const flowLo = 0.3;
-    const flowHi = 0.7;
-    // Jittered grid: compute a square-ish grid from density, then offset
-    // each tree by up to ~half a cell in each axis. Guarantees even
-    // coverage (no big gaps or clumps from random sampling) while
-    // breaking up the visible grid regularity.
-    const density = 0.00045;
-    const target = Math.max(1, Math.round(w * h * density));
-    const cols = Math.max(1, Math.round(Math.sqrt(target * (w / h))));
-    const rows = Math.max(1, Math.round(target / cols));
-    const cellW = w / cols;
-    const cellH = h / rows;
-    const jitter = 0.45; // fraction of cell size
 
-    // Smoothstep: 0 below lo, 1 above hi, smooth S-curve in between.
-    function smoothstep(lo: number, hi: number, x: number): number {
-      const t = Math.max(0, Math.min(1, (x - lo) / (hi - lo)));
-      return t * t * (3 - 2 * t);
+    // Circle packing: drop circles at random points, each grown as large as it
+    // fits without overlapping an existing circle or the canvas edge. Big
+    // circles where there's room, small ones filling the gaps — an organic,
+    // gap-free distribution. A tree then fills each circle, so the trees vary
+    // in size and never overlap.
+    const minR = Math.max(6, Math.min(w, h) * 0.007);
+    const maxR = Math.min(w, h) * 0.05;
+    const attempts = 15000;
+
+    interface Circle {
+      x: number;
+      y: number;
+      r: number;
+    }
+    const circles: Circle[] = [];
+    for (let i = 0; i < attempts; i++) {
+      const px = rng() * w;
+      const py = rng() * h;
+      let fit = Math.min(px, py, w - px, h - py, maxR);
+      for (const c of circles) {
+        const gap = Math.hypot(px - c.x, py - c.y) - c.r;
+        if (gap < fit) fit = gap;
+        if (fit < minR) break;
+      }
+      if (fit >= minR) circles.push({ x: px, y: py, r: fit });
     }
 
     interface Tree {
       x: number;
       y: number;
-      scale: number;
+      len: number;
       color: number;
     }
-    const trees: Tree[] = [];
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        const cx = -w / 2 + cellW * (c + 0.5);
-        const cy = -h / 2 + cellH * (r + 0.5);
-        const x = cx + map(rng(), 0, 1, -cellW * jitter, cellW * jitter);
-        const y = cy + map(rng(), 0, 1, -cellH * jitter, cellH * jitter);
-        const n = noise(x * multi, y * multi);
-        const rawFlow = noise(x * flowMulti, y * flowMulti);
-        const flow = smoothstep(flowLo, flowHi, rawFlow);
-        trees.push({
-          x,
-          y,
-          scale: map(flow, 0, 1, minScale, maxScale),
-          color: map(n, 0, 1, 100, 255),
-        });
-      }
-    }
+    // Base sits at the circle's bottom; the canopy grows up to fill it. Length
+    // is sized so a tree (~3x its base tall) spans the circle's diameter.
+    const trees: Tree[] = circles.map((c) => {
+      const n = noise(c.x * multi, c.y * multi);
+      return {
+        x: c.x - w / 2,
+        y: c.y + c.r - h / 2,
+        len: c.r * 0.72,
+        color: map(n, 0, 1, 100, 255),
+      };
+    });
 
     function branch(len: number) {
       if (len <= minLength) {
@@ -92,13 +84,13 @@ export const day23: Sketch = {
     ctx.fillStyle = "rgb(0,0,0)";
     ctx.fillRect(0, 0, w, h);
     ctx.save();
-    ctx.translate(w / 2, h / 2 + maxLength);
+    ctx.translate(w / 2, h / 2);
     ctx.lineWidth = 1;
     for (const t of trees) {
       ctx.save();
       ctx.strokeStyle = `rgb(${Math.floor(t.color)},${Math.floor(t.color)},${Math.floor(t.color)})`;
       ctx.translate(t.x, t.y);
-      branch(maxLength * t.scale);
+      branch(t.len);
       ctx.restore();
     }
     ctx.restore();

@@ -26,10 +26,17 @@ export const day21: Sketch = {
     const bottom = h / 2 - (smallSide / 2) * padding;
     const top = h / 2 + (smallSide / 2) * padding;
     const multi = 0.004;
+    // Particles travel through and leave the system: a particle dies once it
+    // exits the canvas (with margin) or gets caught in an eddy past maxAge, so
+    // the field thins out and settles instead of redrawing ~10k points forever.
+    const margin = 60;
+    const maxAge = 500;
 
     interface V {
       x: number;
       y: number;
+      age: number;
+      dead?: boolean;
     }
     const vectors: V[] = [];
     for (let x = left; x < right; x += space) {
@@ -37,6 +44,7 @@ export const day21: Sketch = {
         vectors.push({
           x: x + map(rng(), 0, 1, -space, space),
           y: y + map(rng(), 0, 1, -space, space),
+          age: 0,
         });
       }
     }
@@ -53,9 +61,11 @@ export const day21: Sketch = {
 
     return {
       tick(_, frame) {
-        const max = Math.min(frame + 1, vectors.length);
-        for (let i = 0; i < max; i++) {
+        const revealed = Math.min(frame + 1, vectors.length);
+        for (let i = 0; i < revealed; i++) {
           const v = vectors[i];
+          if (v.dead) continue;
+          v.age++;
           // The original treats the noise value as "an angle in 0-720" and
           // passes it straight to Math.cos/sin, which interpret it as
           // radians. Keeping that literal — it produces more chaotic
@@ -64,6 +74,19 @@ export const day21: Sketch = {
           const angle = map(noise(v.x * multi, v.y * multi), 0, 1, 0, 720);
           v.x += Math.cos(angle);
           v.y += Math.sin(angle);
+
+          // Once it travels off the canvas, or gets caught and lingers past
+          // maxAge, retire it so the field thins out and settles.
+          if (
+            v.x < -margin ||
+            v.x > w + margin ||
+            v.y < -margin ||
+            v.y > h + margin ||
+            v.age > maxAge
+          ) {
+            v.dead = true;
+            continue;
+          }
 
           const n = noise(v.x * 0.025, v.y * 0.025);
           const size = map(n, 0, 1, 1, 33);
