@@ -26,8 +26,7 @@
 
 <main
   id="art-scroller"
-  class="h-dvh snap-y snap-mandatory overflow-y-scroll"
-  style="background-color: var(--black);"
+  class="h-dvh snap-y snap-mandatory overflow-y-scroll bg-[#000]"
 >
   <ArtScrollSync />
   <section
