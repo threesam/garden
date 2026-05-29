@@ -53,3 +53,7 @@ data/messages/dianchik/imessage.json
 
 # personal notes
 content/notes/
+
+# sounds — local-first source material + generated audio (manifest is committed)
+/sc-inventory/
+/static/audio/sounds/
