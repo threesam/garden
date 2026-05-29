@@ -41,8 +41,8 @@ function lumToTone(lum) {
   const s2 = stretched * stretched * (3 - 2 * stretched);
   return 1 - s2 * s2 * (3 - 2 * s2);
 }
-const escapeXml = (c) =>
-  c === "&" ? "&amp;" : c === "<" ? "&lt;" : c === ">" ? "&gt;" : c === "'" ? "&apos;" : c === '"' ? "&quot;" : c;
+const XML_ENTITIES = { "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&apos;", '"': "&quot;" };
+const escapeXml = (c) => XML_ENTITIES[c] ?? c;
 
 async function bake(src) {
   const meta = await sharp(src).metadata();
