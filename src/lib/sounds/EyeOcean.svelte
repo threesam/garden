@@ -1,10 +1,12 @@
 <script lang="ts">
-  // Audio-reactive "eye ocean" — a grid of cream eyes displaced + flowed by 3D
-  // value noise. Two modes:
-  //   • backdrop (default): fullscreen-fixed, wired to the sounds player — bass
-  //     swells the eyes, treble speeds the flow, amplitude dilates the pupils.
-  //   • card (reactive={false} fixed={false}): sizes to its parent box and just
-  //     drifts in the idle state — used as the homepage /sounds preview tile.
+  // "Eye ocean" — a grid of cream eyes displaced + flowed by 2D value noise. Two
+  // modes:
+  //   • backdrop (default, fixed): fullscreen behind /sounds; pupils gaze toward
+  //     the playing song's card (the `gaze` prop).
+  //   • card (fixed={false}): sizes to its parent box; pupils follow the cursor —
+  //     used as the homepage /sounds preview tile.
+  // Idle, each eye looks in its own random direction, and one random eye blinks
+  // each second. Not audio-reactive.
   //
   // Motion (after the sixtom hero): a low-frequency value-noise field drifts
   // across the grid at an asymmetric rate (Y at 0.4× of X) so soft blobs of
@@ -13,18 +15,15 @@
   // when hidden. Perf: 1× DPR (soft backdrop), light per-eye arcs, no blur.
   import { onMount } from "svelte";
   import { makeNoise } from "$lib/art/noise";
-  import { player } from "$lib/sounds/player.svelte";
 
   interface Props {
-    /** Wire to the sounds player. false = always idle drift, no audio reactivity. */
-    reactive?: boolean;
     /** true = fullscreen fixed backdrop; false = absolute, sized to the parent element. */
     fixed?: boolean;
     /** Fixed backdrop only: a viewport point the pupils gaze toward (the playing
      *  song's card center). null = idle drift. Ignored in card mode. */
     gaze?: { x: number; y: number } | null;
   }
-  let { reactive = true, fixed = true, gaze = null }: Props = $props();
+  let { fixed = true, gaze = null }: Props = $props();
 
   let canvas: HTMLCanvasElement;
 
@@ -36,6 +35,11 @@
     let raf = 0;
     let flow = 0; // accumulated drift distance (noise units); persists across pauses
     let last = 0;
+    // one random eye blinks each second (a quick vertical squash)
+    const BLINK_MS = 160;
+    let blinkIdx = -1;
+    let blinkStart = 0;
+    let nextBlink = 0;
     // glance — the pupils lean toward a target: the cursor in card mode (see the
     // listener block), or the `gaze` prop in fixed mode (the playing song's card).
     // gtx/gty hold the target point; glance is the smoothed 0..1 engage strength.
@@ -138,18 +142,21 @@
       };
     }
 
-    function draw(playing: boolean, dt: number) {
+    function draw(dt: number, now: number) {
       if (w < 2 || h < 2) return; // not sized yet (card mode can mount before layout); the RO will size us
-      const react = playing ? 1 : 0;
-      const bass = player.bass * react;
-      const treble = player.treble * react;
-      const amp = player.amp * react;
-      // Drift a low-frequency 2D noise field at an asymmetric rate (Y at 0.4× of
-      // X), so contiguous blobs of larger/brighter eyes flow across the grid like
-      // a slow current. Treble speeds the current when playing.
-      flow += dt * (0.22 + treble * 1.1);
+      // Drift a low-frequency 2D noise field at an asymmetric rate (Y at 0.4× of X),
+      // so contiguous blobs of larger/brighter eyes flow across the grid like a slow
+      // current. Constant rate — the eyes are not audio-reactive.
+      flow += dt * 0.22;
       const driftX = flow;
       const driftY = flow * 0.4;
+
+      // every second, pick a random eye to blink
+      if (now >= nextBlink) {
+        blinkIdx = Math.floor(Math.random() * (rows + 1) * (cols + 1));
+        blinkStart = now;
+        nextBlink = now + 1000;
+      }
 
       ctx.fillStyle = "#000";
       ctx.fillRect(0, 0, w, h);
@@ -192,17 +199,24 @@
           // precomputed per-cell jitter + a gentle lean that follows the current
           const ci = idx; // this cell's index into the precomputed arrays
           idx++;
-          const cx = px + jitterX[ci] + (n - 0.5) * cell * 0.3 * (1 + bass * 0.6);
+          const cx = px + jitterX[ci] + (n - 0.5) * cell * 0.3;
           const cy = py + jitterY[ci] + (n - 0.5) * cell * 0.2;
-          const size = base * (0.32 + n * 1.0) * (1 + bass * 1.15);
+          const size = base * (0.32 + n * 1.0);
           if (size < 1) continue;
+
+          // blink: a quick vertical squash of the chosen eye (1 → ~0 → 1)
+          let oy = 1;
+          if (ci === blinkIdx) {
+            const bp = (now - blinkStart) / BLINK_MS;
+            if (bp <= 1) oy = Math.max(0.06, 1 - Math.sin(bp * Math.PI));
+          }
 
           ctx.fillStyle = `rgba(255,250,200,${0.42 + n * 0.5})`;
           ctx.beginPath();
-          ctx.arc(cx, cy, size / 2, 0, Math.PI * 2);
+          ctx.ellipse(cx, cy, size / 2, (size / 2) * oy, 0, 0, Math.PI * 2);
           ctx.fill();
 
-          const pupil = Math.max(1.5, size * 0.3 * (1 + amp * 0.6));
+          const pupil = Math.max(1.5, size * 0.3);
           const maxReach = ((size - pupil) / 2) * 0.8; // keeps the pupil inside the eye
           // idle: this eye looks in its own stable random direction
           const rox = restX[ci] * maxReach * 0.7;
@@ -222,7 +236,7 @@
           const ppy = cy + roy + (toy - roy) * glance;
           ctx.fillStyle = "#000";
           ctx.beginPath();
-          ctx.arc(ppx, ppy, pupil / 2, 0, Math.PI * 2);
+          ctx.ellipse(ppx, cy + (ppy - cy) * oy, pupil / 2, (pupil / 2) * oy, 0, 0, Math.PI * 2);
           ctx.fill();
         }
       }
@@ -239,7 +253,7 @@
       // tab returning doesn't lurch the field forward.
       const dt = last ? Math.min((now - last) / 1000, 0.05) : 0.016;
       last = now;
-      draw(reactive && player.playing, dt);
+      draw(dt, now);
     }
     raf = requestAnimationFrame(frame);
 

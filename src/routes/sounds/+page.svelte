@@ -14,25 +14,8 @@
     if (audioEl) attach(audioEl);
   });
 
-  // Scroll-aware edge fades: the top scrim fades in once scrolled off the top;
-  // the bottom scrim fades out once you reach the end — so neither edge clips
-  // content at rest.
-  let scrollY = $state(0);
-  let atBottom = $state(false);
   // viewport point the backdrop eyes gaze toward — the playing song's card center
   let gaze = $state<{ x: number; y: number } | null>(null);
-  const onScroll = () => {
-    atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
-    updateGaze(); // the playing card moves under the viewport as you scroll
-  };
-  $effect(() => {
-    onScroll(); // initial state (e.g. a short page starts with the bottom scrim off)
-    // Recompute as the page height settles — covers/posters and the web font load
-    // after mount and can change scrollHeight without a scroll or resize event.
-    const ro = new ResizeObserver(onScroll);
-    ro.observe(document.body);
-    return () => ro.disconnect();
-  });
 
   const url = (p: string) => base + p; // manifest path → R2 origin (prod) / static (dev)
 
@@ -136,10 +119,10 @@
   schema={collectionPageNode({ path: "/sounds", name: "sounds — threesam" })}
 />
 
-<svelte:window bind:scrollY onscroll={onScroll} onresize={onScroll} />
+<svelte:window onscroll={updateGaze} onresize={updateGaze} />
 
 <EyeOcean {gaze} />
-<div class="scrim scrim-top" class:show={scrollY > 8} aria-hidden="true"></div>
+<div class="scrim scrim-top" aria-hidden="true"></div>
 <h1 class="brand">sounds</h1>
 
 {#snippet glyph(playing: boolean)}
@@ -209,7 +192,7 @@
   </section>
 </main>
 
-<div class="scrim scrim-bottom" class:hide={atBottom} aria-hidden="true"></div>
+<div class="scrim scrim-bottom" aria-hidden="true"></div>
 
 <footer class="transport">
   <button class="tp-play" aria-label={player.playing ? "pause" : "play"} onclick={toggle} disabled={!player.track}>
@@ -251,7 +234,7 @@
     z-index: 1;
     max-width: 1600px;
     margin: 0 auto;
-    padding: 4.5rem 1.5rem calc(var(--player-h) + 3rem);
+    padding: 7rem 1.5rem calc(var(--player-h) + 6rem);
     color: var(--white);
     font-family: "Recursive Mono", ui-monospace, monospace;
   }
@@ -339,15 +322,6 @@
   .stack.playing .card img {
     filter: grayscale(0);
   }
-  .stack.playing .deck::after {
-    content: "";
-    position: absolute;
-    inset: -5px;
-    border-radius: 11px;
-    border: 2px solid var(--coin);
-    pointer-events: none;
-  }
-
   /* demo / score badge, pinned over the top-left of the cover */
   .badge {
     position: absolute;
@@ -564,24 +538,16 @@
     z-index: 5;
     pointer-events: none;
   }
+  /* always-on edge fades; main's padding keeps the first/last rows clear of them */
   .scrim-top {
     top: 0;
-    height: 20vh;
-    background: linear-gradient(to bottom, #000 12%, transparent);
-    opacity: 0; /* hidden at rest so the first row isn't faded; fades in on scroll */
-    transition: opacity 0.35s ease;
-  }
-  .scrim-top.show {
-    opacity: 1;
+    height: 7rem;
+    background: linear-gradient(to bottom, #000 30%, transparent);
   }
   .scrim-bottom {
     bottom: 0; /* runs under the transport — no gap above the player */
-    height: 30vh;
-    background: linear-gradient(to top, #000 70px, transparent);
-    transition: opacity 0.35s ease;
-  }
-  .scrim-bottom.hide {
-    opacity: 0; /* fades out at the end so the last row isn't clipped */
+    height: 12rem; /* ~66px player + ~6rem fade above it */
+    background: linear-gradient(to top, #000 66px, transparent);
   }
 
   /* fixed transport */
@@ -643,7 +609,7 @@
 
   @media (max-width: 640px) {
     main {
-      padding: 3rem 1rem calc(var(--player-h) + 2rem);
+      padding: 6rem 1rem calc(var(--player-h) + 5rem);
     }
     .grid {
       gap: 1.8rem 1rem;
