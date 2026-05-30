@@ -35,10 +35,10 @@
       >
         {#if book.coverUrl}
           <img
-            src={proxyImg(book.coverUrl, 200)}
+            src={proxyImg(book.coverUrl, 320)}
             alt={book.cleanTitle}
-            width="200"
-            height="300"
+            width={book.coverW ?? 200}
+            height={book.coverH ?? 300}
             loading="lazy"
             class="block h-auto w-full md:transition-[filter] md:duration-300 md:group-hover:grayscale"
           />

@@ -37,6 +37,9 @@ export interface Book {
   series: string | null;
   seriesNumber: number | null;
   shelves: string[];
+  /** Real cover dimensions, probed at build time. Undefined if probing failed. */
+  coverW?: number;
+  coverH?: number;
 }
 
 const parser = new XMLParser();
