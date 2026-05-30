@@ -44,6 +44,7 @@ export function attach(node: HTMLAudioElement) {
     analyser = null;
     freq = null;
   }
+  el?.pause(); // stop the outgoing element before we drop our reference to it
   el = node;
 }
 
@@ -98,6 +99,7 @@ async function start() {
     return;
   }
   player.playing = true;
+  lastUi = 0; // first loop tick writes time/duration immediately (no stale flash on track switch)
   if (!raf) loop();
 }
 
@@ -125,7 +127,7 @@ export async function toggle() {
 export function seek(seconds: number) {
   if (el && Number.isFinite(seconds)) {
     el.currentTime = seconds;
-    player.currentTime = seconds; // reflect immediately, even while paused (loop is stopped)
+    player.currentTime = el.currentTime; // browser-clamped position, reflected even while paused
   }
 }
 
