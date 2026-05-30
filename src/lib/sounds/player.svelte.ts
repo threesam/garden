@@ -32,6 +32,18 @@ let raf = 0;
 let lastUi = 0;
 
 export function attach(node: HTMLAudioElement) {
+  if (node === el) return;
+  // New element (e.g. SPA re-navigation remounts the page) → tear down the old
+  // graph so it rebuilds on the new element; otherwise the analyser stays wired
+  // to the destroyed element and reactivity (+ routing) breaks.
+  if (ctx) {
+    cancelAnimationFrame(raf);
+    raf = 0;
+    void ctx.close();
+    ctx = null;
+    analyser = null;
+    freq = null;
+  }
   el = node;
 }
 
@@ -79,7 +91,12 @@ async function start() {
   if (!el) return;
   ensureGraph();
   if (ctx?.state === "suspended") await ctx.resume();
-  await el.play();
+  try {
+    await el.play();
+  } catch {
+    player.playing = false; // autoplay blocked or interrupted by a newer load
+    return;
+  }
   player.playing = true;
   if (!raf) loop();
 }
@@ -106,7 +123,10 @@ export async function toggle() {
 }
 
 export function seek(seconds: number) {
-  if (el && Number.isFinite(seconds)) el.currentTime = seconds;
+  if (el && Number.isFinite(seconds)) {
+    el.currentTime = seconds;
+    player.currentTime = seconds; // reflect immediately, even while paused (loop is stopped)
+  }
 }
 
 export function onEnded() {
