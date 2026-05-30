@@ -20,8 +20,11 @@
     reactive?: boolean;
     /** true = fullscreen fixed backdrop; false = absolute, sized to the parent element. */
     fixed?: boolean;
+    /** Fixed backdrop only: a viewport point the pupils gaze toward (the playing
+     *  song's card center). null = idle drift. Ignored in card mode. */
+    gaze?: { x: number; y: number } | null;
   }
-  let { reactive = true, fixed = true }: Props = $props();
+  let { reactive = true, fixed = true, gaze = null }: Props = $props();
 
   let canvas: HTMLCanvasElement;
 
@@ -33,8 +36,9 @@
     let raf = 0;
     let flow = 0; // accumulated drift distance (noise units); persists across pauses
     let last = 0;
-    // pointer glance — the pupils lean toward the cursor (card mode only; see the
-    // listener block). Canvas-local coords, smoothed engage/disengage in draw().
+    // glance — the pupils lean toward a target: the cursor in card mode (see the
+    // listener block), or the `gaze` prop in fixed mode (the playing song's card).
+    // gtx/gty hold the target point; glance is the smoothed 0..1 engage strength.
     let ptrX = 0;
     let ptrY = 0;
     let ptrIn = false;
@@ -142,11 +146,15 @@
       ctx.fillStyle = "#000";
       ctx.fillRect(0, 0, w, h);
 
-      // The eyes glance toward the cursor. ptrX/ptrY are already canvas-local, so
-      // there's no per-frame layout read; smooth the engage/disengage (dt-corrected
-      // like the drift) so pupils ease back to center when the pointer leaves.
+      // Aim the glance: the fixed backdrop follows the `gaze` prop (the playing
+      // card); card mode follows the in-bounds cursor. dt-corrected easing (like
+      // the drift) eases the pupils in, and back to center when the target clears.
       let target = 0;
-      if (ptrIn && ptrX >= 0 && ptrX <= w && ptrY >= 0 && ptrY <= h) {
+      if (fixed && gaze) {
+        target = 1;
+        gtx = gaze.x;
+        gty = gaze.y;
+      } else if (!fixed && ptrIn && ptrX >= 0 && ptrX <= w && ptrY >= 0 && ptrY <= h) {
         target = 1;
         gtx = ptrX;
         gty = ptrY;
@@ -178,7 +186,7 @@
           if (glance > 0.01) {
             const ddx = gtx - cx;
             const ddy = gty - cy;
-            const dd = Math.hypot(ddx, ddy) || 1;
+            const dd = Math.sqrt(ddx * ddx + ddy * ddy) || 1; // cheaper than hypot, runs per eye
             const reach = ((size - pupil) / 2) * 0.8 * glance; // pupil stays within the eye
             ppx = cx + (ddx / dd) * reach;
             ppy = cy + (ddy / dd) * reach;
