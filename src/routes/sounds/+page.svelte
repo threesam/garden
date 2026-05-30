@@ -540,6 +540,9 @@
     .title.featured {
       font-size: 1rem;
     }
+    .np {
+      min-width: 0; /* let now-playing shrink so the scrubber keeps room on phones */
+    }
     .hmbm-poster {
       float: none;
       display: block;
