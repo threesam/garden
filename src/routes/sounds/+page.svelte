@@ -143,7 +143,7 @@
     --player-h: 66px;
     position: relative;
     z-index: 1;
-    max-width: 1180px;
+    max-width: 1600px;
     margin: 0 auto;
     padding: 4.5rem 1.5rem calc(var(--player-h) + 3rem);
     color: var(--white);
@@ -199,6 +199,8 @@
     height: 100%;
     object-fit: cover;
     display: block;
+    filter: grayscale(1);
+    transition: filter 0.4s ease;
   }
   .ph {
     position: absolute;
@@ -210,6 +212,11 @@
   }
   .stack:hover .card {
     transform: rotate(calc(var(--rot) * 1.85)) translateY(-3px);
+  }
+  /* covers sit in grayscale, bloom to color on hover (and while playing) */
+  .stack:hover .card img,
+  .stack.playing .card img {
+    filter: grayscale(0);
   }
   .stack.playing .deck::after {
     content: "";
