@@ -33,9 +33,11 @@
     let raf = 0;
     let flow = 0; // accumulated drift distance (noise units); persists across pauses
     let last = 0;
-    // pointer glance — the pupils lean toward the cursor
-    let ptrClientX = 0;
-    let ptrClientY = 0;
+    // pointer glance — the pupils lean toward the cursor, in canvas-local coords
+    // with NO per-frame layout read: viewport clientX/Y for the fixed backdrop,
+    // the canvas's own offsetX/Y for the card (which also gates it to hover).
+    let ptrX = 0;
+    let ptrY = 0;
     let ptrIn = false;
     let gtx = 0;
     let gty = 0;
@@ -102,15 +104,28 @@
     }
 
     function onPointerMove(e: PointerEvent) {
-      ptrClientX = e.clientX;
-      ptrClientY = e.clientY;
+      if (fixed) {
+        ptrX = e.clientX; // the fixed canvas sits at viewport 0,0
+        ptrY = e.clientY;
+      } else {
+        ptrX = e.offsetX; // canvas-local — no getBoundingClientRect needed
+        ptrY = e.offsetY;
+      }
       ptrIn = true;
     }
-    function onPointerLeaveWin() {
+    function onPointerGone() {
       ptrIn = false;
     }
-    window.addEventListener("pointermove", onPointerMove, { passive: true });
-    document.addEventListener("pointerleave", onPointerLeaveWin);
+    // Fullscreen tracks the whole window (eyes glance even when the cursor is over
+    // page content); the card tracks only its own surface (natural hover gating).
+    const moveTarget: Window | HTMLCanvasElement = fixed ? window : canvas;
+    moveTarget.addEventListener("pointermove", onPointerMove as EventListener, { passive: true });
+    if (fixed) {
+      document.addEventListener("pointerleave", onPointerGone);
+      window.addEventListener("blur", onPointerGone);
+    } else {
+      canvas.addEventListener("pointerleave", onPointerGone);
+    }
 
     function draw(playing: boolean, dt: number) {
       if (w < 2 || h < 2) return; // not sized yet (card mode can mount before layout); the RO will size us
@@ -128,25 +143,16 @@
       ctx.fillStyle = "#000";
       ctx.fillRect(0, 0, w, h);
 
-      // The eyes glance toward the cursor. Track its canvas-local position (the
-      // viewport for the fixed backdrop, the card box otherwise) and smooth the
-      // engage/disengage so pupils ease back to center when the pointer leaves.
+      // The eyes glance toward the cursor. ptrX/ptrY are already canvas-local, so
+      // there's no per-frame layout read; smooth the engage/disengage (dt-corrected
+      // like the drift) so pupils ease back to center when the pointer leaves.
       let target = 0;
-      if (ptrIn) {
-        let lx = ptrClientX;
-        let ly = ptrClientY;
-        if (!fixed) {
-          const r = canvas.getBoundingClientRect();
-          lx -= r.left;
-          ly -= r.top;
-        }
-        if (lx >= 0 && lx <= w && ly >= 0 && ly <= h) {
-          target = 1;
-          gtx = lx;
-          gty = ly;
-        }
+      if (ptrIn && ptrX >= 0 && ptrX <= w && ptrY >= 0 && ptrY <= h) {
+        target = 1;
+        gtx = ptrX;
+        gty = ptrY;
       }
-      glance += (target - glance) * 0.12;
+      glance += (target - glance) * Math.min(1, dt * 8);
 
       let idx = 0;
       for (let gy = 0; gy <= rows; gy++) {
@@ -204,8 +210,13 @@
     return () => {
       cancelAnimationFrame(raf);
       if (onResize) window.removeEventListener("resize", onResize);
-      window.removeEventListener("pointermove", onPointerMove);
-      document.removeEventListener("pointerleave", onPointerLeaveWin);
+      moveTarget.removeEventListener("pointermove", onPointerMove as EventListener);
+      if (fixed) {
+        document.removeEventListener("pointerleave", onPointerGone);
+        window.removeEventListener("blur", onPointerGone);
+      } else {
+        canvas.removeEventListener("pointerleave", onPointerGone);
+      }
       ro?.disconnect();
     };
   });

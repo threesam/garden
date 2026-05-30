@@ -24,6 +24,11 @@
   };
   $effect(() => {
     onScroll(); // initial state (e.g. a short page starts with the bottom scrim off)
+    // Recompute as the page height settles — covers/posters and the web font load
+    // after mount and can change scrollHeight without a scroll or resize event.
+    const ro = new ResizeObserver(onScroll);
+    ro.observe(document.body);
+    return () => ro.disconnect();
   });
 
   const url = (p: string) => base + p; // manifest path → R2 origin (prod) / static (dev)
