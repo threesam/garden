@@ -22,7 +22,11 @@
     (globalThis as { umami?: { track?: (n: string, d?: unknown) => void } }).umami?.track?.(name, data);
 
   // fan tilt per version index (0 = newest, on top, flat)
-  const fan = (i: number) => (i === 0 ? 0 : (i % 2 ? -1 : 1) * (4 + i * 1.6));
+  const fan = (i: number) => {
+    if (i === 0) return 0;
+    const dir = i % 2 ? -1 : 1; // alternate left/right
+    return dir * (4 + i * 1.6);
+  };
 
   const play = (song: Song) => {
     const v = song.versions[0];

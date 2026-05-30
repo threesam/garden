@@ -53,12 +53,12 @@ test("soundcloud-only track becomes a lossy single with a cover", () => {
 });
 
 test("default (avatar) cover → placeholder (cover null)", () => {
-  const scTracks = [{ id: "2", title: "greedy", cleanTitle: "greedy", variant: "main", slug: "greedy", date: "2024-05-27", artPath: "/fake/art/default.jpg", isDefaultArt: true, audioPath: null, size: 0 }];
-  const flFiles = [fl("me", "greedy.wav", "2024-05-27")];
+  const scTracks = [{ id: "2", title: "decoy", cleanTitle: "decoy", variant: "main", slug: "decoy", date: "2024-05-27", artPath: "/fake/art/default.jpg", isDefaultArt: true, audioPath: null }];
+  const flFiles = [fl("me", "decoy.wav", "2024-05-27")];
   const { manifest, flags } = buildCatalog({ flFiles, scTracks });
-  const g = manifest.demos.singles.find((x) => x.slug === "greedy");
+  const g = manifest.demos.singles.find((x) => x.slug === "decoy");
   assert.equal(g.cover, null);
-  assert.ok(flags.placeholders.includes("greedy"));
+  assert.ok(flags.placeholders.includes("decoy"));
 });
 
 test("scores: hmbm cues in picture order; only selected sk+w kept", () => {

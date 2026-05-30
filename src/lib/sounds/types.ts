@@ -1,6 +1,5 @@
 // Shape of src/lib/sounds/manifest.json produced by scripts/sounds/ingest.mjs.
 
-export type CollectionId = "demos" | "scores";
 export type AudioSource = "local" | "soundcloud";
 
 export interface Version {
