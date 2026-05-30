@@ -121,7 +121,10 @@
     const moveTarget: Window | HTMLCanvasElement = fixed ? window : canvas;
     moveTarget.addEventListener("pointermove", onPointerMove as EventListener, { passive: true });
     if (fixed) {
-      document.addEventListener("pointerleave", onPointerGone);
+      // pointerleave doesn't bubble, so listen on <html> (the element the cursor
+      // actually leaves when it exits the page) — a document-level listener would
+      // never fire. blur covers leaving via tab/window switch.
+      document.documentElement.addEventListener("pointerleave", onPointerGone);
       window.addEventListener("blur", onPointerGone);
     } else {
       canvas.addEventListener("pointerleave", onPointerGone);
@@ -212,7 +215,7 @@
       if (onResize) window.removeEventListener("resize", onResize);
       moveTarget.removeEventListener("pointermove", onPointerMove as EventListener);
       if (fixed) {
-        document.removeEventListener("pointerleave", onPointerGone);
+        document.documentElement.removeEventListener("pointerleave", onPointerGone);
         window.removeEventListener("blur", onPointerGone);
       } else {
         canvas.removeEventListener("pointerleave", onPointerGone);
