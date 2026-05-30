@@ -33,6 +33,15 @@
     let raf = 0;
     let flow = 0; // accumulated drift distance (noise units); persists across pauses
     let last = 0;
+    // pointer glance — the pupils lean toward the cursor, in canvas-local coords
+    // with NO per-frame layout read: viewport clientX/Y for the fixed backdrop,
+    // the canvas's own offsetX/Y for the card (which also gates it to hover).
+    let ptrX = 0;
+    let ptrY = 0;
+    let ptrIn = false;
+    let gtx = 0;
+    let gty = 0;
+    let glance = 0; // 0..1 smoothed glance strength
 
     // Size-derived constants + per-cell jitter are frame-invariant — computed
     // once per resize (below) instead of every frame in draw().
@@ -94,6 +103,33 @@
       }
     }
 
+    function onPointerMove(e: PointerEvent) {
+      if (fixed) {
+        ptrX = e.clientX; // the fixed canvas sits at viewport 0,0
+        ptrY = e.clientY;
+      } else {
+        ptrX = e.offsetX; // canvas-local — no getBoundingClientRect needed
+        ptrY = e.offsetY;
+      }
+      ptrIn = true;
+    }
+    function onPointerGone() {
+      ptrIn = false;
+    }
+    // Fullscreen tracks the whole window (eyes glance even when the cursor is over
+    // page content); the card tracks only its own surface (natural hover gating).
+    const moveTarget: Window | HTMLCanvasElement = fixed ? window : canvas;
+    moveTarget.addEventListener("pointermove", onPointerMove as EventListener, { passive: true });
+    if (fixed) {
+      // pointerleave doesn't bubble, so listen on <html> (the element the cursor
+      // actually leaves when it exits the page) — a document-level listener would
+      // never fire. blur covers leaving via tab/window switch.
+      document.documentElement.addEventListener("pointerleave", onPointerGone);
+      window.addEventListener("blur", onPointerGone);
+    } else {
+      canvas.addEventListener("pointerleave", onPointerGone);
+    }
+
     function draw(playing: boolean, dt: number) {
       if (w < 2 || h < 2) return; // not sized yet (card mode can mount before layout); the RO will size us
       const react = playing ? 1 : 0;
@@ -109,6 +145,17 @@
 
       ctx.fillStyle = "#000";
       ctx.fillRect(0, 0, w, h);
+
+      // The eyes glance toward the cursor. ptrX/ptrY are already canvas-local, so
+      // there's no per-frame layout read; smooth the engage/disengage (dt-corrected
+      // like the drift) so pupils ease back to center when the pointer leaves.
+      let target = 0;
+      if (ptrIn && ptrX >= 0 && ptrX <= w && ptrY >= 0 && ptrY <= h) {
+        target = 1;
+        gtx = ptrX;
+        gty = ptrY;
+      }
+      glance += (target - glance) * Math.min(1, dt * 8);
 
       let idx = 0;
       for (let gy = 0; gy <= rows; gy++) {
@@ -130,9 +177,19 @@
           ctx.fill();
 
           const pupil = Math.max(1.5, size * 0.3 * (1 + amp * 0.6));
+          let ppx = cx;
+          let ppy = cy;
+          if (glance > 0.01) {
+            const ddx = gtx - cx;
+            const ddy = gty - cy;
+            const dd = Math.hypot(ddx, ddy) || 1;
+            const reach = ((size - pupil) / 2) * 0.8 * glance; // pupil stays within the eye
+            ppx = cx + (ddx / dd) * reach;
+            ppy = cy + (ddy / dd) * reach;
+          }
           ctx.fillStyle = "#000";
           ctx.beginPath();
-          ctx.arc(cx, cy, pupil / 2, 0, Math.PI * 2);
+          ctx.arc(ppx, ppy, pupil / 2, 0, Math.PI * 2);
           ctx.fill();
         }
       }
@@ -156,6 +213,13 @@
     return () => {
       cancelAnimationFrame(raf);
       if (onResize) window.removeEventListener("resize", onResize);
+      moveTarget.removeEventListener("pointermove", onPointerMove as EventListener);
+      if (fixed) {
+        document.documentElement.removeEventListener("pointerleave", onPointerGone);
+        window.removeEventListener("blur", onPointerGone);
+      } else {
+        canvas.removeEventListener("pointerleave", onPointerGone);
+      }
       ro?.disconnect();
     };
   });
