@@ -34,6 +34,16 @@
     let flow = 0; // accumulated drift distance (noise units); persists across pauses
     let last = 0;
 
+    // Size-derived constants + per-cell jitter are frame-invariant — computed
+    // once per resize (below) instead of every frame in draw().
+    let cell = 0;
+    let base = 0;
+    let cols = 0;
+    let rows = 0;
+    let blobScale = 0;
+    const jitterX: number[] = [];
+    const jitterY: number[] = [];
+
     function applySize(width: number, height: number) {
       w = Math.max(1, Math.floor(width));
       h = Math.max(1, Math.floor(height));
@@ -41,6 +51,24 @@
       canvas.height = h;
       canvas.style.width = `${w}px`;
       canvas.style.height = `${h}px`;
+
+      cell = Math.max(48, Math.min(80, Math.min(w, h) / 12));
+      base = cell * 0.42;
+      cols = Math.ceil(w / cell) + 1;
+      rows = Math.ceil(h / cell) + 1;
+      // ~4 big contiguous blobs across the short side (sixtom: BLOBS / minDim).
+      blobScale = 4.2 / Math.min(w, h);
+      // stable per-cell jitter so the grid doesn't read as a rigid grid
+      jitterX.length = 0;
+      jitterY.length = 0;
+      for (let gy = 0; gy <= rows; gy++) {
+        for (let gx = 0; gx <= cols; gx++) {
+          const px = gx * cell;
+          const py = gy * cell;
+          jitterX.push((noise(px * 0.05, py * 0.05, 5.3) - 0.5) * cell * 0.45);
+          jitterY.push((noise(py * 0.05, px * 0.05, 8.7) - 0.5) * cell * 0.45);
+        }
+      }
     }
 
     // Backdrop tracks the viewport; card mode tracks its parent box.
@@ -82,25 +110,17 @@
       ctx.fillStyle = "#000";
       ctx.fillRect(0, 0, w, h);
 
-      const cell = Math.max(48, Math.min(80, Math.min(w, h) / 12));
-      const base = cell * 0.42;
-      const cols = Math.ceil(w / cell) + 1;
-      const rows = Math.ceil(h / cell) + 1;
-      // ~4 big contiguous blobs across the short side (sixtom: BLOBS / minDim).
-      const blobScale = 4.2 / Math.min(w, h);
-
+      let idx = 0;
       for (let gy = 0; gy <= rows; gy++) {
         for (let gx = 0; gx <= cols; gx++) {
           const px = gx * cell;
           const py = gy * cell;
           // the drifting field value at this cell — a blob slides through as it rises
           const n = noise(px * blobScale + driftX, py * blobScale + driftY, 0);
-          // stable per-cell jitter so it doesn't read as a rigid grid, plus a
-          // gentle lean that follows the slow current (coherent, not jittery)
-          const jx = (noise(px * 0.05, py * 0.05, 5.3) - 0.5) * cell * 0.45;
-          const jy = (noise(py * 0.05, px * 0.05, 8.7) - 0.5) * cell * 0.45;
-          const cx = px + jx + (n - 0.5) * cell * 0.3 * (1 + bass * 0.6);
-          const cy = py + jy + (n - 0.5) * cell * 0.2;
+          // precomputed per-cell jitter + a gentle lean that follows the current
+          const cx = px + jitterX[idx] + (n - 0.5) * cell * 0.3 * (1 + bass * 0.6);
+          const cy = py + jitterY[idx] + (n - 0.5) * cell * 0.2;
+          idx++;
           const size = base * (0.32 + n * 1.0) * (1 + bass * 1.15);
           if (size < 1) continue;
 

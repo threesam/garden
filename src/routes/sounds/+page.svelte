@@ -139,8 +139,8 @@
       {#if HMBM_FILM.poster}
         <img src={url(HMBM_FILM.poster)} alt="how many blind mice? — film poster" onerror={imgErr} />
       {/if}
+      <span class="badge badge-score">score</span>
     </div>
-    <span class="badge badge-score">score</span>
     <h2 class="hmbm-title">{HMBM_FILM.title}</h2>
     <p class="hmbm-meta">sk+w · film score · {HMBM_FILM.year} · {manifest.scores.hmbm.length} cues</p>
     <div class="cue-list">
