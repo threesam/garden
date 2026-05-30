@@ -4,7 +4,7 @@
   import EyeOcean from "$lib/sounds/EyeOcean.svelte";
   import { player, attach, playTrack, toggle, seek, onEnded } from "$lib/sounds/player.svelte";
   import type { PageData } from "./$types";
-  import type { Song } from "$lib/sounds/types";
+  import type { Cue, Song } from "$lib/sounds/types";
 
   let { data }: { data: PageData } = $props();
   let { manifest, base } = $derived(data);
@@ -32,6 +32,11 @@
     const v = song.versions[0];
     trackEvent("sounds-play", { slug: song.slug, variant: v.variant });
     playTrack({ src: url(v.src), title: song.title, variant: v.variant, slug: song.slug });
+  };
+
+  const playCue = (cue: Cue) => {
+    trackEvent("sounds-play", { slug: "hmbm", variant: cue.timecode });
+    playTrack({ src: url(cue.src), title: `HMBM ${cue.timecode}`, variant: "cue", slug: cue.src });
   };
 
   const isCurrent = (song: Song) => player.track?.slug === song.slug;
@@ -101,7 +106,7 @@
         <button
           class="cue-chip"
           class:on={player.track?.src === url(cue.src) && player.playing}
-          onclick={() => { trackEvent("sounds-play", { slug: "hmbm", variant: cue.timecode }); playTrack({ src: url(cue.src), title: `HMBM ${cue.timecode}`, variant: "cue", slug: cue.src }); }}
+          onclick={() => playCue(cue)}
         >▸ {cue.timecode}</button>
       {/each}
     </div>
