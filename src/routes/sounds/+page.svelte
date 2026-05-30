@@ -16,10 +16,26 @@
 
   const url = (p: string) => base + p; // manifest path → R2 origin (prod) / static (dev)
 
+  // Hide a cover/poster that fails to load so the "?" placeholder behind it shows
+  // through (some film posters aren't mirrored to R2 yet).
+  const imgErr = (e: Event) => ((e.currentTarget as HTMLElement).style.display = "none");
+
   // umami custom events — "what gets played". The umami script is loaded
   // site-wide in +layout.svelte; no-op (via ?.) during SSR / if it's blocked.
   const trackEvent = (name: string, data: Record<string, string | number>) =>
     (globalThis as { umami?: { track?: (n: string, d?: unknown) => void } }).umami?.track?.(name, data);
+
+  // Posters for the sk+w film scores + the HMBM film, mirrored from
+  // skeletonflowersandwater.com (Skeleton Flowers + Water) to R2.
+  const SCORE_POSTER: Record<string, string> = {
+    "quintessentially-unaware": "/audio/sounds/covers/quintessentially-unaware.jpg",
+    "polka-dot-dress": "/audio/sounds/covers/polka-dot-dress.jpg",
+  };
+  const HMBM_FILM = {
+    title: "how many blind mice?",
+    year: "2024",
+    poster: "/audio/sounds/covers/how-many-blind-mice.jpg",
+  };
 
   // fan tilt per version index (0 = newest, on top, flat)
   const fan = (i: number) => {
@@ -27,6 +43,28 @@
     const dir = i % 2 ? -1 : 1; // alternate left/right
     return dir * (4 + i * 1.6);
   };
+
+  // One flowing grid of tiles — each tagged demo|score with an optional credit
+  // shown under the title (the EP/band name for demos, the studio for scores).
+  type Kind = "demo" | "score";
+  interface Tile {
+    song: Song;
+    kind: Kind;
+    credit: string | null;
+    cover: string | null;
+  }
+  let tiles = $derived<Tile[]>([
+    ...manifest.demos.eps.flatMap((e) =>
+      e.songs.map((song) => ({ song, kind: "demo" as const, credit: e.label, cover: song.cover })),
+    ),
+    ...manifest.demos.singles.map((song) => ({ song, kind: "demo" as const, credit: null, cover: song.cover })),
+    ...manifest.scores.skw.map((song) => ({
+      song,
+      kind: "score" as const,
+      credit: "sk+w",
+      cover: SCORE_POSTER[song.slug] ?? song.cover,
+    })),
+  ]);
 
   const play = (song: Song) => {
     const v = song.versions[0];
@@ -36,7 +74,7 @@
 
   const playCue = (cue: Cue) => {
     trackEvent("sounds-play", { slug: "hmbm", variant: cue.timecode });
-    playTrack({ src: url(cue.src), title: `HMBM ${cue.timecode}`, variant: "cue", slug: cue.src });
+    playTrack({ src: url(cue.src), title: `how many blind mice? ${cue.timecode}`, variant: "cue", slug: cue.src });
   };
 
   const isCurrent = (song: Song) => player.track?.slug === song.slug;
@@ -45,9 +83,6 @@
     if (!s || !Number.isFinite(s)) return "0:00";
     return `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
   };
-
-  // One flowing grid of demo tiles; the 404 EP's 3 tiles lead (featured), the rest follow.
-  let demos = $derived([...manifest.demos.eps.flatMap((e) => e.songs), ...manifest.demos.singles]);
 </script>
 
 <SeoHead
@@ -61,19 +96,20 @@
 <div class="scrim scrim-top" aria-hidden="true"></div>
 <h1 class="brand">sounds</h1>
 
-{#snippet stack(song: Song)}
+{#snippet tile(t: Tile, featured: boolean)}
+  {@const song = t.song}
   {@const active = isCurrent(song) && player.playing}
   <figure class="stack" class:playing={active}>
     <div class="deck">
       {#each song.versions as v, i (v.src)}
         <div class="card" style="--rot:{fan(i)}deg; z-index:{40 - i};">
-          {#if song.cover}
-            <img src={url(song.cover)} alt="" draggable="false" />
-          {:else}
-            <span class="ph">?</span>
+          <span class="ph">?</span>
+          {#if t.cover}
+            <img src={url(t.cover)} alt="" draggable="false" onerror={imgErr} />
           {/if}
         </div>
       {/each}
+      <span class="badge badge-{t.kind}">{t.kind}</span>
       <button
         class="play"
         aria-label={active ? `pause ${song.title}` : `play ${song.title}`}
@@ -83,25 +119,31 @@
       </button>
     </div>
     <figcaption>
-      {song.title}{#if song.untitled}<span class="dim"> ·untitled</span>{/if}
-      {#if song.versions.length > 1}<span class="dim"> ·{song.versions.length}</span>{/if}
+      <span class="title" class:featured>{song.title}</span>
+      <span class="sub">
+        {#if t.credit}<span class="credit">{t.credit}</span>{/if}
+        {#if song.versions.length > 1}<span class="vers">{song.versions.length} versions</span>{/if}
+      </span>
     </figcaption>
   </figure>
 {/snippet}
 
 <main>
   <section class="grid">
-    {#each demos as s (s.slug)}{@render stack(s)}{/each}
+    {#each tiles as t, i (t.song.slug)}{@render tile(t, i < 3)}{/each}
   </section>
 
-  <section class="scores">
-    <h2>scores</h2>
-    {#if manifest.scores.skw.length}
-      <h3>sk+w</h3>
-      <div class="grid skw">{#each manifest.scores.skw as s (s.slug)}{@render stack(s)}{/each}</div>
-    {/if}
-    <h3>HMBM <span class="dim">· film score · {manifest.scores.hmbm.length} cues</span></h3>
-    <div class="cue-slider">
+  <section class="hmbm">
+    <div class="hmbm-poster">
+      <span class="hmbm-poster-ph" aria-hidden="true">?</span>
+      {#if HMBM_FILM.poster}
+        <img src={url(HMBM_FILM.poster)} alt="how many blind mice? — film poster" onerror={imgErr} />
+      {/if}
+    </div>
+    <span class="badge badge-score">score</span>
+    <h2 class="hmbm-title">{HMBM_FILM.title}</h2>
+    <p class="hmbm-meta">sk+w · film score · {HMBM_FILM.year} · {manifest.scores.hmbm.length} cues</p>
+    <div class="cue-list">
       {#each manifest.scores.hmbm as cue (cue.src)}
         <button
           class="cue-chip"
@@ -177,7 +219,7 @@
   .grid {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
-    gap: 2rem 1.5rem;
+    gap: 2.4rem 1.5rem;
     align-items: start;
   }
   .grid > :global(.stack) {
@@ -210,6 +252,8 @@
     transition: transform 0.38s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
   .card img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -241,6 +285,31 @@
     border: 2px solid var(--coin);
     pointer-events: none;
   }
+
+  /* demo / score badge, pinned over the top-left of the cover */
+  .badge {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 45;
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    pointer-events: none;
+  }
+  .badge-demo {
+    color: var(--white);
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+  }
+  .badge-score {
+    color: var(--black);
+    background: var(--coin);
+  }
+
   .play {
     position: absolute;
     inset: 0;
@@ -266,47 +335,104 @@
     opacity: 1;
     transform: scale(1);
   }
+
   figcaption {
-    margin-top: 0.8rem;
-    font-size: 0.74rem;
+    margin-top: 0.9rem;
+  }
+  /* titles read as headings — larger + bold, not the old dim caption */
+  .title {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: 0.01em;
+    color: var(--white);
+    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.9);
+  }
+  .title.featured {
+    font-size: 1.3rem; /* the featured 404 tiles run a touch larger */
+  }
+  .sub {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.3rem;
+    font-size: 0.72rem;
     letter-spacing: 0.04em;
-    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.9);
+  }
+  /* EP / studio credit under the title — band/author-like */
+  .credit {
+    color: var(--coin);
+    font-weight: 600;
+  }
+  .vers {
+    color: var(--white);
+    opacity: 0.5;
   }
   .dim {
     color: var(--coin);
     opacity: 0.7;
   }
 
-  /* scores */
-  .scores {
-    margin-top: 4rem;
+  /* HMBM film score — poster snapped right, cues flowing after it */
+  .hmbm {
+    margin-top: 4.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    padding-top: 2rem;
   }
-  .scores h2 {
-    font-size: 0.95rem;
-    text-transform: uppercase;
-    letter-spacing: 0.22em;
+  .hmbm-poster {
+    position: relative;
+    float: right;
+    width: clamp(160px, 22vw, 260px);
+    aspect-ratio: 4 / 5;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 0 0 1.5rem 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    background: var(--black);
+  }
+  .hmbm-poster img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(1);
+    transition: filter 0.4s ease;
+  }
+  .hmbm:hover .hmbm-poster img {
+    filter: grayscale(0);
+  }
+  .hmbm-poster-ph {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: 3rem;
+    color: var(--coin);
+  }
+  .hmbm-title {
+    margin: 0.6rem 0 0.2rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.1;
+    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.9);
+  }
+  .hmbm-meta {
     margin: 0 0 1.2rem;
-  }
-  .scores h3 {
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.16em;
-    margin: 1.4rem 0 0.8rem;
+    font-size: 0.74rem;
+    letter-spacing: 0.06em;
+    color: var(--coin);
     opacity: 0.85;
   }
-  /* HMBM cue filmstrip — horizontal slider */
-  .cue-slider {
+  .cue-list {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.6rem;
-    overflow-x: auto;
-    padding-bottom: 0.6rem;
-    scroll-snap-type: x proximity;
-    scrollbar-width: thin;
-    scrollbar-color: var(--coin) transparent;
   }
   .cue-chip {
     flex: 0 0 auto;
-    scroll-snap-align: start;
     border: 1px solid color-mix(in srgb, var(--coin) 35%, transparent);
     border-radius: 7px;
     background: rgba(0, 0, 0, 0.4);
@@ -323,14 +449,6 @@
   .cue-chip.on {
     background: var(--coin);
     color: var(--black);
-  }
-  .skw {
-    margin-top: 0.5rem;
-    max-width: 560px;
-  }
-  .skw > :global(.stack),
-  .skw > :global(.stack:nth-child(-n + 3)) {
-    grid-column: span 6; /* sk+w: 2 across */
   }
 
   /* fixed black scrims — fade the scrolling grid into black at top + above player */
@@ -412,15 +530,22 @@
       padding: 3rem 1rem calc(var(--player-h) + 2rem);
     }
     .grid {
-      gap: 1.4rem 1rem;
+      gap: 1.8rem 1rem;
     }
     .grid > :global(.stack),
-    .grid > :global(.stack:nth-child(-n + 3)),
-    .skw > :global(.stack) {
+    .grid > :global(.stack:nth-child(-n + 3)) {
       grid-column: span 6; /* 2 across */
     }
-    .np {
-      min-width: 0;
+    .title,
+    .title.featured {
+      font-size: 1rem;
+    }
+    .hmbm-poster {
+      float: none;
+      display: block;
+      width: 60%;
+      max-width: 240px;
+      margin: 0 0 1.2rem;
     }
   }
 
