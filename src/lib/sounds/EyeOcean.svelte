@@ -20,8 +20,11 @@
     reactive?: boolean;
     /** true = fullscreen fixed backdrop; false = absolute, sized to the parent element. */
     fixed?: boolean;
+    /** Fixed backdrop only: a viewport point the pupils gaze toward (the playing
+     *  song's card center). null = idle drift. Ignored in card mode. */
+    gaze?: { x: number; y: number } | null;
   }
-  let { reactive = true, fixed = true }: Props = $props();
+  let { reactive = true, fixed = true, gaze = null }: Props = $props();
 
   let canvas: HTMLCanvasElement;
 
@@ -33,8 +36,9 @@
     let raf = 0;
     let flow = 0; // accumulated drift distance (noise units); persists across pauses
     let last = 0;
-    // pointer glance — the pupils lean toward the cursor (card mode only; see the
-    // listener block). Canvas-local coords, smoothed engage/disengage in draw().
+    // glance — the pupils lean toward a target: the cursor in card mode (see the
+    // listener block), or the `gaze` prop in fixed mode (the playing song's card).
+    // gtx/gty hold the target point; glance is the smoothed 0..1 engage strength.
     let ptrX = 0;
     let ptrY = 0;
     let ptrIn = false;
@@ -51,6 +55,8 @@
     let blobScale = 0;
     const jitterX: number[] = [];
     const jitterY: number[] = [];
+    const restX: number[] = []; // per-eye idle gaze direction (unit vector)
+    const restY: number[] = [];
 
     function applySize(width: number, height: number) {
       w = Math.max(1, Math.floor(width));
@@ -69,12 +75,18 @@
       // stable per-cell jitter so the grid doesn't read as a rigid grid
       jitterX.length = 0;
       jitterY.length = 0;
+      restX.length = 0;
+      restY.length = 0;
       for (let gy = 0; gy <= rows; gy++) {
         for (let gx = 0; gx <= cols; gx++) {
           const px = gx * cell;
           const py = gy * cell;
           jitterX.push((noise(px * 0.05, py * 0.05, 5.3) - 0.5) * cell * 0.45);
           jitterY.push((noise(py * 0.05, px * 0.05, 8.7) - 0.5) * cell * 0.45);
+          // each eye rests looking in its own stable random direction
+          const ang = noise(px * 0.07, py * 0.07, 13.1) * Math.PI * 2;
+          restX.push(Math.cos(ang));
+          restY.push(Math.sin(ang));
         }
       }
     }
@@ -142,16 +154,33 @@
       ctx.fillStyle = "#000";
       ctx.fillRect(0, 0, w, h);
 
-      // The eyes glance toward the cursor. ptrX/ptrY are already canvas-local, so
-      // there's no per-frame layout read; smooth the engage/disengage (dt-corrected
-      // like the drift) so pupils ease back to center when the pointer leaves.
-      let target = 0;
-      if (ptrIn && ptrX >= 0 && ptrX <= w && ptrY >= 0 && ptrY <= h) {
-        target = 1;
-        gtx = ptrX;
-        gty = ptrY;
+      // Desired aim + engage strength this frame: the fixed backdrop follows the
+      // `gaze` prop (the playing card); card mode follows the in-bounds cursor.
+      let dtx = gtx;
+      let dty = gty;
+      let strength = 0;
+      if (fixed && gaze) {
+        dtx = gaze.x;
+        dty = gaze.y;
+        strength = 1;
+      } else if (!fixed && ptrIn && ptrX >= 0 && ptrX <= w && ptrY >= 0 && ptrY <= h) {
+        dtx = ptrX;
+        dty = ptrY;
+        strength = 1;
       }
-      glance += (target - glance) * Math.min(1, dt * 8);
+      // Ease the aim point so the gaze glides between targets (song→song, or as the
+      // card scrolls) rather than snapping; snap only while disengaged so the next
+      // engage starts aimed right (the pupils are centered then anyway, via glance).
+      if (glance < 0.01) {
+        gtx = dtx;
+        gty = dty;
+      } else {
+        gtx += (dtx - gtx) * Math.min(1, dt * 5);
+        gty += (dty - gty) * Math.min(1, dt * 5);
+      }
+      // dt-corrected like the drift: ease the pupils toward the target, and back to
+      // each eye's idle direction when it clears.
+      glance += (strength - glance) * Math.min(1, dt * 8);
 
       let idx = 0;
       for (let gy = 0; gy <= rows; gy++) {
@@ -161,9 +190,10 @@
           // the drifting field value at this cell — a blob slides through as it rises
           const n = noise(px * blobScale + driftX, py * blobScale + driftY, 0);
           // precomputed per-cell jitter + a gentle lean that follows the current
-          const cx = px + jitterX[idx] + (n - 0.5) * cell * 0.3 * (1 + bass * 0.6);
-          const cy = py + jitterY[idx] + (n - 0.5) * cell * 0.2;
+          const ci = idx; // this cell's index into the precomputed arrays
           idx++;
+          const cx = px + jitterX[ci] + (n - 0.5) * cell * 0.3 * (1 + bass * 0.6);
+          const cy = py + jitterY[ci] + (n - 0.5) * cell * 0.2;
           const size = base * (0.32 + n * 1.0) * (1 + bass * 1.15);
           if (size < 1) continue;
 
@@ -173,16 +203,23 @@
           ctx.fill();
 
           const pupil = Math.max(1.5, size * 0.3 * (1 + amp * 0.6));
-          let ppx = cx;
-          let ppy = cy;
-          if (glance > 0.01) {
+          const maxReach = ((size - pupil) / 2) * 0.8; // keeps the pupil inside the eye
+          // idle: this eye looks in its own stable random direction
+          const rox = restX[ci] * maxReach * 0.7;
+          const roy = restY[ci] * maxReach * 0.7;
+          // engaged: aim toward the eased gaze/cursor point
+          let tox = rox;
+          let toy = roy;
+          if (glance > 0.001) {
             const ddx = gtx - cx;
             const ddy = gty - cy;
-            const dd = Math.hypot(ddx, ddy) || 1;
-            const reach = ((size - pupil) / 2) * 0.8 * glance; // pupil stays within the eye
-            ppx = cx + (ddx / dd) * reach;
-            ppy = cy + (ddy / dd) * reach;
+            const dd = Math.sqrt(ddx * ddx + ddy * ddy) || 1; // cheaper than hypot, per eye
+            tox = (ddx / dd) * maxReach;
+            toy = (ddy / dd) * maxReach;
           }
+          // blend idle → target by glance: eyes swing to the song, then ease home
+          const ppx = cx + rox + (tox - rox) * glance;
+          const ppy = cy + roy + (toy - roy) * glance;
           ctx.fillStyle = "#000";
           ctx.beginPath();
           ctx.arc(ppx, ppy, pupil / 2, 0, Math.PI * 2);

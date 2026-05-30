@@ -19,8 +19,11 @@
   // content at rest.
   let scrollY = $state(0);
   let atBottom = $state(false);
+  // viewport point the backdrop eyes gaze toward — the playing song's card center
+  let gaze = $state<{ x: number; y: number } | null>(null);
   const onScroll = () => {
     atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+    updateGaze(); // the playing card moves under the viewport as you scroll
   };
   $effect(() => {
     onScroll(); // initial state (e.g. a short page starts with the bottom scrim off)
@@ -96,6 +99,30 @@
 
   const isCurrent = (song: Song) => player.track?.slug === song.slug;
 
+  // a grid card (not an HMBM cue) is actively playing → eyes gaze + the rest recede.
+  // Pure derived so the fade reliably clears on pause/stop, independent of updateGaze.
+  const anyPlaying = $derived(player.playing && tiles.some((t) => isCurrent(t.song)));
+
+  // The fullscreen eyes gaze toward the playing song's card. Recompute its viewport
+  // center on play/pause/track-change and on scroll/resize — one layout read, not
+  // per animation frame. null when nothing in the grid is playing (a paused track,
+  // or an HMBM cue, which has no card), so the eyes relax to idle drift.
+  const updateGaze = () => {
+    const slug = player.playing ? player.track?.slug : undefined;
+    const el = slug ? document.querySelector<HTMLElement>(`[data-slug="${CSS.escape(slug)}"]`) : null;
+    if (!el) {
+      gaze = null;
+      return;
+    }
+    const r = el.getBoundingClientRect();
+    gaze = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  };
+  $effect(() => {
+    void player.track?.slug; // re-aim when the track or play state changes
+    void player.playing;
+    updateGaze();
+  });
+
   const fmt = (s: number) => {
     if (!s || !Number.isFinite(s)) return "0:00";
     return `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
@@ -111,7 +138,7 @@
 
 <svelte:window bind:scrollY onscroll={onScroll} onresize={onScroll} />
 
-<EyeOcean />
+<EyeOcean {gaze} />
 <div class="scrim scrim-top" class:show={scrollY > 8} aria-hidden="true"></div>
 <h1 class="brand">sounds</h1>
 
@@ -126,7 +153,7 @@
 {#snippet tile(t: Tile, featured: boolean)}
   {@const song = t.song}
   {@const active = isCurrent(song) && player.playing}
-  <figure class="stack" class:playing={active}>
+  <figure class="stack" class:playing={active} data-slug={song.slug}>
     <div class="deck">
       {#each song.versions as v, i (v.src)}
         <div class="card" style="--rot:{fan(i)}deg; z-index:{40 - i};">
@@ -156,7 +183,7 @@
 {/snippet}
 
 <main>
-  <section class="grid">
+  <section class="grid" class:dimmed={anyPlaying}>
     {#each tiles as t, i (t.song.slug)}{@render tile(t, i < 3)}{/each}
   </section>
 
@@ -253,9 +280,15 @@
   }
   .grid > :global(.stack) {
     grid-column: span 3;
+    transition: opacity 0.45s ease;
   }
   .grid > :global(.stack:nth-child(-n + 3)) {
     grid-column: span 4;
+  }
+  /* while a song plays, the other cards recede so the playing one — and the eyes
+     watching it — stand out */
+  .grid.dimmed > :global(.stack:not(.playing)) {
+    opacity: 0.13;
   }
 
   /* dub-stack tile */
