@@ -191,6 +191,8 @@
 
   main {
     --player-h: 66px;
+    /* dark backing that hugs caption text for WCAG contrast over the eye-ocean */
+    --caption-scrim: rgba(0, 0, 0, 0.9);
     position: relative;
     z-index: 1;
     max-width: 1600px;
@@ -339,15 +341,20 @@
   figcaption {
     margin-top: 0.9rem;
   }
-  /* titles read as headings — larger + bold, not the old dim caption */
+  /* Titles read as headings. They sit over the reactive eye-ocean (black→cream),
+     so a dark backing that hugs the text guarantees WCAG contrast regardless of
+     what's behind it — same idea as the homepage card-label pills. */
   .title {
-    display: block;
     font-size: 1.1rem;
     font-weight: 700;
-    line-height: 1.15;
+    line-height: 1.55;
     letter-spacing: 0.01em;
     color: var(--white);
-    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.9);
+    background: var(--caption-scrim);
+    padding: 0.08em 0.4em;
+    border-radius: 6px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
   }
   .title.featured {
     font-size: 1.3rem; /* the featured 404 tiles run a touch larger */
@@ -356,18 +363,24 @@
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    margin-top: 0.3rem;
+    margin-top: 0.5rem;
     font-size: 0.72rem;
     letter-spacing: 0.04em;
   }
-  /* EP / studio credit under the title — band/author-like */
+  /* EP / studio credit + version count — same dark backing for legibility */
+  .credit,
+  .vers {
+    background: var(--caption-scrim);
+    padding: 0.2em 0.5em;
+    border-radius: 5px;
+  }
   .credit {
     color: var(--coin);
     font-weight: 600;
   }
   .vers {
     color: var(--white);
-    opacity: 0.5;
+    opacity: 0.7;
   }
   .dim {
     color: var(--coin);
@@ -413,18 +426,26 @@
     color: var(--coin);
   }
   .hmbm-title {
+    display: block;
+    width: fit-content; /* hug the text for the backing, but stay block (stacks above meta) */
     margin: 0.6rem 0 0.2rem;
     font-size: 1.5rem;
     font-weight: 700;
-    line-height: 1.1;
-    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.9);
+    line-height: 1.2;
+    background: var(--caption-scrim);
+    padding: 0.05em 0.4em;
+    border-radius: 6px;
   }
   .hmbm-meta {
+    display: block;
+    width: fit-content; /* hug the text for the backing, but stay block */
     margin: 0 0 1.2rem;
     font-size: 0.74rem;
     letter-spacing: 0.06em;
     color: var(--coin);
-    opacity: 0.85;
+    background: var(--caption-scrim);
+    padding: 0.2em 0.5em;
+    border-radius: 5px;
   }
   .cue-list {
     display: flex;
@@ -435,7 +456,7 @@
     flex: 0 0 auto;
     border: 1px solid color-mix(in srgb, var(--coin) 35%, transparent);
     border-radius: 7px;
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--caption-scrim);
     color: var(--white);
     font: inherit;
     font-size: 0.72rem;
