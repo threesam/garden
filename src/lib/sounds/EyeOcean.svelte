@@ -33,9 +33,8 @@
     let raf = 0;
     let flow = 0; // accumulated drift distance (noise units); persists across pauses
     let last = 0;
-    // pointer glance — the pupils lean toward the cursor, in canvas-local coords
-    // with NO per-frame layout read: viewport clientX/Y for the fixed backdrop,
-    // the canvas's own offsetX/Y for the card (which also gates it to hover).
+    // pointer glance — the pupils lean toward the cursor (card mode only; see the
+    // listener block). Canvas-local coords, smoothed engage/disengage in draw().
     let ptrX = 0;
     let ptrY = 0;
     let ptrIn = false;
@@ -103,31 +102,28 @@
       }
     }
 
-    function onPointerMove(e: PointerEvent) {
-      if (fixed) {
-        ptrX = e.clientX; // the fixed canvas sits at viewport 0,0
-        ptrY = e.clientY;
-      } else {
-        ptrX = e.offsetX; // canvas-local — no getBoundingClientRect needed
+    // Cursor-tracking pupils — CARD MODE ONLY. On the fullscreen backdrop the grid
+    // is hundreds of eyes; re-aiming every pupil at the moving cursor each frame
+    // drops the frame rate, so there the eyes just drift (ptrIn stays false →
+    // glance decays to 0 → the per-eye offset below is skipped). The card is a
+    // handful of eyes, so tracking is cheap; offsetX/Y is canvas-local (no layout
+    // read) and listening on the canvas naturally gates to hover.
+    let detachPointer: (() => void) | undefined;
+    if (!fixed) {
+      const onPointerMove = (e: PointerEvent) => {
+        ptrX = e.offsetX;
         ptrY = e.offsetY;
-      }
-      ptrIn = true;
-    }
-    function onPointerGone() {
-      ptrIn = false;
-    }
-    // Fullscreen tracks the whole window (eyes glance even when the cursor is over
-    // page content); the card tracks only its own surface (natural hover gating).
-    const moveTarget: Window | HTMLCanvasElement = fixed ? window : canvas;
-    moveTarget.addEventListener("pointermove", onPointerMove as EventListener, { passive: true });
-    if (fixed) {
-      // pointerleave doesn't bubble, so listen on <html> (the element the cursor
-      // actually leaves when it exits the page) — a document-level listener would
-      // never fire. blur covers leaving via tab/window switch.
-      document.documentElement.addEventListener("pointerleave", onPointerGone);
-      window.addEventListener("blur", onPointerGone);
-    } else {
+        ptrIn = true;
+      };
+      const onPointerGone = () => {
+        ptrIn = false;
+      };
+      canvas.addEventListener("pointermove", onPointerMove, { passive: true });
       canvas.addEventListener("pointerleave", onPointerGone);
+      detachPointer = () => {
+        canvas.removeEventListener("pointermove", onPointerMove);
+        canvas.removeEventListener("pointerleave", onPointerGone);
+      };
     }
 
     function draw(playing: boolean, dt: number) {
@@ -213,13 +209,7 @@
     return () => {
       cancelAnimationFrame(raf);
       if (onResize) window.removeEventListener("resize", onResize);
-      moveTarget.removeEventListener("pointermove", onPointerMove as EventListener);
-      if (fixed) {
-        document.documentElement.removeEventListener("pointerleave", onPointerGone);
-        window.removeEventListener("blur", onPointerGone);
-      } else {
-        canvas.removeEventListener("pointerleave", onPointerGone);
-      }
+      detachPointer?.();
       ro?.disconnect();
     };
   });
