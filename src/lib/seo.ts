@@ -51,7 +51,7 @@ export const SITE_PAGES: Array<{ path: string; label: string; blurb: string }> =
     blurb: "Books, media, and the things that shape how Sam thinks.",
   },
   { path: "/thoughts", label: "thoughts", blurb: "Essays (work in progress)." },
-  { path: "/sounds", label: "sounds", blurb: "Music playground (coming soon)." },
+  { path: "/sounds", label: "sounds", blurb: "Original music — demos and scores." },
 ];
 
 export interface PageMeta {

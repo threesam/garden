@@ -18,9 +18,15 @@ async function freezePage(page: import('@playwright/test').Page) {
 // reflow when Playwright disables animations. For these we capture viewport only.
 const VIEWPORT_ONLY_LABELS = new Set(['self']);
 
+// Routes under active redesign whose prod baseline is intentionally stale.
+// /sounds is being rebuilt (functional Phase 1, unstyled) — we do NOT re-baseline
+// an interim look. Re-enable once it's styled (Phase 3) and prod is updated.
+const SKIP_VISUAL_PARITY = new Set(['sounds']);
+
 test.describe('visual parity', () => {
   for (const { path, label } of KEPT_ROUTES) {
     test(`${label} ${path}`, async ({ page }) => {
+      test.skip(SKIP_VISUAL_PARITY.has(label), `${label} under active redesign — re-enable after Phase 3 styling + prod update`);
       await freezePage(page);
       await page.goto(path, { waitUntil: 'networkidle' });
       await page.addStyleTag({
