@@ -116,13 +116,13 @@
 				{#if featured.coverUrl}
 					<img
 						bind:this={coverEl}
-						src={proxyImg(featured.coverUrl, 800)}
+						src={proxyImg(featured.coverUrl, 400)}
 						alt={featured.cleanTitle}
 						width={featured.coverW ?? 400}
 						height={featured.coverH ?? 600}
 						fetchpriority="high"
 						loading="eager"
-						style="--shadow-rgb: {shadowRgb}; max-width: {featured.coverW ?? 416}px;"
+						style="--shadow-rgb: {shadowRgb};"
 						class="block w-full max-w-[18rem] shadow-[0_20px_50px_-15px_rgb(var(--shadow-rgb)/0.45)] transition duration-700 group-hover/cover:-translate-y-1 group-hover/cover:-rotate-[1.3deg] group-hover/cover:shadow-[0_50px_120px_-20px_rgb(var(--shadow-rgb)/0.8)] md:max-h-[60dvh] md:w-[clamp(18rem,32vw,26rem)] md:max-w-none"
 					/>
 				{/if}
