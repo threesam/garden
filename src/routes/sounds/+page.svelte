@@ -105,6 +105,13 @@
     void player.playing;
     updateGaze();
   });
+  $effect(() => {
+    // also re-aim when the page reflows (late covers/posters/web font) with no
+    // scroll or resize event to catch it
+    const ro = new ResizeObserver(updateGaze);
+    ro.observe(document.body);
+    return () => ro.disconnect();
+  });
 
   const fmt = (s: number) => {
     if (!s || !Number.isFinite(s)) return "0:00";
@@ -399,7 +406,7 @@
     position: relative;
     z-index: 60; /* keep titles above neighbouring tiles' fanned/hovered cards */
   }
-  /* Titles read as headings. They sit over the reactive eye-ocean (black→cream),
+  /* Titles read as headings. They sit over the eye-ocean (black→cream),
      so a dark backing that hugs the text guarantees WCAG contrast regardless of
      what's behind it — same idea as the homepage card-label pills. */
   .title {

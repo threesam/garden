@@ -81,6 +81,7 @@
       jitterY.length = 0;
       restX.length = 0;
       restY.length = 0;
+      blinkIdx = -1; // cell count changed — cancel any pending blink (re-rolls next tick)
       for (let gy = 0; gy <= rows; gy++) {
         for (let gx = 0; gx <= cols; gx++) {
           const px = gx * cell;
