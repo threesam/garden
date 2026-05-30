@@ -13,12 +13,12 @@
 		| 'sounds';
 
 	const UNIQUE_ITEMS: { label: string; handle: ItemHandle; href: string }[] = [
+		{ label: 'self', handle: 'self', href: '/self' },
+		{ label: 'analog', handle: 'anything-but-analog', href: '/anything-but-analog' },
+		{ label: 'sounds', handle: 'sounds', href: '/sounds' },
 		{ label: 'D-ANA', handle: 'deana', href: '/deana' },
 		{ label: 'shelf', handle: 'shelf', href: '/shelf' },
-		{ label: 'analog', handle: 'anything-but-analog', href: '/anything-but-analog' },
 		{ label: 'thoughts', handle: 'thoughts', href: '/thoughts' },
-		{ label: 'sounds', handle: 'sounds', href: '/sounds' },
-		{ label: 'self', handle: 'self', href: '/self' },
 	];
 
 	const UNIQUE_COUNT = UNIQUE_ITEMS.length;
@@ -59,8 +59,10 @@
 			p = import('$lib/components/canvas/MetaballCanvas.svelte').then((m) => m.default);
 		} else if (handle === 'anything-but-analog') {
 			p = import('$lib/components/canvas/ParticleTextCanvas.svelte').then((m) => m.default);
-		} else if (handle === 'thoughts' || handle === 'sounds') {
+		} else if (handle === 'thoughts') {
 			p = import('$lib/components/art/SketchHost.svelte').then((m) => m.default);
+		} else if (handle === 'sounds') {
+			p = import('$lib/sounds/EyeOcean.svelte').then((m) => m.default);
 		} else {
 			p = Promise.resolve(undefined as unknown as Component<any>);
 		}
@@ -305,7 +307,7 @@
 							{:else if item.handle === 'thoughts'}
 								<CanvasComp slug="30" active interactive={false} />
 							{:else if item.handle === 'sounds'}
-								<CanvasComp slug="25" active />
+								<CanvasComp reactive={false} fixed={false} />
 							{/if}
 						{/await}
 					</div>
