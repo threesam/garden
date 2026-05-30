@@ -118,8 +118,8 @@
 						bind:this={coverEl}
 						src={proxyImg(featured.coverUrl, 400)}
 						alt={featured.cleanTitle}
-						width="400"
-						height="600"
+						width={featured.coverW ?? 400}
+						height={featured.coverH ?? 600}
 						fetchpriority="high"
 						loading="eager"
 						style="--shadow-rgb: {shadowRgb};"
