@@ -43,6 +43,11 @@ export function attach(node: HTMLAudioElement) {
     ctx = null;
     analyser = null;
     freq = null;
+    // player is module-level $state that survives the remount — reset playback
+    // state so the new (paused) element isn't shown as still-playing.
+    player.playing = false;
+    player.currentTime = 0;
+    player.duration = 0;
   }
   el?.pause(); // stop the outgoing element before we drop our reference to it
   el = node;
