@@ -14,6 +14,18 @@
     if (audioEl) attach(audioEl);
   });
 
+  // Scroll-aware edge fades: the top scrim fades in once scrolled off the top;
+  // the bottom scrim fades out once you reach the end — so neither edge clips
+  // content at rest.
+  let scrollY = $state(0);
+  let atBottom = $state(false);
+  const onScroll = () => {
+    atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+  };
+  $effect(() => {
+    onScroll(); // initial state (e.g. a short page starts with the bottom scrim off)
+  });
+
   const url = (p: string) => base + p; // manifest path → R2 origin (prod) / static (dev)
 
   // Hide a cover/poster that fails to load so the "?" placeholder behind it shows
@@ -92,9 +104,19 @@
   schema={collectionPageNode({ path: "/sounds", name: "sounds — threesam" })}
 />
 
+<svelte:window bind:scrollY onscroll={onScroll} onresize={onScroll} />
+
 <EyeOcean />
-<div class="scrim scrim-top" aria-hidden="true"></div>
+<div class="scrim scrim-top" class:show={scrollY > 8} aria-hidden="true"></div>
 <h1 class="brand">sounds</h1>
+
+{#snippet glyph(playing: boolean)}
+  {#if playing}
+    <span class="g-pause" aria-hidden="true"><span></span><span></span></span>
+  {:else}
+    <span class="g-play" aria-hidden="true"></span>
+  {/if}
+{/snippet}
 
 {#snippet tile(t: Tile, featured: boolean)}
   {@const song = t.song}
@@ -115,7 +137,7 @@
         aria-label={active ? `pause ${song.title}` : `play ${song.title}`}
         onclick={() => play(song)}
       >
-        {#if active}❚❚{:else}▶{/if}
+        {@render glyph(active)}
       </button>
     </div>
     <figcaption>
@@ -155,11 +177,11 @@
   </section>
 </main>
 
-<div class="scrim scrim-bottom" aria-hidden="true"></div>
+<div class="scrim scrim-bottom" class:hide={atBottom} aria-hidden="true"></div>
 
 <footer class="transport">
   <button class="tp-play" aria-label={player.playing ? "pause" : "play"} onclick={toggle} disabled={!player.track}>
-    {#if player.playing}❚❚{:else}▶{/if}
+    {@render glyph(player.playing)}
   </button>
   <div class="np">
     {#if player.track}
@@ -322,7 +344,7 @@
     border-radius: 50%;
     background: var(--coin);
     color: var(--black);
-    font-size: 0.95rem;
+    font-size: 1.4rem; /* drives the glyph size (in em) — larger arrow in the disc */
     display: grid;
     place-items: center;
     cursor: pointer;
@@ -338,8 +360,32 @@
     transform: scale(1);
   }
 
+  /* play / pause glyphs — sized in em to the coin disc's font-size, centered by
+     the disc's grid. The pause is the nav coin's bars, vertical (its hamburger
+     glyph rotated 90°). */
+  .g-play {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0.6em 0 0.6em 1em;
+    border-color: transparent transparent transparent currentColor;
+    margin-left: 0.16em; /* optical centering of the triangle */
+  }
+  .g-pause {
+    display: flex;
+    gap: 0.24em;
+  }
+  .g-pause span {
+    width: 0.2em;
+    height: 0.92em;
+    background: currentColor;
+    border-radius: 1px;
+  }
+
   figcaption {
     margin-top: 0.9rem;
+    position: relative;
+    z-index: 60; /* keep titles above neighbouring tiles' fanned/hovered cards */
   }
   /* Titles read as headings. They sit over the reactive eye-ocean (black→cream),
      so a dark backing that hugs the text guarantees WCAG contrast regardless of
@@ -484,11 +530,20 @@
     top: 0;
     height: 20vh;
     background: linear-gradient(to bottom, #000 12%, transparent);
+    opacity: 0; /* hidden at rest so the first row isn't faded; fades in on scroll */
+    transition: opacity 0.35s ease;
+  }
+  .scrim-top.show {
+    opacity: 1;
   }
   .scrim-bottom {
     bottom: 0; /* runs under the transport — no gap above the player */
     height: 30vh;
     background: linear-gradient(to top, #000 70px, transparent);
+    transition: opacity 0.35s ease;
+  }
+  .scrim-bottom.hide {
+    opacity: 0; /* fades out at the end so the last row isn't clipped */
   }
 
   /* fixed transport */
@@ -516,7 +571,9 @@
     border-radius: 50%;
     background: var(--coin);
     color: var(--black);
-    font-size: 0.8rem;
+    font-size: 1.1rem; /* drives the glyph size (in em) */
+    display: grid;
+    place-items: center;
     cursor: pointer;
   }
   .tp-play:disabled {

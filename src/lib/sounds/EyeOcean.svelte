@@ -33,6 +33,13 @@
     let raf = 0;
     let flow = 0; // accumulated drift distance (noise units); persists across pauses
     let last = 0;
+    // pointer glance — the pupils lean toward the cursor
+    let ptrClientX = 0;
+    let ptrClientY = 0;
+    let ptrIn = false;
+    let gtx = 0;
+    let gty = 0;
+    let glance = 0; // 0..1 smoothed glance strength
 
     // Size-derived constants + per-cell jitter are frame-invariant — computed
     // once per resize (below) instead of every frame in draw().
@@ -94,6 +101,17 @@
       }
     }
 
+    function onPointerMove(e: PointerEvent) {
+      ptrClientX = e.clientX;
+      ptrClientY = e.clientY;
+      ptrIn = true;
+    }
+    function onPointerLeaveWin() {
+      ptrIn = false;
+    }
+    window.addEventListener("pointermove", onPointerMove, { passive: true });
+    document.addEventListener("pointerleave", onPointerLeaveWin);
+
     function draw(playing: boolean, dt: number) {
       if (w < 2 || h < 2) return; // not sized yet (card mode can mount before layout); the RO will size us
       const react = playing ? 1 : 0;
@@ -109,6 +127,26 @@
 
       ctx.fillStyle = "#000";
       ctx.fillRect(0, 0, w, h);
+
+      // The eyes glance toward the cursor. Track its canvas-local position (the
+      // viewport for the fixed backdrop, the card box otherwise) and smooth the
+      // engage/disengage so pupils ease back to center when the pointer leaves.
+      let target = 0;
+      if (ptrIn) {
+        let lx = ptrClientX;
+        let ly = ptrClientY;
+        if (!fixed) {
+          const r = canvas.getBoundingClientRect();
+          lx -= r.left;
+          ly -= r.top;
+        }
+        if (lx >= 0 && lx <= w && ly >= 0 && ly <= h) {
+          target = 1;
+          gtx = lx;
+          gty = ly;
+        }
+      }
+      glance += (target - glance) * 0.12;
 
       let idx = 0;
       for (let gy = 0; gy <= rows; gy++) {
@@ -130,9 +168,19 @@
           ctx.fill();
 
           const pupil = Math.max(1.5, size * 0.3 * (1 + amp * 0.6));
+          let ppx = cx;
+          let ppy = cy;
+          if (glance > 0.01) {
+            const ddx = gtx - cx;
+            const ddy = gty - cy;
+            const dd = Math.hypot(ddx, ddy) || 1;
+            const reach = ((size - pupil) / 2) * 0.8 * glance; // pupil stays within the eye
+            ppx = cx + (ddx / dd) * reach;
+            ppy = cy + (ddy / dd) * reach;
+          }
           ctx.fillStyle = "#000";
           ctx.beginPath();
-          ctx.arc(cx, cy, pupil / 2, 0, Math.PI * 2);
+          ctx.arc(ppx, ppy, pupil / 2, 0, Math.PI * 2);
           ctx.fill();
         }
       }
@@ -156,6 +204,8 @@
     return () => {
       cancelAnimationFrame(raf);
       if (onResize) window.removeEventListener("resize", onResize);
+      window.removeEventListener("pointermove", onPointerMove);
+      document.removeEventListener("pointerleave", onPointerLeaveWin);
       ro?.disconnect();
     };
   });
