@@ -19,9 +19,9 @@ async function freezePage(page: import('@playwright/test').Page) {
 const VIEWPORT_ONLY_LABELS = new Set(['self']);
 
 // Routes under active redesign whose prod baseline is intentionally stale.
-// /sounds is being rebuilt (functional Phase 1, unstyled) — we do NOT re-baseline
-// an interim look. Re-enable once it's styled (Phase 3) and prod is updated.
-const SKIP_VISUAL_PARITY = new Set(['sounds']);
+// Empty: /sounds is shipped and re-baselined against prod (its canvas backdrop is
+// masked below, so the eye motion doesn't destabilize the shot).
+const SKIP_VISUAL_PARITY = new Set<string>([]);
 
 test.describe('visual parity', () => {
   for (const { path, label } of KEPT_ROUTES) {
