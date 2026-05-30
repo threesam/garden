@@ -50,6 +50,7 @@
 
 <EyeOcean />
 <div class="scrim scrim-top" aria-hidden="true"></div>
+<h1 class="brand">sounds</h1>
 
 {#snippet stack(song: Song)}
   {@const active = isCurrent(song) && player.playing}
@@ -80,8 +81,6 @@
 {/snippet}
 
 <main>
-  <h1>sounds</h1>
-
   <section class="grid">
     {#each demos as s (s.slug)}{@render stack(s)}{/each}
   </section>
@@ -136,7 +135,7 @@
 
 <style>
   :global(body) {
-    background: var(--black);
+    background: #000;
   }
 
   main {
@@ -149,12 +148,19 @@
     color: var(--white);
     font-family: "Recursive Mono", ui-monospace, monospace;
   }
-  h1 {
-    margin: 0 0 2rem;
-    font-size: clamp(1.2rem, 2.4vw, 1.8rem);
+  /* title pinned top-left, inline with the nav coin, above the top scrim */
+  .brand {
+    position: fixed;
+    top: 1.25rem;
+    left: 1.6rem;
+    z-index: 10;
+    margin: 0;
+    font-family: "Recursive Mono", ui-monospace, monospace;
+    font-size: clamp(1rem, 2vw, 1.4rem);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.35em;
+    color: var(--white);
     text-shadow: 0 1px 14px rgba(0, 0, 0, 0.85);
   }
 
@@ -329,12 +335,12 @@
   .scrim-top {
     top: 0;
     height: 20vh;
-    background: linear-gradient(to bottom, var(--black) 12%, transparent);
+    background: linear-gradient(to bottom, #000 12%, transparent);
   }
   .scrim-bottom {
-    bottom: 66px; /* sits just above the transport */
-    height: 22vh;
-    background: linear-gradient(to top, var(--black) 14%, transparent);
+    bottom: 0; /* runs under the transport — no gap above the player */
+    height: 30vh;
+    background: linear-gradient(to top, #000 70px, transparent);
   }
 
   /* fixed transport */
