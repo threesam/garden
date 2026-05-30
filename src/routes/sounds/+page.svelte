@@ -191,6 +191,8 @@
 
   main {
     --player-h: 66px;
+    /* dark backing that hugs caption text for WCAG contrast over the eye-ocean */
+    --caption-scrim: rgba(0, 0, 0, 0.9);
     position: relative;
     z-index: 1;
     max-width: 1600px;
@@ -348,7 +350,7 @@
     line-height: 1.55;
     letter-spacing: 0.01em;
     color: var(--white);
-    background: rgba(0, 0, 0, 0.9);
+    background: var(--caption-scrim);
     padding: 0.08em 0.4em;
     border-radius: 6px;
     box-decoration-break: clone;
@@ -368,7 +370,7 @@
   /* EP / studio credit + version count — same dark backing for legibility */
   .credit,
   .vers {
-    background: rgba(0, 0, 0, 0.9);
+    background: var(--caption-scrim);
     padding: 0.2em 0.5em;
     border-radius: 5px;
   }
@@ -424,22 +426,24 @@
     color: var(--coin);
   }
   .hmbm-title {
-    display: inline-block;
+    display: block;
+    width: fit-content; /* hug the text for the backing, but stay block (stacks above meta) */
     margin: 0.6rem 0 0.2rem;
     font-size: 1.5rem;
     font-weight: 700;
     line-height: 1.2;
-    background: rgba(0, 0, 0, 0.9);
+    background: var(--caption-scrim);
     padding: 0.05em 0.4em;
     border-radius: 6px;
   }
   .hmbm-meta {
-    display: inline-block;
+    display: block;
+    width: fit-content; /* hug the text for the backing, but stay block */
     margin: 0 0 1.2rem;
     font-size: 0.74rem;
     letter-spacing: 0.06em;
     color: var(--coin);
-    background: rgba(0, 0, 0, 0.9);
+    background: var(--caption-scrim);
     padding: 0.2em 0.5em;
     border-radius: 5px;
   }
@@ -452,7 +456,7 @@
     flex: 0 0 auto;
     border: 1px solid color-mix(in srgb, var(--coin) 35%, transparent);
     border-radius: 7px;
-    background: rgba(0, 0, 0, 0.9);
+    background: var(--caption-scrim);
     color: var(--white);
     font: inherit;
     font-size: 0.72rem;
