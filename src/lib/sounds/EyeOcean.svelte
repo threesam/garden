@@ -48,17 +48,23 @@
       onResize();
       window.addEventListener("resize", onResize);
     } else {
-      const host = canvas.parentElement ?? canvas;
-      ro = new ResizeObserver(() => {
+      // Card mode: track the parent box (the gallery card's fill wrapper). The
+      // RO fires once on observe() with the initial size, so the canvas catches
+      // up even if layout isn't resolved at mount.
+      const host = canvas.parentElement;
+      if (host) {
+        ro = new ResizeObserver(() => {
+          const r = host.getBoundingClientRect();
+          applySize(r.width, r.height);
+        });
+        ro.observe(host);
         const r = host.getBoundingClientRect();
         applySize(r.width, r.height);
-      });
-      ro.observe(host);
-      const r = host.getBoundingClientRect();
-      applySize(r.width, r.height);
+      }
     }
 
     function draw(playing: boolean) {
+      if (w < 2 || h < 2) return; // not sized yet (card mode can mount before layout); the RO will size us
       const react = playing ? 1 : 0;
       const bass = player.bass * react;
       const treble = player.treble * react;
