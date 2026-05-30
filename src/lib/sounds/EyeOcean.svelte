@@ -55,6 +55,8 @@
     let blobScale = 0;
     const jitterX: number[] = [];
     const jitterY: number[] = [];
+    const restX: number[] = []; // per-eye idle gaze direction (unit vector)
+    const restY: number[] = [];
 
     function applySize(width: number, height: number) {
       w = Math.max(1, Math.floor(width));
@@ -73,12 +75,18 @@
       // stable per-cell jitter so the grid doesn't read as a rigid grid
       jitterX.length = 0;
       jitterY.length = 0;
+      restX.length = 0;
+      restY.length = 0;
       for (let gy = 0; gy <= rows; gy++) {
         for (let gx = 0; gx <= cols; gx++) {
           const px = gx * cell;
           const py = gy * cell;
           jitterX.push((noise(px * 0.05, py * 0.05, 5.3) - 0.5) * cell * 0.45);
           jitterY.push((noise(py * 0.05, px * 0.05, 8.7) - 0.5) * cell * 0.45);
+          // each eye rests looking in its own stable random direction
+          const ang = noise(px * 0.07, py * 0.07, 13.1) * Math.PI * 2;
+          restX.push(Math.cos(ang));
+          restY.push(Math.sin(ang));
         }
       }
     }
@@ -146,20 +154,33 @@
       ctx.fillStyle = "#000";
       ctx.fillRect(0, 0, w, h);
 
-      // Aim the glance: the fixed backdrop follows the `gaze` prop (the playing
-      // card); card mode follows the in-bounds cursor. dt-corrected easing (like
-      // the drift) eases the pupils in, and back to center when the target clears.
-      let target = 0;
+      // Desired aim + engage strength this frame: the fixed backdrop follows the
+      // `gaze` prop (the playing card); card mode follows the in-bounds cursor.
+      let dtx = gtx;
+      let dty = gty;
+      let strength = 0;
       if (fixed && gaze) {
-        target = 1;
-        gtx = gaze.x;
-        gty = gaze.y;
+        dtx = gaze.x;
+        dty = gaze.y;
+        strength = 1;
       } else if (!fixed && ptrIn && ptrX >= 0 && ptrX <= w && ptrY >= 0 && ptrY <= h) {
-        target = 1;
-        gtx = ptrX;
-        gty = ptrY;
+        dtx = ptrX;
+        dty = ptrY;
+        strength = 1;
       }
-      glance += (target - glance) * Math.min(1, dt * 8);
+      // Ease the aim point so the gaze glides between targets (song→song, or as the
+      // card scrolls) rather than snapping; snap only while disengaged so the next
+      // engage starts aimed right (the pupils are centered then anyway, via glance).
+      if (glance < 0.01) {
+        gtx = dtx;
+        gty = dty;
+      } else {
+        gtx += (dtx - gtx) * Math.min(1, dt * 5);
+        gty += (dty - gty) * Math.min(1, dt * 5);
+      }
+      // dt-corrected like the drift: ease the pupils toward the target, and back to
+      // each eye's idle direction when it clears.
+      glance += (strength - glance) * Math.min(1, dt * 8);
 
       let idx = 0;
       for (let gy = 0; gy <= rows; gy++) {
@@ -169,9 +190,10 @@
           // the drifting field value at this cell — a blob slides through as it rises
           const n = noise(px * blobScale + driftX, py * blobScale + driftY, 0);
           // precomputed per-cell jitter + a gentle lean that follows the current
-          const cx = px + jitterX[idx] + (n - 0.5) * cell * 0.3 * (1 + bass * 0.6);
-          const cy = py + jitterY[idx] + (n - 0.5) * cell * 0.2;
+          const ci = idx; // this cell's index into the precomputed arrays
           idx++;
+          const cx = px + jitterX[ci] + (n - 0.5) * cell * 0.3 * (1 + bass * 0.6);
+          const cy = py + jitterY[ci] + (n - 0.5) * cell * 0.2;
           const size = base * (0.32 + n * 1.0) * (1 + bass * 1.15);
           if (size < 1) continue;
 
@@ -181,16 +203,23 @@
           ctx.fill();
 
           const pupil = Math.max(1.5, size * 0.3 * (1 + amp * 0.6));
-          let ppx = cx;
-          let ppy = cy;
-          if (glance > 0.01) {
+          const maxReach = ((size - pupil) / 2) * 0.8; // keeps the pupil inside the eye
+          // idle: this eye looks in its own stable random direction
+          const rox = restX[ci] * maxReach * 0.7;
+          const roy = restY[ci] * maxReach * 0.7;
+          // engaged: aim toward the eased gaze/cursor point
+          let tox = rox;
+          let toy = roy;
+          if (glance > 0.001) {
             const ddx = gtx - cx;
             const ddy = gty - cy;
-            const dd = Math.sqrt(ddx * ddx + ddy * ddy) || 1; // cheaper than hypot, runs per eye
-            const reach = ((size - pupil) / 2) * 0.8 * glance; // pupil stays within the eye
-            ppx = cx + (ddx / dd) * reach;
-            ppy = cy + (ddy / dd) * reach;
+            const dd = Math.sqrt(ddx * ddx + ddy * ddy) || 1; // cheaper than hypot, per eye
+            tox = (ddx / dd) * maxReach;
+            toy = (ddy / dd) * maxReach;
           }
+          // blend idle → target by glance: eyes swing to the song, then ease home
+          const ppx = cx + rox + (tox - rox) * glance;
+          const ppy = cy + roy + (toy - roy) * glance;
           ctx.fillStyle = "#000";
           ctx.beginPath();
           ctx.arc(ppx, ppy, pupil / 2, 0, Math.PI * 2);

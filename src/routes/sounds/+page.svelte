@@ -99,6 +99,10 @@
 
   const isCurrent = (song: Song) => player.track?.slug === song.slug;
 
+  // a grid card (not an HMBM cue) is actively playing → eyes gaze + the rest recede.
+  // Pure derived so the fade reliably clears on pause/stop, independent of updateGaze.
+  const anyPlaying = $derived(player.playing && tiles.some((t) => isCurrent(t.song)));
+
   // The fullscreen eyes gaze toward the playing song's card. Recompute its viewport
   // center on play/pause/track-change and on scroll/resize — one layout read, not
   // per animation frame. null when nothing in the grid is playing (a paused track,
@@ -179,7 +183,7 @@
 {/snippet}
 
 <main>
-  <section class="grid" class:dimmed={!!gaze}>
+  <section class="grid" class:dimmed={anyPlaying}>
     {#each tiles as t, i (t.song.slug)}{@render tile(t, i < 3)}{/each}
   </section>
 
@@ -284,7 +288,7 @@
   /* while a song plays, the other cards recede so the playing one — and the eyes
      watching it — stand out */
   .grid.dimmed > :global(.stack:not(.playing)) {
-    opacity: 0.22;
+    opacity: 0.13;
   }
 
   /* dub-stack tile */
