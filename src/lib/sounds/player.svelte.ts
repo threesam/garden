@@ -58,16 +58,20 @@ function loop() {
 async function start() {
   if (!el) return;
   const myGen = ++gen; // claim this start; a newer playTrack/toggle supersedes it
-  try {
-    await el.play();
-  } catch {
-    if (myGen === gen) player.playing = false; // only the latest attempt reflects failure
-    return;
-  }
-  if (myGen !== gen) return; // a newer track took over while we awaited play()
+  // Flip to playing optimistically — BEFORE awaiting play() — so the grid's
+  // dim/ring opacity transitions begin on the click, not when the audio finishes
+  // loading. On a cold track the play() promise can stay pending for hundreds of
+  // ms (R2 fetch); resolving it there made the fade-out start late and snap,
+  // while the synchronous pause faded cleanly (the in/out asymmetry). Starting
+  // the fade now lets it run during the load and complete before playback begins.
   player.playing = true;
   lastUi = 0; // first loop tick writes time/duration immediately (no stale flash on track switch)
   if (!raf) loop();
+  try {
+    await el.play();
+  } catch {
+    if (myGen === gen) player.playing = false; // blocked/interrupted, and still the latest attempt
+  }
 }
 
 export async function playTrack(t: Track) {
