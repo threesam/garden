@@ -97,32 +97,33 @@
         onmouseleave={leaveCard}
         class="group relative block transition-transform duration-700 hover:[transform:rotate(-1.3deg)]"
       >
-        <!-- mobile: polaroid (cream card, image padded matching the text padding below) -->
-        <div class="bg-white p-4 md:hidden">
-          <div class="aspect-[4/5] overflow-hidden">
-            <img
-              src={card.img}
-              alt=""
-              loading="lazy"
-              class="h-full w-full object-cover [image-rendering:pixelated]"
-            />
-          </div>
-          <div class="mt-4">
+        <!-- mobile: image-fills card, bottom-left white title + description over a dark→transparent fade -->
+        <div class="relative aspect-[4/5] overflow-hidden rounded-2xl md:hidden">
+          <img
+            src={card.img}
+            alt=""
+            loading="lazy"
+            class="absolute inset-0 h-full w-full object-cover [image-rendering:pixelated]"
+          />
+          <div
+            class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent"
+          ></div>
+          <div class="absolute right-4 bottom-4 left-4">
             <span
-              class="block font-mono text-xl font-bold uppercase tracking-[0.3em] text-black"
+              class="block font-mono text-xl font-bold uppercase tracking-[0.3em] text-white"
             >
               {card.title}
             </span>
             <p
-              class="mt-2 font-mono text-xs uppercase tracking-[0.15em] text-black"
+              class="mt-1.5 font-mono text-xs uppercase tracking-[0.15em] text-white"
             >
               {card.description}
             </p>
           </div>
         </div>
 
-        <!-- desktop: image-only front; hover flips to a coin back with title + description -->
-        <div class="hidden aspect-[4/5] [perspective:1200px] md:block">
+        <!-- desktop: image-only front; hover flips to a (white→coin) back with title + description -->
+        <div class="hidden aspect-[4/5] overflow-hidden rounded-2xl [perspective:1200px] md:block">
           <div
             class="relative h-full w-full transition-transform duration-700 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]"
           >
