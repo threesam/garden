@@ -65,9 +65,11 @@
             class="h-full w-full object-cover [image-rendering:pixelated]"
           />
         </div>
-        <div class="bg-[var(--white)]/90 px-4 py-4 md:px-5 md:py-5">
+        <div
+          class="bg-[var(--white)]/90 px-4 py-4 transition-colors duration-700 group-hover:bg-[var(--coin)] md:px-5 md:py-5"
+        >
           <span
-            class="block font-mono text-xl font-bold uppercase tracking-[0.3em] text-[var(--black)] transition-colors duration-300 group-hover:text-[var(--coin)] md:text-2xl"
+            class="block font-mono text-xl font-bold uppercase tracking-[0.3em] text-[var(--black)] md:text-2xl"
           >
             {card.title}
           </span>
