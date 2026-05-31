@@ -4,18 +4,21 @@
   import { sketchMode } from "$lib/art/sketch-mode";
   import { blogNode } from "$lib/seo";
 
-  // The drain only begins after the card's 3D flip is fully painted.
-  // Instead of guessing the duration we listen for the actual
-  // `transitionend` of the flip's transform — guarantees we never start
-  // mid-flip, even if the browser delays the first frame.
+  // Hover triggers two parallel 3s transitions:
+  //   - the card back face fades bg-white -> bg-coin via group-hover CSS
+  //   - the sketch's currentSlow ramps 0 -> 1 (day30 lerps at 1/180 per
+  //     frame, also 3s at 60fps)
+  // Net effect: bodies release color and accelerate while the card
+  // absorbs it, both on the same timeline.
   //
-  // hoverCount survives mouseleave-A → mouseenter-B; the microtask
-  // deferral on leave catches the same handoff so we don't tear the
-  // pending drain down between adjacent cards.
+  // hoverCount survives mouseleave-A → mouseenter-B between adjacent
+  // cards; the microtask deferral on leave catches the same handoff so
+  // we don't tear sketchMode.slow down for one frame.
   let hoverCount = 0;
 
   function enterCard() {
     hoverCount++;
+    sketchMode.slow = 1;
   }
   function leaveCard() {
     hoverCount--;
@@ -26,14 +29,6 @@
         sketchMode.slow = 0;
       });
     }
-  }
-  function onSectionTransitionEnd(e: TransitionEvent) {
-    // Only the card outer + inner flip transition `transform`. Both end
-    // at the same paint; the first one to fire is enough.
-    if (e.propertyName !== "transform") return;
-    if (hoverCount === 0) return;
-    if (sketchMode.slow === 1) return;
-    sketchMode.slow = 1;
   }
 
   const cards = [
@@ -83,7 +78,6 @@
     </h1>
   </header>
   <section
-    ontransitionend={onSectionTransitionEnd}
     class="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-6 md:grid-cols-3 md:gap-9"
   >
     {#each cards as card (card.href)}
@@ -131,7 +125,7 @@
               />
             </div>
             <div
-              class="absolute inset-0 flex flex-col justify-center bg-coin p-6 [backface-visibility:hidden] [transform:rotateY(180deg)]"
+              class="absolute inset-0 flex flex-col justify-center bg-white p-6 transition-colors duration-[3000ms] group-hover:bg-coin [backface-visibility:hidden] [transform:rotateY(180deg)]"
             >
               <span
                 class="block font-mono text-2xl font-bold uppercase tracking-[0.3em] text-black"

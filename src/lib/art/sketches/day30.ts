@@ -120,18 +120,17 @@ export const day30: Sketch = {
     }
 
     // Slow/color mode: when a /thoughts card is hovered, `sketchMode.slow`
-    // flips to 1 *after* the card flip finishes (page schedules it). We
-    // ramp `currentSlow` linearly toward the target at a rate of 1/120
-    // per frame so the full traversal lasts ~2s at 60fps — the "drain
-    // color from bodies into card" tween the design calls for. At
-    // currentSlow=0 walkers are coin-tinted (per-walker brightness
-    // wk.color/255 scales the coin channels — keeps the gold textured)
-    // and crawl at 25% of their base speed: idle reads as a sluggish
-    // drift. At currentSlow=1 they snap to the brand --white and burst
-    // to 3× base — bodies "release" their color and accelerate as the
-    // card absorbs it.
+    // flips to 1. We ramp `currentSlow` linearly at 1/180 per frame so
+    // the full traversal lasts exactly 3s at 60fps — the same timeline
+    // as the card back face's `transition-colors duration-[3000ms]`.
+    // The two run in parallel: bodies fade gold → --white while the
+    // card fades white → coin. At currentSlow=0 walkers are coin-tinted
+    // (per-walker brightness wk.color/255 scales the channels — keeps
+    // the gold textured) and crawl at 25% of base speed: idle reads as
+    // a sluggish drift. At currentSlow=1 they snap to brand --white and
+    // burst to 2× base.
     let currentSlow = 0;
-    const SLOW_RATE = 1 / 120;
+    const SLOW_RATE = 1 / 180;
     // --coin = #e8a317
     const COIN_R = 232;
     const COIN_G = 163;
@@ -235,7 +234,7 @@ export const day30: Sketch = {
         } else if (sketchMode.slow < currentSlow) {
           currentSlow = Math.max(sketchMode.slow, currentSlow - SLOW_RATE);
         }
-        const speedMul = 0.25 + 2.75 * currentSlow;
+        const speedMul = 0.25 + 1.75 * currentSlow;
 
         // Full-canvas alpha-blended fill is the single most expensive
         // op in this sketch (measured ~2ms on a desktop 2880×1800 DPR-2
