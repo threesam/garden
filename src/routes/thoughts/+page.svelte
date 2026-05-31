@@ -55,7 +55,7 @@
     {#each cards as card (card.href)}
       <a
         href={card.href}
-        class="group relative block border-2 border-[var(--black)] transition-[border-color,transform] duration-700 hover:border-[var(--coin)] hover:[transform:rotate(-1.3deg)]"
+        class="group relative block border-[3px] border-transparent transition-[border-color,transform] duration-700 hover:border-[var(--coin)] hover:[transform:rotate(-1.3deg)]"
       >
         <div class="aspect-[4/5] overflow-hidden">
           <img
@@ -65,14 +65,14 @@
             class="h-full w-full object-cover [image-rendering:pixelated]"
           />
         </div>
-        <div class="bg-black/70 px-4 py-4 md:px-5 md:py-5">
+        <div class="bg-[var(--white)]/90 px-4 py-4 md:px-5 md:py-5">
           <span
-            class="block font-mono text-xl font-bold uppercase tracking-[0.3em] text-[var(--white)] transition-colors duration-300 group-hover:text-[var(--coin)] md:text-2xl"
+            class="block font-mono text-xl font-bold uppercase tracking-[0.3em] text-[var(--black)] transition-colors duration-300 group-hover:text-[var(--coin)] md:text-2xl"
           >
             {card.title}
           </span>
           <p
-            class="mt-2 font-mono text-xs uppercase tracking-[0.15em] text-zinc-300 md:text-sm"
+            class="mt-2 font-mono text-xs uppercase tracking-[0.15em] text-[var(--black)] md:text-sm"
           >
             {card.description}
           </p>
