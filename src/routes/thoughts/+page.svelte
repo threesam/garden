@@ -4,17 +4,27 @@
   import { sketchMode } from "$lib/art/sketch-mode";
   import { blogNode } from "$lib/seo";
 
+  // /thoughts opts the bg sketch into its tinted mode for the duration
+  // of this route. The homepage gallery leaves `active` off so its
+  // day30 card keeps the original neutral grays.
+  //
   // Hover triggers two parallel 3s transitions:
   //   - the card back face fades bg-white -> bg-coin via group-hover CSS
   //   - the sketch's currentSlow ramps 0 -> 1 (day30 lerps at 1/180 per
   //     frame, also 3s at 60fps)
-  // Net effect: bodies release color and accelerate while the card
-  // absorbs it, both on the same timeline.
   //
   // hoverCount survives mouseleave-A → mouseenter-B between adjacent
   // cards; the microtask deferral on leave catches the same handoff so
   // we don't tear sketchMode.slow down for one frame.
   let hoverCount = 0;
+
+  $effect(() => {
+    sketchMode.active = true;
+    return () => {
+      sketchMode.active = false;
+      sketchMode.slow = 0;
+    };
+  });
 
   function enterCard() {
     hoverCount++;
