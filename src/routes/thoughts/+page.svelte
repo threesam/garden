@@ -76,27 +76,58 @@
         onmouseleave={leaveCard}
         class="group relative block border-[3px] border-transparent transition-[border-color,transform] duration-700 hover:border-coin hover:[transform:rotate(-1.3deg)]"
       >
-        <div class="aspect-[4/5] overflow-hidden">
-          <img
-            src={card.img}
-            alt=""
-            loading="lazy"
-            class="h-full w-full object-cover [image-rendering:pixelated]"
-          />
+        <!-- mobile: polaroid (cream card, image padded matching the text padding below) -->
+        <div class="bg-white p-4 md:hidden">
+          <div class="aspect-[4/5] overflow-hidden">
+            <img
+              src={card.img}
+              alt=""
+              loading="lazy"
+              class="h-full w-full object-cover [image-rendering:pixelated]"
+            />
+          </div>
+          <div class="mt-4">
+            <span
+              class="block font-mono text-xl font-bold uppercase tracking-[0.3em] text-black"
+            >
+              {card.title}
+            </span>
+            <p
+              class="mt-2 font-mono text-xs uppercase tracking-[0.15em] text-black"
+            >
+              {card.description}
+            </p>
+          </div>
         </div>
-        <div
-          class="bg-white/90 px-4 py-4 transition-colors duration-700 group-hover:bg-coin md:px-5 md:py-5"
-        >
-          <span
-            class="block font-mono text-xl font-bold uppercase tracking-[0.3em] text-black md:text-2xl"
+
+        <!-- desktop: image-only front; hover flips to a coin back with title + description -->
+        <div class="hidden aspect-[4/5] [perspective:1200px] md:block">
+          <div
+            class="relative h-full w-full transition-transform duration-700 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]"
           >
-            {card.title}
-          </span>
-          <p
-            class="mt-2 font-mono text-xs uppercase tracking-[0.15em] text-black md:text-sm"
-          >
-            {card.description}
-          </p>
+            <div class="absolute inset-0 overflow-hidden [backface-visibility:hidden]">
+              <img
+                src={card.img}
+                alt=""
+                loading="lazy"
+                class="h-full w-full object-cover [image-rendering:pixelated]"
+              />
+            </div>
+            <div
+              class="absolute inset-0 flex flex-col justify-center bg-coin p-6 [backface-visibility:hidden] [transform:rotateY(180deg)]"
+            >
+              <span
+                class="block font-mono text-2xl font-bold uppercase tracking-[0.3em] text-black"
+              >
+                {card.title}
+              </span>
+              <p
+                class="mt-3 font-mono text-sm uppercase tracking-[0.15em] text-black"
+              >
+                {card.description}
+              </p>
+            </div>
+          </div>
         </div>
       </a>
     {/each}
