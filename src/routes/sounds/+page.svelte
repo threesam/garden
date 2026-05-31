@@ -90,20 +90,23 @@
     credit: string | null;
     cover: string | null;
   }
-  // 404 stays pinned at the top (the featured tiles); the other demos (fa11faster
-  // + singles) flow chronologically, newest first; the sk+w film scores trail.
+  // Order: 404 pinned at the top (the featured tiles); then the singles, newest
+  // first; then the non-404 EPs (fa11faster) — deliberately below the singles
+  // despite their recent file dates (re-recordings of older material); scores last.
   let tiles: Tile[] = $derived.by(() => {
     const demo = (song: Song, credit: string | null): Tile => ({ song, kind: "demo", credit, cover: song.cover });
+    const byLatest = (a: Tile, b: Tile) => b.song.latest.localeCompare(a.song.latest); // newest first
     const pinned = manifest.demos.eps.find((e) => e.label === "404");
     const pinnedTiles = pinned ? pinned.songs.map((s) => demo(s, pinned.label)) : [];
-    const rest = [
-      ...manifest.demos.eps.filter((e) => e.label !== "404").flatMap((e) => e.songs.map((s) => demo(s, e.label))),
-      ...manifest.demos.singles.map((s) => demo(s, null)),
-    ].sort((a, b) => b.song.latest.localeCompare(a.song.latest)); // latest = newest version date
+    const singles = manifest.demos.singles.map((s) => demo(s, null)).sort(byLatest);
+    const otherEps = manifest.demos.eps
+      .filter((e) => e.label !== "404")
+      .flatMap((e) => e.songs.map((s) => demo(s, e.label)))
+      .sort(byLatest);
     const scores = manifest.scores.skw.map(
       (s): Tile => ({ song: s, kind: "score", credit: "sk+w", cover: SCORE_POSTER[s.slug] ?? s.cover }),
     );
-    return [...pinnedTiles, ...rest, ...scores];
+    return [...pinnedTiles, ...singles, ...otherEps, ...scores];
   });
 
   // Pause/resume the current track (logs the umami event). A fresh play of a
@@ -283,6 +286,11 @@
   </section>
 </main>
 
+{#if anyPlaying}
+  <!-- pointer-only dismiss backdrop; keyboard/AT users pause via the transport -->
+  <button class="play-overlay" tabindex="-1" aria-hidden="true" onclick={toggleCurrent}></button>
+{/if}
+
 <div class="scrim scrim-bottom" aria-hidden="true"></div>
 
 <footer class="transport">
@@ -336,6 +344,9 @@
     left: 1.6rem;
     z-index: 10;
     margin: 0;
+    height: 40px; /* match the 40px nav coin */
+    display: flex;
+    align-items: center; /* center the title on the coin's vertical midline */
     font-family: "Recursive Mono", ui-monospace, monospace;
     font-size: clamp(1rem, 2vw, 1.4rem);
     font-weight: 700;
@@ -343,6 +354,11 @@
     letter-spacing: 0.35em;
     color: var(--white);
     text-shadow: 0 1px 14px rgba(0, 0, 0, 0.85);
+  }
+  @media (min-width: 768px) {
+    .brand {
+      top: 1.5rem; /* match the coin's md:top-6 so they stay aligned on desktop */
+    }
   }
 
   /* 12-col grid: first 3 tiles span 4 (3-across), the rest span 3 (4-across) */
@@ -359,10 +375,22 @@
   .grid > :global(.stack:nth-child(-n + 3)) {
     grid-column: span 4;
   }
-  /* while a song plays, the other cards recede so the playing one — and the eyes
-     watching it — stand out */
+  /* while a song plays, the other cards drop out entirely (modal feel) — only the
+     playing one + the eyes watching it remain; the overlay below pauses on tap */
   .grid.dimmed > :global(.stack:not(.playing)) {
-    opacity: 0.13;
+    opacity: 0;
+    pointer-events: none;
+  }
+  /* click-anywhere-to-pause backdrop while a track plays — above the grid, below
+     the transport + nav coin so those stay usable; transparent so the eyes show */
+  .play-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
   }
 
   /* dub-stack tile */
