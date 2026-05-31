@@ -6,7 +6,7 @@
 //
 // Each output pixel is sharp's Lanczos-weighted average of the source
 // neighborhood, then grayscale via standard luminance. Output width is sized
-// so a typical desktop card (~375 CSS px wide) renders ~3 CSS px per square.
+// so a typical desktop card (~375 CSS px wide) renders ~13 CSS px per square.
 //
 // Run: pnpm bake:thoughts
 
@@ -25,8 +25,8 @@ const TARGETS = [
 ];
 
 // Cards display ~375 CSS px wide at typical desktop (max-w-7xl, gap-9, 3-up),
-// so 125 source pixels nearest-neighbor-scale into ~3 CSS px per square.
-const OUT_W = 125;
+// so 29 source pixels nearest-neighbor-scale into ~13 CSS px per square.
+const OUT_W = 29;
 const OUT_H = Math.round((OUT_W * 5) / 4); // cards are aspect 4/5
 
 mkdirSync(OUT_DIR, { recursive: true });
