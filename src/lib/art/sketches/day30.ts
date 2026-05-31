@@ -1,4 +1,5 @@
 import type { Sketch } from "../types";
+import { sketchMode } from "../sketch-mode";
 
 // The crowd — procedural stick figures walking along a gentle NE-biased
 // flow field. Walkers are scattered across the canvas at init and wrap
@@ -118,6 +119,17 @@ export const day30: Sketch = {
       }
     }
 
+    // Slow/gold mode: when a /thoughts card is hovered, `sketchMode.slow`
+    // flips to 1. We lerp `currentSlow` toward it each tick so the page
+    // side just sets a target and the sketch handles the easing. At
+    // currentSlow=1, walkers move at half speed and tint to --coin.
+    let currentSlow = 0;
+    const SLOW_LERP = 0.05; // ~600ms to reach 95% of the target
+    // --coin = #e8a317
+    const COIN_R = 232;
+    const COIN_G = 163;
+    const COIN_B = 23;
+
     // Per-walker draw: strokeRect has a highly-optimized fast path in
     // Skia that batched path stroking doesn't hit, so we keep the
     // individual strokeRect calls. Perf budget is controlled by walker
@@ -130,7 +142,10 @@ export const day30: Sketch = {
       const ll = wk.limbLength;
       const minPossible = 0.025;
 
-      ctx.strokeStyle = `rgb(${wk.color},${wk.color},${wk.color})`;
+      const r = Math.round(wk.color + (COIN_R - wk.color) * currentSlow);
+      const g = Math.round(wk.color + (COIN_G - wk.color) * currentSlow);
+      const b = Math.round(wk.color + (COIN_B - wk.color) * currentSlow);
+      ctx.strokeStyle = `rgb(${r},${g},${b})`;
 
       // Draw calls are deterministic per-figure (no per-frame randomness)
       // so the same walker looks consistent as it moves. We reuse rng()
@@ -200,6 +215,9 @@ export const day30: Sketch = {
 
     return {
       tick() {
+        currentSlow += (sketchMode.slow - currentSlow) * SLOW_LERP;
+        const speedMul = 1 - 0.5 * currentSlow;
+
         // Full-canvas alpha-blended fill is the single most expensive
         // op in this sketch (measured ~2ms on a desktop 2880×1800 DPR-2
         // canvas). Running it every other frame at double the alpha
@@ -307,8 +325,8 @@ export const day30: Sketch = {
             }
           }
 
-          wk.x += Math.cos(moveAngle) * wk.speed + repelX * SEPARATION_GAIN + orbitX;
-          wk.y += Math.sin(moveAngle) * wk.speed + repelY * SEPARATION_GAIN + orbitY;
+          wk.x += (Math.cos(moveAngle) * wk.speed + repelX * SEPARATION_GAIN + orbitX) * speedMul;
+          wk.y += (Math.sin(moveAngle) * wk.speed + repelY * SEPARATION_GAIN + orbitY) * speedMul;
 
           // Asteroids wrap. Exit right → enter left at same y. Exit top
           // → enter bottom at same x. And vice versa. Uses the extended

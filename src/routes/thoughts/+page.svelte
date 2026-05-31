@@ -1,7 +1,24 @@
 <script lang="ts">
   import SeoHead from "$lib/components/SeoHead.svelte";
   import SketchHost from "$lib/components/art/SketchHost.svelte";
+  import { sketchMode } from "$lib/art/sketch-mode";
   import { blogNode } from "$lib/seo";
+
+  // Counter (not boolean) so the brief mouseleave-A → mouseenter-B
+  // transition between adjacent cards doesn't flicker the sketch back to
+  // fast for a frame.
+  let hoverCount = 0;
+  function enterCard() {
+    hoverCount++;
+    sketchMode.slow = 1;
+  }
+  function leaveCard() {
+    hoverCount--;
+    if (hoverCount <= 0) {
+      hoverCount = 0;
+      sketchMode.slow = 0;
+    }
+  }
 
   const cards = [
     {
@@ -55,6 +72,8 @@
     {#each cards as card (card.href)}
       <a
         href={card.href}
+        onmouseenter={enterCard}
+        onmouseleave={leaveCard}
         class="group relative block border-[3px] border-transparent transition-[border-color,transform] duration-700 hover:border-coin hover:[transform:rotate(-1.3deg)]"
       >
         <div class="aspect-[4/5] overflow-hidden">
