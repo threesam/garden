@@ -16,8 +16,8 @@
 		{ label: 'self', handle: 'self', href: '/self' },
 		{ label: 'analog', handle: 'anything-but-analog', href: '/anything-but-analog' },
 		{ label: 'sounds', handle: 'sounds', href: '/sounds' },
-		{ label: 'D-ANA', handle: 'deana', href: '/deana' },
 		{ label: 'shelf', handle: 'shelf', href: '/shelf' },
+		{ label: 'D-ANA', handle: 'deana', href: '/deana' },
 		{ label: 'thoughts', handle: 'thoughts', href: '/thoughts' },
 	];
 
