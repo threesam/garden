@@ -287,7 +287,8 @@
 </main>
 
 {#if anyPlaying}
-  <button class="play-overlay" aria-label="pause" onclick={toggleCurrent}></button>
+  <!-- pointer-only dismiss backdrop; keyboard/AT users pause via the transport -->
+  <button class="play-overlay" tabindex="-1" aria-hidden="true" onclick={toggleCurrent}></button>
 {/if}
 
 <div class="scrim scrim-bottom" aria-hidden="true"></div>
