@@ -14,7 +14,8 @@ export interface Track {
 
 export const player = $state({
   track: null as Track | null,
-  playing: false,
+  playing: false, // audio has actually begun (el.play() resolved) — drives pause glyph + grid recede
+  loading: false, // asked to play, awaiting playback start — drives the loading swirl
   currentTime: 0,
   duration: 0,
 });
@@ -37,6 +38,7 @@ export function attach(node: HTMLAudioElement) {
     gen++; // invalidate any in-flight start() from the outgoing element
     el.pause(); // stop the outgoing element before we drop our reference to it
     player.playing = false;
+    player.loading = false;
     player.currentTime = 0;
     player.duration = 0;
   }
@@ -58,20 +60,28 @@ function loop() {
 async function start() {
   if (!el) return;
   const myGen = ++gen; // claim this start; a newer playTrack/toggle supersedes it
-  // Flip to playing optimistically — BEFORE awaiting play() — so the grid's
-  // dim/ring opacity transitions begin on the click, not when the audio finishes
-  // loading. On a cold track the play() promise can stay pending for hundreds of
-  // ms (R2 fetch); resolving it there made the fade-out start late and snap,
-  // while the synchronous pause faded cleanly (the in/out asymmetry). Starting
-  // the fade now lets it run during the load and complete before playback begins.
-  player.playing = true;
+  // Two-step UI. Show the loading swirl the instant we're asked to play —
+  // el.play() can stay pending for hundreds of ms on a cold R2 track — then flip
+  // to actually-playing only once playback has begun. That second flip is the cue
+  // for the pause glyph and for the grid receding to just the playing card.
+  // Leave `playing` as-is meanwhile: false from idle (the other cards stay visible
+  // behind the swirl), but still-true when auto-advancing/switching from a playing
+  // track, so the grid stays receded through the load instead of flashing back in.
+  player.loading = true;
   lastUi = 0; // first loop tick writes time/duration immediately (no stale flash on track switch)
-  if (!raf) loop();
   try {
     await el.play();
   } catch {
-    if (myGen === gen) player.playing = false; // blocked/interrupted, and still the latest attempt
+    if (myGen === gen) {
+      player.loading = false;
+      player.playing = false; // blocked/interrupted, and still the latest attempt
+    }
+    return;
   }
+  if (myGen !== gen) return; // a newer track took over while we awaited play()
+  player.loading = false;
+  player.playing = true; // playback has begun
+  if (!raf) loop();
 }
 
 export async function playTrack(t: Track) {
@@ -87,9 +97,10 @@ export async function playTrack(t: Track) {
 
 export async function toggle() {
   if (!el || !player.track) return;
-  if (player.playing) {
-    el.pause();
+  if (player.playing || player.loading) {
+    el.pause(); // also aborts an in-flight load (rejects the pending play())
     player.playing = false;
+    player.loading = false;
   } else {
     await start();
   }

@@ -2,6 +2,7 @@
   import SeoHead from "$lib/components/SeoHead.svelte";
   import { collectionPageNode } from "$lib/seo";
   import EyeOcean from "$lib/sounds/EyeOcean.svelte";
+  import PlayGlyph from "$lib/sounds/PlayGlyph.svelte";
   import { player, attach, playTrack, toggle, seek, setScrubbing } from "$lib/sounds/player.svelte";
   import type { PageData } from "./$types";
   import type { Cue, Song } from "$lib/sounds/types";
@@ -172,10 +173,21 @@
       }
     }
     player.playing = false; // reached the end of the list
+    player.loading = false;
   };
 
   const isCurrent = (song: Song) => player.track?.slug === song.slug;
 
+  // "Modal" = a grid song is playing → the other cards recede to nothing and a
+  // full-screen catcher lets a click anywhere pause. Cues (no card) don't engage it.
+  const modal = $derived(player.playing && player.track?.variant !== "cue");
+  // Resolve the three-state glyph. Only the active track shows loading/pause.
+  const status = (): "play" | "loading" | "playing" => {
+    if (player.loading) return "loading";
+    if (player.playing) return "playing";
+    return "play";
+  };
+  const tileStatus = (slug: string) => (player.track?.slug === slug ? status() : "play");
 
   // The fullscreen eyes gaze toward the playing song's card. Recompute its viewport
   // center on play/pause/track-change and on scroll/resize — one layout read, not
@@ -223,19 +235,12 @@
 <div class="scrim scrim-top" aria-hidden="true"></div>
 <h1 class="brand">sounds</h1>
 
-{#snippet glyph(playing: boolean)}
-  {#if playing}
-    <span class="g-pause" aria-hidden="true"><span></span><span></span></span>
-  {:else}
-    <span class="g-play" aria-hidden="true"></span>
-  {/if}
-{/snippet}
-
 {#snippet tile(t: Tile, featured: boolean)}
   {@const song = t.song}
   {@const active = isCurrent(song) && player.playing}
-  {@const dimmed = player.playing && player.track?.variant !== "cue" && !active}
-  <figure class="stack" class:playing={active} class:dimmed data-slug={song.slug}>
+  {@const loading = isCurrent(song) && player.loading}
+  {@const dimmed = modal && !active}
+  <figure class="stack" class:playing={active} class:loading class:dimmed inert={dimmed} data-slug={song.slug}>
     <div class="deck">
       {#each song.versions as v, i (v.src)}
         <div class="card" style="--rot:{fan(i)}deg; z-index:{40 - i};">
@@ -251,7 +256,7 @@
         aria-label={active ? `pause ${song.title}` : `play ${song.title}`}
         onclick={() => play(song)}
       >
-        {@render glyph(active)}
+        <PlayGlyph state={tileStatus(song.slug)} />
       </button>
     </div>
     <figcaption>
@@ -269,7 +274,7 @@
     {#each tiles as t, i (t.song.slug)}{@render tile(t, i < 3)}{/each}
   </section>
 
-  <section class="hmbm">
+  <section class="hmbm" class:hushed={modal} inert={modal}>
     <h2 class="hmbm-title">{HMBM_FILM.title}</h2>
     <p class="hmbm-meta">sk+w · film score · {HMBM_FILM.year} · {manifest.scores.hmbm.length} cues</p>
     <div class="hmbm-poster">
@@ -289,13 +294,19 @@
       </div>
     </div>
   </section>
+
+  <!-- while a grid song plays, a click anywhere pauses it (and brings the cards
+       back); the playing card + transport sit above this catcher and keep working -->
+  {#if modal}
+    <button class="pause-catch" aria-label="pause and show all tracks" onclick={toggleCurrent}></button>
+  {/if}
 </main>
 
 <div class="scrim scrim-bottom" aria-hidden="true"></div>
 
 <footer class="transport">
   <button class="tp-play" aria-label={player.playing ? "pause" : "play"} onclick={toggleCurrent} disabled={!player.track}>
-    {@render glyph(player.playing)}
+    <PlayGlyph state={status()} />
   </button>
   <div class="np">
     {#if player.track}
@@ -378,11 +389,18 @@
   .grid > :global(.stack:nth-child(-n + 3)) {
     grid-column: span 4;
   }
-  /* while a grid song plays, the other cards recede to a dim — the playing one (and
-     the eyes watching it) stand out; they stay in the grid + clickable to switch.
-     Computed per-tile so it updates the instant you click. */
+  /* once a grid song is actually playing, every other card recedes to nothing so
+     only the playing one (and the eyes watching it) remain. Computed per-tile so
+     it tracks playback start; a click anywhere then pauses + brings them back. */
   .grid > :global(.stack.dimmed) {
-    opacity: 0.13;
+    opacity: 0;
+    pointer-events: none;
+  }
+  /* lift the playing card above the full-screen pause-catcher so it stays crisp
+     and its own pause button keeps working */
+  .grid > :global(.stack.playing) {
+    position: relative;
+    z-index: 25;
   }
 
   /* dub-stack tile */
@@ -428,8 +446,9 @@
   .stack:hover .card {
     transform: rotate(calc(var(--rot) * 1.85)) translateY(-3px);
   }
-  /* covers sit in grayscale, bloom to color on hover (and while playing) */
+  /* covers sit in grayscale, bloom to color on hover (and while loading/playing) */
   .stack:hover .card img,
+  .stack.loading .card img,
   .stack.playing .card img {
     filter: grayscale(0);
   }
@@ -485,31 +504,10 @@
     z-index: 50;
   }
   .stack:hover .play,
+  .stack.loading .play,
   .stack.playing .play {
     opacity: 1;
     transform: scale(1);
-  }
-
-  /* play / pause glyphs — sized in em to the coin disc's font-size, centered by
-     the disc's grid. The pause is the nav coin's bars, vertical (its hamburger
-     glyph rotated 90°). */
-  .g-play {
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 0.6em 0 0.6em 1em;
-    border-color: transparent transparent transparent currentColor;
-    margin-left: 0.16em; /* optical centering of the triangle */
-  }
-  .g-pause {
-    display: flex;
-    gap: 0.24em;
-  }
-  .g-pause span {
-    width: 0.2em;
-    height: 0.92em;
-    background: currentColor;
-    border-radius: 1px;
   }
 
   figcaption {
@@ -568,6 +566,27 @@
     margin-top: 4.5rem;
     border-top: 1px solid rgba(255, 255, 255, 0.12);
     padding-top: 2rem;
+    transition: opacity 0.45s ease;
+  }
+  /* recede with the grid while a song plays — focus stays on the one playing card */
+  .hmbm.hushed {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* full-screen click target shown while a grid song plays: a click anywhere
+     pauses (and the cards return). Inside <main> (z-index 1) so the playing card
+     (z-index 25) sits above it; the transport (z-index 30, outside main) stays
+     clickable so the scrubber doesn't trigger a pause. */
+  .pause-catch {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
   }
   .hmbm-poster {
     position: relative;
