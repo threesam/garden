@@ -22,6 +22,7 @@ export const player = $state({
 let el: HTMLAudioElement | null = null;
 let raf = 0;
 let lastUi = 0;
+let scrubbing = false; // true while the user drags the scrubber — pauses loop() time-writes
 
 export function attach(node: HTMLAudioElement) {
   if (node === el) return;
@@ -31,6 +32,7 @@ export function attach(node: HTMLAudioElement) {
   if (el) {
     cancelAnimationFrame(raf);
     raf = 0;
+    scrubbing = false; // clear any latched drag so the new mount's readout isn't frozen
     el.pause(); // stop the outgoing element before we drop our reference to it
     player.playing = false;
     player.currentTime = 0;
@@ -44,7 +46,7 @@ function loop() {
   raf = requestAnimationFrame(loop);
   // the transport's time readout + scrubber only need ~10fps
   const now = performance.now();
-  if (el && now - lastUi >= 100) {
+  if (el && !scrubbing && now - lastUi >= 100) {
     lastUi = now;
     player.currentTime = el.currentTime;
     player.duration = Number.isFinite(el.duration) ? el.duration : 0;
@@ -90,4 +92,9 @@ export function seek(seconds: number) {
     el.currentTime = seconds;
     player.currentTime = el.currentTime; // browser-clamped position, reflected even while paused
   }
+}
+
+// the page toggles this while dragging the scrubber so loop() doesn't yank the thumb
+export function setScrubbing(on: boolean) {
+  scrubbing = on;
 }
