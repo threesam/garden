@@ -91,7 +91,3 @@ export function seek(seconds: number) {
     player.currentTime = el.currentTime; // browser-clamped position, reflected even while paused
   }
 }
-
-export function onEnded() {
-  player.playing = false;
-}

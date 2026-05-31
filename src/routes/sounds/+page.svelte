@@ -2,7 +2,7 @@
   import SeoHead from "$lib/components/SeoHead.svelte";
   import { collectionPageNode } from "$lib/seo";
   import EyeOcean from "$lib/sounds/EyeOcean.svelte";
-  import { player, attach, playTrack, toggle, seek, onEnded } from "$lib/sounds/player.svelte";
+  import { player, attach, playTrack, toggle, seek } from "$lib/sounds/player.svelte";
   import type { PageData } from "./$types";
   import type { Cue, Song } from "$lib/sounds/types";
 
@@ -69,15 +69,62 @@
     })),
   ]);
 
+  // Pause/resume the current track (logs the umami event). A fresh play of a
+  // different track goes through play/playCue below.
+  const toggleCurrent = () => {
+    const t = player.track;
+    trackEvent(player.playing ? "sounds-pause" : "sounds-resume", {
+      slug: t?.slug ?? "",
+      variant: t?.variant ?? "",
+    });
+    toggle();
+  };
+
   const play = (song: Song) => {
     const v = song.versions[0];
+    const src = url(v.src);
+    if (player.track?.src === src) {
+      toggleCurrent(); // clicking the current card toggles it, not a fresh play
+      return;
+    }
     trackEvent("sounds-play", { slug: song.slug, variant: v.variant });
-    playTrack({ src: url(v.src), title: song.title, variant: v.variant, slug: song.slug });
+    playTrack({ src, title: song.title, variant: v.variant, slug: song.slug });
   };
 
   const playCue = (cue: Cue) => {
+    const src = url(cue.src);
+    if (player.track?.src === src) {
+      toggleCurrent();
+      return;
+    }
     trackEvent("sounds-play", { slug: "hmbm", variant: cue.timecode });
-    playTrack({ src: url(cue.src), title: `how many blind mice? ${cue.timecode}`, variant: "cue", slug: cue.src });
+    playTrack({ src, title: `how many blind mice? ${cue.timecode}`, variant: "cue", slug: cue.src });
+  };
+
+  // Auto-advance when a track ends: the next grid song, or the next HMBM cue —
+  // each list advances within itself and stops at its end (no grid→cue bridge).
+  const playNext = () => {
+    const cur = player.track;
+    if (!cur) return;
+    trackEvent("sounds-complete", { slug: cur.slug, variant: cur.variant });
+    const ti = tiles.findIndex((t) => t.song.slug === cur.slug);
+    if (ti >= 0) {
+      const nextTile = tiles[ti + 1];
+      if (nextTile) {
+        play(nextTile.song);
+        return;
+      }
+    }
+    const cues = manifest.scores.hmbm;
+    const ci = cues.findIndex((c) => c.src === cur.slug);
+    if (ci >= 0) {
+      const nextCue = cues[ci + 1];
+      if (nextCue) {
+        playCue(nextCue);
+        return;
+      }
+    }
+    player.playing = false; // reached the end of the list
   };
 
   const isCurrent = (song: Song) => player.track?.slug === song.slug;
@@ -202,7 +249,7 @@
 <div class="scrim scrim-bottom" aria-hidden="true"></div>
 
 <footer class="transport">
-  <button class="tp-play" aria-label={player.playing ? "pause" : "play"} onclick={toggle} disabled={!player.track}>
+  <button class="tp-play" aria-label={player.playing ? "pause" : "play"} onclick={toggleCurrent} disabled={!player.track}>
     {@render glyph(player.playing)}
   </button>
   <div class="np">
@@ -226,7 +273,7 @@
   <span class="t">{fmt(player.duration)}</span>
 </footer>
 
-<audio bind:this={audioEl} crossorigin="anonymous" src={player.track?.src ?? ""} onended={onEnded}></audio>
+<audio bind:this={audioEl} crossorigin="anonymous" src={player.track?.src ?? ""} onended={playNext}></audio>
 
 <style>
   :global(body) {
