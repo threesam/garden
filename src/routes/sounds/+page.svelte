@@ -113,13 +113,17 @@
 
   // Pause/resume the current track (logs the umami event). A fresh play of a
   // different track goes through play/playCue below.
-  const toggleCurrent = () => {
+  const toggleCurrent = async () => {
     const t = player.track;
-    trackEvent(player.playing ? "sounds-pause" : "sounds-resume", {
-      slug: t?.slug ?? "",
-      variant: t?.variant ?? "",
-    });
-    toggle();
+    const wasPlaying = player.playing;
+    if (wasPlaying) {
+      trackEvent("sounds-pause", { slug: t?.slug ?? "", variant: t?.variant ?? "" });
+    }
+    await toggle();
+    // only log a resume that actually started (el.play() can be blocked/interrupted)
+    if (!wasPlaying && player.playing) {
+      trackEvent("sounds-resume", { slug: t?.slug ?? "", variant: t?.variant ?? "" });
+    }
   };
 
   const play = (song: Song) => {
@@ -172,9 +176,6 @@
 
   const isCurrent = (song: Song) => player.track?.slug === song.slug;
 
-  // a grid card (not an HMBM cue) is actively playing → eyes gaze + the rest recede.
-  // Pure derived so the fade reliably clears on pause/stop, independent of updateGaze.
-  const anyPlaying = $derived(player.track != null && player.track.variant !== "cue" && player.playing);
 
   // The fullscreen eyes gaze toward the playing song's card. Recompute its viewport
   // center on play/pause/track-change and on scroll/resize — one layout read, not
@@ -233,8 +234,8 @@
 {#snippet tile(t: Tile, featured: boolean)}
   {@const song = t.song}
   {@const active = isCurrent(song) && player.playing}
-  {@const hidden = player.playing && player.track?.variant !== "cue" && !active}
-  <figure class="stack" class:playing={active} class:hidden data-slug={song.slug}>
+  {@const dimmed = player.playing && player.track?.variant !== "cue" && !active}
+  <figure class="stack" class:playing={active} class:dimmed data-slug={song.slug}>
     <div class="deck">
       {#each song.versions as v, i (v.src)}
         <div class="card" style="--rot:{fan(i)}deg; z-index:{40 - i};">
@@ -289,11 +290,6 @@
     </div>
   </section>
 </main>
-
-<!-- pointer-only dismiss backdrop, always mounted (toggle pointer-events, don't
-     insert it, so inserting a fixed layer mid-play doesn't interrupt the cards'
-     opacity transition); keyboard/AT users pause via the transport -->
-<button class="play-overlay" class:on={anyPlaying} tabindex="-1" aria-hidden="true" onclick={toggleCurrent}></button>
 
 <div class="scrim scrim-bottom" aria-hidden="true"></div>
 
@@ -382,27 +378,11 @@
   .grid > :global(.stack:nth-child(-n + 3)) {
     grid-column: span 4;
   }
-  /* while a grid song plays, the other cards drop out entirely (modal feel) — only
-     the playing one + the eyes watching it remain; the overlay below pauses on tap.
-     Set per-tile (not a grid-level class) so it updates the instant you click. */
-  .grid > :global(.stack.hidden) {
-    opacity: 0;
-    pointer-events: none;
-  }
-  /* click-anywhere-to-pause backdrop while a track plays — above the grid, below
-     the transport + nav coin so those stay usable; transparent so the eyes show */
-  .play-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 20;
-    border: 0;
-    padding: 0;
-    background: transparent;
-    cursor: pointer;
-    pointer-events: none; /* click-through until a track plays */
-  }
-  .play-overlay.on {
-    pointer-events: auto; /* catch taps to pause while playing */
+  /* while a grid song plays, the other cards recede to a dim — the playing one (and
+     the eyes watching it) stand out; they stay in the grid + clickable to switch.
+     Computed per-tile so it updates the instant you click. */
+  .grid > :global(.stack.dimmed) {
+    opacity: 0.13;
   }
 
   /* dub-stack tile */
