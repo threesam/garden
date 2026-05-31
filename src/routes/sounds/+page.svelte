@@ -679,9 +679,9 @@
   .scrim-top {
     top: 0;
     height: 7rem;
-    /* solid black covers the full nav height (brand + 40px coin ≈ 4rem) before it
-       fades, so the nav always reads cleanly over it */
-    background: linear-gradient(to bottom, #000 4.5rem, transparent);
+    /* solid black to the nav's midpoint (the ~40px coin's center ≈ 2.5rem), then
+       fades out — reads as a gradient, not a solid bar */
+    background: linear-gradient(to bottom, #000 2.5rem, transparent);
   }
   .scrim-bottom {
     bottom: 0; /* runs under the transport — no gap above the player */
