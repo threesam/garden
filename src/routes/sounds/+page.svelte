@@ -171,7 +171,7 @@
 
   // a grid card (not an HMBM cue) is actively playing → eyes gaze + the rest recede.
   // Pure derived so the fade reliably clears on pause/stop, independent of updateGaze.
-  const anyPlaying = $derived(player.playing && tiles.some((t) => isCurrent(t.song)));
+  const anyPlaying = $derived(player.track != null && player.track.variant !== "cue" && player.playing);
 
   // The fullscreen eyes gaze toward the playing song's card. Recompute its viewport
   // center on play/pause/track-change and on scroll/resize — one layout read, not
@@ -230,7 +230,8 @@
 {#snippet tile(t: Tile, featured: boolean)}
   {@const song = t.song}
   {@const active = isCurrent(song) && player.playing}
-  <figure class="stack" class:playing={active} data-slug={song.slug}>
+  {@const hidden = player.playing && player.track?.variant !== "cue" && !active}
+  <figure class="stack" class:playing={active} class:hidden data-slug={song.slug}>
     <div class="deck">
       {#each song.versions as v, i (v.src)}
         <div class="card" style="--rot:{fan(i)}deg; z-index:{40 - i};">
@@ -260,7 +261,7 @@
 {/snippet}
 
 <main>
-  <section class="grid" class:dimmed={anyPlaying}>
+  <section class="grid">
     {#each tiles as t, i (t.song.slug)}{@render tile(t, i < 3)}{/each}
   </section>
 
@@ -375,9 +376,10 @@
   .grid > :global(.stack:nth-child(-n + 3)) {
     grid-column: span 4;
   }
-  /* while a song plays, the other cards drop out entirely (modal feel) — only the
-     playing one + the eyes watching it remain; the overlay below pauses on tap */
-  .grid.dimmed > :global(.stack:not(.playing)) {
+  /* while a grid song plays, the other cards drop out entirely (modal feel) — only
+     the playing one + the eyes watching it remain; the overlay below pauses on tap.
+     Set per-tile (not a grid-level class) so it updates the instant you click. */
+  .grid > :global(.stack.hidden) {
     opacity: 0;
     pointer-events: none;
   }
@@ -677,7 +679,9 @@
   .scrim-top {
     top: 0;
     height: 7rem;
-    background: linear-gradient(to bottom, #000 30%, transparent);
+    /* solid black covers the full nav height (brand + 40px coin ≈ 4rem) before it
+       fades, so the nav always reads cleanly over it */
+    background: linear-gradient(to bottom, #000 4.5rem, transparent);
   }
   .scrim-bottom {
     bottom: 0; /* runs under the transport — no gap above the player */
@@ -745,7 +749,7 @@
 
   @media (max-width: 640px) {
     main {
-      padding: 6rem 1rem calc(var(--player-h) + 5rem);
+      padding: 7rem 1rem calc(var(--player-h) + 5rem);
     }
     .grid {
       gap: 1.8rem 1rem;
