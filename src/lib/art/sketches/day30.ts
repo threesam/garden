@@ -120,14 +120,16 @@ export const day30: Sketch = {
     }
 
     // Slow/color mode: when a /thoughts card is hovered, `sketchMode.slow`
-    // flips to 1. We lerp `currentSlow` toward it each tick so the page
-    // side just sets a target and the sketch handles the easing. At
+    // flips to 1 *after* the card flip finishes (page schedules it). We
+    // ramp `currentSlow` linearly toward the target at a rate of 1/120
+    // per frame so the full traversal lasts ~2s at 60fps — the "drain
+    // color from bodies into card" tween the design calls for. At
     // currentSlow=0 walkers are coin-tinted (per-walker brightness
     // wk.color/255 scales the coin channels — keeps the gold textured).
     // At currentSlow=1 they go to the brand --white and move at half
     // speed.
     let currentSlow = 0;
-    const SLOW_LERP = 0.05; // ~600ms to reach 95% of the target
+    const SLOW_RATE = 1 / 120;
     // --coin = #e8a317
     const COIN_R = 232;
     const COIN_G = 163;
@@ -226,7 +228,11 @@ export const day30: Sketch = {
 
     return {
       tick() {
-        currentSlow += (sketchMode.slow - currentSlow) * SLOW_LERP;
+        if (sketchMode.slow > currentSlow) {
+          currentSlow = Math.min(sketchMode.slow, currentSlow + SLOW_RATE);
+        } else if (sketchMode.slow < currentSlow) {
+          currentSlow = Math.max(sketchMode.slow, currentSlow - SLOW_RATE);
+        }
         const speedMul = 1 - 0.5 * currentSlow;
 
         // Full-canvas alpha-blended fill is the single most expensive

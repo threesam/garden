@@ -4,19 +4,39 @@
   import { sketchMode } from "$lib/art/sketch-mode";
   import { blogNode } from "$lib/seo";
 
-  // Counter (not boolean) so the brief mouseleave-A → mouseenter-B
-  // transition between adjacent cards doesn't flicker the sketch back to
-  // fast for a frame.
+  // The card's 3D flip takes 700ms (transition-transform duration-700).
+  // The color drain only begins once that flip lands — page schedules
+  // sketchMode.slow=1 700ms after the first card hover. day30 then
+  // linearly tweens its currentSlow over 2s.
+  //
+  // hoverCount survives mouseleave-A → mouseenter-B; the microtask
+  // deferral on leave catches the same handoff so we don't tear the
+  // pending drain down between adjacent cards.
+  const FLIP_MS = 700;
   let hoverCount = 0;
+  let drainTimer: ReturnType<typeof setTimeout> | null = null;
+
   function enterCard() {
     hoverCount++;
-    sketchMode.slow = 1;
+    if (hoverCount === 1 && drainTimer === null && sketchMode.slow === 0) {
+      drainTimer = setTimeout(() => {
+        sketchMode.slow = 1;
+        drainTimer = null;
+      }, FLIP_MS);
+    }
   }
   function leaveCard() {
     hoverCount--;
     if (hoverCount <= 0) {
       hoverCount = 0;
-      sketchMode.slow = 0;
+      queueMicrotask(() => {
+        if (hoverCount > 0) return;
+        if (drainTimer !== null) {
+          clearTimeout(drainTimer);
+          drainTimer = null;
+        }
+        sketchMode.slow = 0;
+      });
     }
   }
 
