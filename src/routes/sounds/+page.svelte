@@ -683,7 +683,7 @@
     cursor: default;
   }
   .np {
-    flex: 0 0 auto;
+    flex: 0 1 auto; /* may shrink (title ellipsis) so the scrubber keeps room */
     min-width: 12rem;
     font-size: 0.8rem;
     white-space: nowrap;
@@ -701,6 +701,7 @@
   }
   .scrub {
     flex: 1 1 auto;
+    min-width: 0; /* override the range input's intrinsic min so it can shrink */
     accent-color: var(--coin);
     height: 4px;
   }
@@ -722,6 +723,13 @@
     }
     .np {
       min-width: 0; /* let now-playing shrink so the scrubber keeps room on phones */
+    }
+    .transport {
+      gap: 0.6rem;
+      padding: 0.6rem 0.9rem;
+    }
+    .t {
+      font-size: 0.68rem;
     }
     .hmbm-poster {
       float: none;
