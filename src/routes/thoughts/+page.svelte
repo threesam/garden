@@ -65,14 +65,14 @@
             class="h-full w-full object-cover [image-rendering:pixelated]"
           />
         </div>
-        <div class="absolute inset-x-0 bottom-0 h-[30%] px-3 py-3">
+        <div class="absolute inset-x-0 bottom-0 h-[30%] bg-black/70 p-4 md:p-5">
           <span
-            class="inline-block bg-black/70 p-3 font-mono text-xl font-bold uppercase tracking-[0.3em] text-[var(--white)] transition-colors duration-300 group-hover:text-[var(--coin)] md:text-2xl"
+            class="block font-mono text-xl font-bold uppercase tracking-[0.3em] text-[var(--white)] transition-colors duration-300 group-hover:text-[var(--coin)] md:text-2xl"
           >
             {card.title}
           </span>
           <p
-            class="mt-3 font-mono text-xs uppercase tracking-[0.15em] text-zinc-300 md:text-sm"
+            class="mt-2 font-mono text-xs uppercase tracking-[0.15em] text-zinc-300 md:text-sm"
           >
             {card.description}
           </p>
