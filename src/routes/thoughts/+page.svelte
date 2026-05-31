@@ -1,5 +1,6 @@
 <script lang="ts">
   import SeoHead from "$lib/components/SeoHead.svelte";
+  import SketchHost from "$lib/components/art/SketchHost.svelte";
   import { blogNode } from "$lib/seo";
 
   const cards = [
@@ -34,8 +35,14 @@
   })}
 />
 
-<main class="min-h-dvh w-full bg-[var(--black)] px-6 py-18 md:px-9 md:py-24">
-  <header class="mx-auto mb-12 max-w-7xl md:mb-18">
+<main
+  class="relative min-h-dvh w-full overflow-hidden bg-[var(--black)] px-6 py-18 md:px-9 md:py-24"
+>
+  <div class="pointer-events-none absolute inset-0 z-0">
+    <SketchHost slug="30" active interactive={false} bgClass="bg-[var(--black)]" />
+  </div>
+
+  <header class="relative z-10 mx-auto mb-12 max-w-7xl md:mb-18">
     <h1
       class="font-mono text-4xl font-bold uppercase tracking-[0.2em] text-[var(--white)] md:text-7xl"
     >
@@ -43,25 +50,24 @@
     </h1>
   </header>
   <section
-    class="mx-auto grid max-w-7xl grid-cols-1 gap-6 md:grid-cols-3 md:gap-9"
+    class="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-6 md:grid-cols-3 md:gap-9"
   >
     {#each cards as card (card.href)}
       <a
         href={card.href}
-        class="group relative block aspect-[4/5] overflow-hidden border-2 border-[var(--black)] transition-[border-color,transform] duration-700 hover:border-[var(--coin)] hover:[transform:rotate(-1.3deg)]"
+        class="group relative block aspect-[4/5] border-2 border-[var(--black)] transition-[border-color,transform] duration-700 hover:border-[var(--coin)] hover:[transform:rotate(-1.3deg)]"
       >
-        <img
-          src={card.img}
-          alt=""
-          loading="lazy"
-          class="absolute inset-0 h-full w-full object-cover [image-rendering:pixelated]"
-        />
-        <div
-          class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent"
-        ></div>
-        <div class="absolute right-6 bottom-6 left-6 z-10">
+        <div class="absolute inset-x-0 top-0 h-[70%] overflow-hidden">
+          <img
+            src={card.img}
+            alt=""
+            loading="lazy"
+            class="h-full w-full object-cover [image-rendering:pixelated]"
+          />
+        </div>
+        <div class="absolute inset-x-0 bottom-0 h-[30%] px-3 py-3">
           <span
-            class="inline-block bg-[var(--black)] p-3 font-mono text-xl font-bold uppercase tracking-[0.3em] text-[var(--white)] transition-colors duration-300 group-hover:text-[var(--coin)] md:text-2xl"
+            class="inline-block bg-black/70 p-3 font-mono text-xl font-bold uppercase tracking-[0.3em] text-[var(--white)] transition-colors duration-300 group-hover:text-[var(--coin)] md:text-2xl"
           >
             {card.title}
           </span>
