@@ -41,24 +41,28 @@
     }
   }
 
+  // ?v=N busts the immutable 1-year cache when we re-bake the source
+  // (covers iOS Safari, which won't even check the server otherwise).
+  // Bump the version every time you change generate-thoughts-pixel.mjs.
+  const PIXEL_V = 2;
   const cards = [
     {
       href: "/self",
       title: "self",
       description: "growing up in trenton.",
-      img: "/assets/thoughts-pixel/self.webp",
+      img: `/assets/thoughts-pixel/self.webp?v=${PIXEL_V}`,
     },
     {
       href: "/benny",
       title: "benny",
       description: "remembering 102 jackson street.",
-      img: "/assets/thoughts-pixel/benny.webp",
+      img: `/assets/thoughts-pixel/benny.webp?v=${PIXEL_V}`,
     },
     {
       href: "/dad",
       title: "dad",
       description: "stories about my dad.",
-      img: "/assets/thoughts-pixel/dad.webp",
+      img: `/assets/thoughts-pixel/dad.webp?v=${PIXEL_V}`,
     },
   ];
 </script>
