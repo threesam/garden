@@ -23,6 +23,7 @@ let el: HTMLAudioElement | null = null;
 let raf = 0;
 let lastUi = 0;
 let scrubbing = false; // true while the user drags the scrubber — pauses loop() time-writes
+let gen = 0; // bumped per start(); a stale start (superseded by a newer track) bails out
 
 export function attach(node: HTMLAudioElement) {
   if (node === el) return;
@@ -33,6 +34,7 @@ export function attach(node: HTMLAudioElement) {
     cancelAnimationFrame(raf);
     raf = 0;
     scrubbing = false; // clear any latched drag so the new mount's readout isn't frozen
+    gen++; // invalidate any in-flight start() from the outgoing element
     el.pause(); // stop the outgoing element before we drop our reference to it
     player.playing = false;
     player.currentTime = 0;
@@ -55,12 +57,14 @@ function loop() {
 
 async function start() {
   if (!el) return;
+  const myGen = ++gen; // claim this start; a newer playTrack/toggle supersedes it
   try {
     await el.play();
   } catch {
-    player.playing = false; // autoplay blocked or interrupted by a newer load
+    if (myGen === gen) player.playing = false; // only the latest attempt reflects failure
     return;
   }
+  if (myGen !== gen) return; // a newer track took over while we awaited play()
   player.playing = true;
   lastUi = 0; // first loop tick writes time/duration immediately (no stale flash on track switch)
   if (!raf) loop();
