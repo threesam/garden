@@ -173,6 +173,7 @@
       }
     }
     player.playing = false; // reached the end of the list
+    player.loading = false;
   };
 
   const isCurrent = (song: Song) => player.track?.slug === song.slug;
@@ -239,7 +240,7 @@
   {@const active = isCurrent(song) && player.playing}
   {@const loading = isCurrent(song) && player.loading}
   {@const dimmed = modal && !active}
-  <figure class="stack" class:playing={active} class:loading class:dimmed data-slug={song.slug}>
+  <figure class="stack" class:playing={active} class:loading class:dimmed inert={dimmed} data-slug={song.slug}>
     <div class="deck">
       {#each song.versions as v, i (v.src)}
         <div class="card" style="--rot:{fan(i)}deg; z-index:{40 - i};">
@@ -273,7 +274,7 @@
     {#each tiles as t, i (t.song.slug)}{@render tile(t, i < 3)}{/each}
   </section>
 
-  <section class="hmbm" class:hushed={modal}>
+  <section class="hmbm" class:hushed={modal} inert={modal}>
     <h2 class="hmbm-title">{HMBM_FILM.title}</h2>
     <p class="hmbm-meta">sk+w · film score · {HMBM_FILM.year} · {manifest.scores.hmbm.length} cues</p>
     <div class="hmbm-poster">
