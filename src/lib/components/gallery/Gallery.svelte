@@ -307,7 +307,7 @@
 							{:else if item.handle === 'thoughts'}
 								<CanvasComp slug="30" active interactive={false} />
 							{:else if item.handle === 'sounds'}
-								<CanvasComp reactive={false} fixed={false} />
+								<CanvasComp fixed={false} />
 							{/if}
 						{/await}
 					</div>
