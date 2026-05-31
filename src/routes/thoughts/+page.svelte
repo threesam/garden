@@ -55,9 +55,9 @@
     {#each cards as card (card.href)}
       <a
         href={card.href}
-        class="group relative block aspect-[4/5] border-2 border-[var(--black)] transition-[border-color,transform] duration-700 hover:border-[var(--coin)] hover:[transform:rotate(-1.3deg)]"
+        class="group relative block border-2 border-[var(--black)] transition-[border-color,transform] duration-700 hover:border-[var(--coin)] hover:[transform:rotate(-1.3deg)]"
       >
-        <div class="absolute inset-x-0 top-0 h-[70%] overflow-hidden">
+        <div class="aspect-[4/5] overflow-hidden">
           <img
             src={card.img}
             alt=""
@@ -65,7 +65,7 @@
             class="h-full w-full object-cover [image-rendering:pixelated]"
           />
         </div>
-        <div class="absolute inset-x-0 bottom-0 h-[30%] bg-black/70 p-4 md:p-5">
+        <div class="bg-black/70 px-4 py-4 md:px-5 md:py-5">
           <span
             class="block font-mono text-xl font-bold uppercase tracking-[0.3em] text-[var(--white)] transition-colors duration-300 group-hover:text-[var(--coin)] md:text-2xl"
           >
