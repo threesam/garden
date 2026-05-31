@@ -125,9 +125,11 @@ export const day30: Sketch = {
     // per frame so the full traversal lasts ~2s at 60fps — the "drain
     // color from bodies into card" tween the design calls for. At
     // currentSlow=0 walkers are coin-tinted (per-walker brightness
-    // wk.color/255 scales the coin channels — keeps the gold textured).
-    // At currentSlow=1 they go to the brand --white and move at half
-    // speed.
+    // wk.color/255 scales the coin channels — keeps the gold textured)
+    // and crawl at 25% of their base speed: idle reads as a sluggish
+    // drift. At currentSlow=1 they snap to the brand --white and burst
+    // to 3× base — bodies "release" their color and accelerate as the
+    // card absorbs it.
     let currentSlow = 0;
     const SLOW_RATE = 1 / 120;
     // --coin = #e8a317
@@ -233,7 +235,7 @@ export const day30: Sketch = {
         } else if (sketchMode.slow < currentSlow) {
           currentSlow = Math.max(sketchMode.slow, currentSlow - SLOW_RATE);
         }
-        const speedMul = 1 - 0.5 * currentSlow;
+        const speedMul = 0.25 + 2.75 * currentSlow;
 
         // Full-canvas alpha-blended fill is the single most expensive
         // op in this sketch (measured ~2ms on a desktop 2880×1800 DPR-2
