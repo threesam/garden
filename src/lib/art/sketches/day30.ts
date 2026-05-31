@@ -119,17 +119,17 @@ export const day30: Sketch = {
       }
     }
 
-    // Slow/color mode: when a /thoughts card is hovered, `sketchMode.slow`
-    // flips to 1. We ramp `currentSlow` linearly at 1/180 per frame so
-    // the full traversal lasts exactly 3s at 60fps — the same timeline
-    // as the card back face's `transition-colors duration-[3000ms]`.
-    // The two run in parallel: bodies fade gold → --white while the
-    // card fades white → coin. At currentSlow=0 walkers are coin-tinted
-    // (per-walker brightness wk.color/255 scales the channels — keeps
-    // the gold textured) and crawl at 25% of base speed: idle reads as
-    // a sluggish drift. At currentSlow=1 they fade to brand --white and
-    // drop further to 5% of base — drained of color *and* energy.
+    // Color mode: opt-in via `sketchMode.active`. The /thoughts route
+    // flips it on; the homepage gallery leaves it off so its day30 card
+    // keeps the original neutral grays.
+    //
+    // When active, hover sets `sketchMode.slow` to 1 and we ramp
+    // `currentSlow` linearly at 1/180 per frame (exactly 3s at 60fps —
+    // the same timeline as the card back face's `duration-[3000ms]`).
+    // Walker color lerps coin → --white over the same 3s. Speed is
+    // unchanged in both modes; only the tint moves.
     let currentSlow = 0;
+    let active = false;
     const SLOW_RATE = 1 / 180;
     // --coin = #e8a317
     const COIN_R = 232;
@@ -152,14 +152,18 @@ export const day30: Sketch = {
       const ll = wk.limbLength;
       const minPossible = 0.025;
 
-      const k = wk.color / 255;
-      const idleR = COIN_R * k;
-      const idleG = COIN_G * k;
-      const idleB = COIN_B * k;
-      const r = Math.round(idleR + (WHITE_R - idleR) * currentSlow);
-      const g = Math.round(idleG + (WHITE_G - idleG) * currentSlow);
-      const b = Math.round(idleB + (WHITE_B - idleB) * currentSlow);
-      ctx.strokeStyle = `rgb(${r},${g},${b})`;
+      if (active) {
+        const k = wk.color / 255;
+        const idleR = COIN_R * k;
+        const idleG = COIN_G * k;
+        const idleB = COIN_B * k;
+        const r = Math.round(idleR + (WHITE_R - idleR) * currentSlow);
+        const g = Math.round(idleG + (WHITE_G - idleG) * currentSlow);
+        const b = Math.round(idleB + (WHITE_B - idleB) * currentSlow);
+        ctx.strokeStyle = `rgb(${r},${g},${b})`;
+      } else {
+        ctx.strokeStyle = `rgb(${wk.color},${wk.color},${wk.color})`;
+      }
 
       // Draw calls are deterministic per-figure (no per-frame randomness)
       // so the same walker looks consistent as it moves. We reuse rng()
@@ -229,12 +233,13 @@ export const day30: Sketch = {
 
     return {
       tick() {
-        if (sketchMode.slow > currentSlow) {
-          currentSlow = Math.min(sketchMode.slow, currentSlow + SLOW_RATE);
-        } else if (sketchMode.slow < currentSlow) {
-          currentSlow = Math.max(sketchMode.slow, currentSlow - SLOW_RATE);
+        active = sketchMode.active;
+        const target = active ? sketchMode.slow : 0;
+        if (target > currentSlow) {
+          currentSlow = Math.min(target, currentSlow + SLOW_RATE);
+        } else if (target < currentSlow) {
+          currentSlow = Math.max(target, currentSlow - SLOW_RATE);
         }
-        const speedMul = 0.25 - 0.2 * currentSlow;
 
         // Full-canvas alpha-blended fill is the single most expensive
         // op in this sketch (measured ~2ms on a desktop 2880×1800 DPR-2
@@ -343,8 +348,8 @@ export const day30: Sketch = {
             }
           }
 
-          wk.x += (Math.cos(moveAngle) * wk.speed + repelX * SEPARATION_GAIN + orbitX) * speedMul;
-          wk.y += (Math.sin(moveAngle) * wk.speed + repelY * SEPARATION_GAIN + orbitY) * speedMul;
+          wk.x += Math.cos(moveAngle) * wk.speed + repelX * SEPARATION_GAIN + orbitX;
+          wk.y += Math.sin(moveAngle) * wk.speed + repelY * SEPARATION_GAIN + orbitY;
 
           // Asteroids wrap. Exit right → enter left at same y. Exit top
           // → enter bottom at same x. And vice versa. Uses the extended
