@@ -290,10 +290,10 @@
   </section>
 </main>
 
-{#if anyPlaying}
-  <!-- pointer-only dismiss backdrop; keyboard/AT users pause via the transport -->
-  <button class="play-overlay" tabindex="-1" aria-hidden="true" onclick={toggleCurrent}></button>
-{/if}
+<!-- pointer-only dismiss backdrop, always mounted (toggle pointer-events, don't
+     insert it, so inserting a fixed layer mid-play doesn't interrupt the cards'
+     opacity transition); keyboard/AT users pause via the transport -->
+<button class="play-overlay" class:on={anyPlaying} tabindex="-1" aria-hidden="true" onclick={toggleCurrent}></button>
 
 <div class="scrim scrim-bottom" aria-hidden="true"></div>
 
@@ -399,6 +399,10 @@
     padding: 0;
     background: transparent;
     cursor: pointer;
+    pointer-events: none; /* click-through until a track plays */
+  }
+  .play-overlay.on {
+    pointer-events: auto; /* catch taps to pause while playing */
   }
 
   /* dub-stack tile */
