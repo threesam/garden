@@ -4,26 +4,18 @@
   import { sketchMode } from "$lib/art/sketch-mode";
   import { blogNode } from "$lib/seo";
 
-  // The card's 3D flip takes 700ms (transition-transform duration-700).
-  // The color drain only begins once that flip lands — page schedules
-  // sketchMode.slow=1 700ms after the first card hover. day30 then
-  // linearly tweens its currentSlow over 2s.
+  // The drain only begins after the card's 3D flip is fully painted.
+  // Instead of guessing the duration we listen for the actual
+  // `transitionend` of the flip's transform — guarantees we never start
+  // mid-flip, even if the browser delays the first frame.
   //
   // hoverCount survives mouseleave-A → mouseenter-B; the microtask
   // deferral on leave catches the same handoff so we don't tear the
   // pending drain down between adjacent cards.
-  const FLIP_MS = 700;
   let hoverCount = 0;
-  let drainTimer: ReturnType<typeof setTimeout> | null = null;
 
   function enterCard() {
     hoverCount++;
-    if (hoverCount === 1 && drainTimer === null && sketchMode.slow === 0) {
-      drainTimer = setTimeout(() => {
-        sketchMode.slow = 1;
-        drainTimer = null;
-      }, FLIP_MS);
-    }
   }
   function leaveCard() {
     hoverCount--;
@@ -31,13 +23,17 @@
       hoverCount = 0;
       queueMicrotask(() => {
         if (hoverCount > 0) return;
-        if (drainTimer !== null) {
-          clearTimeout(drainTimer);
-          drainTimer = null;
-        }
         sketchMode.slow = 0;
       });
     }
+  }
+  function onSectionTransitionEnd(e: TransitionEvent) {
+    // Only the card outer + inner flip transition `transform`. Both end
+    // at the same paint; the first one to fire is enough.
+    if (e.propertyName !== "transform") return;
+    if (hoverCount === 0) return;
+    if (sketchMode.slow === 1) return;
+    sketchMode.slow = 1;
   }
 
   const cards = [
@@ -87,6 +83,7 @@
     </h1>
   </header>
   <section
+    ontransitionend={onSectionTransitionEnd}
     class="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-6 md:grid-cols-3 md:gap-9"
   >
     {#each cards as card (card.href)}
