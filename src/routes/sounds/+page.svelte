@@ -262,23 +262,23 @@
   </section>
 
   <section class="hmbm">
+    <h2 class="hmbm-title">{HMBM_FILM.title}</h2>
+    <p class="hmbm-meta">sk+w · film score · {HMBM_FILM.year} · {manifest.scores.hmbm.length} cues</p>
     <div class="hmbm-poster">
       <span class="hmbm-poster-ph" aria-hidden="true">?</span>
       {#if HMBM_FILM.poster}
         <img src={url(HMBM_FILM.poster)} alt="how many blind mice? — film poster" onerror={imgErr} />
       {/if}
       <span class="badge badge-score">score</span>
-    </div>
-    <h2 class="hmbm-title">{HMBM_FILM.title}</h2>
-    <p class="hmbm-meta">sk+w · film score · {HMBM_FILM.year} · {manifest.scores.hmbm.length} cues</p>
-    <div class="cue-list">
-      {#each manifest.scores.hmbm as cue (cue.src)}
-        <button
-          class="cue-chip"
-          class:on={player.track?.src === url(cue.src) && player.playing}
-          onclick={() => playCue(cue)}
-        >▸ {cue.timecode}</button>
-      {/each}
+      <div class="cue-list">
+        {#each manifest.scores.hmbm as cue (cue.src)}
+          <button
+            class="cue-chip"
+            class:on={player.track?.src === url(cue.src) && player.playing}
+            onclick={() => playCue(cue)}
+          >▸ {cue.timecode}</button>
+        {/each}
+      </div>
     </div>
   </section>
 </main>
@@ -543,7 +543,7 @@
     opacity: 0.7;
   }
 
-  /* HMBM film score — poster snapped right, cues flowing after it */
+  /* HMBM film score — heading, then the poster with the cue slider over its base */
   .hmbm {
     margin-top: 4.5rem;
     border-top: 1px solid rgba(255, 255, 255, 0.12);
@@ -551,12 +551,12 @@
   }
   .hmbm-poster {
     position: relative;
-    float: right;
-    width: clamp(160px, 22vw, 260px);
+    width: 100%;
+    max-width: 460px; /* desktop: a prominent poster, not full-bleed */
     aspect-ratio: 4 / 5;
     border-radius: 10px;
     overflow: hidden;
-    margin: 0 0 1.5rem 2rem;
+    margin: 0.4rem 0 0;
     border: 1px solid rgba(255, 255, 255, 0.16);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
     background: var(--black);
@@ -603,10 +603,19 @@
     padding: 0.2em 0.5em;
     border-radius: 5px;
   }
+  /* cue slider — one row over the bottom of the poster, horizontally scrollable */
   .cue-list {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.6rem;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding: 2rem 0.7rem 0.7rem; /* top pad lets the gradient fade the chips in */
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.92) 40%, transparent);
+    scrollbar-width: thin;
+    scrollbar-color: var(--coin) transparent;
   }
   .cue-chip {
     flex: 0 0 auto;
@@ -732,11 +741,10 @@
       font-size: 0.68rem;
     }
     .hmbm-poster {
-      float: none;
-      display: block;
-      width: 60%;
-      max-width: 240px;
-      margin: 0 0 1.2rem;
+      max-width: none; /* full-span on phones */
+    }
+    .hmbm-poster img {
+      filter: none; /* no hover on touch — show the poster in colour */
     }
   }
 
