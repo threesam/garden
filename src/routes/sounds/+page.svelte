@@ -509,6 +509,15 @@
     opacity: 1;
     transform: scale(1);
   }
+  /* On desktop, the playing card's pause button hides until you hover it — the
+     modal stays a clean cover (+ coin ring). The loading swirl still shows (it's
+     not yet `.playing`, or is also `.loading` mid auto-advance), and touch devices
+     keep the button visible since there's no hover to summon it. */
+  @media (hover: hover) {
+    .stack.playing:not(.loading):not(:hover) .play {
+      opacity: 0;
+    }
+  }
 
   figcaption {
     margin-top: 0.9rem;
