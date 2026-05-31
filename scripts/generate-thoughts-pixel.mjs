@@ -18,8 +18,12 @@ const SRC_DIR = "static/assets";
 const OUT_DIR = "static/assets/thoughts-pixel";
 
 // Mirrors the cards in src/routes/thoughts/+page.svelte.
+// self-hero.webp (landscape, contrasty mid-frame subject) beats
+// self-hero-mobile.webp here — the mobile crop is so soft + low-
+// variance that 29 grayscale pixels blur into a smooth gradient
+// instead of reading as discrete 13px blocks like the other cards.
 const TARGETS = [
-  { src: "self-hero-mobile.webp", out: "self.webp" },
+  { src: "self-hero.webp", out: "self.webp" },
   { src: "benny-photos/033.jpg", out: "benny.webp" },
   { src: "dad-1.webp", out: "dad.webp" },
 ];
