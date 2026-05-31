@@ -30,7 +30,10 @@
   });
 
   // createRawSnippet mounts VoronoiImage components into Prose's slot system,
-  // bypassing SSR hydration issues with {@html} markers.
+  // bypassing SSR hydration issues with {@html} markers. Mount is deferred
+  // until the slot scrolls within 400px of the viewport — voronoi canvases
+  // are expensive (each is a WebGL pipeline) and the 6 banners eat ~1s of
+  // TBT if mounted eagerly.
   const voronoiSlots = $derived(
     Object.fromEntries(
       Object.entries(extracted.banners).map(([id, banner]) => {
@@ -41,8 +44,21 @@
           createRawSnippet(() => ({
             render: () => `<div data-voronoi-slot="${id}" class="my-12 -mx-6 md:-mx-9"></div>`,
             setup(node: Element) {
-              const instance = mount(VoronoiImage, { target: node, props: { src, alt } });
-              return () => unmount(instance);
+              let instance: ReturnType<typeof mount> | null = null;
+              const io = new IntersectionObserver(
+                (entries) => {
+                  if (entries[0].isIntersecting && !instance) {
+                    instance = mount(VoronoiImage, { target: node, props: { src, alt } });
+                    io.disconnect();
+                  }
+                },
+                { rootMargin: '400px' }
+              );
+              io.observe(node);
+              return () => {
+                io.disconnect();
+                if (instance) unmount(instance);
+              };
             },
           })),
         ];
@@ -82,6 +98,15 @@
 />
 
 <div class="relative h-dvh w-full overflow-hidden">
+  <!-- LCP element: the static hero paints in one frame from the preload.
+       The voronoi canvas overdraws once its WebGL pipeline warms up. -->
+  <img
+    src="/assets/self-hero.webp"
+    alt=""
+    fetchpriority="high"
+    decoding="async"
+    class="absolute inset-0 h-full w-full object-cover"
+  />
   <VoronoiCanvas invert imageSrc="/assets/self-hero.webp" showLetters={false} fit="cover" />
   <h1
     class="pointer-events-none absolute bottom-6 left-6 z-10 font-mono text-3xl font-bold uppercase tracking-[0.1em] md:bottom-20 md:left-20 md:text-8xl"

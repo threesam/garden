@@ -57,3 +57,4 @@ content/notes/
 # sounds — local-first source material + generated audio (manifest is committed)
 /sc-inventory/
 /static/audio/sounds/
+lh-triage.json
