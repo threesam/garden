@@ -188,7 +188,6 @@
   };
   const tileStatus = (slug: string) => (player.track?.slug === slug ? status() : "play");
 
-
   // The fullscreen eyes gaze toward the playing song's card. Recompute its viewport
   // center on play/pause/track-change and on scroll/resize — one layout read, not
   // per animation frame. null when nothing in the grid is playing (a paused track,
