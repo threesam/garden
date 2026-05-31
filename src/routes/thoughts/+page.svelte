@@ -74,7 +74,7 @@
         href={card.href}
         onmouseenter={enterCard}
         onmouseleave={leaveCard}
-        class="group relative block border-[3px] border-transparent transition-[border-color,transform] duration-700 hover:border-coin hover:[transform:rotate(-1.3deg)]"
+        class="group relative block transition-transform duration-700 hover:[transform:rotate(-1.3deg)]"
       >
         <!-- mobile: polaroid (cream card, image padded matching the text padding below) -->
         <div class="bg-white p-4 md:hidden">
