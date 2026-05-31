@@ -101,7 +101,8 @@
     playTrack({ src, title: `how many blind mice? ${cue.timecode}`, variant: "cue", slug: cue.src });
   };
 
-  // Auto-advance when a track ends: next grid song, then HMBM cues, then stop.
+  // Auto-advance when a track ends: the next grid song, or the next HMBM cue —
+  // each list advances within itself and stops at its end (no grid→cue bridge).
   const playNext = () => {
     const cur = player.track;
     if (!cur) return;
