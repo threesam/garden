@@ -34,6 +34,7 @@ export function attach(node: HTMLAudioElement) {
     cancelAnimationFrame(raf);
     raf = 0;
     scrubbing = false; // clear any latched drag so the new mount's readout isn't frozen
+    gen++; // invalidate any in-flight start() from the outgoing element
     el.pause(); // stop the outgoing element before we drop our reference to it
     player.playing = false;
     player.currentTime = 0;
