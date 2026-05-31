@@ -350,6 +350,10 @@
     padding: 7rem 1.5rem calc(var(--player-h) + 6rem);
     color: var(--white);
     font-family: "Recursive Mono", ui-monospace, monospace;
+    /* the fanned dub-stack cards rotate past the edge columns; clip that off-screen
+       overhang so it can't spawn a horizontal scrollbar. `clip` (not `hidden`) so
+       main doesn't become a scroll container — overflow-y stays visible. */
+    overflow-x: clip;
   }
   /* title pinned top-left, inline with the nav coin, above the top scrim */
   .brand {
