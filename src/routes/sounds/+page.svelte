@@ -90,18 +90,21 @@
     credit: string | null;
     cover: string | null;
   }
-  let tiles = $derived<Tile[]>([
-    ...manifest.demos.eps.flatMap((e) =>
-      e.songs.map((song) => ({ song, kind: "demo" as const, credit: e.label, cover: song.cover })),
-    ),
-    ...manifest.demos.singles.map((song) => ({ song, kind: "demo" as const, credit: null, cover: song.cover })),
-    ...manifest.scores.skw.map((song) => ({
-      song,
-      kind: "score" as const,
-      credit: "sk+w",
-      cover: SCORE_POSTER[song.slug] ?? song.cover,
-    })),
-  ]);
+  // 404 stays pinned at the top (the featured tiles); the other demos (fa11faster
+  // + singles) flow chronologically, newest first; the sk+w film scores trail.
+  let tiles: Tile[] = $derived.by(() => {
+    const demo = (song: Song, credit: string | null): Tile => ({ song, kind: "demo", credit, cover: song.cover });
+    const pinned = manifest.demos.eps.find((e) => e.label === "404");
+    const pinnedTiles = pinned ? pinned.songs.map((s) => demo(s, pinned.label)) : [];
+    const rest = [
+      ...manifest.demos.eps.filter((e) => e.label !== "404").flatMap((e) => e.songs.map((s) => demo(s, e.label))),
+      ...manifest.demos.singles.map((s) => demo(s, null)),
+    ].sort((a, b) => b.song.latest.localeCompare(a.song.latest)); // latest = newest version date
+    const scores = manifest.scores.skw.map(
+      (s): Tile => ({ song: s, kind: "score", credit: "sk+w", cover: SCORE_POSTER[s.slug] ?? s.cover }),
+    );
+    return [...pinnedTiles, ...rest, ...scores];
+  });
 
   // Pause/resume the current track (logs the umami event). A fresh play of a
   // different track goes through play/playCue below.
