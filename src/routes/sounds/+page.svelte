@@ -329,6 +329,16 @@
   .stack.playing .card img {
     filter: grayscale(0);
   }
+  /* coin ring around the playing card — radius is concentric with the cover
+     (.card 8px + 5px inset = 13px) so the corners track the cover's curve */
+  .stack.playing .deck::after {
+    content: "";
+    position: absolute;
+    inset: -5px;
+    border-radius: 13px;
+    border: 2px solid var(--coin);
+    pointer-events: none;
+  }
   /* demo / score badge, pinned over the top-left of the cover */
   .badge {
     position: absolute;
