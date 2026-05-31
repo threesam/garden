@@ -256,7 +256,7 @@
         aria-label={active ? `pause ${song.title}` : `play ${song.title}`}
         onclick={() => play(song)}
       >
-        <PlayGlyph state={tileStatus(song.slug)} />
+        <span class="disc"><PlayGlyph state={tileStatus(song.slug)} /></span>
       </button>
     </div>
     <figcaption>
@@ -487,38 +487,46 @@
     background: var(--coin);
   }
 
+  /* the whole cover is the play/pause target — the click area is the full image,
+     not just the disc; the visible coin disc is an inner element */
   .play {
     position: absolute;
     inset: 0;
-    margin: auto;
-    width: 52px;
-    height: 52px;
     border: 0;
-    border-radius: 50%;
-    background: var(--coin);
-    color: var(--black);
-    font-size: 1.4rem; /* drives the glyph size (in em) — larger arrow in the disc */
+    padding: 0;
+    background: transparent;
     display: grid;
     place-items: center;
     cursor: pointer;
+    z-index: 50;
+  }
+  .play .disc {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--coin);
+    color: var(--black);
+    font-size: 1.4rem; /* drives the glyph size (in em) */
+    display: grid;
+    place-items: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
     opacity: 0;
     transform: scale(0.8);
     transition: opacity 0.22s, transform 0.22s;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
-    z-index: 50;
   }
-  .stack:hover .play,
-  .stack.loading .play,
-  .stack.playing .play {
+  /* the disc (affordance) reveals on hover / loading / playing; the full-cover
+     button stays clickable regardless */
+  .stack:hover .play .disc,
+  .stack.loading .play .disc,
+  .stack.playing .play .disc {
     opacity: 1;
     transform: scale(1);
   }
-  /* On desktop, the playing card's pause button hides until you hover it — the
-     modal stays a clean cover (+ coin ring). The loading swirl still shows (it's
-     not yet `.playing`, or is also `.loading` mid auto-advance), and touch devices
-     keep the button visible since there's no hover to summon it. */
+  /* On desktop, the playing card's pause disc hides until you hover the cover —
+     the modal stays a clean cover (+ coin ring). The loading swirl still shows,
+     and touch devices keep it visible. The full-cover target still pauses either way. */
   @media (hover: hover) {
-    .stack.playing:not(.loading):not(:hover) .play {
+    .stack.playing:not(.loading):not(:hover) .play .disc {
       opacity: 0;
     }
   }
