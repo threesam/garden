@@ -27,8 +27,11 @@
     let lock: { release(): Promise<void> } | null = null;
     let active = true;
     const acquire = async () => {
+      if (lock) return; // already holding one — don't orphan it with a second
       try {
-        lock = await api.request("screen");
+        const next = await api.request("screen");
+        if (active) lock = next;
+        else await next.release().catch(() => {}); // released during the await
       } catch {
         // denied (tab not visible / insecure context) — ignore
       }
