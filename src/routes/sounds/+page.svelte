@@ -276,7 +276,7 @@
             class="cue-chip"
             class:on={player.track?.src === url(cue.src) && player.playing}
             onclick={() => playCue(cue)}
-          >▸ {cue.timecode}</button>
+          >▸ {cue.timecode.replace(/[-–]null$/, "")}</button>
         {/each}
       </div>
     </div>
