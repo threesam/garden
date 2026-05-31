@@ -6,7 +6,7 @@
 //
 // Each output pixel is sharp's Lanczos-weighted average of the source
 // neighborhood, then grayscale via standard luminance. Output width is sized
-// so a typical desktop card (~450 CSS px wide) renders ~3 CSS px per square.
+// so a typical desktop card (~375 CSS px wide) renders ~3 CSS px per square.
 //
 // Run: pnpm bake:thoughts
 
