@@ -127,8 +127,8 @@ export const day30: Sketch = {
     // card fades white → coin. At currentSlow=0 walkers are coin-tinted
     // (per-walker brightness wk.color/255 scales the channels — keeps
     // the gold textured) and crawl at 25% of base speed: idle reads as
-    // a sluggish drift. At currentSlow=1 they snap to brand --white and
-    // burst to 2× base.
+    // a sluggish drift. At currentSlow=1 they fade to brand --white and
+    // drop further to 5% of base — drained of color *and* energy.
     let currentSlow = 0;
     const SLOW_RATE = 1 / 180;
     // --coin = #e8a317
@@ -234,7 +234,7 @@ export const day30: Sketch = {
         } else if (sketchMode.slow < currentSlow) {
           currentSlow = Math.max(sketchMode.slow, currentSlow - SLOW_RATE);
         }
-        const speedMul = 0.25 + 1.75 * currentSlow;
+        const speedMul = 0.25 - 0.2 * currentSlow;
 
         // Full-canvas alpha-blended fill is the single most expensive
         // op in this sketch (measured ~2ms on a desktop 2880×1800 DPR-2
