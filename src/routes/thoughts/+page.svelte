@@ -36,15 +36,15 @@
 />
 
 <main
-  class="relative min-h-dvh w-full overflow-hidden bg-[var(--black)] px-6 py-18 md:px-9 md:py-24"
+  class="relative min-h-dvh w-full overflow-hidden bg-black px-6 py-18 md:px-9 md:py-24"
 >
   <div class="pointer-events-none absolute inset-0 z-0">
-    <SketchHost slug="30" active interactive={false} bgClass="bg-[var(--black)]" />
+    <SketchHost slug="30" active interactive={false} bgClass="bg-black" />
   </div>
 
   <header class="relative z-10 mx-auto mb-12 max-w-7xl md:mb-18">
     <h1
-      class="font-mono text-4xl font-bold uppercase tracking-[0.2em] text-[var(--white)] md:text-7xl"
+      class="font-mono text-4xl font-bold uppercase tracking-[0.2em] text-white md:text-7xl"
     >
       thoughts
     </h1>
@@ -55,7 +55,7 @@
     {#each cards as card (card.href)}
       <a
         href={card.href}
-        class="group relative block border-[3px] border-transparent transition-[border-color,transform] duration-700 hover:border-[var(--coin)] hover:[transform:rotate(-1.3deg)]"
+        class="group relative block border-[3px] border-transparent transition-[border-color,transform] duration-700 hover:border-coin hover:[transform:rotate(-1.3deg)]"
       >
         <div class="aspect-[4/5] overflow-hidden">
           <img
@@ -66,15 +66,15 @@
           />
         </div>
         <div
-          class="bg-[var(--white)]/90 px-4 py-4 transition-colors duration-700 group-hover:bg-[var(--coin)] md:px-5 md:py-5"
+          class="bg-white/90 px-4 py-4 transition-colors duration-700 group-hover:bg-coin md:px-5 md:py-5"
         >
           <span
-            class="block font-mono text-xl font-bold uppercase tracking-[0.3em] text-[var(--black)] md:text-2xl"
+            class="block font-mono text-xl font-bold uppercase tracking-[0.3em] text-black md:text-2xl"
           >
             {card.title}
           </span>
           <p
-            class="mt-2 font-mono text-xs uppercase tracking-[0.15em] text-[var(--black)] md:text-sm"
+            class="mt-2 font-mono text-xs uppercase tracking-[0.15em] text-black md:text-sm"
           >
             {card.description}
           </p>
