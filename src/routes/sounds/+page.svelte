@@ -14,6 +14,37 @@
     if (audioEl) attach(audioEl);
   });
 
+  // Keep the screen awake while a track plays (handy on mobile). Re-acquires on
+  // tab return; the lock drops automatically when playback stops.
+  $effect(() => {
+    if (!player.playing) return;
+    const api = (
+      navigator as Navigator & {
+        wakeLock?: { request(type: "screen"): Promise<{ release(): Promise<void> }> };
+      }
+    ).wakeLock;
+    if (!api) return;
+    let lock: { release(): Promise<void> } | null = null;
+    let active = true;
+    const acquire = async () => {
+      try {
+        lock = await api.request("screen");
+      } catch {
+        // denied (tab not visible / insecure context) — ignore
+      }
+    };
+    const onVisible = () => {
+      if (active && document.visibilityState === "visible") acquire();
+    };
+    acquire();
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      active = false;
+      document.removeEventListener("visibilitychange", onVisible);
+      lock?.release().catch(() => {});
+    };
+  });
+
   // viewport point the backdrop eyes gaze toward — the playing song's card center
   let gaze = $state<{ x: number; y: number } | null>(null);
 
@@ -376,15 +407,12 @@
   .stack.playing .card img {
     filter: grayscale(0);
   }
-  /* coin ring around the playing card — radius is concentric with the cover
-     (.card 8px + 5px inset = 13px) so the corners track the cover's curve */
-  .stack.playing .deck::after {
-    content: "";
-    position: absolute;
-    inset: -5px;
-    border-radius: 13px;
-    border: 2px solid var(--coin);
-    pointer-events: none;
+  /* coin ring hugging the playing card — on the top card itself, so the outline
+     follows its 8px radius, tracks its transform, and isn't clipped: wraps
+     precisely with no gap. The fanned cards peek out behind it. */
+  .stack.playing .deck > .card:first-child {
+    outline: 2px solid var(--coin);
+    outline-offset: 0;
   }
   /* demo / score badge, pinned over the top-left of the cover */
   .badge {
