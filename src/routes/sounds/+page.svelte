@@ -2,7 +2,7 @@
   import SeoHead from "$lib/components/SeoHead.svelte";
   import { collectionPageNode } from "$lib/seo";
   import EyeOcean from "$lib/sounds/EyeOcean.svelte";
-  import { player, attach, playTrack, toggle, seek } from "$lib/sounds/player.svelte";
+  import { player, attach, playTrack, toggle, seek, setScrubbing } from "$lib/sounds/player.svelte";
   import type { PageData } from "./$types";
   import type { Cue, Song } from "$lib/sounds/types";
 
@@ -52,6 +52,8 @@
   let gaze = $state<{ x: number; y: number } | null>(null);
 
   const url = (p: string) => base + p; // manifest path → R2 origin (prod) / static (dev)
+  // the ingest leaves a trailing "–null" end on the last HMBM cue's timecode
+  const cueTime = (tc: string) => tc.replace(/[-–]null$/, "");
 
   // Hide a cover/poster that fails to load so the "?" placeholder behind it shows
   // through (some film posters aren't mirrored to R2 yet).
@@ -137,8 +139,9 @@
       toggleCurrent();
       return;
     }
-    trackEvent("sounds-play", { slug: "hmbm", variant: cue.timecode });
-    playTrack({ src, title: `how many blind mice? ${cue.timecode}`, variant: "cue", slug: cue.src });
+    const tc = cueTime(cue.timecode);
+    trackEvent("sounds-play", { slug: "hmbm", variant: tc });
+    playTrack({ src, title: `how many blind mice? ${tc}`, variant: "cue", slug: cue.src });
   };
 
   // Auto-advance when a track ends: the next grid song, or the next HMBM cue —
@@ -280,7 +283,7 @@
             class="cue-chip"
             class:on={player.track?.src === url(cue.src) && player.playing}
             onclick={() => playCue(cue)}
-          >▸ {cue.timecode.replace(/[-–]null$/, "")}</button>
+          >▸ {cueTime(cue.timecode)}</button>
         {/each}
       </div>
     </div>
@@ -314,6 +317,9 @@
     step="0.1"
     value={player.currentTime}
     oninput={(e) => seek(+e.currentTarget.value)}
+    onpointerdown={() => setScrubbing(true)}
+    onpointerup={() => setScrubbing(false)}
+    onpointercancel={() => setScrubbing(false)}
     aria-label="seek"
   />
   <span class="t">{fmt(player.duration)}</span>
