@@ -36,10 +36,7 @@
   onMount replaces location to the scroll-snap gallery at
   /anything-but-analog#<slug> — mirrors ArtRedirect in the Next.js original.
 -->
-<main
-  class="flex h-dvh items-center justify-center"
-  style="background-color: var(--black); color: var(--white);"
->
+<main class="flex h-dvh items-center justify-center bg-black text-white">
   <noscript>
     <a href={target} class="underline">continue to {data.title}</a>
   </noscript>

@@ -11,19 +11,19 @@
   let { heading = false, tone = 'dark' }: { heading?: boolean; tone?: 'dark' | 'light' } =
     $props();
   const tag = $derived(heading ? 'h1' : 'div');
-  const color = $derived(tone === 'light' ? 'text-[var(--white)]' : 'text-[var(--black)]');
+  const color = $derived(tone === 'light' ? 'text-white' : 'text-black');
 </script>
 
 <svelte:element
   this={tag}
-  class="absolute bottom-6 left-6 z-10 font-mono text-3xl font-bold tracking-[0.15em] {color} md:bottom-8 md:left-8 md:text-4xl"
+  class="absolute bottom-6 left-6 z-10 font-mono text-3xl font-bold tracking-meta {color} md:bottom-8 md:left-8 md:text-4xl"
 >
   threesam
 </svelte:element>
 <!-- Mobile: stacked above the wordmark (both left) so the two never collide on
      narrow screens. md+: spread to the opposite bottom corner. -->
 <p
-  class="absolute bottom-16 left-6 z-10 font-mono text-sm tracking-[0.2em] {color} md:bottom-8 md:left-auto md:right-8 md:text-base"
+  class="absolute bottom-16 left-6 z-10 font-mono text-sm tracking-hero {color} md:bottom-8 md:left-auto md:right-8 md:text-base"
 >
   certainly uncertain
 </p>

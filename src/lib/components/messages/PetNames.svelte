@@ -29,7 +29,7 @@
 
 <div>
 	<div class="mb-6 flex items-baseline justify-between">
-		<span class="font-mono text-xs tracking-[0.16em] text-zinc-600">pet names</span>
+		<span class="font-mono text-xs tracking-label text-zinc-600">pet names</span>
 	</div>
 	<div class="grid gap-6 sm:grid-cols-2">
 		<div>

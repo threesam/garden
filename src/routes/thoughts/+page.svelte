@@ -86,7 +86,7 @@
 
   <header class="relative z-10 mx-auto mb-12 max-w-7xl md:mb-18">
     <h1
-      class="font-mono text-4xl font-bold uppercase tracking-[0.2em] text-white md:text-7xl"
+      class="font-mono text-4xl font-bold uppercase tracking-hero text-white md:text-7xl"
     >
       thoughts
     </h1>
@@ -114,12 +114,12 @@
           ></div>
           <div class="absolute right-4 bottom-4 left-4">
             <span
-              class="block font-mono text-xl font-bold uppercase tracking-[0.3em] text-white"
+              class="block font-mono text-xl font-bold uppercase tracking-pill text-white"
             >
               {card.title}
             </span>
             <p
-              class="mt-1.5 font-mono text-xs uppercase tracking-[0.15em] text-white"
+              class="mt-1.5 font-mono text-xs uppercase tracking-meta text-white"
             >
               {card.description}
             </p>
@@ -143,12 +143,12 @@
               class="absolute inset-0 flex flex-col justify-center bg-white p-6 transition-colors duration-[3000ms] group-hover:bg-coin [backface-visibility:hidden] [transform:rotateY(180deg)]"
             >
               <span
-                class="block font-mono text-2xl font-bold uppercase tracking-[0.3em] text-black"
+                class="block font-mono text-2xl font-bold uppercase tracking-pill text-black"
               >
                 {card.title}
               </span>
               <p
-                class="mt-3 font-mono text-sm uppercase tracking-[0.15em] text-black"
+                class="mt-3 font-mono text-sm uppercase tracking-meta text-black"
               >
                 {card.description}
               </p>

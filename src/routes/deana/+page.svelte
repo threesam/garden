@@ -41,13 +41,10 @@
   })}
 />
 
-<main style="background-color: var(--white);">
+<main class="bg-white">
   <AsciiImageSection src={DEANA_PHOTOS[0]} />
 
-  <section
-    class="w-full px-3 py-12 md:px-6 md:py-24"
-    style="background-color: var(--white);"
-  >
+  <section class="w-full bg-white px-3 py-12 md:px-6 md:py-24">
     <div class="mx-auto w-full max-w-7xl flex flex-col {g}">
       <LazyMount>
         {#await loadMessageTimeline() then mod}
@@ -62,10 +59,7 @@
 
   <AsciiImageSection src={DEANA_PHOTOS[1]} />
 
-  <section
-    class="w-full px-3 py-12 md:px-6 md:py-24"
-    style="background-color: var(--white);"
-  >
+  <section class="w-full bg-white px-3 py-12 md:px-6 md:py-24">
     <div class="mx-auto w-full max-w-7xl flex flex-col {g}">
       <LazyMount>
         {#await loadClockHeatmap() then mod}
@@ -80,10 +74,7 @@
 
   <AsciiImageSection src={DEANA_PHOTOS[2]} />
 
-  <section
-    class="w-full px-3 py-12 md:px-6 md:py-24"
-    style="background-color: var(--white);"
-  >
+  <section class="w-full bg-white px-3 py-12 md:px-6 md:py-24">
     <div class="mx-auto w-full max-w-7xl flex flex-col {g}">
       <LazyMount>
         <div class="grid grid-cols-1 md:grid-cols-3 {g}">
@@ -120,10 +111,7 @@
 
   <AsciiImageSection src={DEANA_PHOTOS[3]} />
 
-  <section
-    class="w-full px-3 py-12 md:px-6 md:py-24"
-    style="background-color: var(--white);"
-  >
+  <section class="w-full bg-white px-3 py-12 md:px-6 md:py-24">
     <div class="mx-auto w-full max-w-7xl flex flex-col {g}">
       <LazyMount>
         <div class="grid grid-cols-1 md:grid-cols-2 {g}">

@@ -63,7 +63,7 @@
     <div class="voronoi-banner-inner">
       <VoronoiCanvas imageSrc={src} invert showLetters={false} />
       <span
-        class="absolute {vClass} {hClass} font-mono text-2xl font-bold uppercase tracking-[0.1em] md:text-5xl pointer-events-none z-10"
+        class="absolute {vClass} {hClass} font-mono text-2xl font-bold uppercase tracking-base md:text-5xl pointer-events-none z-10"
         style="color: {color}; white-space: pre-line"
       >
         {heading}

@@ -26,7 +26,7 @@
 
 <OutboundTracker />
 <Guide />
-<div style="background: var(--white)">
+<div class="bg-white">
   {@render children()}
 </div>
 <Anchor />

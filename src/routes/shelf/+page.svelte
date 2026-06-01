@@ -31,7 +31,7 @@
         href={`https://www.goodreads.com/book/show/${book.id}`}
         target="_blank"
         rel="noopener noreferrer"
-        class="group relative block break-inside-avoid p-1.5 md:transition-[background-color,box-shadow] md:duration-300 md:ease-out md:hover:z-10 md:hover:bg-[var(--coin)] md:hover:shadow-[0_0_0_4px_var(--coin)]"
+        class="group relative block break-inside-avoid p-1.5 md:transition-[background-color,box-shadow] md:duration-300 md:ease-out md:hover:z-10 md:hover:bg-coin md:hover:shadow-[0_0_0_4px_var(--coin)]"
       >
         {#if book.coverUrl}
           <img
@@ -43,7 +43,7 @@
             class="block h-auto w-full md:transition-[filter] md:duration-300 md:group-hover:grayscale"
           />
         {:else}
-          <div class="flex aspect-2/3 w-full items-center justify-center bg-[var(--black)] p-3 text-center text-xs text-zinc-600">
+          <div class="flex aspect-2/3 w-full items-center justify-center bg-black p-3 text-center text-xs text-zinc-600">
             {book.cleanTitle}
           </div>
         {/if}

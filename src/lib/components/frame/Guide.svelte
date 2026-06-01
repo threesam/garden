@@ -98,7 +98,7 @@
     href="/"
     onclick={() => (open = false)}
     data-sveltekit-preload-code="hover"
-    class="font-mono text-2xl font-bold tracking-[0.3em] transition-transform duration-300 hover:scale-110 hover:duration-[4000ms] hover:ease-out"
+    class="font-mono text-2xl font-bold tracking-pill transition-transform duration-300 hover:scale-110 hover:duration-[4000ms] hover:ease-out"
     style="color:var(--black)"
   >
     go home

@@ -33,7 +33,7 @@
 
 <div>
 	<div class="mb-6 flex items-baseline justify-between">
-		<span class="font-mono text-xs tracking-[0.16em] text-zinc-600">emoji</span>
+		<span class="font-mono text-xs tracking-label text-zinc-600">emoji</span>
 		<span class="font-mono text-[10px] text-zinc-600">
 			{(emojiData.sam_total + emojiData.dia_total).toLocaleString()} total
 		</span>

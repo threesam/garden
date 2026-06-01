@@ -85,15 +85,14 @@
 			{s.slug}
 		</span>
 		<span
-			class="pointer-events-none absolute bottom-6 left-6 z-10 font-mono text-xs uppercase tracking-[0.25em] md:bottom-10 md:left-10 md:text-sm"
-			style="color: var(--white); mix-blend-mode: difference;"
+			class="pointer-events-none absolute bottom-6 left-6 z-10 font-mono text-xs uppercase tracking-[0.25em] text-white md:bottom-10 md:left-10 md:text-sm"
+			style="mix-blend-mode: difference;"
 		>
 			{s.date}
 		</span>
 		{#if s.description}
 			<span
-				class="pointer-events-none absolute right-6 bottom-6 z-10 max-w-[60%] text-right font-mono text-xs uppercase tracking-[0.2em] md:right-10 md:bottom-10 md:max-w-[40%] md:text-sm"
-				style="color: var(--white);"
+				class="pointer-events-none absolute right-6 bottom-6 z-10 max-w-[60%] text-right font-mono text-xs uppercase tracking-hero text-white md:right-10 md:bottom-10 md:max-w-[40%] md:text-sm"
 			>
 				{s.description}
 			</span>

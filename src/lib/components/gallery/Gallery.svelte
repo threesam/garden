@@ -284,7 +284,7 @@
 				draggable="false"
 				data-sveltekit-preload-data="off"
 				onclick={(e) => handleClick(e, item)}
-				class="gallery-card group relative block h-full shrink-0 overflow-hidden rounded-2xl border-2 border-[var(--black)] transition-[border-color,transform] duration-700 hover:border-[var(--coin)] hover:[transform:rotate(-1.3deg)]"
+				class="gallery-card group relative block h-full shrink-0 overflow-hidden rounded-2xl border-2 border-black transition-[border-color,transform] duration-700 hover:border-coin hover:[transform:rotate(-1.3deg)]"
 				style="aspect-ratio: 4 / 5; background-color: {BG_MAP[item.handle as ItemHandle] ?? 'var(--black)'};"
 			>
 				{#if visible}
@@ -314,7 +314,7 @@
 				{/if}
 				<span
 					data-card-label
-					class="absolute bottom-6 left-6 z-10 rounded-2xl bg-[var(--black)] p-3 font-mono text-xl font-bold uppercase tracking-[0.3em] text-[var(--white)] transition-colors duration-300 group-hover:text-[var(--coin)] lg:text-2xl"
+					class="absolute bottom-6 left-6 z-10 rounded-2xl bg-black p-3 font-mono text-xl font-bold uppercase tracking-pill text-white transition-colors duration-300 group-hover:text-coin lg:text-2xl"
 				>
 					{#if item.handle === 'deana'}
 						<DanaLabel />
