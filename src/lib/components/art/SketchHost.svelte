@@ -14,11 +14,11 @@
 		 * mouse/touch reactivity in the sketch. Defaults to true.
 		 */
 		interactive?: boolean;
-		/** Tailwind class for the canvas backdrop. Defaults to bg-[var(--black)]. */
+		/** Tailwind class for the canvas backdrop. Defaults to bg-black. */
 		bgClass?: string;
 	}
 
-	let { slug, seed, active, interactive = true, bgClass = 'bg-[var(--black)]' }: Props = $props();
+	let { slug, seed, active, interactive = true, bgClass = 'bg-black' }: Props = $props();
 
 	const params = $derived({ slug, seed, active, interactive });
 </script>

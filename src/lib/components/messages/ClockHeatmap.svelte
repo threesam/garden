@@ -19,7 +19,7 @@
 
 <div>
 	<div class="mb-3 flex items-baseline justify-between">
-		<span class="font-mono text-xs tracking-[0.16em] text-zinc-600">when we talked</span>
+		<span class="font-mono text-xs tracking-label text-zinc-600">when we talked</span>
 		<span class="font-mono text-[10px] text-zinc-600">hour of day x day of week</span>
 	</div>
 	<div class="overflow-x-auto">

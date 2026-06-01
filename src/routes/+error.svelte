@@ -3,13 +3,9 @@
 </script>
 
 <main
-  class="flex min-h-dvh flex-col items-center justify-center gap-6 px-6"
-  style="background: var(--black); color: var(--white)"
+  class="flex min-h-dvh flex-col items-center justify-center gap-6 bg-black px-6 text-white"
 >
-  <div
-    class="font-mono text-xs uppercase tracking-[0.3em]"
-    style="color: var(--coin)"
-  >
+  <div class="font-mono text-xs uppercase tracking-pill text-coin">
     {page.status === 404 ? '404' : page.status}
   </div>
   <h1 class="text-3xl font-bold leading-tight md:text-4xl">
@@ -17,8 +13,7 @@
   </h1>
   <a
     href="/"
-    class="font-mono text-xs uppercase tracking-[0.2em] underline underline-offset-4 transition-opacity hover:opacity-70"
-    style="color: var(--coin)"
+    class="font-mono text-xs uppercase tracking-hero text-coin underline underline-offset-4 transition-opacity hover:opacity-70"
   >
     back home
   </a>

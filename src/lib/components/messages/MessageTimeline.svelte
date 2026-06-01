@@ -123,17 +123,17 @@
 		<div class="flex gap-3">
 			<button
 				onclick={() => (tab = 'messages')}
-				class="font-mono text-xs tracking-[0.16em] transition-colors {tab === 'messages'
-					? 'text-[var(--black)]'
-					: 'text-zinc-600 hover:text-[var(--black)]'}"
+				class="font-mono text-xs tracking-label transition-colors {tab === 'messages'
+					? 'text-black'
+					: 'text-zinc-600 hover:text-black'}"
 			>
 				messages
 			</button>
 			<button
 				onclick={() => (tab = 'media')}
-				class="font-mono text-xs tracking-[0.16em] transition-colors {tab === 'media'
-					? 'text-[var(--black)]'
-					: 'text-zinc-600 hover:text-[var(--black)]'}"
+				class="font-mono text-xs tracking-label transition-colors {tab === 'media'
+					? 'text-black'
+					: 'text-zinc-600 hover:text-black'}"
 			>
 				media
 			</button>

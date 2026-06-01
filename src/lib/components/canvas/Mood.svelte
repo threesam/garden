@@ -22,7 +22,7 @@
   {/if}
 
   <!-- Title — anchored to the bottom, floating over the visual -->
-  <h1 class="relative z-10 px-6 pb-12 font-mono text-sm tracking-[0.2em] text-foreground/70 md:px-9 md:pb-18 md:text-base">
+  <h1 class="relative z-10 px-6 pb-12 font-mono text-sm tracking-hero text-foreground/70 md:px-9 md:pb-18 md:text-base">
     {title}
   </h1>
 </section>

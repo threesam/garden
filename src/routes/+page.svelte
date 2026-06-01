@@ -12,7 +12,7 @@
   sky was retired for the homepage (no image fetched); the shared CloudCanvas
   still runs elsewhere via the layout Anchor, which stays suppressed on `/`.
 -->
-<main class="relative flex h-dvh w-full flex-col overflow-hidden" style="background-color: var(--coin);">
+<main class="relative flex h-dvh w-full flex-col overflow-hidden bg-coin">
   <div class="h-[25dvh] w-full"></div>
   <div class="relative h-[50dvh] w-full">
     <Gallery />

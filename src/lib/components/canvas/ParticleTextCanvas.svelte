@@ -38,8 +38,7 @@
 
 <div
   bind:this={containerEl}
-  class="relative h-full w-full overflow-hidden"
-  style="background-color: var(--white)"
+  class="relative h-full w-full overflow-hidden bg-white"
 >
   <canvas bind:this={textCanvasEl} class="absolute inset-0"></canvas>
   {#if glParams}

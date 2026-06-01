@@ -109,8 +109,7 @@
   />
   <VoronoiCanvas invert imageSrc="/assets/self-hero.webp" showLetters={false} fit="cover" />
   <h1
-    class="pointer-events-none absolute bottom-6 left-6 z-10 font-mono text-3xl font-bold uppercase tracking-[0.1em] md:bottom-20 md:left-20 md:text-8xl"
-    style="color: var(--white)"
+    class="pointer-events-none absolute bottom-6 left-6 z-10 font-mono text-3xl font-bold uppercase tracking-base text-white md:bottom-20 md:left-20 md:text-8xl"
   >
     self
   </h1>
@@ -118,8 +117,7 @@
 
 {#if markdown}
   <section
-    class="tier-essay mx-auto max-w-3xl px-6 py-12 md:px-9 md:py-24"
-    style="color: var(--black)"
+    class="tier-essay mx-auto max-w-3xl px-6 py-12 text-black md:px-9 md:py-24"
   >
     <Prose content={extracted.processed} slots={proseSlots} />
   </section>

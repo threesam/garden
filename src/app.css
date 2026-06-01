@@ -23,6 +23,15 @@
   --font-sans: "Recursive Variable", Arial, Helvetica, sans-serif;
   --font-mono: "Recursive Variable", monospace;
   --font-essay: "Epilogue", Georgia, serif;
+  /* Letter-spacing scale used across uppercase labels/heroes/pills. These
+     are the values that recurred as `tracking-[0.NNem]` literals; named
+     here so the call sites read intent, not magic numbers. */
+  --tracking-base: 0.1em;
+  --tracking-meta: 0.15em;
+  --tracking-label: 0.16em;
+  --tracking-hero: 0.2em;
+  --tracking-section: 0.22em;
+  --tracking-pill: 0.3em;
 }
 
 .ascii-gallery-layer {

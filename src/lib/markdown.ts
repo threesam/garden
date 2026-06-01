@@ -28,7 +28,7 @@ export function createMarkdownRenderer(): Marked {
       heading({ tokens, depth }) {
         const text = this.parser.parseInline(tokens);
         if (depth === 1)
-          return `<h1 class="mb-9 font-mono text-4xl font-bold uppercase tracking-[0.1em] md:text-6xl">${text}</h1>`;
+          return `<h1 class="mb-9 font-mono text-4xl font-bold uppercase tracking-base md:text-6xl">${text}</h1>`;
         if (depth === 2)
           return `<h2 class="mb-6 mt-24 font-mono text-3xl font-bold uppercase tracking-[0.08em] md:mt-36 md:text-5xl">${text}</h2>`;
         return false;
@@ -62,7 +62,7 @@ export function createMarkdownRenderer(): Marked {
           if (isCenter) hClass = "left-1/2 -translate-x-1/2 text-center";
           else if (isRight) hClass = "right-6 text-right md:right-18";
           const vClass = isBottom ? "bottom-6 md:bottom-18" : "top-6 md:top-18";
-          return `<div class="relative my-12 -mx-6 md:-mx-9"><img src="${href}" alt="${heading}" class="w-full md:rounded-lg" loading="lazy" /><span class="absolute ${vClass} ${hClass} font-mono text-2xl font-bold uppercase tracking-[0.1em] md:text-5xl" style="color: ${color}">${heading}</span></div>`;
+          return `<div class="relative my-12 -mx-6 md:-mx-9"><img src="${href}" alt="${heading}" class="w-full md:rounded-lg" loading="lazy" /><span class="absolute ${vClass} ${hClass} font-mono text-2xl font-bold uppercase tracking-base md:text-5xl" style="color: ${color}">${heading}</span></div>`;
         }
         const dims = knownDimensions[href];
         const dimAttrs = dims ? ` width="${dims.w}" height="${dims.h}"` : '';

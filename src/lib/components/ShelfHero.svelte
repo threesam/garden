@@ -85,8 +85,7 @@
 </script>
 
 <section
-	class="relative flex min-h-dvh items-start justify-center overflow-hidden px-6 pt-24 pb-18 md:items-center md:px-9 md:py-18"
-	style="background: var(--black);"
+	class="relative flex min-h-dvh items-start justify-center overflow-hidden bg-black px-6 pt-24 pb-18 md:items-center md:px-9 md:py-18"
 >
 	<div
 		class="pointer-events-none absolute inset-0"
@@ -128,14 +127,14 @@
 				{/if}
 			</a>
 
-			<div class="flex flex-col gap-3 md:max-w-md" style="color: var(--white);">
+			<div class="flex flex-col gap-3 text-white md:max-w-md">
 				<a
 					href={`https://www.goodreads.com/book/show/${featured.id}`}
 					target="_blank"
 					rel="noopener noreferrer"
 					class="flex flex-col gap-3"
 				>
-					<div class="font-mono text-xs uppercase tracking-[0.3em]" style="color: var(--coin);">
+					<div class="font-mono text-xs uppercase tracking-pill text-coin">
 						{featuredLabel}
 					</div>
 					<h2 class="text-3xl font-bold leading-tight md:text-4xl">{featured.cleanTitle}</h2>
@@ -162,8 +161,7 @@
 						<button
 							type="button"
 							onclick={toggleExpanded}
-							class="mt-1.5 font-mono text-xs uppercase tracking-[0.2em] underline underline-offset-4 transition-opacity hover:opacity-80 md:hidden"
-							style="color: var(--coin);"
+							class="mt-1.5 font-mono text-xs uppercase tracking-hero text-coin underline underline-offset-4 transition-opacity hover:opacity-80 md:hidden"
 						>
 							{expanded ? 'show less' : 'read more'}
 						</button>

@@ -28,8 +28,7 @@
 		<div class="voronoi-banner-inner">
 			<VoronoiCanvas imageSrc={IMG_SRC} invert showLetters={false} />
 			<span
-				class="pointer-events-none absolute right-6 bottom-6 z-10 font-mono text-2xl font-bold uppercase tracking-[0.1em] md:right-20 md:bottom-20 md:text-5xl"
-				style="color: var(--white);"
+				class="pointer-events-none absolute right-6 bottom-6 z-10 font-mono text-2xl font-bold uppercase tracking-base text-white md:right-20 md:bottom-20 md:text-5xl"
 			>
 				anything but analog
 			</span>

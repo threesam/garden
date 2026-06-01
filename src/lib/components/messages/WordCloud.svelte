@@ -146,14 +146,14 @@
 
 <div>
 	<div class="mb-3 flex items-baseline justify-between">
-		<span class="font-mono text-xs tracking-[0.16em] text-zinc-600">word cloud</span>
+		<span class="font-mono text-xs tracking-label text-zinc-600">word cloud</span>
 		<div class="flex gap-3">
 			{#each ['both', 'dianchik', 'sam'] as w (w)}
 				<button
 					onclick={() => (who = w as Who)}
 					class="font-mono text-[10px] tracking-wider transition-colors {who === w
-						? 'text-[var(--black)]'
-						: 'text-zinc-600 hover:text-[var(--black)]'}"
+						? 'text-black'
+						: 'text-zinc-600 hover:text-black'}"
 				>
 					{w}
 				</button>

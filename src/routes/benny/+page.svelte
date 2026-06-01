@@ -27,7 +27,7 @@
   })}
 />
 
-<main class="min-h-screen bg-[var(--black)]" style="color: var(--white);">
+<main class="min-h-screen bg-black text-white">
   <section class="relative grid min-h-[80vh] place-content-center overflow-hidden text-center">
     <Video
       autoplay
@@ -45,12 +45,11 @@
       ]}
     />
     <div class="relative z-10 px-6">
-      <h2 class="font-mono text-sm uppercase tracking-[0.22em] text-[var(--coin)] md:text-base">
+      <h2 class="font-mono text-sm uppercase tracking-section text-coin md:text-base">
         remembering
       </h2>
       <h1
-        class="mt-3 font-mono text-3xl font-bold uppercase tracking-[0.1em] md:text-6xl"
-        style="color: var(--white);"
+        class="mt-3 font-mono text-3xl font-bold uppercase tracking-base text-white md:text-6xl"
       >
         102 Jackson Street
       </h1>
@@ -98,7 +97,7 @@
 
   <section class="border-t border-zinc-800 py-18 md:py-24">
     <div class="mx-auto max-w-3xl px-6 md:px-9">
-      <p class="mb-9 font-mono text-xs uppercase tracking-[0.22em] text-[var(--coin)] md:text-sm">
+      <p class="mb-9 font-mono text-xs uppercase tracking-section text-coin md:text-sm">
         // archived · sixtomidnightproductions
       </p>
       <div class="flex items-center gap-9 md:gap-12">
@@ -107,7 +106,7 @@
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Six to Midnight on Facebook"
-          class="text-zinc-500 transition-colors duration-300 hover:text-[var(--coin)]"
+          class="text-zinc-500 transition-colors duration-300 hover:text-coin"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -124,7 +123,7 @@
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Six to Midnight on Instagram"
-          class="text-zinc-500 transition-colors duration-300 hover:text-[var(--coin)]"
+          class="text-zinc-500 transition-colors duration-300 hover:text-coin"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
