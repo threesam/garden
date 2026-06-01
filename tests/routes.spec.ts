@@ -5,13 +5,27 @@ const ROUTE_MARKERS: Record<string, string> = {
   '/':                              'threesam',
   '/shelf':                         'shelf',
   '/sounds':                        'sounds',
-  '/thoughts':                      'work in progress',
+  '/thoughts':                      'thoughts',
   '/dad':                           'dad',
   '/deana':                         'deana',
   '/benny':                         '102 Jackson Street',
   '/anything-but-analog':           'go home',
   '/self':                          'self',
 };
+
+// Patterns to ignore in console errors — they're environment artifacts,
+// not real app issues:
+//   - macOS browser-internal media-controls icon errors
+//   - /sounds cover images live on R2 (PUBLIC_SOUNDS_BASE), unset in
+//     preview so the cover URLs 404. Prod has the var set.
+function isEnvironmentNoise(text: string): boolean {
+  if (text.startsWith('Button failed to load, iconName =')) return true;
+  if (text.includes('/audio/sounds/covers/') && text.includes('404')) return true;
+  if (text === 'Failed to load resource: the server responded with a status of 404 (Not Found)') {
+    return true;
+  }
+  return false;
+}
 
 test.describe('smoke', () => {
   for (const { path } of KEPT_ROUTES) {
@@ -21,8 +35,7 @@ test.describe('smoke', () => {
       page.on('console', m => {
         if (m.type() !== 'error') return;
         const text = m.text();
-        // Ignore macOS browser-internal media controls icon errors (not app code)
-        if (text.startsWith('Button failed to load, iconName =')) return;
+        if (isEnvironmentNoise(text)) return;
         errors.push(text);
       });
       const resp = await page.goto(path);

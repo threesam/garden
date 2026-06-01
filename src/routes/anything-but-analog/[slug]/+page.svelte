@@ -29,6 +29,11 @@
     image: ogUrl,
     datePublished: data.date,
   })}
+  breadcrumbTrail={[
+    { path: '/', name: 'threesam' },
+    { path: '/anything-but-analog', name: 'anything but analog' },
+    { path: `/anything-but-analog/${data.slug}`, name: data.title },
+  ]}
 />
 
 <!--
