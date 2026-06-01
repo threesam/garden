@@ -142,12 +142,15 @@
           </div>
         </div>
 
-        <!-- desktop: image-only front; hover flips to a (white→coin) back with title + description -->
-        <div class="hidden aspect-[4/5] overflow-hidden rounded-2xl [perspective:1200px] md:block">
+        <!-- desktop: image-only front; hover flips to a (white→coin) back with title + description.
+             Each face carries its own rounded-2xl + overflow-hidden — the outer
+             clip doesn't reliably apply to 3D-transformed children, so the back
+             face was escaping the rounded corner during the flip. -->
+        <div class="hidden aspect-[4/5] [perspective:1200px] md:block">
           <div
             class="relative h-full w-full transition-transform duration-700 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]"
           >
-            <div class="absolute inset-0 overflow-hidden [backface-visibility:hidden]">
+            <div class="absolute inset-0 overflow-hidden rounded-2xl [backface-visibility:hidden]">
               <img
                 src={card.img}
                 alt=""
@@ -156,7 +159,7 @@
               />
             </div>
             <div
-              class="absolute inset-0 flex flex-col justify-center bg-white p-6 transition-colors duration-[3000ms] group-hover:bg-coin [backface-visibility:hidden] [transform:rotateY(180deg)]"
+              class="absolute inset-0 flex flex-col justify-center overflow-hidden rounded-2xl bg-white p-6 transition-colors duration-[3000ms] group-hover:bg-coin [backface-visibility:hidden] [transform:rotateY(180deg)]"
             >
               <span
                 class="block font-mono text-2xl font-bold uppercase tracking-pill text-black"
