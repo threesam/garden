@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import SeoHead from "$lib/components/SeoHead.svelte";
   import SketchHost from "$lib/components/art/SketchHost.svelte";
   import { sketchMode } from "$lib/art/sketch-mode";
@@ -18,12 +19,25 @@
   // we don't tear sketchMode.slow down for one frame.
   let hoverCount = 0;
 
+  // Defer mounting the day30 walker sketch until after first paint —
+  // its 140-walker tick (curl noise + collision avoidance + per-walker
+  // strokeRects) was burning ~1.9s of TBT on Lighthouse before LCP
+  // landed. Pushing the mount to onMount + a requestAnimationFrame
+  // means the static bg paints first, then the canvas spins up.
+  let bgMounted = $state(false);
+
   $effect(() => {
     sketchMode.active = true;
     return () => {
       sketchMode.active = false;
       sketchMode.slow = 0;
     };
+  });
+
+  onMount(() => {
+    requestAnimationFrame(() => {
+      bgMounted = true;
+    });
   });
 
   function enterCard() {
@@ -81,7 +95,9 @@
   class="relative min-h-dvh w-full overflow-hidden bg-black px-6 py-18 md:px-9 md:py-24"
 >
   <div class="pointer-events-none absolute inset-0 z-0">
-    <SketchHost slug="30" active interactive={false} bgClass="bg-black" />
+    {#if bgMounted}
+      <SketchHost slug="30" active interactive={false} bgClass="bg-black" />
+    {/if}
   </div>
 
   <header class="relative z-10 mx-auto mb-12 max-w-7xl md:mb-18">
