@@ -1,5 +1,13 @@
 <script lang="ts">
-  import { SITE_URL, SITE_DESCRIPTION, resolveTitle, jsonLdToScript, buildGraph } from '$lib/seo';
+  import {
+    SITE_URL,
+    SITE_DESCRIPTION,
+    SITE_PAGES,
+    resolveTitle,
+    jsonLdToScript,
+    buildGraph,
+    breadcrumbNode,
+  } from '$lib/seo';
 
   interface Props {
     title?: string;
@@ -14,6 +22,11 @@
     ogImageAlt?: string;
     /** Page-specific schema.org node(s) merged into the JSON-LD @graph (with Person + WebSite). */
     schema?: object | object[];
+    /** Override the auto-derived breadcrumb trail. Leaf paths
+     * (`/anything-but-analog/<slug>`) should pass their full trail. Top-
+     * level routes leave this undefined and get a Home → Page crumb
+     * derived from SITE_PAGES. Pass `null` to suppress the breadcrumb. */
+    breadcrumbTrail?: Array<{ path: string; name: string }> | null;
   }
   let {
     title,
@@ -24,6 +37,7 @@
     ogType = 'website',
     ogImageAlt,
     schema,
+    breadcrumbTrail,
   }: Props = $props();
 
   const resolvedTitle = $derived(resolveTitle(title));
@@ -35,6 +49,21 @@
   });
   const resolvedCanonical = $derived(canonical ?? '/');
   const resolvedImageAlt = $derived(ogImageAlt ?? resolvedTitle);
+  // Auto-derive Home → Page from SITE_PAGES when no explicit trail is
+  // passed. Homepage gets no crumb (single hop is meaningless).
+  const breadcrumb = $derived.by(() => {
+    if (breadcrumbTrail === null) return null;
+    if (breadcrumbTrail) return breadcrumbNode(breadcrumbTrail);
+    if (resolvedCanonical === '/') return null;
+    const segment = SITE_PAGES.find((p) =>
+      resolvedCanonical === p.path || resolvedCanonical.startsWith(`${p.path}/`),
+    );
+    if (!segment) return null;
+    return breadcrumbNode([
+      { path: '/', name: 'threesam' },
+      { path: segment.path, name: segment.label },
+    ]);
+  });
   // Pre-stringified @graph: shared Person + WebSite plus any page node(s). The
   // page description is folded into each node so schema can't drift from <meta>.
   const graphScript = $derived.by(() => {
@@ -42,7 +71,8 @@
     if (Array.isArray(schema)) nodes = schema;
     else if (schema) nodes = [schema];
     const described = nodes.map((n) => ({ ...n, description: resolvedDescription }));
-    return jsonLdToScript(buildGraph(...described));
+    const all = breadcrumb ? [...described, breadcrumb] : described;
+    return jsonLdToScript(buildGraph(...all));
   });
 </script>
 

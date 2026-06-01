@@ -201,3 +201,65 @@ export function creativeWorkNode(opts: {
   if (opts.datePublished) node.datePublished = opts.datePublished;
   return node;
 }
+
+/** BreadcrumbList — gives answer engines a way to surface the page in
+ * site context ("Home › Shelf"). Pass the trail from root → current. */
+export function breadcrumbNode(
+  trail: Array<{ path: string; name: string }>,
+): object {
+  return {
+    "@type": "BreadcrumbList",
+    "@id": `${absUrl(trail[trail.length - 1]?.path ?? "/")}#breadcrumb`,
+    itemListElement: trail.map((step, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: step.name,
+      item: absUrl(step.path),
+    })),
+  };
+}
+
+/** A music release/track listing (e.g. /sounds). MusicPlaylist is the
+ * loosest fit for a curated demo/score set — MusicAlbum implies a
+ * single release. Each track is a MusicRecording. */
+export function musicPlaylistNode(opts: {
+  path: string;
+  name: string;
+  tracks: Array<{ name: string; url?: string }>;
+}): object {
+  return {
+    "@type": "MusicPlaylist",
+    "@id": `${absUrl(opts.path)}#playlist`,
+    name: opts.name,
+    url: absUrl(opts.path),
+    creator: { "@id": PERSON_ID },
+    numTracks: opts.tracks.length,
+    track: opts.tracks.map((t, i) => ({
+      "@type": "MusicRecording",
+      position: i + 1,
+      name: t.name,
+      byArtist: { "@id": PERSON_ID },
+      ...(t.url ? { url: absUrl(t.url) } : {}),
+    })),
+  };
+}
+
+/** A curated list of items on a CollectionPage (e.g. /shelf). Generic
+ * ItemList so the same helper works for books, links, anything. */
+export function itemListNode(opts: {
+  path: string;
+  name: string;
+  items: Array<{ url: string; name: string }>;
+}): object {
+  return {
+    "@type": "ItemList",
+    "@id": `${absUrl(opts.path)}#itemlist`,
+    name: opts.name,
+    itemListElement: opts.items.map((it, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      url: it.url,
+      name: it.name,
+    })),
+  };
+}
