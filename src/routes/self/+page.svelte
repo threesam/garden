@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createRawSnippet, mount, unmount } from 'svelte';
+  import '$lib/fonts/epilogue'; // .tier-essay body copy
   import SeoHead from '$lib/components/SeoHead.svelte';
   import { profilePageNode } from '$lib/seo';
   import Prose from '$lib/components/Prose.svelte';

@@ -6,9 +6,9 @@
   import '@fontsource-variable/recursive/wght.css';
   import '@fontsource-variable/recursive/mono.css';
   import '@fontsource-variable/recursive/casl.css';
-  import '@fontsource/epilogue/400.css';
-  import '@fontsource/epilogue/500.css';
-  import '@fontsource/epilogue/700.css';
+  // Epilogue (used inside .tier-essay on /self and /dad) is imported by
+  // those routes directly so the other 7 pages don't ship 3 unused
+  // weight files. See src/lib/fonts/epilogue.ts.
   import Guide from '$lib/components/frame/Guide.svelte';
   import OutboundTracker from '$lib/components/OutboundTracker.svelte';
   import Anchor from '$lib/components/frame/Anchor.svelte';
@@ -17,6 +17,10 @@
 </script>
 
 <svelte:head>
+  <!-- Warm the TCP+TLS handshake to the analytics origin so the async
+       script tag below doesn't pay that latency on cold visits. -->
+  <link rel="preconnect" href="https://analytics.sixtom.com" crossorigin />
+  <link rel="dns-prefetch" href="https://analytics.sixtom.com" />
   <script
     src="https://analytics.sixtom.com/script.js"
     data-website-id="2a502ffa-58a1-4057-be13-e46f0354cfb7"

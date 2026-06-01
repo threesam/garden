@@ -1,4 +1,5 @@
 <script lang="ts">
+  import "$lib/fonts/epilogue"; // .tier-essay body copy
   import SeoHead from "$lib/components/SeoHead.svelte";
   import { articleNode } from "$lib/seo";
   import Prose from "$lib/components/Prose.svelte";
