@@ -39,6 +39,17 @@
     let raf = 0;
     let flow = 0; // accumulated drift distance (noise units); persists across pauses
     let last = 0;
+    // Pause ticks while scrolled off-screen — relevant for the homepage gallery
+    // sounds card, where this canvas may be permanently mounted (sticky mount)
+    // but only visible some of the time. Fixed-mode (fullscreen on /sounds)
+    // starts true so the backdrop ticks regardless of IO timing.
+    let isVisible = fixed;
+    const io = new IntersectionObserver(
+      (entries) => {
+        isVisible = entries[0]?.isIntersecting ?? true;
+      },
+      { threshold: 0 },
+    );
     // one random eye blinks each second (a quick vertical squash)
     const BLINK_MS = 160;
     let blinkIdx = -1;
@@ -287,8 +298,8 @@
 
     function frame(now: number) {
       raf = requestAnimationFrame(frame);
-      if (document.hidden) {
-        last = now; // don't bank elapsed time while hidden → no jump on return
+      if (document.hidden || !isVisible) {
+        last = now; // don't bank elapsed time while paused → no jump on return
         return;
       }
       // Native rAF rate (≈60fps) for fluid motion; delta-time keeps the drift
@@ -299,9 +310,11 @@
       draw(dt, now);
     }
     raf = requestAnimationFrame(frame);
+    io.observe(canvas);
 
     return () => {
       cancelAnimationFrame(raf);
+      io.disconnect();
       if (onResize) window.removeEventListener("resize", onResize);
       detachPointer?.();
       ro?.disconnect();
