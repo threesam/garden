@@ -5,14 +5,8 @@
 	import { proxyImg } from '$lib/img';
 	import type { Book } from '$lib/goodreads';
 
-	// --black #1a1a14 as normalized RGB — fallback for the dominant-color
-	// extraction that drives the shadow + repeating text pattern.
+	// --black #1a1a14 as normalized RGB
 	const BG_COLOR: [number, number, number] = [26 / 255, 26 / 255, 20 / 255];
-	// --white #f5f4f0 as normalized RGB. The metaballs always read cream
-	// against the black backdrop regardless of the book cover; only the
-	// shadow + pattern still pick up the per-book dominant color so each
-	// hero stays a touch personalised without the blobs going off-brand.
-	const CREAM: [number, number, number] = [245 / 255, 244 / 255, 240 / 255];
 
 	interface Props {
 		featured: Book | null;
@@ -103,7 +97,7 @@
 		class="pointer-events-none absolute inset-0 transition-opacity duration-1000 ease-out"
 		style="z-index: 2; opacity: {metaballsHidden ? 0 : 1};"
 	>
-		<MetaballCanvas color={CREAM} trackCursor={false} {target} />
+		<MetaballCanvas {color} trackCursor={false} {target} />
 	</div>
 
 	<h1 class="sr-only">what's on my shelf?</h1>
