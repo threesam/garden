@@ -285,14 +285,19 @@
 				draggable="false"
 				data-sveltekit-preload-data="off"
 				onclick={(e) => handleClick(e, item)}
-				class="gallery-card group relative flex h-full shrink-0 flex-col overflow-hidden rounded-2xl transition-transform duration-700 hover:[transform:rotate(-1.3deg)]"
+				class="gallery-card group relative flex h-full shrink-0 flex-col overflow-hidden rounded-2xl shadow-md transition-[transform,box-shadow] duration-700 hover:shadow-xl hover:[transform:rotate(-1.3deg)]"
 				style="aspect-ratio: 4 / 5;"
 			>
-				<!-- image area: takes remaining space above the label. Always cream
-				     so the canvases (deana ASCII bitmap, EyeOcean idle, voronoi,
-				     etc.) composite over a matching backdrop and don't flash dark
-				     during mount/load. -->
-				<div class="relative flex-1 overflow-hidden bg-white">
+				<!-- image area: takes remaining space above the label. Cream by
+				     default (canvases like deana's ASCII, EyeOcean idle, and
+				     voronoi composite over a matching backdrop). Shelf
+				     overrides to dark because the coin-blob metaballs need a
+				     dark canvas to read as blooming gold. -->
+				<div
+					class="relative flex-1 overflow-hidden {item.handle === 'shelf'
+						? 'bg-black'
+						: 'bg-white'}"
+				>
 					{#if visible}
 						<div class="absolute inset-0">
 							{#await getCanvasModule(item.handle) then CanvasComp}
