@@ -102,7 +102,6 @@
   description="growing up in trenton, making art, and finding a way through."
   ogImage="/og/self.png"
   canonical="/self"
-  preloadImage="/assets/self-hero.webp"
   ogType="profile"
   schema={profilePageNode({
     path: '/self',
@@ -110,16 +109,40 @@
   })}
 />
 
-<div class="relative h-dvh w-full overflow-hidden">
-  <!-- LCP element: the static hero paints in one frame from the preload.
-       The voronoi canvas overdraws once its WebGL pipeline warms up. -->
-  <img
-    src="/assets/self-hero.webp"
-    alt=""
+<svelte:head>
+  <!-- Orientation-split preload pairs with the <picture> below: portrait
+       viewports fetch the 170 KB portrait variant, landscape the 225 KB
+       landscape. media= on each preload means only one fires per viewport,
+       and it matches the <source>/<img> the browser will actually paint. -->
+  <link
+    rel="preload"
+    as="image"
+    href="/assets/self-hero-mobile.webp"
+    media="(orientation: portrait)"
     fetchpriority="high"
-    decoding="async"
-    class="absolute inset-0 h-full w-full object-cover"
   />
+  <link
+    rel="preload"
+    as="image"
+    href="/assets/self-hero.webp"
+    media="(orientation: landscape)"
+    fetchpriority="high"
+  />
+</svelte:head>
+
+<div class="relative h-dvh w-full overflow-hidden">
+  <!-- LCP element: paints in one frame from the matching preload. The
+       voronoi canvas overdraws once its WebGL pipeline warms up. -->
+  <picture>
+    <source srcset="/assets/self-hero-mobile.webp" media="(orientation: portrait)" />
+    <img
+      src="/assets/self-hero.webp"
+      alt=""
+      fetchpriority="high"
+      decoding="async"
+      class="absolute inset-0 h-full w-full object-cover"
+    />
+  </picture>
   {#if heroMounted}
     <VoronoiCanvas invert imageSrc="/assets/self-hero.webp" showLetters={false} fit="cover" />
   {/if}
