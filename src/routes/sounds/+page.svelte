@@ -52,7 +52,12 @@
   // viewport point the backdrop eyes gaze toward — the playing song's card center
   let gaze = $state<{ x: number; y: number } | null>(null);
 
-  const url = (p: string) => base + p; // manifest path → R2 origin (prod) / static (dev)
+  const url = (p: string) => base + p; // audio path → R2 origin (prod) / static (dev)
+  // Covers ship as build artifacts: scripts/optimize-sound-covers.mjs writes a
+  // resized webp to static/ for every manifest entry (~80% smaller than the
+  // raw R2 jpegs). Serve those from /static with Vercel's immutable cache
+  // instead of hitting R2 for ~10 MB of unoptimized originals.
+  const coverUrl = (p: string) => p.replace(/\.[a-z]+$/i, ".webp");
   // the ingest leaves a trailing "–null" end on the last HMBM cue's timecode
   const cueTime = (tc: string) => tc.replace(/[-–]null$/, "");
 
@@ -250,7 +255,7 @@
           <span class="ph">?</span>
           {#if t.cover}
             <img
-              src={url(t.cover)}
+              src={coverUrl(t.cover)}
               alt=""
               draggable="false"
               loading={featured && i === 0 ? 'eager' : 'lazy'}
@@ -292,7 +297,7 @@
       <span class="hmbm-poster-ph" aria-hidden="true">?</span>
       {#if HMBM_FILM.poster}
         <img
-          src={url(HMBM_FILM.poster)}
+          src={coverUrl(HMBM_FILM.poster)}
           alt="how many blind mice? — film poster"
           loading="lazy"
           decoding="async"
