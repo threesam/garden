@@ -28,6 +28,17 @@
 	const SPEED = 30;
 	const LOOKAHEAD = 1;
 
+	// Some sketches expect a specific backdrop tone. Shelf's metaball coin
+	// blobs need a dark canvas to read as blooming gold — without an
+	// override, the index alternation would land it on a cream card.
+	const PALETTE_OVERRIDE: Partial<Record<ItemHandle, 'cream' | 'dark'>> = {
+		shelf: 'dark',
+	};
+
+	function paletteFor(i: number, handle: ItemHandle): 'cream' | 'dark' {
+		return PALETTE_OVERRIDE[handle] ?? ((i % UNIQUE_COUNT) % 2 === 0 ? 'cream' : 'dark');
+	}
+
 	let stripEl: HTMLDivElement | undefined = $state();
 	let activeRange = $state<[number, number]>([0, 0]);
 	// Canvas mounting is held off the critical path: the strip translates
@@ -274,7 +285,7 @@
 	>
 		{#each LOOPED as item, i (item.id + '-' + i)}
 			{@const visible = isActive(i)}
-			{@const cream = (i % UNIQUE_COUNT) % 2 === 0}
+			{@const cream = paletteFor(i, item.handle) === 'cream'}
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
 			<a
 				href={item.href}
@@ -284,10 +295,11 @@
 				class="gallery-card group relative flex h-full shrink-0 flex-col overflow-hidden rounded-2xl transition-transform duration-700 hover:[transform:rotate(-1.3deg)]"
 				style="aspect-ratio: 4 / 5;"
 			>
-				<!-- image area: takes remaining space above the label. Always cream so
-				     the canvas fades in over a matching backdrop (the deana particle
-				     bitmap and the EyeOcean idle bg are both cream). -->
-				<div class="relative flex-1 overflow-hidden bg-white">
+				<!-- image area: takes remaining space above the label. Bg matches
+				     the card's palette so each canvas composites over the backdrop
+				     it was designed for (cream for ASCII/voronoi/eye-ocean, dark
+				     for shelf's coin-blob metaballs). -->
+				<div class="relative flex-1 overflow-hidden {cream ? 'bg-white' : 'bg-black'}">
 					{#if visible}
 						<div class="absolute inset-0">
 							{#await getCanvasModule(item.handle) then CanvasComp}
@@ -329,11 +341,10 @@
 				</div>
 				<!-- Border overlay: positioned above the canvas + label so the inset
 				     ring paints crisply on top instead of being covered by canvas
-				     pixels. Color alternates per card; coin on hover. -->
+				     pixels. Always --black so it reads as one with the dark label
+				     band on alternating cards; coin on hover. -->
 				<div
-					class="pointer-events-none absolute inset-0 rounded-2xl ring-2 ring-inset transition-shadow duration-700 group-hover:ring-coin {cream
-						? 'ring-black'
-						: 'ring-white'}"
+					class="pointer-events-none absolute inset-0 rounded-2xl ring-2 ring-inset ring-black transition-shadow duration-700 group-hover:ring-coin"
 				></div>
 			</a>
 		{/each}
