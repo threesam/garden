@@ -354,7 +354,7 @@
   }
   /* title pinned top-left, inline with the nav coin. Color crossfades
      with the EyeOcean's cream<->black bg: dark text at idle, cream text
-     while playing — same 2s ramp as the bg lerp inside EyeOcean. */
+     while playing — same 600ms ramp as the bg lerp inside EyeOcean. */
   .brand {
     position: fixed;
     top: 1.25rem;
@@ -370,7 +370,7 @@
     text-transform: uppercase;
     letter-spacing: 0.35em;
     color: var(--black);
-    transition: color 2s linear;
+    transition: color 600ms linear;
   }
   .brand.playing {
     color: var(--white);
@@ -701,7 +701,7 @@
 
   /* fixed transport. Background + text colors crossfade with the bg —
      cream-tinted scrim + dark text at idle, black scrim + cream text
-     while playing. Same 2s ramp as the EyeOcean bg lerp. */
+     while playing. Same 600ms ramp as the EyeOcean bg lerp. */
   .transport {
     position: fixed;
     left: 0;
@@ -718,8 +718,8 @@
     color: var(--black);
     font-family: "Recursive Mono", ui-monospace, monospace;
     transition:
-      background 2s linear,
-      color 2s linear;
+      background 600ms linear,
+      color 600ms linear;
   }
   .transport.playing {
     background: rgba(0, 0, 0, 0.66);
