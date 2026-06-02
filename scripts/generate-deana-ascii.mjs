@@ -1,13 +1,12 @@
 // Bakes the deana photos into static ASCII webp images at build time, so the
-// homepage card + /deana hero can just <img> them instead of converting pixels
-// to ASCII in JS on every load (~960ms of main-thread script-eval — see the
-// deana gallery card). Faithfully mirrors the runtime renderer in
-// src/lib/ascii/ascii-utils.ts (same ramp, lumToTone, dark glyphs on
-// transparent, cellSize 3) so the look is unchanged.
+// homepage gallery card can just <img> them instead of converting pixels to
+// ASCII in JS on every load (~960ms of main-thread script-eval — see the
+// deana gallery card). The /deana page hero is a separate runtime path
+// (DEANA_PHOTOS + AsciiImage canvas), not affected by this script.
 //
-// Two sizes per image for srcset: -lg (page hero) and -sm (homepage card).
-// Reads the raw photos from static/assets/ and writes the ASCII prints to
-// static/assets/deana-ascii/.
+// Two sizes per image for the homepage card's srcset: -lg (retina) and -sm
+// (default). Reads the raw photos from static/assets/ and writes the ASCII
+// prints to static/assets/deana-ascii/.
 //
 // Run: pnpm bake:deana
 
@@ -27,10 +26,13 @@ const SRC_FILES = [
   "deana-hero-6.webp",
 ];
 const OUT_DIR = "static/assets/deana-ascii";
-const CELL = 3; // px per glyph (matches ascii-utils getGrid default)
+// Larger cell -> fewer, chunkier glyphs. Bumped from 3 -> 4.5 (~50% larger
+// per dimension) so the homepage card reads as coarse ASCII instead of a
+// dense pixel-soup. Doesn't affect the /deana page (runtime AsciiImage).
+const CELL = 4.5;
 const HEIGHT_RATIO = 1.8; // glyph cell is taller than wide
-const LG_W = 900; // page hero
-const SM_W = 380; // homepage card
+const LG_W = 900; // retina variant for the homepage card srcset
+const SM_W = 380; // default variant for the homepage card srcset
 
 // Copied verbatim from src/lib/ascii/ascii-utils.ts so the baked output matches.
 const RAMP =
