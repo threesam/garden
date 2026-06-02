@@ -440,7 +440,7 @@ export const particleText: Action<HTMLCanvasElement, ParticleTextParams> = (node
 
     if (!hideText) {
       const whiteColor =
-        getComputedStyle(container).getPropertyValue('--white').trim() || '#ffffff';
+        getComputedStyle(container).getPropertyValue('--white').trim() || '#f5f4f0';
 
       const stacked = w < 768;
 
