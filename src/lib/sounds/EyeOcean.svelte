@@ -56,10 +56,10 @@
 
     // Playing-state crossfade: a single 0..1 value lerps every per-frame
     // color (bg, eye sclera, pupil) between the cream/dark-eye idle look and
-    // the black/cream-eye playing look. Linear ramp at 1/120 per frame =
-    // ~2s at 60fps, matching the user-perceived "fade" duration.
+    // the black/cream-eye playing look. Linear ramp at 1/36 per frame =
+    // 600ms at 60fps, matching the CSS transitions on the brand + transport.
     let currentP = 0;
-    const PLAYING_RATE = 1 / 120;
+    const PLAYING_RATE = 1 / 36;
     // Idle palette: cream bg (--white), dark eye sclera (--black tint),
     // cream pupils. Playing palette: --black bg, cream sclera, dark pupils.
     // --white #f5f4f0, --black #1a1a14, cream sclera rgb(255,250,200).
@@ -183,7 +183,7 @@
         nextBlink = now + 1000;
       }
 
-      // Ramp the playing crossfade by ~1/120 per frame (~2s at 60fps).
+      // Ramp the playing crossfade by 1/36 per frame (~600ms at 60fps).
       const target = playing ? 1 : 0;
       if (target > currentP) currentP = Math.min(target, currentP + PLAYING_RATE);
       else if (target < currentP) currentP = Math.max(target, currentP - PLAYING_RATE);
