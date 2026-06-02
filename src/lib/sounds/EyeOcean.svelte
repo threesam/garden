@@ -22,8 +22,12 @@
     /** Fixed backdrop only: a viewport point the pupils gaze toward (the playing
      *  song's card center). null = idle drift. Ignored in card mode. */
     gaze?: { x: number; y: number } | null;
+    /** When true, the field fades toward the dark palette over ~2s (cream
+     *  bg -> --black bg, dark eyes -> cream eyes, cream pupils -> dark
+     *  pupils). When false, fades back to the cream/dark-eye idle state. */
+    playing?: boolean;
   }
-  let { fixed = true, gaze = null }: Props = $props();
+  let { fixed = true, gaze = null, playing = false }: Props = $props();
 
   let canvas: HTMLCanvasElement;
 
@@ -49,6 +53,26 @@
     let gtx = 0;
     let gty = 0;
     let glance = 0; // 0..1 smoothed glance strength
+
+    // Playing-state crossfade: a single 0..1 value lerps every per-frame
+    // color (bg, eye sclera, pupil) between the cream/dark-eye idle look and
+    // the black/cream-eye playing look. Linear ramp at 1/120 per frame =
+    // ~2s at 60fps, matching the user-perceived "fade" duration.
+    let currentP = 0;
+    const PLAYING_RATE = 1 / 120;
+    // Idle palette: cream bg (--white), dark eye sclera (--black tint),
+    // cream pupils. Playing palette: --black bg, cream sclera, dark pupils.
+    // --white #f5f4f0, --black #1a1a14, cream sclera rgb(255,250,200).
+    const IDLE_BG = [245, 244, 240]; // --white
+    const PLAY_BG = [26, 26, 20];    // --black
+    const IDLE_EYE = [26, 26, 20];   // --black-ish sclera on cream
+    const PLAY_EYE = [255, 250, 200]; // cream sclera on black (existing)
+    const IDLE_PUPIL = [255, 250, 200]; // cream pupil on dark eye
+    const PLAY_PUPIL = [26, 26, 20];    // dark pupil on cream eye
+
+    function lerp(a: number, b: number, t: number): number {
+      return Math.round(a + (b - a) * t);
+    }
 
     // Size-derived constants + per-cell jitter are frame-invariant — computed
     // once per resize (below) instead of every frame in draw().
@@ -159,9 +183,26 @@
         nextBlink = now + 1000;
       }
 
-      // Backdrop in --coin (#e8a317) — eyes are cream blobs floating on gold.
-      ctx.fillStyle = "#e8a317";
+      // Ramp the playing crossfade by ~1/120 per frame (~2s at 60fps).
+      const target = playing ? 1 : 0;
+      if (target > currentP) currentP = Math.min(target, currentP + PLAYING_RATE);
+      else if (target < currentP) currentP = Math.max(target, currentP - PLAYING_RATE);
+
+      const bgR = lerp(IDLE_BG[0], PLAY_BG[0], currentP);
+      const bgG = lerp(IDLE_BG[1], PLAY_BG[1], currentP);
+      const bgB = lerp(IDLE_BG[2], PLAY_BG[2], currentP);
+      ctx.fillStyle = `rgb(${bgR},${bgG},${bgB})`;
       ctx.fillRect(0, 0, w, h);
+
+      // Eye sclera + pupil colors lerp inversely — when bg is cream the eye
+      // is dark with a cream pupil; when bg is black the eye is cream with a
+      // dark pupil. Computed once per frame, alpha is applied per-eye below.
+      const eyeR = lerp(IDLE_EYE[0], PLAY_EYE[0], currentP);
+      const eyeG = lerp(IDLE_EYE[1], PLAY_EYE[1], currentP);
+      const eyeB = lerp(IDLE_EYE[2], PLAY_EYE[2], currentP);
+      const pupR = lerp(IDLE_PUPIL[0], PLAY_PUPIL[0], currentP);
+      const pupG = lerp(IDLE_PUPIL[1], PLAY_PUPIL[1], currentP);
+      const pupB = lerp(IDLE_PUPIL[2], PLAY_PUPIL[2], currentP);
 
       // Desired aim + engage strength this frame: the fixed backdrop follows the
       // `gaze` prop (the playing card); card mode follows the in-bounds cursor.
@@ -213,7 +254,7 @@
             if (bp <= 1) oy = Math.max(0.06, 1 - Math.sin(bp * Math.PI));
           }
 
-          ctx.fillStyle = `rgba(255,250,200,${0.42 + n * 0.5})`;
+          ctx.fillStyle = `rgba(${eyeR},${eyeG},${eyeB},${0.42 + n * 0.5})`;
           ctx.beginPath();
           ctx.ellipse(cx, cy, size / 2, (size / 2) * oy, 0, 0, Math.PI * 2);
           ctx.fill();
@@ -236,7 +277,7 @@
           // blend idle → target by glance: eyes swing to the song, then ease home
           const ppx = cx + rox + (tox - rox) * glance;
           const ppy = cy + roy + (toy - roy) * glance;
-          ctx.fillStyle = "#000";
+          ctx.fillStyle = `rgb(${pupR},${pupG},${pupB})`;
           ctx.beginPath();
           ctx.ellipse(ppx, cy + (ppy - cy) * oy, pupil / 2, (pupil / 2) * oy, 0, 0, Math.PI * 2);
           ctx.fill();
