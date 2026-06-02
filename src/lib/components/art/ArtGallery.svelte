@@ -69,12 +69,12 @@
 		class="relative h-dvh w-full snap-start overflow-hidden"
 		style="content-visibility: auto; contain-intrinsic-size: 100dvh;"
 	>
-		<SketchHost slug={s.slug} {active} bgClass="bg-[#000]" />
+		<SketchHost slug={s.slug} {active} bgClass="bg-black" />
 		<!-- True-black overlay over each sketch: fades both ways (transition:fade)
 		     so scrolling back and forth smoothly reveals / hides the sketch. -->
 		{#if !active}
 			<div
-				class="pointer-events-none absolute inset-0 z-[5] bg-[#000]"
+				class="pointer-events-none absolute inset-0 z-[5] bg-black"
 				transition:fade={{ duration: 1000 }}
 			></div>
 		{/if}
