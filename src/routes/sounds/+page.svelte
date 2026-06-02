@@ -727,6 +727,14 @@
     bottom: 0;
     height: 12rem;
   }
+  /* Desktop: cap the fades at nav height — the long gradient tails
+     read as too heavy at wider viewports. */
+  @media (min-width: 768px) {
+    .scrim-top,
+    .scrim-bottom {
+      height: 2.5rem;
+    }
+  }
   .scrim-cream.scrim-top {
     background: linear-gradient(to bottom, var(--white) 2.5rem, transparent);
     opacity: 1;
