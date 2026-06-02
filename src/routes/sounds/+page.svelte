@@ -232,6 +232,10 @@
 <svelte:window onscroll={updateGaze} onresize={updateGaze} />
 
 <EyeOcean {gaze} playing={player.playing} />
+<!-- Edge scrims: two stacked gradients (cream + dark), opacity-crossfaded
+     on `playing`. Same 600ms timeline as the EyeOcean bg lerp. -->
+<div class="scrim scrim-top scrim-cream" class:playing={player.playing} aria-hidden="true"></div>
+<div class="scrim scrim-top scrim-dark" class:playing={player.playing} aria-hidden="true"></div>
 <h1 class="brand" class:playing={player.playing}>sounds</h1>
 
 {#snippet tile(t: Tile, featured: boolean)}
@@ -300,6 +304,9 @@
     <button class="pause-catch" aria-label="pause and show all tracks" onclick={toggleCurrent}></button>
   {/if}
 </main>
+
+<div class="scrim scrim-bottom scrim-cream" class:playing={player.playing} aria-hidden="true"></div>
+<div class="scrim scrim-bottom scrim-dark" class:playing={player.playing} aria-hidden="true"></div>
 
 <footer class="transport" class:playing={player.playing}>
   <button class="tp-play" aria-label={player.playing ? "pause" : "play"} onclick={toggleCurrent} disabled={!player.track}>
@@ -697,6 +704,50 @@
   .cue-chip.on {
     background: var(--coin);
     color: var(--black);
+  }
+
+  /* Edge scrims — two stacked gradients per edge (cream + dark) that
+     opacity-crossfade with `.playing`. Same 600ms timeline as the bg
+     lerp inside EyeOcean. Each gradient is static; we transition the
+     opacity, which animates reliably across browsers (transitioning
+     between two different linear-gradient values doesn't). */
+  .scrim {
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 5;
+    pointer-events: none;
+    transition: opacity 600ms linear;
+  }
+  .scrim-top {
+    top: 0;
+    height: 7rem;
+  }
+  .scrim-bottom {
+    bottom: 0;
+    height: 12rem;
+  }
+  .scrim-cream.scrim-top {
+    background: linear-gradient(to bottom, var(--white) 2.5rem, transparent);
+    opacity: 1;
+  }
+  .scrim-cream.scrim-bottom {
+    background: linear-gradient(to top, var(--white) 66px, transparent);
+    opacity: 1;
+  }
+  .scrim-cream.playing {
+    opacity: 0;
+  }
+  .scrim-dark.scrim-top {
+    background: linear-gradient(to bottom, #000 2.5rem, transparent);
+    opacity: 0;
+  }
+  .scrim-dark.scrim-bottom {
+    background: linear-gradient(to top, #000 66px, transparent);
+    opacity: 0;
+  }
+  .scrim-dark.playing {
+    opacity: 1;
   }
 
   /* fixed transport. Background + text colors crossfade with the bg —
