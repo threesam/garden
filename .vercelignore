@@ -1,6 +1,9 @@
-# Local-only / generated. Vercel builds fresh; /sounds audio + covers are served
-# from Cloudflare R2 (PUBLIC_SOUNDS_BASE), never from these local files.
+# Local-only / generated. Vercel builds fresh; /sounds audio stays on R2
+# (PUBLIC_SOUNDS_BASE). Cover webps DO ship — they're tiny (~1 MB total) and
+# replace ~10 MB of unoptimized R2 jpegs. Same gitignore gotcha as the repo:
+# can't un-ignore inside an excluded parent, hence the `/sounds/*` form.
 sc-inventory/
-static/audio/sounds/
+static/audio/sounds/*
+!static/audio/sounds/covers/
 test-results/
 .playwright-mcp/
