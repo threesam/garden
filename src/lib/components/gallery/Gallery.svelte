@@ -327,7 +327,7 @@
 				<!-- label: below the image, full width, centered. Palette alternates per card. -->
 				<div
 					data-card-label
-					class="shrink-0 px-3 py-3 text-center font-mono text-xl font-bold uppercase tracking-pill transition-colors duration-300 group-hover:text-coin lg:text-2xl {cream
+					class="shrink-0 px-3 py-3 text-center font-mono text-xl font-bold uppercase tracking-pill lg:text-2xl {cream
 						? 'bg-white text-black'
 						: 'bg-black text-white'}"
 				>
@@ -337,6 +337,11 @@
 						{item.label}
 					{/if}
 				</div>
+				<!-- Border overlay: transparent ring at rest, coin on hover.
+				     Inset so it paints crisply over the canvas + label. -->
+				<div
+					class="pointer-events-none absolute inset-0 rounded-2xl ring-2 ring-transparent ring-inset transition-shadow duration-700 group-hover:ring-coin"
+				></div>
 			</a>
 		{/each}
 	</div>
