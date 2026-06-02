@@ -58,9 +58,9 @@ export const day31: Sketch = {
       }))
       .sort((a, b) => a.z - b.z);
 
-    // Neutral mid-gray backdrop sampled from the reference — light
-    // enough to keep the black spikes legible.
-    ctx.fillStyle = "rgb(192,192,192)";
+    // Light cool-gray backdrop sampled from the reference (~#d8d8d8) —
+    // lighter than the prior #c0c0c0 so the black spikes pop more.
+    ctx.fillStyle = "rgb(216,216,216)";
     ctx.fillRect(0, 0, w, h);
     ctx.save();
     ctx.translate(w / 2, h / 2);
