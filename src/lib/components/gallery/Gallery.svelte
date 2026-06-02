@@ -284,7 +284,7 @@
 				draggable="false"
 				data-sveltekit-preload-data="off"
 				onclick={(e) => handleClick(e, item)}
-				class="gallery-card group relative block h-full shrink-0 overflow-hidden rounded-2xl border-2 border-black transition-[border-color,transform] duration-700 hover:border-coin hover:[transform:rotate(-1.3deg)]"
+				class="gallery-card group relative block h-full shrink-0 overflow-hidden rounded-2xl ring-2 ring-inset ring-black transition-[box-shadow,transform] duration-700 hover:ring-coin hover:[transform:rotate(-1.3deg)]"
 				style="aspect-ratio: 4 / 5; background-color: {BG_MAP[item.handle as ItemHandle] ?? 'var(--black)'};"
 			>
 				{#if visible}
