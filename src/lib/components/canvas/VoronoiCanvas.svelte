@@ -28,7 +28,8 @@
 <!-- `bg-black` (--black) sits behind the canvas so any uncovered area
      during mount/load shows the warm brand dark instead of whatever
      the container happens to be — voronoi instances always read as
-     "on dark". -->
+     "on dark". `object-cover` lets the canvas crop-fill the container
+     when the pixel buffer aspect ratio doesn't match. -->
 <div class="absolute inset-0 bg-black">
-  <canvas class="absolute inset-0 h-full w-full" use:voronoi={params}></canvas>
+  <canvas class="absolute inset-0 h-full w-full object-cover" use:voronoi={params}></canvas>
 </div>
