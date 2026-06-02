@@ -312,7 +312,9 @@
 								{:else if item.handle === 'deana'}
 									<CanvasComp />
 								{:else if item.handle === 'shelf'}
-									<CanvasComp color={[0.91, 0.64, 0.09]} />
+									<!-- Cream (--white) blobs on the dark card background — read as
+									     bright glowing forms regardless of which book is featured. -->
+									<CanvasComp color={[245 / 255, 244 / 255, 240 / 255]} />
 								{:else if item.handle === 'anything-but-analog'}
 									<CanvasComp countOverride={4000} hideText pointSize={2} repelRadius={50} lowDpr />
 								{:else if item.handle === 'thoughts'}
