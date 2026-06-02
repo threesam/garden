@@ -432,7 +432,7 @@
     border-radius: 8px;
     overflow: hidden;
     background: var(--black);
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(245, 244, 240, 0.16);
     box-shadow: 0 8px 22px rgba(0, 0, 0, 0.55);
     transform: rotate(var(--rot));
     transform-origin: 50% 90%;
@@ -489,7 +489,7 @@
   .badge-demo {
     color: var(--white);
     background: rgba(0, 0, 0, 0.55);
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(245, 244, 240, 0.4);
   }
   .badge-score {
     color: var(--black);
@@ -594,7 +594,7 @@
   /* HMBM film score — heading, then the poster with the cue slider over its base */
   .hmbm {
     margin-top: 4.5rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    border-top: 1px solid rgba(245, 244, 240, 0.12);
     padding-top: 2rem;
     transition: opacity 0.45s ease;
   }
@@ -626,7 +626,7 @@
     border-radius: 10px;
     overflow: hidden;
     margin: 0.4rem 0 0;
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(245, 244, 240, 0.16);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
     background: var(--black);
   }
