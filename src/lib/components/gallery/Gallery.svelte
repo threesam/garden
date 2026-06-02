@@ -33,16 +33,30 @@
 	}
 
 	let stripEl: HTMLDivElement | undefined = $state();
+	// `activeRange` tracks the current viewport buffer (can shrink in both
+	// directions as the user scrolls). `mountedHi` is the monotonic high-
+	// water mark — once a card has ever entered the buffer it stays mounted.
+	//
+	// Why sticky mount? WebGL shader compile is the dominant cost of mounting
+	// a hero canvas (~80 ms long task, observed). Paying it once per card on
+	// first scroll-pass and never again is much smoother than churning mounts
+	// on every loop of the strip. Off-screen ticking is suppressed inside
+	// each canvas (IO in metaball/voronoi/particle-text/EyeOcean; sketch-host
+	// pauses when its `active` prop drops to false — we pass `inView(i)`
+	// there so it stops between in-viewport visits).
 	let activeRange = $state<[number, number]>([0, 0]);
-	// Canvas mounting is held off the critical path: the strip translates
-	// immediately (cheap), but the per-card canvases — shader compiles,
-	// particle inits, the heavy lazy chunks — only mount once the page has
-	// painted and the main thread goes idle. They fade in regardless, so the
-	// deferral is invisible while keeping hydration/LCP free of canvas work.
+	let mountedHi = $state(-1);
 	let canvasesArmed = $state(false);
 
+	// `isActive`: has this card ever been in the buffer? Governs mount.
 	function isActive(i: number): boolean {
-		return canvasesArmed && i >= activeRange[0] && i <= activeRange[1];
+		return canvasesArmed && i <= mountedHi;
+	}
+
+	// `inView`: is this card currently in the viewport buffer? Used as the
+	// `active` prop for sketch-host so off-screen sketches stop ticking.
+	function inView(i: number): boolean {
+		return i >= activeRange[0] && i <= activeRange[1];
 	}
 
 	// Canvas modules loaded on demand, cached by handle.
@@ -147,11 +161,18 @@
 				const lo = Math.max(0, first);
 				let hi = Math.min(LOOPED.length - 1, last);
 				const cur = activeRangeRef;
+				// Slow-expand hi by 1 per frame so a fast scroll doesn't
+				// stack many mounts in the same frame — keeps the warm-up
+				// jank distributed.
 				if (hi > cur[1] + 1) hi = cur[1] + 1;
 				if (cur[0] !== lo || cur[1] !== hi) {
 					activeRangeRef = [lo, hi];
 					activeRange = [lo, hi];
 				}
+				// Sticky high-water mark: once a card has been in the buffer,
+				// keep it mounted. The canvases inside pause themselves when
+				// scrolled off, so mounted-but-offscreen is near-free.
+				if (hi > mountedHi) mountedHi = hi;
 			}
 
 			const isIdle =
@@ -318,7 +339,7 @@
 								{:else if item.handle === 'anything-but-analog'}
 									<CanvasComp countOverride={4000} hideText pointSize={2} repelRadius={50} lowDpr />
 								{:else if item.handle === 'thoughts'}
-									<CanvasComp slug="30" active interactive={false} />
+									<CanvasComp slug="30" active={inView(i)} interactive={false} />
 								{:else if item.handle === 'sounds'}
 									<CanvasComp fixed={false} />
 								{/if}
