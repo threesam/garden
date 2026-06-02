@@ -285,7 +285,7 @@
 				draggable="false"
 				data-sveltekit-preload-data="off"
 				onclick={(e) => handleClick(e, item)}
-				class="gallery-card group relative flex h-full shrink-0 flex-col overflow-hidden rounded-2xl shadow-md transition-[transform,box-shadow] duration-700 hover:shadow-xl hover:[transform:rotate(-1.3deg)]"
+				class="gallery-card group relative flex h-full shrink-0 flex-col overflow-hidden rounded-2xl shadow-xl transition-[transform,box-shadow] duration-700 hover:shadow-sm hover:[transform:rotate(-1.3deg)]"
 				style="aspect-ratio: 4 / 5;"
 			>
 				<!-- image area: takes remaining space above the label. Cream by
