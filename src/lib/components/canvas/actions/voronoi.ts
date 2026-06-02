@@ -229,17 +229,9 @@ const FRAGMENT_SHADER = `
     float edgeLine = (1.0 - smoothstep(0.05 - strokeW, 0.05 + strokeW, strokeD)) * (1.0 - focus);
     base = mix(base, vec3(0.0), edgeLine);
 
-    // Edges fade to transparent so whatever's behind the canvas (page
-    // bg, card bg, etc.) shows through — voronoi instances pick up
-    // their surroundings instead of imposing a fixed dark frame.
-    // Premultiplied alpha output: rgb already multiplied by alpha so
-    // the canvas composites correctly under premultipliedAlpha:true.
-    float edgeFade = smoothstep(0.0, 0.08, uv.x)
-                   * smoothstep(0.0, 0.08, 1.0 - uv.x)
-                   * smoothstep(0.0, 0.08, uv.y)
-                   * smoothstep(0.0, 0.08, 1.0 - uv.y);
-
-    gl_FragColor = vec4(base * edgeFade, edgeFade);
+    // Cells paint to the edges with no fade or vignette. Canvas is
+    // opaque again — surrounding card/page bg has its own treatment.
+    gl_FragColor = vec4(base, 1.0);
   }
 `;
 
@@ -268,10 +260,7 @@ export const voronoi: Action<HTMLCanvasElement, VoronoiParams> = (node, initialP
   const activeImageSrc =
     mobileImageSrc && window.innerWidth < MOBILE_BREAK ? mobileImageSrc : imageSrc;
 
-  // alpha: true so the shader's edge fade renders as transparency and
-  // the underlying DOM bg shows through (instead of compositing onto
-  // an opaque canvas backdrop).
-  const glRaw = node.getContext('webgl', { antialias: false, alpha: true, premultipliedAlpha: true });
+  const glRaw = node.getContext('webgl', { antialias: false, alpha: false });
   if (!glRaw) return {};
   // Narrowed alias so closures (resize, render) don't see the nullable type.
   const gl: WebGLRenderingContext = glRaw;
