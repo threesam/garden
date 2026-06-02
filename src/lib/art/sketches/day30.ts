@@ -119,15 +119,16 @@ export const day30: Sketch = {
       }
     }
 
-    // Color mode: opt-in via `sketchMode.active`. The /thoughts route
-    // flips it on; the homepage gallery leaves it off so its day30 card
-    // keeps the original neutral grays.
+    // Color + speed mode: opt-in via `sketchMode.active`. The /thoughts
+    // route flips it on; the homepage gallery leaves it off so its day30
+    // card keeps the original neutral grays and full-speed walkers.
     //
     // When active, hover sets `sketchMode.slow` to 1 and we ramp
     // `currentSlow` linearly at 1/180 per frame (exactly 3s at 60fps —
     // the same timeline as the card back face's `duration-[3000ms]`).
-    // Walker color lerps coin → --white over the same 3s. Speed is
-    // unchanged in both modes; only the tint moves.
+    // Walker color lerps coin → --white over the same 3s AND their
+    // per-frame motion scales down to ~15% so the field settles instead
+    // of churning. Match: hover slows the bodies.
     let currentSlow = 0;
     let active = false;
     const SLOW_RATE = 1 / 180;
@@ -348,8 +349,14 @@ export const day30: Sketch = {
             }
           }
 
-          wk.x += Math.cos(moveAngle) * wk.speed + repelX * SEPARATION_GAIN + orbitX;
-          wk.y += Math.sin(moveAngle) * wk.speed + repelY * SEPARATION_GAIN + orbitY;
+          // currentSlow=0 → full speed; currentSlow=1 → ~15% speed. The
+          // ramp lives in the tick (3 s linear), so motion settles in
+          // lockstep with the card flip and the color shift. Cursor
+          // orbit (only on routes that pass interactive=true) is
+          // unaffected — it stays a deliberate, attention-grabbing pull.
+          const speedScale = 1 - currentSlow * 0.85;
+          wk.x += (Math.cos(moveAngle) * wk.speed + repelX * SEPARATION_GAIN) * speedScale + orbitX;
+          wk.y += (Math.sin(moveAngle) * wk.speed + repelY * SEPARATION_GAIN) * speedScale + orbitY;
 
           // Asteroids wrap. Exit right → enter left at same y. Exit top
           // → enter bottom at same x. And vice versa. Uses the extended
