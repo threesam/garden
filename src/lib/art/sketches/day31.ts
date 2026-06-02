@@ -29,10 +29,12 @@ export const day31: Sketch = {
         for (let z = start; z < end; z += space) {
           const d = Math.hypot(x, y, z);
           if (d <= 0) continue;
-          // Dark bursts on a light field. Solid near-black across the
-          // depth range; the visual gradient at the edges comes from
-          // line density (sparse spikes) rather than lighter strokes.
-          const color = map(d, 0, end, 0, 30);
+          // Dark bursts on a light field, with a distance ramp: inner
+          // flowers near-black, outer flowers fade toward the gray
+          // backdrop so the silhouette's wispy edges let the field show
+          // through. Mirrors the OG sketch's 255→100 ramp (light edges
+          // on a dark field), inverted for our light field.
+          const color = map(d, 0, end, 0, 180);
           const size = map(rng(), 0, 1, 0, space);
           flowers.push({
             x: x + map(rng(), 0, 1, -10, 10),
