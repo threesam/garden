@@ -18,7 +18,7 @@ export const day33: Sketch = {
     let errorText: string | null = null;
 
     function paintMessage(text: string) {
-      ctx.fillStyle = "rgb(0,0,0)";
+      ctx.fillStyle = "rgb(26,26,20)";
       ctx.fillRect(0, 0, w, h);
       ctx.fillStyle = "rgba(255,255,255,0.7)";
       ctx.font = "14px monospace";
@@ -75,7 +75,7 @@ export const day33: Sketch = {
           if (!started && !errorText) paintMessage("tap / click to enable camera");
           return;
         }
-        ctx.fillStyle = "rgb(0,0,0)";
+        ctx.fillStyle = "rgb(26,26,20)";
         ctx.fillRect(0, 0, w, h);
         const vw = video.videoWidth;
         const vh = video.videoHeight;

@@ -340,7 +340,7 @@
 
 <style>
   :global(body) {
-    background: #000;
+    background: var(--black);
   }
 
   main {
@@ -747,11 +747,11 @@
     opacity: 0;
   }
   .scrim-dark.scrim-top {
-    background: linear-gradient(to bottom, #000 2.5rem, transparent);
+    background: linear-gradient(to bottom, var(--black) 2.5rem, transparent);
     opacity: 0;
   }
   .scrim-dark.scrim-bottom {
-    background: linear-gradient(to top, #000 66px, transparent);
+    background: linear-gradient(to top, var(--black) 66px, transparent);
     opacity: 0;
   }
   .scrim-dark.playing {

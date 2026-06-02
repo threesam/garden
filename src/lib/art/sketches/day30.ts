@@ -181,7 +181,7 @@ export const day30: Sketch = {
       if (rng() > minPossible) ctx.strokeRect(0, 0, q, ll * (1 + rng() * 0.3));
     }
 
-    ctx.fillStyle = "#000"; // true black backdrop
+    ctx.fillStyle = "#1a1a14"; // --black backdrop
     ctx.fillRect(0, 0, w, h);
 
     // Wrap window extends slightly beyond the viewport so walkers don't
@@ -248,9 +248,9 @@ export const day30: Sketch = {
         // cost. Visual identical to the human eye at 60 Hz.
         frameCount++;
         if (frameCount & 1) {
-          // Same true black as the initial fill so the per-frame fade keeps the
-          // backdrop at #000 rather than drifting toward a lighter value.
-          ctx.fillStyle = "rgba(0,0,0,0.13)";
+          // Same --black as the initial fill so the per-frame fade keeps the
+          // backdrop at #1a1a14 rather than drifting toward a lighter value.
+          ctx.fillStyle = "rgba(26,26,20,0.13)";
           ctx.fillRect(0, 0, w, h);
         }
 

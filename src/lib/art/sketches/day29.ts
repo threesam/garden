@@ -61,7 +61,7 @@ export const day29: Sketch = {
       })
       .sort((a, b) => a.pz - b.pz);
 
-    ctx.fillStyle = "rgb(0,0,0)";
+    ctx.fillStyle = "rgb(26,26,20)";
     ctx.fillRect(0, 0, w, h);
     ctx.save();
     ctx.translate(w / 2, h / 2);

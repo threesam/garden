@@ -34,7 +34,7 @@ export const day8: Sketch = {
       }
     }
 
-    ctx.fillStyle = "rgb(0,0,0)";
+    ctx.fillStyle = "rgb(26,26,20)";
     ctx.fillRect(0, 0, w, h);
     ctx.save();
     ctx.translate(w / 2, h / 2);
@@ -59,7 +59,7 @@ export const day8: Sketch = {
     ctx.beginPath();
     ctx.arc(0, 0, 20, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = "rgb(0,0,0)";
+    ctx.fillStyle = "rgb(26,26,20)";
     ctx.beginPath();
     ctx.arc(4, -4, 20, 0, Math.PI * 2);
     ctx.fill();

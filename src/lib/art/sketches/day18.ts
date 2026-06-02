@@ -14,7 +14,7 @@ export const day18: Sketch = {
     const startY = h / 2 - ((smallSide / 2) * 3) / 4;
     const endY = h / 2 + ((smallSide / 2) * 3) / 4;
 
-    ctx.fillStyle = "rgb(0,0,0)";
+    ctx.fillStyle = "rgb(26,26,20)";
     ctx.fillRect(0, 0, w, h);
     ctx.fillStyle = "rgb(200,200,200)";
     ctx.strokeStyle = "rgb(200,200,200)";

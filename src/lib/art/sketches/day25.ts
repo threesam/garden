@@ -94,7 +94,7 @@ export const day25: Sketch = {
       ctx.arc(e.px, e.py, e.size / 2, 0, Math.PI * 2);
       ctx.fill();
       // pupil
-      ctx.fillStyle = "rgb(0,0,0)";
+      ctx.fillStyle = "rgb(26,26,20)";
       ctx.beginPath();
       ctx.arc(e.px + e.pupilDx, e.py + e.pupilDy, e.pupilSize / 2, 0, Math.PI * 2);
       ctx.fill();
