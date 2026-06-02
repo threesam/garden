@@ -318,7 +318,14 @@
 								{:else if item.handle === 'anything-but-analog'}
 									<CanvasComp countOverride={4000} hideText pointSize={2} repelRadius={50} lowDpr />
 								{:else if item.handle === 'thoughts'}
-									<CanvasComp slug="30" active interactive={false} />
+									<!-- Invert + dim + boost contrast so the day30 walkers
+									     read as bold black spikes on a gray field instead of
+									     thin white spikes on true black. -->
+									<div
+										class="absolute inset-0 [filter:invert(1)_brightness(0.65)_contrast(1.6)]"
+									>
+										<CanvasComp slug="30" active interactive={false} />
+									</div>
 								{:else if item.handle === 'sounds'}
 									<CanvasComp fixed={false} />
 								{/if}
