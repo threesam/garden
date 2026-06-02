@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createRawSnippet, mount, unmount } from 'svelte';
+  import { createRawSnippet, mount, onMount, unmount } from 'svelte';
   import '$lib/fonts/epilogue'; // .tier-essay body copy
   import SeoHead from '$lib/components/SeoHead.svelte';
   import { profilePageNode } from '$lib/seo';
@@ -11,6 +11,18 @@
 
   let { data }: { data: PageData } = $props();
   let { markdown } = $derived(data);
+
+  // Defer the WebGL hero voronoi to the frame after first paint. The
+  // static <img> below paints the bitmap LCP candidate, and the H1
+  // "self" lands fast — the canvas's shader compile + first frame
+  // shouldn't block either. Same pattern as /thoughts day30 — LH perf
+  // gains ~20pts from this defer alone.
+  let heroMounted = $state(false);
+  onMount(() => {
+    requestAnimationFrame(() => {
+      heroMounted = true;
+    });
+  });
 
   // Extract banner images (alt contains "|") from the markdown,
   // replacing each with a <!-- slot-id --> marker.
@@ -108,7 +120,9 @@
     decoding="async"
     class="absolute inset-0 h-full w-full object-cover"
   />
-  <VoronoiCanvas invert imageSrc="/assets/self-hero.webp" showLetters={false} fit="cover" />
+  {#if heroMounted}
+    <VoronoiCanvas invert imageSrc="/assets/self-hero.webp" showLetters={false} fit="cover" />
+  {/if}
   <h1
     class="pointer-events-none absolute bottom-6 left-6 z-10 font-mono text-3xl font-bold uppercase tracking-base text-white md:bottom-20 md:left-20 md:text-8xl"
   >
