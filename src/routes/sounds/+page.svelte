@@ -231,9 +231,8 @@
 
 <svelte:window onscroll={updateGaze} onresize={updateGaze} />
 
-<EyeOcean {gaze} />
-<div class="scrim scrim-top" aria-hidden="true"></div>
-<h1 class="brand">sounds</h1>
+<EyeOcean {gaze} playing={player.playing} />
+<h1 class="brand" class:playing={player.playing}>sounds</h1>
 
 {#snippet tile(t: Tile, featured: boolean)}
   {@const song = t.song}
@@ -302,9 +301,7 @@
   {/if}
 </main>
 
-<div class="scrim scrim-bottom" aria-hidden="true"></div>
-
-<footer class="transport">
+<footer class="transport" class:playing={player.playing}>
   <button class="tp-play" aria-label={player.playing ? "pause" : "play"} onclick={toggleCurrent} disabled={!player.track}>
     <PlayGlyph state={status()} />
   </button>
@@ -355,7 +352,9 @@
        main doesn't become a scroll container — overflow-y stays visible. */
     overflow-x: clip;
   }
-  /* title pinned top-left, inline with the nav coin, above the top scrim */
+  /* title pinned top-left, inline with the nav coin. Color crossfades
+     with the EyeOcean's cream<->black bg: dark text at idle, cream text
+     while playing — same 2s ramp as the bg lerp inside EyeOcean. */
   .brand {
     position: fixed;
     top: 1.25rem;
@@ -370,8 +369,11 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.35em;
+    color: var(--black);
+    transition: color 2s linear;
+  }
+  .brand.playing {
     color: var(--white);
-    text-shadow: 0 1px 14px rgba(0, 0, 0, 0.85);
   }
   @media (min-width: 768px) {
     .brand {
@@ -697,29 +699,9 @@
     color: var(--black);
   }
 
-  /* fixed black scrims — fade the scrolling grid into black at top + above player */
-  .scrim {
-    position: fixed;
-    left: 0;
-    right: 0;
-    z-index: 5;
-    pointer-events: none;
-  }
-  /* always-on edge fades; main's padding keeps the first/last rows clear of them */
-  .scrim-top {
-    top: 0;
-    height: 7rem;
-    /* solid black to the nav's midpoint (the ~40px coin's center ≈ 2.5rem), then
-       fades out — reads as a gradient, not a solid bar */
-    background: linear-gradient(to bottom, #000 2.5rem, transparent);
-  }
-  .scrim-bottom {
-    bottom: 0; /* runs under the transport — no gap above the player */
-    height: 12rem; /* ~66px player + ~6rem fade above it */
-    background: linear-gradient(to top, #000 66px, transparent);
-  }
-
-  /* fixed transport */
+  /* fixed transport. Background + text colors crossfade with the bg —
+     cream-tinted scrim + dark text at idle, black scrim + cream text
+     while playing. Same 2s ramp as the EyeOcean bg lerp. */
   .transport {
     position: fixed;
     left: 0;
@@ -730,11 +712,18 @@
     align-items: center;
     gap: 1rem;
     padding: 0.75rem 1.5rem;
-    background: rgba(0, 0, 0, 0.66);
+    background: rgba(245, 244, 240, 0.66); /* --white at 0.66 */
     backdrop-filter: blur(10px);
     border-top: 1px solid color-mix(in srgb, var(--coin) 35%, transparent);
-    color: var(--white);
+    color: var(--black);
     font-family: "Recursive Mono", ui-monospace, monospace;
+    transition:
+      background 2s linear,
+      color 2s linear;
+  }
+  .transport.playing {
+    background: rgba(0, 0, 0, 0.66);
+    color: var(--white);
   }
   .tp-play {
     flex: 0 0 auto;
