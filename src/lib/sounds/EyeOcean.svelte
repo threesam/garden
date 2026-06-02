@@ -159,7 +159,8 @@
         nextBlink = now + 1000;
       }
 
-      ctx.fillStyle = "#000";
+      // Backdrop in --coin (#e8a317) — eyes are cream blobs floating on gold.
+      ctx.fillStyle = "#e8a317";
       ctx.fillRect(0, 0, w, h);
 
       // Desired aim + engage strength this frame: the fixed backdrop follows the
