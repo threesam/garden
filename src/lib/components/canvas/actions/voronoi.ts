@@ -229,12 +229,15 @@ const FRAGMENT_SHADER = `
     float edgeLine = (1.0 - smoothstep(0.05 - strokeW, 0.05 + strokeW, strokeD)) * (1.0 - focus);
     base = mix(base, vec3(0.0), edgeLine);
 
+    // Multiply down to pure black at the canvas edges instead of mixing
+    // toward the theme bg — cards no longer need a separate vignette /
+    // fade overlay; the voronoi itself darkens into the surrounding
+    // dark frame.
     float edgeFade = smoothstep(0.0, 0.08, uv.x)
                    * smoothstep(0.0, 0.08, 1.0 - uv.x)
                    * smoothstep(0.0, 0.08, uv.y)
                    * smoothstep(0.0, 0.08, 1.0 - uv.y);
-    vec3 bg = uInvert > 0.5 ? uTopColor : uBotColor;
-    base = mix(bg, base, edgeFade);
+    base *= edgeFade;
 
     gl_FragColor = vec4(base, 1.0);
   }
