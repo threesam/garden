@@ -229,9 +229,10 @@ const FRAGMENT_SHADER = `
     float edgeLine = (1.0 - smoothstep(0.05 - strokeW, 0.05 + strokeW, strokeD)) * (1.0 - focus);
     base = mix(base, vec3(0.0), edgeLine);
 
-    // Cells paint to the edges with no fade or vignette. Canvas is
-    // opaque again — surrounding card/page bg has its own treatment.
-    gl_FragColor = vec4(base, 1.0);
+    // Grayscale (luminance) output — voronoi reads as black-and-white
+    // mosaic regardless of the source image's color palette.
+    float gray = dot(base, vec3(0.2126, 0.7152, 0.0722));
+    gl_FragColor = vec4(vec3(gray), 1.0);
   }
 `;
 
