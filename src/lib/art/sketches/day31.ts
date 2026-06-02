@@ -29,7 +29,10 @@ export const day31: Sketch = {
         for (let z = start; z < end; z += space) {
           const d = Math.hypot(x, y, z);
           if (d <= 0) continue;
-          const color = map(d, 0, end, 255, 100);
+          // Dark bursts on a light field: 0 (black) at the center,
+          // ramping to ~150 (medium gray) at the edge so the spikes
+          // fade into the bg rather than ending in a hard line.
+          const color = map(d, 0, end, 0, 150);
           const size = map(rng(), 0, 1, 0, space);
           flowers.push({
             x: x + map(rng(), 0, 1, -10, 10),
@@ -55,7 +58,9 @@ export const day31: Sketch = {
       }))
       .sort((a, b) => a.z - b.z);
 
-    ctx.fillStyle = "rgb(26,26,20)";
+    // Light gray backdrop — the dark spiky bursts read against a
+    // neutral field instead of the dark theme bg.
+    ctx.fillStyle = "rgb(200,200,198)";
     ctx.fillRect(0, 0, w, h);
     ctx.save();
     ctx.translate(w / 2, h / 2);
