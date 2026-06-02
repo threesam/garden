@@ -337,16 +337,6 @@
 						{item.label}
 					{/if}
 				</div>
-				<!-- Border overlay: positioned above the canvas + label so the
-				     inset ring paints crisply on top instead of being covered by
-				     canvas pixels. Even (cream-label) cards get a cream ring,
-				     odd (dark-label) cards get a dark ring — matches the band
-				     so each card reads as a single tone. Coin on hover. -->
-				<div
-					class="pointer-events-none absolute inset-0 rounded-2xl ring-2 ring-inset transition-shadow duration-700 group-hover:ring-coin {cream
-						? 'ring-white'
-						: 'ring-black'}"
-				></div>
 			</a>
 		{/each}
 	</div>
