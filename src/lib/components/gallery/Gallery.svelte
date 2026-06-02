@@ -304,13 +304,20 @@
 						<div class="absolute inset-0">
 							{#await getCanvasModule(item.handle) then CanvasComp}
 								{#if item.handle === 'self'}
-									<CanvasComp
-										invert
-										showLetters={false}
-										imageSrc="/assets/self-hero-mobile.webp"
-										scale={20}
-										fit="cover"
-									/>
+									<!-- Invert + dim + contrast so the voronoi reads as
+									     a gray field with black spiky shapes instead of
+									     the warm hero-tinted mosaic. -->
+									<div
+										class="absolute inset-0 [filter:invert(1)_brightness(0.65)_contrast(1.6)]"
+									>
+										<CanvasComp
+											invert
+											showLetters={false}
+											imageSrc="/assets/self-hero-mobile.webp"
+											scale={20}
+											fit="cover"
+										/>
+									</div>
 								{:else if item.handle === 'deana'}
 									<CanvasComp />
 								{:else if item.handle === 'shelf'}
@@ -318,14 +325,7 @@
 								{:else if item.handle === 'anything-but-analog'}
 									<CanvasComp countOverride={4000} hideText pointSize={2} repelRadius={50} lowDpr />
 								{:else if item.handle === 'thoughts'}
-									<!-- Invert + dim + boost contrast so the day30 walkers
-									     read as bold black spikes on a gray field instead of
-									     thin white spikes on true black. -->
-									<div
-										class="absolute inset-0 [filter:invert(1)_brightness(0.65)_contrast(1.6)]"
-									>
-										<CanvasComp slug="30" active interactive={false} />
-									</div>
+									<CanvasComp slug="30" active interactive={false} />
 								{:else if item.handle === 'sounds'}
 									<CanvasComp fixed={false} />
 								{/if}
