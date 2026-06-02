@@ -28,10 +28,6 @@
 	const SPEED = 30;
 	const LOOKAHEAD = 1;
 
-	const BG_MAP: Partial<Record<ItemHandle, string>> = {
-		deana: 'var(--white)',
-	};
-
 	let stripEl: HTMLDivElement | undefined = $state();
 	let activeRange = $state<[number, number]>([0, 0]);
 	// Canvas mounting is held off the critical path: the strip translates
@@ -278,50 +274,59 @@
 	>
 		{#each LOOPED as item, i (item.id + '-' + i)}
 			{@const visible = isActive(i)}
+			{@const cream = (i % UNIQUE_COUNT) % 2 === 0}
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
 			<a
 				href={item.href}
 				draggable="false"
 				data-sveltekit-preload-data="off"
 				onclick={(e) => handleClick(e, item)}
-				class="gallery-card group relative block h-full shrink-0 overflow-hidden rounded-2xl ring-2 ring-inset ring-black transition-[box-shadow,transform] duration-700 hover:ring-coin hover:[transform:rotate(-1.3deg)]"
-				style="aspect-ratio: 4 / 5; background-color: {BG_MAP[item.handle as ItemHandle] ?? 'var(--black)'};"
+				class="gallery-card group relative flex h-full shrink-0 flex-col overflow-hidden rounded-2xl ring-2 ring-inset transition-[box-shadow,transform] duration-700 hover:ring-coin hover:[transform:rotate(-1.3deg)] {cream
+					? 'bg-white ring-black'
+					: 'bg-black ring-white'}"
+				style="aspect-ratio: 4 / 5;"
 			>
-				{#if visible}
-					<div class="absolute inset-0">
-						{#await getCanvasModule(item.handle) then CanvasComp}
-							{#if item.handle === 'self'}
-								<CanvasComp
-									invert
-									showLetters={false}
-									imageSrc="/assets/self-hero-mobile.webp"
-									scale={20}
-									fit="cover"
-								/>
-							{:else if item.handle === 'deana'}
-								<CanvasComp />
-							{:else if item.handle === 'shelf'}
-								<CanvasComp color={[0.91, 0.64, 0.09]} />
-							{:else if item.handle === 'anything-but-analog'}
-								<CanvasComp countOverride={4000} hideText pointSize={2} repelRadius={50} lowDpr />
-							{:else if item.handle === 'thoughts'}
-								<CanvasComp slug="30" active interactive={false} />
-							{:else if item.handle === 'sounds'}
-								<CanvasComp fixed={false} />
-							{/if}
-						{/await}
-					</div>
-				{/if}
-				<span
+				<!-- image area: takes remaining space above the label -->
+				<div class="relative flex-1 overflow-hidden">
+					{#if visible}
+						<div class="absolute inset-0">
+							{#await getCanvasModule(item.handle) then CanvasComp}
+								{#if item.handle === 'self'}
+									<CanvasComp
+										invert
+										showLetters={false}
+										imageSrc="/assets/self-hero-mobile.webp"
+										scale={20}
+										fit="cover"
+									/>
+								{:else if item.handle === 'deana'}
+									<CanvasComp />
+								{:else if item.handle === 'shelf'}
+									<CanvasComp color={[0.91, 0.64, 0.09]} />
+								{:else if item.handle === 'anything-but-analog'}
+									<CanvasComp countOverride={4000} hideText pointSize={2} repelRadius={50} lowDpr />
+								{:else if item.handle === 'thoughts'}
+									<CanvasComp slug="30" active interactive={false} />
+								{:else if item.handle === 'sounds'}
+									<CanvasComp fixed={false} />
+								{/if}
+							{/await}
+						</div>
+					{/if}
+				</div>
+				<!-- label: below the image, full width, centered. Palette alternates per card. -->
+				<div
 					data-card-label
-					class="absolute bottom-6 left-6 z-10 rounded-2xl bg-black p-3 font-mono text-xl font-bold uppercase tracking-pill text-white transition-colors duration-300 group-hover:text-coin lg:text-2xl"
+					class="shrink-0 px-3 py-3 text-center font-mono text-xl font-bold uppercase tracking-pill transition-colors duration-300 group-hover:text-coin lg:text-2xl {cream
+						? 'text-black'
+						: 'text-white'}"
 				>
 					{#if item.handle === 'deana'}
 						<DanaLabel />
 					{:else}
 						{item.label}
 					{/if}
-				</span>
+				</div>
 			</a>
 		{/each}
 	</div>
