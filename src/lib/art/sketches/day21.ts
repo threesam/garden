@@ -55,7 +55,7 @@ export const day21: Sketch = {
       [vectors[i], vectors[j]] = [vectors[j], vectors[i]];
     }
 
-    ctx.fillStyle = "rgb(0,0,0)";
+    ctx.fillStyle = "rgb(26,26,20)";
     ctx.fillRect(0, 0, w, h);
     ctx.lineWidth = 1;
 
@@ -99,7 +99,7 @@ export const day21: Sketch = {
             v.x < left || v.x > right || v.y > top || v.y < bottom;
 
           if (isOutside) {
-            ctx.fillStyle = "rgb(0,0,0)";
+            ctx.fillStyle = "rgb(26,26,20)";
             ctx.strokeStyle = "rgb(255,0,0)";
           } else {
             ctx.fillStyle = "rgb(255,255,255)";

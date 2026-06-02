@@ -60,7 +60,7 @@ export const day6: Sketch = {
     canvas.addEventListener("pointerleave", onLeave);
 
     function render() {
-      ctx.fillStyle = "rgb(0,0,0)";
+      ctx.fillStyle = "rgb(26,26,20)";
       ctx.fillRect(0, 0, w, h);
 
       for (const f of friends) {
@@ -73,14 +73,14 @@ export const day6: Sketch = {
         ctx.beginPath();
         ctx.arc(f.x, f.y, f.size / 2, 0, Math.PI * 2);
         ctx.fill();
-        ctx.fillStyle = "rgb(0,0,0)";
+        ctx.fillStyle = "rgb(26,26,20)";
         ctx.beginPath();
         ctx.arc(f.lx, f.ey, (f.lSize * eyeMulti) / 2, 0, Math.PI * 2);
         ctx.fill();
         ctx.beginPath();
         ctx.arc(f.rx, f.ey, (f.rSize * eyeMulti) / 2, 0, Math.PI * 2);
         ctx.fill();
-        ctx.strokeStyle = "rgb(0,0,0)";
+        ctx.strokeStyle = "rgb(26,26,20)";
         ctx.lineWidth = 3;
         const halfLine = map(d, spotlight, 0, f.size / 5, f.size / 15);
         ctx.beginPath();

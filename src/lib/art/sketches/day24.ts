@@ -13,7 +13,7 @@ export const day24: Sketch = {
     const start = -smallSide / 2;
     const end = smallSide / 2;
 
-    ctx.fillStyle = "rgb(0,0,0)";
+    ctx.fillStyle = "rgb(26,26,20)";
     ctx.fillRect(0, 0, w, h);
     ctx.save();
     ctx.translate(w / 2, h / 2);
