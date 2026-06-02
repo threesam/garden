@@ -249,7 +249,15 @@
         <div class="card" style="--rot:{fan(i)}deg; z-index:{40 - i};">
           <span class="ph">?</span>
           {#if t.cover}
-            <img src={url(t.cover)} alt="" draggable="false" onerror={imgErr} />
+            <img
+              src={url(t.cover)}
+              alt=""
+              draggable="false"
+              loading={featured && i === 0 ? 'eager' : 'lazy'}
+              decoding="async"
+              fetchpriority={featured && i === 0 ? 'high' : 'low'}
+              onerror={imgErr}
+            />
           {/if}
         </div>
       {/each}
@@ -283,7 +291,14 @@
     <div class="hmbm-poster">
       <span class="hmbm-poster-ph" aria-hidden="true">?</span>
       {#if HMBM_FILM.poster}
-        <img src={url(HMBM_FILM.poster)} alt="how many blind mice? — film poster" onerror={imgErr} />
+        <img
+          src={url(HMBM_FILM.poster)}
+          alt="how many blind mice? — film poster"
+          loading="lazy"
+          decoding="async"
+          fetchpriority="low"
+          onerror={imgErr}
+        />
       {/if}
       <span class="badge badge-score">score</span>
       <div class="cue-list">
