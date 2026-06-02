@@ -28,15 +28,8 @@
 	const SPEED = 30;
 	const LOOKAHEAD = 1;
 
-	// Some sketches expect a specific backdrop tone. Shelf's metaball coin
-	// blobs need a dark canvas to read as blooming gold — without an
-	// override, the index alternation would land it on a cream card.
-	const PALETTE_OVERRIDE: Partial<Record<ItemHandle, 'cream' | 'dark'>> = {
-		shelf: 'dark',
-	};
-
-	function paletteFor(i: number, handle: ItemHandle): 'cream' | 'dark' {
-		return PALETTE_OVERRIDE[handle] ?? ((i % UNIQUE_COUNT) % 2 === 0 ? 'cream' : 'dark');
+	function paletteFor(i: number): 'cream' | 'dark' {
+		return (i % UNIQUE_COUNT) % 2 === 0 ? 'cream' : 'dark';
 	}
 
 	let stripEl: HTMLDivElement | undefined = $state();
@@ -285,7 +278,7 @@
 	>
 		{#each LOOPED as item, i (item.id + '-' + i)}
 			{@const visible = isActive(i)}
-			{@const cream = paletteFor(i, item.handle) === 'cream'}
+			{@const cream = paletteFor(i) === 'cream'}
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
 			<a
 				href={item.href}
@@ -295,29 +288,22 @@
 				class="gallery-card group relative flex h-full shrink-0 flex-col overflow-hidden rounded-2xl transition-transform duration-700 hover:[transform:rotate(-1.3deg)]"
 				style="aspect-ratio: 4 / 5;"
 			>
-				<!-- image area: takes remaining space above the label. Bg matches
-				     the card's palette so each canvas composites over the backdrop
-				     it was designed for (cream for ASCII/voronoi/eye-ocean, dark
-				     for shelf's coin-blob metaballs). -->
-				<div class="relative flex-1 overflow-hidden {cream ? 'bg-white' : 'bg-black'}">
+				<!-- image area: takes remaining space above the label. Always cream
+				     so the canvases (deana ASCII bitmap, EyeOcean idle, voronoi,
+				     etc.) composite over a matching backdrop and don't flash dark
+				     during mount/load. -->
+				<div class="relative flex-1 overflow-hidden bg-white">
 					{#if visible}
 						<div class="absolute inset-0">
 							{#await getCanvasModule(item.handle) then CanvasComp}
 								{#if item.handle === 'self'}
-									<!-- Invert + dim + contrast so the voronoi reads as
-									     a gray field with black spiky shapes instead of
-									     the warm hero-tinted mosaic. -->
-									<div
-										class="absolute inset-0 [filter:invert(1)_brightness(0.65)_contrast(1.6)]"
-									>
-										<CanvasComp
-											invert
-											showLetters={false}
-											imageSrc="/assets/self-hero-mobile.webp"
-											scale={20}
-											fit="cover"
-										/>
-									</div>
+									<CanvasComp
+										invert
+										showLetters={false}
+										imageSrc="/assets/self-hero-mobile.webp"
+										scale={20}
+										fit="cover"
+									/>
 								{:else if item.handle === 'deana'}
 									<CanvasComp />
 								{:else if item.handle === 'shelf'}
@@ -346,12 +332,15 @@
 						{item.label}
 					{/if}
 				</div>
-				<!-- Border overlay: positioned above the canvas + label so the inset
-				     ring paints crisply on top instead of being covered by canvas
-				     pixels. Always --black so it reads as one with the dark label
-				     band on alternating cards; coin on hover. -->
+				<!-- Border overlay: positioned above the canvas + label so the
+				     inset ring paints crisply on top instead of being covered by
+				     canvas pixels. Color contrasts the label palette — odd
+				     (dark-label) cards get a cream ring, even (cream-label) cards
+				     get a dark ring. Coin on hover. -->
 				<div
-					class="pointer-events-none absolute inset-0 rounded-2xl ring-2 ring-inset ring-black transition-shadow duration-700 group-hover:ring-coin"
+					class="pointer-events-none absolute inset-0 rounded-2xl ring-2 ring-inset transition-shadow duration-700 group-hover:ring-coin {cream
+						? 'ring-black'
+						: 'ring-white'}"
 				></div>
 			</a>
 		{/each}
