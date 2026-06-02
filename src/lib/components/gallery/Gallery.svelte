@@ -14,11 +14,11 @@
 
 	const UNIQUE_ITEMS: { label: string; handle: ItemHandle; href: string }[] = [
 		{ label: 'self', handle: 'self', href: '/self' },
-		{ label: 'analog', handle: 'anything-but-analog', href: '/anything-but-analog' },
 		{ label: 'sounds', handle: 'sounds', href: '/sounds' },
-		{ label: 'shelf', handle: 'shelf', href: '/shelf' },
-		{ label: 'D-ANA', handle: 'deana', href: '/deana' },
 		{ label: 'thoughts', handle: 'thoughts', href: '/thoughts' },
+		{ label: 'D-ANA', handle: 'deana', href: '/deana' },
+		{ label: 'shelf', handle: 'shelf', href: '/shelf' },
+		{ label: 'analog', handle: 'anything-but-analog', href: '/anything-but-analog' },
 	];
 
 	const UNIQUE_COUNT = UNIQUE_ITEMS.length;
