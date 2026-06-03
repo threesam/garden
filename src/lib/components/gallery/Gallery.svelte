@@ -347,7 +347,11 @@
 									     bright glowing forms regardless of which book is featured. -->
 									<CanvasComp color={[245 / 255, 244 / 255, 240 / 255]} />
 								{:else if item.handle === 'anything-but-analog'}
-									<CanvasComp countOverride={4000} hideText pointSize={2} repelRadius={50} lowDpr />
+									<!-- Card-scale particle field: 1500 (was 4000) at point
+									     size 3 (was 2). Same visual density on a ~280 px card
+									     at ~60 % of the per-frame physics cost — particle
+									     repel is O(n) per frame. -->
+									<CanvasComp countOverride={1500} hideText pointSize={3} repelRadius={40} lowDpr />
 								{:else if item.handle === 'thoughts'}
 									<!-- Pause the walker tick while the cursor is over the
 									     carousel — day30's per-frame repel loop is the heaviest
