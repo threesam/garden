@@ -307,17 +307,19 @@
 				data-sveltekit-preload-data="off"
 				onclick={(e) => handleClick(e, item)}
 				class="gallery-card group relative flex h-full shrink-0 flex-col overflow-hidden rounded-2xl shadow-[0_30px_60px_-15px_rgba(0,0,0,0.18),0_8px_20px_-8px_rgba(0,0,0,0.08)] transition-[transform,box-shadow] duration-700 hover:shadow-[0_10px_24px_-12px_rgba(0,0,0,0.12)] hover:[transform:rotate(-1.3deg)]"
-				style="aspect-ratio: 4 / 5;"
+				style="aspect-ratio: 20 / 29;"
 			>
-				<!-- image area: takes remaining space above the label. Cream by
-				     default (canvases like deana's ASCII, EyeOcean idle, and
-				     voronoi composite over a matching backdrop). Shelf
-				     overrides to dark because the coin-blob metaballs need a
-				     dark canvas to read as blooming gold. -->
+				<!-- image area: locked to 4:5 so canvases that bake at that
+				     aspect (deana ASCII matrix etc.) render without stretch.
+				     The card aspect (20:29) is 4:5 + ~14% fixed-height label.
+				     Cream by default; shelf overrides to dark because the
+				     coin-blob metaballs need a dark canvas to read as
+				     blooming gold. -->
 				<div
-					class="relative flex-1 overflow-hidden {item.handle === 'shelf'
+					class="relative w-full overflow-hidden {item.handle === 'shelf'
 						? 'bg-black'
 						: 'bg-white'}"
+					style="aspect-ratio: 4 / 5;"
 				>
 					{#if visible}
 						<div class="absolute inset-0">
@@ -350,7 +352,7 @@
 				<!-- label: below the image, full width, centered. Palette alternates per card. -->
 				<div
 					data-card-label
-					class="shrink-0 px-3 py-3 text-center font-mono text-xl font-bold uppercase tracking-pill lg:text-2xl {cream
+					class="flex flex-1 items-center justify-center px-3 text-center font-mono text-xl font-bold uppercase tracking-pill lg:text-2xl {cream
 						? 'bg-white text-black'
 						: 'bg-black text-white'}"
 				>
