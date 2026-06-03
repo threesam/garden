@@ -7,12 +7,21 @@
 
   let { data }: { data: PageData } = $props();
   let { sorted, featured, featuredLabel } = $derived(data);
+
+  // Featured book cover is the LCP element. Preload it from the head so
+  // the browser starts the fetch before parsing the body. URL must match
+  // the <img> src in ShelfHero exactly (same proxyImg width) so the
+  // preloaded response gets reused instead of a second fetch firing.
+  const featuredCoverPreload = $derived(
+    featured?.coverUrl ? proxyImg(featured.coverUrl, 400) : undefined,
+  );
 </script>
 
 <SeoHead
   title="shelf"
   description="Books, media, and the things that shape how I think."
   canonical="/shelf"
+  preloadImage={featuredCoverPreload}
   schema={collectionPageNode({
     path: "/shelf",
     name: "shelf — threesam",
