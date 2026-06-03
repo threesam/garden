@@ -53,13 +53,6 @@
 	// during hover frees the main thread so pointer events land in
 	// ~50 ms instead of ~170 ms.
 	let isHoveringSection = $state(false);
-	// Mobile / coarse-pointer devices: cut GPU work on the heavy cards
-	// (shelf metaballs, analog particles). Desktop visual stays untouched;
-	// mobile gets ~1/4 the metaball fragment work and ~1/3 the particle
-	// physics. One-shot detection at mount — viewport changes between
-	// mobile/desktop tiers mid-session are rare and tearing down + re-
-	// mounting WebGL canvases would jank more than the benefit.
-	let isMobile = $state(false);
 
 	// `isActive`: has this card ever been in the buffer? Governs mount.
 	function isActive(i: number): boolean {
@@ -100,10 +93,6 @@
 	onMount(() => {
 		if (!stripEl) return;
 		const section = stripEl.parentElement!;
-
-		// One-shot mobile detection — coarse pointer OR sub-768 viewport.
-		// Routed into the heavy cards (shelf metaballs, analog particles).
-		isMobile = window.matchMedia('(max-width: 768px), (pointer: coarse)').matches;
 
 		let offsetRef = 0;
 		let speedRef = SPEED;
@@ -354,29 +343,15 @@
 								{:else if item.handle === 'deana'}
 									<CanvasComp />
 								{:else if item.handle === 'shelf'}
-									<!-- Cream (--white) blobs on the dark card background — read
-									     as bright glowing forms regardless of which book is featured.
-									     lowDpr on mobile drops the fragment-shader scale 0.5 -> 0.25
-									     (1/4 the per-frame work). Visual: slightly chunkier metaball
-									     edges — already pixelated via PIXEL_SIZE=6, unnoticeable on
-									     a small card. -->
-									<CanvasComp
-										color={[245 / 255, 244 / 255, 240 / 255]}
-										lowDpr={isMobile}
-									/>
+									<!-- Cream (--white) blobs on the dark card background — read as
+									     bright glowing forms regardless of which book is featured. -->
+									<CanvasComp color={[245 / 255, 244 / 255, 240 / 255]} />
 								{:else if item.handle === 'anything-but-analog'}
-									<!-- Card-scale particle field. Desktop: 1500 particles at
-									     point size 3. Mobile: 500 at point size 4 — same density
-									     on a small card at ~1/3 the per-frame physics. Particle
-									     repel is O(n) per frame so the linear cut is directly
-									     perceptible. -->
-									<CanvasComp
-										countOverride={isMobile ? 500 : 1500}
-										hideText
-										pointSize={isMobile ? 4 : 3}
-										repelRadius={isMobile ? 30 : 40}
-										lowDpr
-									/>
+									<!-- Card-scale particle field: 1500 (was 4000) at point
+									     size 3 (was 2). Same visual density on a ~280 px card
+									     at ~60 % of the per-frame physics cost — particle
+									     repel is O(n) per frame. -->
+									<CanvasComp countOverride={1500} hideText pointSize={3} repelRadius={40} lowDpr />
 								{:else if item.handle === 'thoughts'}
 									<!-- Pause the walker tick while the cursor is over the
 									     carousel — day30's per-frame repel loop is the heaviest
