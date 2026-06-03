@@ -91,10 +91,14 @@ async function bake(src) {
 
   const base = parse(src).name;
   mkdirSync(OUT_DIR, { recursive: true });
-  const lg = await sharp(svg).webp({ quality: 80 }).toFile(join(OUT_DIR, `${base}-lg.webp`));
+  // Quality dropped 80 -> 55 and webp effort cranked to 6 (highest).
+  // The ASCII bake is black text on transparent — perceptual loss at 55
+  // is invisible while saving ~60 % of the bytes vs the old prints.
+  const WEBP_OPTS = { quality: 55, effort: 6 };
+  const lg = await sharp(svg).webp(WEBP_OPTS).toFile(join(OUT_DIR, `${base}-lg.webp`));
   const sm = await sharp(svg)
     .resize(SM_W)
-    .webp({ quality: 78 })
+    .webp(WEBP_OPTS)
     .toFile(join(OUT_DIR, `${base}-sm.webp`));
   return { base, glyphs: parts.length - 3, lg: lg.size, sm: sm.size };
 }
