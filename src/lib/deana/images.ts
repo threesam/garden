@@ -24,7 +24,7 @@ export const DEANA_PHOTOS: string[] = ASCII_BASES.map((base) => `/assets/${base}
 // prints. Bump every time scripts/generate-deana-ascii.mjs changes the look
 // (CELL, ramp, lumToTone) so browsers fetch the new bake instead of serving
 // the stale cached webp from the same URL.
-const DEANA_V = 6;
+const DEANA_V = 7;
 
 export const DEANA_ASCII: AsciiSrc[] = ASCII_BASES.map((base) => ({
 	sm: `/assets/deana-ascii/${base}-sm.webp?v=${DEANA_V}`,
@@ -32,4 +32,4 @@ export const DEANA_ASCII: AsciiSrc[] = ASCII_BASES.map((base) => ({
 }));
 
 // Widths match SM_W / LG_W in scripts/generate-deana-ascii.mjs.
-export const asciiSrcset = (s: AsciiSrc): string => `${s.sm} 380w, ${s.lg} 900w`;
+export const asciiSrcset = (s: AsciiSrc): string => `${s.sm} 320w, ${s.lg} 700w`;

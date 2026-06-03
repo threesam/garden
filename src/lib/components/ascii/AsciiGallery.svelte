@@ -16,20 +16,63 @@
 	const CYCLE_MS = 2000;
 
 	let active = $state(0);
-	// Only the first image is mounted up-front; the rest mount one cycle ahead of
-	// being shown, so the page fetches one image on load instead of converting six
-	// photos to ASCII in JS (which cost ~960ms of main-thread script-eval).
+	// Two-phase load: the first image mounts immediately (so the card paints
+	// asap, eager + high priority). The rest are preloaded in parallel via
+	// new Image() on idle after first paint, mount as they each finish, and
+	// only once ALL are decoded do we start the crossfade cycle. Avoids the
+	// "image swap to half-loaded blank" jank the user flagged — better to
+	// hold on the first frame a beat longer than to flash an empty layer.
 	const mounted = new SvelteSet<number>([0]);
 
 	onMount(() => {
 		if (srcs.length < 2) return;
-		mounted.add(1);
-		const id = setInterval(() => {
-			active = (active + 1) % srcs.length;
-			onIndexChange?.(active);
-			mounted.add((active + 1) % srcs.length);
-		}, CYCLE_MS);
-		return () => clearInterval(id);
+		let cancelled = false;
+		let timer: ReturnType<typeof setInterval> | null = null;
+		const startCycle = () => {
+			if (cancelled) return;
+			timer = setInterval(() => {
+				active = (active + 1) % srcs.length;
+				onIndexChange?.(active);
+			}, CYCLE_MS);
+		};
+		// Preload imgs 1..N on idle. decode() resolves once the bitmap is ready
+		// to paint — a real "loaded" signal, not just bytes-on-the-wire.
+		const preload = () => {
+			if (cancelled) return;
+			const rest = srcs.slice(1);
+			Promise.all(
+				rest.map((s, i) => {
+					const img = new Image();
+					img.srcset = asciiSrcset(s);
+					img.sizes = sizes;
+					img.src = s.lg;
+					return img.decode().then(
+						() => {
+							if (cancelled) return;
+							mounted.add(i + 1);
+						},
+						() => {
+							if (cancelled) return;
+							mounted.add(i + 1);
+						},
+					);
+				}),
+			).then(startCycle);
+		};
+		// Wait for the first image to be decoded before kicking off the rest —
+		// keeps the critical path clean for the visible card.
+		const onReady = () =>
+			('requestIdleCallback' in window
+				? requestIdleCallback(preload, { timeout: 2000 })
+				: setTimeout(preload, 0)) as unknown;
+		// If the first img is already cached (HMR / back nav), kick off immediately.
+		if (document.readyState === 'complete') onReady();
+		else window.addEventListener('load', onReady, { once: true });
+		return () => {
+			cancelled = true;
+			if (timer) clearInterval(timer);
+			window.removeEventListener('load', onReady);
+		};
 	});
 </script>
 
