@@ -26,12 +26,13 @@ const SRC_FILES = [
   "deana-hero-6.webp",
 ];
 const OUT_DIR = "static/assets/deana-ascii";
-// Larger cell -> fewer, chunkier glyphs. CELL=9 is the sweet spot for
-// the homepage card: readable as coarse ASCII print without losing the
-// portrait. Doesn't affect the /deana page (runtime AsciiImage path).
+// Larger cell -> fewer, chunkier glyphs. CELL=7 is the sweet spot for
+// the homepage card: readable as coarse ASCII print, more facial
+// detail than 9 without going back to pixel-soup. Doesn't affect the
+// /deana page (runtime AsciiImage path).
 // Bump DEANA_V in src/lib/deana/images.ts when changing this so the
 // browser actually fetches the new bake past Vercel's immutable cache.
-const CELL = 9;
+const CELL = 7;
 const HEIGHT_RATIO = 1.8; // glyph cell is taller than wide
 const LG_W = 900; // retina variant for the homepage card srcset
 const SM_W = 380; // default variant for the homepage card srcset
