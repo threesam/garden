@@ -47,6 +47,12 @@
 	let activeRange = $state<[number, number]>([0, 0]);
 	let mountedHi = $state(-1);
 	let canvasesArmed = $state(false);
+	// True while the cursor sits over the carousel section. The thoughts
+	// (day30) sketch is the heaviest per-tick canvas we have (~100 ms
+	// walker repel loop on prod) and isn't cursor-reactive — pausing it
+	// during hover frees the main thread so pointer events land in
+	// ~50 ms instead of ~170 ms.
+	let isHoveringSection = $state(false);
 
 	// `isActive`: has this card ever been in the buffer? Governs mount.
 	function isActive(i: number): boolean {
@@ -209,9 +215,11 @@
 
 		function onEnter() {
 			targetSpeedRef = 0;
+			isHoveringSection = true;
 		}
 		function onLeave() {
 			targetSpeedRef = SPEED;
+			isHoveringSection = false;
 			wake();
 		}
 
@@ -341,7 +349,16 @@
 								{:else if item.handle === 'anything-but-analog'}
 									<CanvasComp countOverride={4000} hideText pointSize={2} repelRadius={50} lowDpr />
 								{:else if item.handle === 'thoughts'}
-									<CanvasComp slug="30" active={inView(i)} interactive={false} />
+									<!-- Pause the walker tick while the cursor is over the
+									     carousel — day30's per-frame repel loop is the heaviest
+									     animation here and it doesn't track the cursor, so we
+									     can freeze the last frame to free the main thread for
+									     pointer events without losing anything visible. -->
+									<CanvasComp
+										slug="30"
+										active={inView(i) && !isHoveringSection}
+										interactive={false}
+									/>
 								{:else if item.handle === 'sounds'}
 									<CanvasComp fixed={false} />
 								{/if}
