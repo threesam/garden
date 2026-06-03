@@ -59,9 +59,6 @@ export interface MetaballParams {
   color?: [number, number, number];
   trackCursor?: boolean;
   target?: { x: number; y: number } | null;
-  /** Cut the canvas backing-buffer scale further on weak GPUs (mobile).
-   *  Default 0.5 → 0.25, i.e. 1/4 the fragment-shader work per frame. */
-  lowDpr?: boolean;
 }
 
 export const metaball: Action<HTMLCanvasElement, MetaballParams> = (node, initialParams) => {
@@ -110,12 +107,12 @@ export const metaball: Action<HTMLCanvasElement, MetaballParams> = (node, initia
   let pointerActive = false;
   const balls: Ball[] = [];
 
-  let resScale = params.lowDpr ? 0.25 : 0.5;
+  const RES_SCALE = 0.5;
   function resize() {
     w = node.clientWidth;
     h = node.clientHeight;
-    node.width = Math.max(1, Math.round(w * resScale));
-    node.height = Math.max(1, Math.round(h * resScale));
+    node.width = Math.max(1, Math.round(w * RES_SCALE));
+    node.height = Math.max(1, Math.round(h * RES_SCALE));
     gl.viewport(0, 0, node.width, node.height);
     const rect = node.getBoundingClientRect();
     rectLeft = rect.left;
@@ -281,12 +278,7 @@ export const metaball: Action<HTMLCanvasElement, MetaballParams> = (node, initia
 
   return {
     update(next: MetaballParams) {
-      const lowDprChanged = !!next.lowDpr !== !!params.lowDpr;
       params = next;
-      if (lowDprChanged) {
-        resScale = params.lowDpr ? 0.25 : 0.5;
-        resize();
-      }
     },
     destroy() {
       cancelAnimationFrame(raf);
