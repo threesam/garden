@@ -1,6 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="threesam">
-  <!-- One eye from the EyeOcean (see /sounds): cream sclera on a --coin field with a --black pupil. -->
-  <rect width="64" height="64" fill="#e8a317"/>
-  <ellipse cx="32" cy="32" rx="24" ry="20" fill="#fffac8"/>
+  <!-- One eye from the EyeOcean (see /sounds) in its dark/playing state:
+       #1a1a14 bg, cream sclera (PLAY_EYE rgb(255,250,200)), #1a1a14 pupil. -->
+  <rect width="64" height="64" fill="#1a1a14"/>
+  <ellipse cx="32" cy="32" rx="24" ry="20" fill="rgb(255,250,200)"/>
   <circle cx="32" cy="32" r="9" fill="#1a1a14"/>
 </svg>
