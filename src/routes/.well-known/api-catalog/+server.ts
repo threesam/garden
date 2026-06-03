@@ -37,6 +37,21 @@ export function GET() {
 						type: 'application/json',
 						title: 'A2A Agent Card — content surface descriptor',
 					},
+					{
+						href: `${SITE_URL}/dad.md`,
+						type: 'text/markdown',
+						title: 'Long-form essay: dad (raw markdown)',
+					},
+					{
+						href: `${SITE_URL}/benny.md`,
+						type: 'text/markdown',
+						title: 'Long-form essay: benny (raw markdown)',
+					},
+					{
+						href: `${SITE_URL}/self.md`,
+						type: 'text/markdown',
+						title: 'Long-form essay: self (raw markdown)',
+					},
 				],
 			},
 		],

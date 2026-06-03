@@ -25,6 +25,24 @@
       ]
     },
     {
+      "source": "/dad",
+      "headers": [
+        { "key": "Link", "value": "</dad.md>; rel=\"alternate\"; type=\"text/markdown\"; title=\"Raw markdown\"" }
+      ]
+    },
+    {
+      "source": "/benny",
+      "headers": [
+        { "key": "Link", "value": "</benny.md>; rel=\"alternate\"; type=\"text/markdown\"; title=\"Raw markdown\"" }
+      ]
+    },
+    {
+      "source": "/self",
+      "headers": [
+        { "key": "Link", "value": "</self.md>; rel=\"alternate\"; type=\"text/markdown\"; title=\"Raw markdown\"" }
+      ]
+    },
+    {
       "source": "/_app/immutable/(.*)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }

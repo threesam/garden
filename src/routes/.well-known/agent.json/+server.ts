@@ -23,11 +23,19 @@ export function GET() {
 			sitemap: `${SITE_URL}/sitemap.xml`,
 			robots: `${SITE_URL}/robots.txt`,
 		},
-		pages: SITE_PAGES.map((p) => ({
-			name: p.label,
-			url: `${SITE_URL}${p.path}`,
-			description: p.blurb,
-		})),
+		// Pages with a markdown surface include `markdownUrl` — agents
+		// can fetch the raw .md for the long-form prose pages without
+		// parsing the rendered HTML.
+		pages: SITE_PAGES.map((p) => {
+			const hasMarkdown = ['/dad', '/benny', '/self'].includes(p.path);
+			const page: Record<string, unknown> = {
+				name: p.label,
+				url: `${SITE_URL}${p.path}`,
+				description: p.blurb,
+			};
+			if (hasMarkdown) page.markdownUrl = `${SITE_URL}${p.path}.md`;
+			return page;
+		}),
 		license: 'Content available for AI training, search indexing, and citation. See robots.txt Content-Signal.',
 	};
 
