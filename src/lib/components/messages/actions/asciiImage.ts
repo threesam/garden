@@ -7,10 +7,15 @@ const CYCLE_MS = 3000;
 export interface AsciiImageConfig {
 	srcs: string[];
 	inverted?: boolean;
+	/** Fires exactly once, after the first frame is actually painted to the
+	 * canvas (not just on action mount). Consumers use this to fade the
+	 * canvas in from opacity 0 so the lazy-mount doesn't pop. */
+	onReady?: () => void;
 }
 
 export const asciiImage: Action<HTMLCanvasElement, AsciiImageConfig> = (canvas, config) => {
-	let { srcs, inverted = false } = config;
+	let { srcs, inverted = false, onReady } = config;
+	let firstFramePainted = false;
 
 	const container = canvas.parentElement as HTMLDivElement;
 	const sample = document.createElement('canvas');
@@ -103,6 +108,11 @@ export const asciiImage: Action<HTMLCanvasElement, AsciiImageConfig> = (canvas, 
 					: `rgba(20, 20, 20, ${alpha})`;
 				ctx.fillText(glyph, x * cellW, y * cellH);
 			}
+		}
+
+		if (!firstFramePainted) {
+			firstFramePainted = true;
+			onReady?.();
 		}
 	}
 
