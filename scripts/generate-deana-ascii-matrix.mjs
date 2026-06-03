@@ -30,11 +30,13 @@ const OUT = "src/lib/deana/ascii-matrices.ts";
 // view). Source photos are cover-cropped to fit this aspect at bake time.
 //
 // HEIGHT_RATIO 1.8 means each glyph cell is 1.8× as tall as wide. For a
-// 4:5 card (h/w = 1.25): rows / cols = (h/w) / HEIGHT_RATIO = 1.25 / 1.8
-// ≈ 0.694. With COLS = 76 that gives ROWS ≈ 52.8 → 53. Bumped from
-// 54×38 → finer grid means smaller chars on screen.
-const COLS = 76;
-const ROWS = 53;
+// 4:5 image area (h/w = 1.25): rows / cols = (h/w) / HEIGHT_RATIO = 1.25
+// / 1.8 ≈ 0.694. With COLS = 100 that gives ROWS ≈ 69. Bumped from 76×53
+// → finer grid means smaller chars on screen. Per-cell font hits the 4 px
+// floor past ~80 cols, so the visual change comes from packing more
+// glyphs into the same area rather than shrinking each glyph further.
+const COLS = 100;
+const ROWS = 69;
 const HEIGHT_RATIO = 1.8; // documented; not used in the bake itself
 
 // Identical to scripts/generate-deana-ascii.mjs so the chosen glyphs
