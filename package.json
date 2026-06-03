@@ -15,6 +15,7 @@
     "lint": "eslint .",
     "wasm:build": "cargo build --manifest-path rust/garden_math/Cargo.toml --target wasm32-unknown-unknown --release && cp rust/garden_math/target/wasm32-unknown-unknown/release/garden_math.wasm static/wasm/garden_math.wasm",
     "bake:deana": "node scripts/generate-deana-ascii.mjs",
+    "bake:deana-matrix": "node scripts/generate-deana-ascii-matrix.mjs",
     "bake:thoughts": "node scripts/generate-thoughts-pixel.mjs",
     "sounds:ingest": "node scripts/sounds/ingest.mjs",
     "sounds:deploy": "node scripts/sounds/deploy-r2.mjs",
