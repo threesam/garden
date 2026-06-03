@@ -232,10 +232,11 @@ const FRAGMENT_SHADER = `
     // Grayscale (luminance) output — voronoi reads as black-and-white
     // mosaic regardless of the source image's color palette.
     float gray = dot(base, vec3(0.2126, 0.7152, 0.0722));
-    // Tight edge fade to the --black wrapper: fully on within ~4% of the
-    // canvas, so the body is clean and only the outermost rim softens.
+    // Wider edge fade to the --black wrapper. Ramp spans the outer ~12% of
+    // the canvas so the rim softens further into the body — more visible
+    // halo than the prior tight 4% band.
     vec2 distToEdge = min(vUv, 1.0 - vUv);
-    float edgeFade = smoothstep(0.0, 0.04, min(distToEdge.x, distToEdge.y));
+    float edgeFade = smoothstep(0.0, 0.12, min(distToEdge.x, distToEdge.y));
     gl_FragColor = vec4(vec3(gray * edgeFade), 1.0);
   }
 `;
