@@ -25,12 +25,25 @@ const AI_AGENTS = [
   'meta-externalagent',    // Meta AI
 ];
 
+// Content-Signal directive (Cloudflare proposal — blog.cloudflare.com/content-signals/)
+// tells AI agents what THIS site permits even when allowed via robots. We opt
+// into search indexing, AI training, and live answer-engine input. Listing
+// these explicitly is the agentic equivalent of a content-licence stamp.
+const CONTENT_SIGNAL = 'search=yes, ai-train=yes, ai-input=yes';
+
 export async function GET() {
-  const aiBlock = AI_AGENTS.map((ua) => `User-agent: ${ua}\nAllow: /`).join('\n\n');
+  const aiBlock = AI_AGENTS.map(
+    (ua) => `User-agent: ${ua}\nContent-Signal: ${CONTENT_SIGNAL}\nAllow: /`,
+  ).join('\n\n');
 
   const body = `# All crawlers, including AI and answer engines, are welcome.
 # Sitemap + /llms.txt are the canonical entry points for indexing.
+# Content-Signal: ${CONTENT_SIGNAL}
+#   search    — index for search results
+#   ai-train  — use as training data
+#   ai-input  — cite live in answer engines
 User-agent: *
+Content-Signal: ${CONTENT_SIGNAL}
 Allow: /
 Disallow: /api/
 
