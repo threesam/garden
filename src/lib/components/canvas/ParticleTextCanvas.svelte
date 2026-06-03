@@ -8,6 +8,8 @@
     pointSize?: number;
     repelRadius?: number;
     lowDpr?: boolean;
+    /** Fixed RGB (0-255) for every particle. Omit → random gray field. */
+    color?: [number, number, number];
   }
 
   let {
@@ -16,6 +18,7 @@
     pointSize = 1.0,
     repelRadius,
     lowDpr = false,
+    color,
   }: Props = $props();
 
   let containerEl: HTMLDivElement | undefined = $state();
@@ -31,6 +34,7 @@
           pointSize,
           repelRadius,
           lowDpr,
+          color,
         }
       : undefined
   );

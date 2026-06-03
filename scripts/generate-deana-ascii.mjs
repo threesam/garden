@@ -1,12 +1,9 @@
-// Bakes the deana photos into static ASCII webp images at build time, so the
-// homepage gallery card can just <img> them instead of converting pixels to
-// ASCII in JS on every load (~960ms of main-thread script-eval — see the
-// deana gallery card). The /deana page hero is a separate runtime path
-// (DEANA_PHOTOS + AsciiImage canvas), not affected by this script.
+// Bakes the deana photos into static ASCII webp images so the homepage
+// gallery card and /deana hero can <img> them instead of running the
+// canvas-based AsciiImage renderer on every load (~960ms script-eval saved).
 //
-// Two sizes per image for the homepage card's srcset: -lg (retina) and -sm
-// (default). Reads the raw photos from static/assets/ and writes the ASCII
-// prints to static/assets/deana-ascii/.
+// Two sizes per image via srcset (-lg retina, -sm default). Reads from
+// static/assets/ and writes to static/assets/deana-ascii/.
 //
 // Run: pnpm bake:deana
 
@@ -26,18 +23,24 @@ const SRC_FILES = [
   "deana-hero-6.webp",
 ];
 const OUT_DIR = "static/assets/deana-ascii";
-// Larger cell -> fewer, chunkier glyphs. CELL=7 is the sweet spot for
-// the homepage card: readable as coarse ASCII print, more facial
-// detail than 9 without going back to pixel-soup. Doesn't affect the
-// /deana page (runtime AsciiImage path).
+// Larger cell -> fewer, chunkier glyphs. CELL=7: readable as coarse ASCII
+// print, more facial detail than 9 without going back to pixel-soup.
 // Bump DEANA_V in src/lib/deana/images.ts when changing this so the
 // browser actually fetches the new bake past Vercel's immutable cache.
 const CELL = 7;
 const HEIGHT_RATIO = 1.8; // glyph cell is taller than wide
-const LG_W = 900; // retina variant for the homepage card srcset
-const SM_W = 380; // default variant for the homepage card srcset
+// The card displays at ~432px wide on lg (30vw of 1440) and full-bleed on
+// /deana (100vw). LG=700 is enough headroom for 2x retina at the card and
+// reads fine on a wide /deana hero (slight upscale is invisible at this
+// glyph density). Halving from 900 → 700 is the single biggest bytes win
+// on this content — pixel count drops ~40%.
+const LG_W = 700;
+const SM_W = 320;
 
-// Copied verbatim from src/lib/ascii/ascii-utils.ts so the baked output matches.
+// RAMP + lumToTone copied verbatim from src/lib/ascii/ascii-utils.ts so
+// per-cell glyph selection matches the runtime path. Compositing differs:
+// this bake uses opaque quantized grays over a solid bg so the webp encoder
+// can drop the alpha plane (see grayFor below).
 const RAMP =
   " `.-':_,^=;><+!rc*/z?sLTv)J7(|Fi{C}fI31tlu[neoZ5Yxjya]2ESwqkP6h9d4VpOGbUAKXHm8RD#$Bg0MNWQ%&@";
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
@@ -69,9 +72,33 @@ async function bake(src) {
     .raw()
     .toBuffer({ resolveWithObject: true });
 
+  // Solid cream background + opaque per-glyph grays — zero alpha anywhere.
+  // The card has nothing behind it; the image IS the card. Encoding tone as
+  // *color* (lerp from bg cream to dark) instead of *alpha* (over solid bg)
+  // is the bytes-saving move: webp doesn't waste its quality budget
+  // reconstructing soft alpha falloffs, and the gray palette quantizes to
+  // ~8 distinct shades that DCT eats easily. Cuts SM from ~50 KB → ~15 KB.
+  const BG = [245, 244, 240]; // --white brand cream
+  const FG = [20, 20, 20]; // near-black
+  // 8 quantized tone levels — visually indistinguishable from continuous,
+  // but the encoder sees a tiny palette and compresses aggressively.
+  const TONE_LEVELS = 8;
+  const grayCache = new Map();
+  const grayFor = (t) => {
+    const q = Math.round(t * (TONE_LEVELS - 1)) / (TONE_LEVELS - 1);
+    let hex = grayCache.get(q);
+    if (hex) return hex;
+    const r = Math.round(BG[0] + (FG[0] - BG[0]) * q);
+    const g = Math.round(BG[1] + (FG[1] - BG[1]) * q);
+    const b = Math.round(BG[2] + (FG[2] - BG[2]) * q);
+    hex = `rgb(${r},${g},${b})`;
+    grayCache.set(q, hex);
+    return hex;
+  };
   const parts = [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`,
-    `<g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="${fontSize}" fill="rgb(20,20,20)" dominant-baseline="text-before-edge">`,
+    `<rect width="${W}" height="${H}" fill="rgb(${BG[0]},${BG[1]},${BG[2]})"/>`,
+    `<g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="${fontSize}" dominant-baseline="text-before-edge">`,
   ];
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
@@ -80,9 +107,8 @@ async function bake(src) {
       const tone = lumToTone(lum);
       const glyph = RAMP[Math.floor(tone * (RAMP.length - 1))] ?? " ";
       if (glyph === " ") continue;
-      const alpha = (0.2 + tone * 0.75).toFixed(2);
       parts.push(
-        `<text x="${(x * cellW).toFixed(2)}" y="${(y * cellH).toFixed(2)}" fill-opacity="${alpha}">${escapeXml(glyph)}</text>`,
+        `<text x="${(x * cellW).toFixed(2)}" y="${(y * cellH).toFixed(2)}" fill="${grayFor(0.2 + tone * 0.75)}">${escapeXml(glyph)}</text>`,
       );
     }
   }
@@ -91,10 +117,11 @@ async function bake(src) {
 
   const base = parse(src).name;
   mkdirSync(OUT_DIR, { recursive: true });
-  // Quality dropped 80 -> 55 and webp effort cranked to 6 (highest).
-  // The ASCII bake is black text on transparent — perceptual loss at 55
-  // is invisible while saving ~60 % of the bytes vs the old prints.
-  const WEBP_OPTS = { quality: 55, effort: 6 };
+  // Lossy webp at q=40. We tried lossless first (great in theory for our 8-tone
+  // palette) but the rasterized text edges defeat its entropy coder — lossy
+  // wins by a wide margin on this content. q=40 is the sweet spot where every
+  // glyph stays identifiable but smooth-area bytes drop dramatically.
+  const WEBP_OPTS = { quality: 40, effort: 6, smartSubsample: true };
   const lg = await sharp(svg).webp(WEBP_OPTS).toFile(join(OUT_DIR, `${base}-lg.webp`));
   const sm = await sharp(svg)
     .resize(SM_W)

@@ -300,13 +300,19 @@
 		{#each LOOPED as item, i (item.id + '-' + i)}
 			{@const visible = isActive(i)}
 			{@const cream = paletteFor(i) === 'cream'}
+			<!-- thoughts card stays still — its day30 walker reads as motion already,
+			     and adding the tilt+ring made it feel busy on hover. -->
+			{@const hoverless = item.handle === 'thoughts'}
+			{@const cardHover = hoverless ? '' : 'hover:shadow-none hover:[transform:rotate(-1.3deg)]'}
+			{@const ringPalette = cream ? 'group-hover:ring-white' : 'group-hover:ring-black'}
+			{@const ringHover = hoverless ? '' : ringPalette}
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
 			<a
 				href={item.href}
 				draggable="false"
 				data-sveltekit-preload-data="off"
 				onclick={(e) => handleClick(e, item)}
-				class="gallery-card group relative flex h-full shrink-0 flex-col overflow-hidden rounded-2xl shadow-sm transition-[transform,box-shadow] duration-700 hover:shadow-none hover:[transform:rotate(-1.3deg)]"
+				class="gallery-card group relative flex h-full shrink-0 flex-col overflow-hidden rounded-2xl shadow-sm transition-[transform,box-shadow] duration-700 {cardHover}"
 				style="aspect-ratio: 20 / 29;"
 			>
 				<!-- image area: locked to 4:5 so canvases that bake at that
@@ -342,8 +348,18 @@
 									<!-- Card-scale particle field: 1500 (was 4000) at point
 									     size 3 (was 2). Same visual density on a ~280 px card
 									     at ~60 % of the per-frame physics cost — particle
-									     repel is O(n) per frame. -->
-									<CanvasComp countOverride={1500} hideText pointSize={3} repelRadius={40} lowDpr />
+									     repel is O(n) per frame.
+									     color: brand --black (rgb 26,26,20) — matches the day21
+									     ABA sketch palette so the homepage tile reads as a
+									     preview of the route's primary sketch. -->
+									<CanvasComp
+										countOverride={1500}
+										hideText
+										pointSize={3}
+										repelRadius={40}
+										lowDpr
+										color={[26, 26, 20]}
+									/>
 								{:else if item.handle === 'thoughts'}
 									<CanvasComp slug="30" active={inView(i)} interactive={false} />
 								{:else if item.handle === 'sounds'}
@@ -370,11 +386,9 @@
 				<!-- Border overlay: transparent ring at rest; on hover the ring
 				     adopts the card's label-bg color so border and label read
 				     as the same hue. Inset so it paints crisply over the
-				     canvas + label. -->
+				     canvas + label. Thoughts card opts out (hoverless). -->
 				<div
-					class="pointer-events-none absolute inset-0 rounded-2xl ring-2 ring-transparent ring-inset transition-shadow duration-700 {cream
-						? 'group-hover:ring-white'
-						: 'group-hover:ring-black'}"
+					class="pointer-events-none absolute inset-0 rounded-2xl ring-2 ring-transparent ring-inset transition-shadow duration-700 {ringHover}"
 				></div>
 			</a>
 		{/each}

@@ -1,13 +1,11 @@
 <script lang="ts">
 	// Homepage gallery deana card: pre-baked ASCII webps via AsciiGallery
 	// (cycling <img srcset> with CSS opacity crossfade). Zero per-frame
-	// JS work after first paint — was the AsciiMatrixCanvas regression
-	// (PR #149 experiment) ticking a 130x90 fillText loop every 3 s
-	// forever on the sticky-mounted cards.
+	// JS work after first paint.
 	//
-	// Lead with deana-hero-5 (the sunset path of Deana walking with the
-	// kid) — index 4 in DEANA_ASCII. /deana page DEANA_PHOTOS order is
-	// untouched; this rotation is homepage-card only.
+	// Lead with deana-hero-5 (sunset path with the kid) — index 4 in
+	// DEANA_ASCII. This rotation is homepage-card only; /deana hero order
+	// lives in that route.
 	import AsciiGallery from '$lib/components/ascii/AsciiGallery.svelte';
 	import { DEANA_ASCII } from '$lib/deana/images.js';
 
