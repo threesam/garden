@@ -8,7 +8,10 @@ export const day31: Sketch = {
   date: "2022-01-31",
   setup(api) {
     const { ctx, w, h, rng, map } = api;
-    const padding = 0.5;
+    // Padding bumped 0.5 -> 0.85 so the burst fills more of the canvas
+    // — at 0.5 it sat as a small ball in the middle with lots of empty
+    // gray around it.
+    const padding = 0.85;
     const smallSide = Math.min(w, h) * padding;
     const start = -smallSide / 2;
     const end = smallSide / 2;
@@ -29,12 +32,12 @@ export const day31: Sketch = {
         for (let z = start; z < end; z += space) {
           const d = Math.hypot(x, y, z);
           if (d <= 0) continue;
-          // Dark bursts on a light field, with a distance ramp: inner
-          // flowers near-black, outer flowers fade toward the gray
-          // backdrop so the silhouette's wispy edges let the field show
-          // through. Mirrors the OG sketch's 255→100 ramp (light edges
-          // on a dark field), inverted for our light field.
-          const color = map(d, 0, end, 0, 180);
+          // Dark bursts on a light field. Flat near-black across the
+          // depth range — the prior 0→180 distance ramp pushed outer
+          // flowers so close to the bg (180 vs the 216 fill) that the
+          // edges read as white-on-gray instead of "dark spike circle"
+          // silhouette the reference shows.
+          const color = 20;
           const size = map(rng(), 0, 1, 0, space);
           flowers.push({
             x: x + map(rng(), 0, 1, -10, 10),
@@ -66,7 +69,10 @@ export const day31: Sketch = {
     ctx.fillRect(0, 0, w, h);
     ctx.save();
     ctx.translate(w / 2, h / 2);
-    ctx.lineWidth = 1;
+    // 1.5 px so the strokes don't sub-pixel-thin into invisibility on
+    // high-DPR canvases (where 1 px maps to ~0.33 device px and the
+    // antialiasing washes the line out).
+    ctx.lineWidth = 1.5;
 
     for (const f of projected) {
       if (f.petals < 2) continue;
