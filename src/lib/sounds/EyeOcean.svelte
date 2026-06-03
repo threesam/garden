@@ -265,7 +265,10 @@
             if (bp <= 1) oy = Math.max(0.06, 1 - Math.sin(bp * Math.PI));
           }
 
-          ctx.fillStyle = `rgba(${eyeR},${eyeG},${eyeB},${0.42 + n * 0.5})`;
+          // Bumped the alpha base 0.42 -> 0.78 (and the noise variance
+          // 0.5 -> 0.22) so eyes always read solid against the bg —
+          // the wider prior range made many eyes look washed out / faded.
+          ctx.fillStyle = `rgba(${eyeR},${eyeG},${eyeB},${0.78 + n * 0.22})`;
           ctx.beginPath();
           ctx.ellipse(cx, cy, size / 2, (size / 2) * oy, 0, 0, Math.PI * 2);
           ctx.fill();
