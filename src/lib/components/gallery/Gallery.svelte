@@ -300,19 +300,13 @@
 		{#each LOOPED as item, i (item.id + '-' + i)}
 			{@const visible = isActive(i)}
 			{@const cream = paletteFor(i) === 'cream'}
-			<!-- thoughts card stays still — its day30 walker reads as motion already,
-			     and adding the tilt+ring made it feel busy on hover. -->
-			{@const hoverless = item.handle === 'thoughts'}
-			{@const cardHover = hoverless ? '' : 'hover:shadow-none hover:[transform:rotate(-1.3deg)]'}
-			{@const ringPalette = cream ? 'group-hover:ring-white' : 'group-hover:ring-black'}
-			{@const ringHover = hoverless ? '' : ringPalette}
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
 			<a
 				href={item.href}
 				draggable="false"
 				data-sveltekit-preload-data="off"
 				onclick={(e) => handleClick(e, item)}
-				class="gallery-card group relative flex h-full shrink-0 flex-col overflow-hidden rounded-2xl shadow-sm transition-[transform,box-shadow] duration-700 {cardHover}"
+				class="gallery-card group relative flex h-full shrink-0 flex-col overflow-hidden rounded-2xl shadow-sm transition-[transform,box-shadow] duration-700 hover:shadow-none hover:[transform:rotate(-1.3deg)]"
 				style="aspect-ratio: 20 / 29;"
 			>
 				<!-- image area: locked to 4:5 so canvases that bake at that
@@ -386,9 +380,11 @@
 				<!-- Border overlay: transparent ring at rest; on hover the ring
 				     adopts the card's label-bg color so border and label read
 				     as the same hue. Inset so it paints crisply over the
-				     canvas + label. Thoughts card opts out (hoverless). -->
+				     canvas + label. -->
 				<div
-					class="pointer-events-none absolute inset-0 rounded-2xl ring-2 ring-transparent ring-inset transition-shadow duration-700 {ringHover}"
+					class="pointer-events-none absolute inset-0 rounded-2xl ring-2 ring-transparent ring-inset transition-shadow duration-700 {cream
+						? 'group-hover:ring-white'
+						: 'group-hover:ring-black'}"
 				></div>
 			</a>
 		{/each}
