@@ -1,12 +1,9 @@
-// Bakes the deana photos into static ASCII webp images at build time, so the
-// homepage gallery card can just <img> them instead of converting pixels to
-// ASCII in JS on every load (~960ms of main-thread script-eval — see the
-// deana gallery card). The /deana page hero is a separate runtime path
-// (DEANA_PHOTOS + AsciiImage canvas), not affected by this script.
+// Bakes the deana photos into static ASCII webp images so the homepage
+// gallery card and /deana hero can <img> them instead of running the
+// canvas-based AsciiImage renderer on every load (~960ms script-eval saved).
 //
-// Two sizes per image for the homepage card's srcset: -lg (retina) and -sm
-// (default). Reads the raw photos from static/assets/ and writes the ASCII
-// prints to static/assets/deana-ascii/.
+// Two sizes per image via srcset (-lg retina, -sm default). Reads from
+// static/assets/ and writes to static/assets/deana-ascii/.
 //
 // Run: pnpm bake:deana
 
@@ -26,10 +23,8 @@ const SRC_FILES = [
   "deana-hero-6.webp",
 ];
 const OUT_DIR = "static/assets/deana-ascii";
-// Larger cell -> fewer, chunkier glyphs. CELL=7 is the sweet spot for
-// the homepage card: readable as coarse ASCII print, more facial
-// detail than 9 without going back to pixel-soup. Doesn't affect the
-// /deana page (runtime AsciiImage path).
+// Larger cell -> fewer, chunkier glyphs. CELL=7: readable as coarse ASCII
+// print, more facial detail than 9 without going back to pixel-soup.
 // Bump DEANA_V in src/lib/deana/images.ts when changing this so the
 // browser actually fetches the new bake past Vercel's immutable cache.
 const CELL = 7;
@@ -42,7 +37,10 @@ const HEIGHT_RATIO = 1.8; // glyph cell is taller than wide
 const LG_W = 700;
 const SM_W = 320;
 
-// Copied verbatim from src/lib/ascii/ascii-utils.ts so the baked output matches.
+// RAMP + lumToTone copied verbatim from src/lib/ascii/ascii-utils.ts so
+// per-cell glyph selection matches the runtime path. Compositing differs:
+// this bake uses opaque quantized grays over a solid bg so the webp encoder
+// can drop the alpha plane (see grayFor below).
 const RAMP =
   " `.-':_,^=;><+!rc*/z?sLTv)J7(|Fi{C}fI31tlu[neoZ5Yxjya]2ESwqkP6h9d4VpOGbUAKXHm8RD#$Bg0MNWQ%&@";
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));

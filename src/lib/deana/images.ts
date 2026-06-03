@@ -1,9 +1,6 @@
-// The deana photos drive two ASCII render paths:
-//  - DEANA_PHOTOS (raw webp): the /deana page renders these to ASCII on a <canvas>
-//    at runtime (AsciiImage) so its full-bleed sections stay crisp at any size/DPR.
-//  - DEANA_ASCII (pre-baked, see scripts/generate-deana-ascii.mjs): the homepage
-//    gallery card shows these static prints instead of running the ~960ms ASCII
-//    conversion on the homepage's critical path. sm = card, lg = retina, via srcset.
+// Pre-baked ASCII prints (see scripts/generate-deana-ascii.mjs) shared by the
+// homepage gallery card and the /deana page hero. Static <img srcset>
+// replaces the prior ~960ms runtime canvas conversion on the critical path.
 const ASCII_BASES = [
 	"deana-6",
 	"deana-5",
@@ -17,8 +14,6 @@ export interface AsciiSrc {
 	sm: string;
 	lg: string;
 }
-
-export const DEANA_PHOTOS: string[] = ASCII_BASES.map((base) => `/assets/${base}.webp`);
 
 // ?v=N busts Vercel's immutable 1-year cache on /assets/ when we re-bake the
 // prints. Bump every time scripts/generate-deana-ascii.mjs changes the look
