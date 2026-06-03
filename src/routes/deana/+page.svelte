@@ -4,7 +4,7 @@
   import LazyMount from "$lib/components/LazyMount.svelte";
   // AsciiImageSection is above-the-fold — keep eager.
   import AsciiImageSection from "$lib/components/messages/AsciiImageSection.svelte";
-  import { DEANA_PHOTOS } from "$lib/deana/images.js";
+  import { DEANA_ASCII } from "$lib/deana/images.js";
 
   // All below-the-fold components are dynamically imported so their
   // modules are excluded from the initial page bundle.
@@ -42,7 +42,7 @@
 />
 
 <main class="bg-white">
-  <AsciiImageSection src={DEANA_PHOTOS[0]} />
+  <AsciiImageSection ascii={DEANA_ASCII[0]} eager />
 
   <section class="w-full bg-white px-3 py-12 md:px-6 md:py-24">
     <div class="mx-auto w-full max-w-7xl flex flex-col {g}">
@@ -57,7 +57,7 @@
     </div>
   </section>
 
-  <AsciiImageSection src={DEANA_PHOTOS[1]} useIdle />
+  <AsciiImageSection ascii={DEANA_ASCII[1]} />
 
   <section class="w-full bg-white px-3 py-12 md:px-6 md:py-24">
     <div class="mx-auto w-full max-w-7xl flex flex-col {g}">
@@ -72,7 +72,7 @@
     </div>
   </section>
 
-  <AsciiImageSection src={DEANA_PHOTOS[2]} useIdle />
+  <AsciiImageSection ascii={DEANA_ASCII[2]} />
 
   <section class="w-full bg-white px-3 py-12 md:px-6 md:py-24">
     <div class="mx-auto w-full max-w-7xl flex flex-col {g}">
@@ -109,7 +109,7 @@
     </div>
   </section>
 
-  <AsciiImageSection src={DEANA_PHOTOS[3]} useIdle />
+  <AsciiImageSection ascii={DEANA_ASCII[3]} />
 
   <section class="w-full bg-white px-3 py-12 md:px-6 md:py-24">
     <div class="mx-auto w-full max-w-7xl flex flex-col {g}">

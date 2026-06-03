@@ -1,23 +1,24 @@
 <script lang="ts">
-	// Homepage gallery deana card now renders ASCII from a pre-baked char
-	// matrix (~24 KB gz total for all 6 photos) instead of shipping the
-	// 2 MB of webp pre-bakes. The /deana page is untouched — still uses
-	// runtime AsciiImage on the raw photos.
+	// Homepage gallery deana card: pre-baked ASCII webps via AsciiGallery
+	// (cycling <img srcset> with CSS opacity crossfade). Zero per-frame
+	// JS work after first paint — was the AsciiMatrixCanvas regression
+	// (PR #149 experiment) ticking a 130x90 fillText loop every 3 s
+	// forever on the sticky-mounted cards.
 	//
 	// Lead with deana-hero-5 (the sunset path of Deana walking with the
-	// kid) — index 4 in the bake order. /deana page DEANA_PHOTOS order
-	// stays untouched; this rotation is homepage-card only.
-	import AsciiMatrixCanvas from './AsciiMatrixCanvas.svelte';
-	import { DEANA_MATRICES } from '$lib/deana/ascii-matrices.js';
+	// kid) — index 4 in DEANA_ASCII. /deana page DEANA_PHOTOS order is
+	// untouched; this rotation is homepage-card only.
+	import AsciiGallery from '$lib/components/ascii/AsciiGallery.svelte';
+	import { DEANA_ASCII } from '$lib/deana/images.js';
 
-	const HP_MATRICES = [
-		DEANA_MATRICES[4],
-		DEANA_MATRICES[0],
-		DEANA_MATRICES[1],
-		DEANA_MATRICES[2],
-		DEANA_MATRICES[3],
-		DEANA_MATRICES[5],
+	const HP_ASCII = [
+		DEANA_ASCII[4],
+		DEANA_ASCII[0],
+		DEANA_ASCII[1],
+		DEANA_ASCII[2],
+		DEANA_ASCII[3],
+		DEANA_ASCII[5],
 	];
 </script>
 
-<AsciiMatrixCanvas matrices={HP_MATRICES} class="absolute inset-0" />
+<AsciiGallery srcs={HP_ASCII} class="absolute inset-0" sizes="(min-width: 1024px) 30vw, 50vw" />
