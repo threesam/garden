@@ -20,12 +20,13 @@
 >
   threesam
 </svelte:element>
-<!-- "certainly / uncertain" stacks one word per line. Right-aligned on md+
-     so both lines flush to the corner; left-aligned on mobile so they stack
-     cleanly above the wordmark on narrow screens. -->
+<!-- Tagline is always anchored bottom-right. Stacks one word per line on
+     mobile (where horizontal room is tight); collapses back to a single
+     line on md+. The whitespace between the two spans renders as a space
+     when both are `inline`. -->
 <p
-  class="absolute bottom-20 left-6 z-10 text-left font-mono text-sm leading-tight tracking-hero {color} md:bottom-8 md:left-auto md:right-8 md:text-right md:text-base"
+  class="absolute right-6 bottom-6 z-10 text-right font-mono text-sm leading-tight tracking-hero {color} md:right-8 md:bottom-8 md:text-base"
 >
-  <span class="block">certainly</span>
-  <span class="block">uncertain</span>
+  <span class="block md:inline">certainly</span>
+  <span class="block md:inline">uncertain</span>
 </p>
