@@ -26,7 +26,9 @@
 
 <main class="min-h-screen bg-black text-white">
   <section class="relative h-dvh w-full overflow-hidden bg-black">
-    <LazyMount class="absolute inset-0" rootMargin="200px" useIdle>
+    <!-- Above-the-fold hero: tighten rootMargin but DON'T defer to idle —
+         the canvas is the LCP candidate, the rIC wait pushed LCP back. -->
+    <LazyMount class="absolute inset-0" rootMargin="200px">
       <AsciiImage srcs={["/assets/dad-1.webp"]} class="h-full w-full" inverted />
     </LazyMount>
     <h1

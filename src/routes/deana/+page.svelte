@@ -57,7 +57,7 @@
     </div>
   </section>
 
-  <AsciiImageSection src={DEANA_PHOTOS[1]} />
+  <AsciiImageSection src={DEANA_PHOTOS[1]} useIdle />
 
   <section class="w-full bg-white px-3 py-12 md:px-6 md:py-24">
     <div class="mx-auto w-full max-w-7xl flex flex-col {g}">
@@ -72,7 +72,7 @@
     </div>
   </section>
 
-  <AsciiImageSection src={DEANA_PHOTOS[2]} />
+  <AsciiImageSection src={DEANA_PHOTOS[2]} useIdle />
 
   <section class="w-full bg-white px-3 py-12 md:px-6 md:py-24">
     <div class="mx-auto w-full max-w-7xl flex flex-col {g}">
@@ -109,7 +109,7 @@
     </div>
   </section>
 
-  <AsciiImageSection src={DEANA_PHOTOS[3]} />
+  <AsciiImageSection src={DEANA_PHOTOS[3]} useIdle />
 
   <section class="w-full bg-white px-3 py-12 md:px-6 md:py-24">
     <div class="mx-auto w-full max-w-7xl flex flex-col {g}">

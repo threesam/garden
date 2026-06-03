@@ -7,9 +7,14 @@
 		src: string;
 		/** Optional secondary src for crossfade cycling. */
 		altSrcs?: string[];
+		/** Defer mount to requestIdleCallback so the canvas first-frame
+		 *  paint lands in an idle slot rather than competing with scroll.
+		 *  Leave OFF (default) for the first/above-the-fold section — the
+		 *  rIC delay pushes LCP back. Turn ON for off-screen sections. */
+		useIdle?: boolean;
 	}
 
-	let { src, altSrcs }: Props = $props();
+	let { src, altSrcs, useIdle = false }: Props = $props();
 
 	const srcs = $derived(altSrcs?.length ? [src, ...altSrcs] : [src]);
 </script>
@@ -18,11 +23,10 @@
 	class="relative h-dvh w-full overflow-hidden bg-white"
 	style="content-visibility: auto; contain-intrinsic-size: 100vw 100dvh;"
 >
-	<!-- rootMargin tightened 400 -> 200 and mount deferred to idle so the
-	     ascii canvas setup + first-frame paint don't compete with scroll.
-	     content-visibility: auto on the parent already keeps off-screen
-	     sections cheap; this keeps the on-mount work calm. -->
-	<LazyMount class="absolute inset-0" rootMargin="200px" useIdle>
+	<!-- rootMargin tightened 400 -> 200 in either case. useIdle only when
+	     the section isn't the hero — for above-the-fold the rIC wait
+	     would push LCP back instead of saving TBT. -->
+	<LazyMount class="absolute inset-0" rootMargin="200px" {useIdle}>
 		<AsciiImage {srcs} class="h-full w-full" />
 	</LazyMount>
 	<span
