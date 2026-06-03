@@ -26,7 +26,7 @@
 
 <main class="min-h-screen bg-black text-white">
   <section class="relative h-dvh w-full overflow-hidden bg-black">
-    <LazyMount class="absolute inset-0">
+    <LazyMount class="absolute inset-0" rootMargin="200px" useIdle>
       <AsciiImage srcs={["/assets/dad-1.webp"]} class="h-full w-full" inverted />
     </LazyMount>
     <h1

@@ -13,6 +13,13 @@
      * section). Cleared once mounted.
      */
     placeholderMinHeight?: string;
+    /**
+     * When true, the visibility flip is wrapped in requestIdleCallback
+     * (with a 2 s timeout fallback) so heavy child mounts land in idle
+     * slots between scroll frames instead of competing with scroll.
+     * Defaults to false to preserve existing callers' behaviour.
+     */
+    useIdle?: boolean;
     /** Optional class on the wrapping div. */
     class?: string;
     children?: import('svelte').Snippet;
@@ -21,6 +28,7 @@
   let {
     rootMargin = '400px',
     placeholderMinHeight,
+    useIdle = false,
     class: klass = '',
     children,
   }: Props = $props();
@@ -34,19 +42,42 @@
       visible = true;
       return;
     }
-    // Snapshot rootMargin so prop changes after mount have no effect.
+    // Snapshot rootMargin + useIdle so prop changes after mount have no effect.
     const margin = rootMargin;
+    const ric =
+      useIdle && typeof requestIdleCallback === 'function'
+        ? requestIdleCallback
+        : null;
+    const cancelRic =
+      typeof cancelIdleCallback === 'function' ? cancelIdleCallback : null;
+    let idleHandle: number | null = null;
     const io = new IntersectionObserver(
       (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        io.disconnect();
+        if (ric) {
+          // 2 s upper bound so the mount fires even on a device that
+          // never goes truly idle (busy main thread during long scrolls).
+          idleHandle = ric(
+            () => {
+              idleHandle = null;
+              visible = true;
+            },
+            { timeout: 2000 } as IdleRequestOptions,
+          );
+        } else {
+          // Falls through here when useIdle is off OR the browser doesn't
+          // support rIC — same behaviour as before the prop existed.
           visible = true;
-          io.disconnect();
         }
       },
       { rootMargin: margin },
     );
     io.observe(host);
-    return () => io.disconnect();
+    return () => {
+      io.disconnect();
+      if (idleHandle != null && cancelRic) cancelRic(idleHandle);
+    };
   });
 </script>
 

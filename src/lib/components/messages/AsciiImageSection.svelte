@@ -18,7 +18,11 @@
 	class="relative h-dvh w-full overflow-hidden bg-white"
 	style="content-visibility: auto; contain-intrinsic-size: 100vw 100dvh;"
 >
-	<LazyMount class="absolute inset-0">
+	<!-- rootMargin tightened 400 -> 200 and mount deferred to idle so the
+	     ascii canvas setup + first-frame paint don't compete with scroll.
+	     content-visibility: auto on the parent already keeps off-screen
+	     sections cheap; this keeps the on-mount work calm. -->
+	<LazyMount class="absolute inset-0" rootMargin="200px" useIdle>
 		<AsciiImage {srcs} class="h-full w-full" />
 	</LazyMount>
 	<span
