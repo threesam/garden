@@ -137,21 +137,44 @@ export const asciiMatrix: Action<HTMLCanvasElement, AsciiMatrixConfig> = (canvas
 	}
 
 	function scheduleNext() {
-		if (parsed.length < 2) return;
+		if (parsed.length < 2 || !isVisible) return;
 		timerId = setTimeout(startTransition, CYCLE_MS);
 	}
 
 	let resizeTimeout: ReturnType<typeof setTimeout>;
 	const onResize = () => {
 		clearTimeout(resizeTimeout);
-		resizeTimeout = setTimeout(renderStatic, 150);
+		resizeTimeout = setTimeout(() => {
+			if (isVisible) renderStatic();
+		}, 150);
 	};
 	const ro = new ResizeObserver(onResize);
 	ro.observe(container);
 
-	// Kick off after a frame so the container has been laid out. renderStatic
-	// itself schedules the next crossfade.
-	requestAnimationFrame(renderStatic);
+	// IO pause — pattern parity with metaball / voronoi / particle-text /
+	// EyeOcean. Sticky-mount keeps both deana cards in LOOPED alive forever;
+	// without this, both ran their 800 ms crossfade (~7 k fillText/frame
+	// for the 130x90 matrix) every 3 s even when off-screen. The deana
+	// experiment (PR #149) shipped without this pause — it's the
+	// regression.
+	let isVisible = false;
+	const io = new IntersectionObserver(
+		(entries) => {
+			const nowVisible = entries[0]?.isIntersecting ?? false;
+			if (nowVisible && !isVisible) {
+				isVisible = true;
+				renderStatic();
+			} else if (!nowVisible && isVisible) {
+				isVisible = false;
+				if (rafId) cancelAnimationFrame(rafId);
+				rafId = 0;
+				if (timerId) clearTimeout(timerId);
+				timerId = null;
+			}
+		},
+		{ threshold: 0 },
+	);
+	io.observe(container);
 
 	return {
 		update(next: AsciiMatrixConfig) {
@@ -161,7 +184,7 @@ export const asciiMatrix: Action<HTMLCanvasElement, AsciiMatrixConfig> = (canvas
 				parsed.length = 0;
 				parsed.push(...reparsed);
 				currentIdx = 0;
-				renderStatic();
+				if (isVisible) renderStatic();
 			}
 		},
 		destroy() {
@@ -169,6 +192,7 @@ export const asciiMatrix: Action<HTMLCanvasElement, AsciiMatrixConfig> = (canvas
 			if (timerId) clearTimeout(timerId);
 			clearTimeout(resizeTimeout);
 			ro.disconnect();
+			io.disconnect();
 		},
 	};
 };
