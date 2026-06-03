@@ -1,6 +1,6 @@
 ## battlefield earth
 
-i was 10. we went to see the shittiest movie imaginable, Battlefield Earth, in theaters. i remember very little about the movie except for leaving, being very happy that it was over — even at 10 i knew the movie was absolute dog shit.
+i was 10. went to see the worst movie of all time that i probably loved at the time, Battlefield Earth. i remember very little about the movie except for leaving, being very happy that it was over — even at 10 i knew the movie was absolute dog shit.
 
 as we were leaving the darkness of the theater, walking out, the light was really bright, started walking towards our car, and there was just that flash of light and then later, i can't remember what happened, but i do know that's when my Dad broke his neck after falling on some faulty construction. it was not labeled, no signs, no caution tape, nothing.
 
