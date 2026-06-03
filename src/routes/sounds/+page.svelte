@@ -117,6 +117,12 @@
     return [...pinnedTiles, ...singles, ...otherEps, ...scores];
   });
 
+  // First featured tile's cover is the LCP candidate (it's eager +
+  // fetchpriority=high on the <img>; we add a preload from the head so
+  // the fetch starts before the body parses). Falls through to undefined
+  // when the manifest has no tiles or no cover on the first one.
+  const lcpCoverPreload = $derived(tiles[0]?.cover ? coverUrl(tiles[0].cover) : undefined);
+
   // Pause/resume the current track (logs the umami event). A fresh play of a
   // different track goes through play/playCue below.
   const toggleCurrent = async () => {
@@ -231,6 +237,7 @@
   title="sounds"
   description="music — demos and scores."
   canonical="/sounds"
+  preloadImage={lcpCoverPreload}
   schema={collectionPageNode({ path: "/sounds", name: "sounds — threesam" })}
 />
 
