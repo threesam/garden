@@ -24,11 +24,17 @@ const SRC_FILES = [
 ];
 const OUT = "src/lib/deana/ascii-matrices.ts";
 
-// Bake resolution: cols match what fits in a TARGET_W-wide card at CELL
-// glyph spacing. Higher resolution = more glyphs = bigger module.
-const CELL = 7;
-const HEIGHT_RATIO = 1.8; // glyph cell is taller than wide
-const TARGET_W = 380;
+// Fixed matrix dimensions, baked to match the homepage card's 4:5 aspect.
+// Uniform across all photos so crossfades don't shift the cell grid (the
+// renderer's cellW/cellH stay constant regardless of which matrix is in
+// view). Source photos are cover-cropped to fit this aspect at bake time.
+//
+// HEIGHT_RATIO 1.8 means each glyph cell is 1.8× as tall as wide. For a
+// 4:5 card (h/w = 1.25): rows / cols = (h/w) / HEIGHT_RATIO = 1.25 / 1.8
+// ≈ 0.694. With COLS = 54 that gives ROWS ≈ 37.5 → 38.
+const COLS = 54;
+const ROWS = 38;
+const HEIGHT_RATIO = 1.8; // documented; not used in the bake itself
 
 // Identical to scripts/generate-deana-ascii.mjs so the chosen glyphs
 // match what the existing pre-bake produces — flipping consumer paths
@@ -43,31 +49,27 @@ function lumToTone(lum) {
 }
 
 async function bake(src) {
-  const meta = await sharp(src).metadata();
-  const aspect = meta.width / meta.height;
-  const cols = Math.round(TARGET_W / CELL);
-  const rows = Math.max(1, Math.round(cols / (aspect * HEIGHT_RATIO)));
-
-  // Sample down to one pixel per glyph cell.
+  // Cover-crop the source to fit COLS × ROWS at the card's aspect (4:5).
+  // Photos that don't already match crop their edges instead of stretching.
   const { data } = await sharp(src)
-    .resize(cols, rows, { fit: "fill" })
+    .resize(COLS, ROWS, { fit: "cover" })
     .toColourspace("srgb")
     .removeAlpha()
     .raw()
     .toBuffer({ resolveWithObject: true });
 
   const lines = [];
-  for (let y = 0; y < rows; y++) {
+  for (let y = 0; y < ROWS; y++) {
     let line = "";
-    for (let x = 0; x < cols; x++) {
-      const off = (y * cols + x) * 3;
+    for (let x = 0; x < COLS; x++) {
+      const off = (y * COLS + x) * 3;
       const lum = (0.2126 * data[off] + 0.7152 * data[off + 1] + 0.0722 * data[off + 2]) / 255;
       const tone = lumToTone(lum);
       line += RAMP[Math.floor(tone * (RAMP.length - 1))] ?? " ";
     }
     lines.push(line);
   }
-  return { cols, rows, chars: lines.join("\n") };
+  return { cols: COLS, rows: ROWS, chars: lines.join("\n") };
 }
 
 const matrices = {};
