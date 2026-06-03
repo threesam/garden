@@ -244,6 +244,24 @@ export function musicPlaylistNode(opts: {
   };
 }
 
+/**
+ * WebPage anchor for the homepage. Pairs with itemListNode (over SITE_PAGES)
+ * so search engines + answer engines pick up the site index in structured
+ * form alongside the natural-language llms.txt and the sitemap.
+ */
+export function homePageNode(): object {
+  return {
+    "@type": "WebPage",
+    "@id": `${SITE_URL}/#webpage`,
+    url: `${SITE_URL}/`,
+    name: "threesam",
+    isPartOf: { "@id": WEBSITE_ID },
+    about: { "@id": PERSON_ID },
+    primaryImageOfPage: `${SITE_URL}/og/home.png`,
+    inLanguage: "en",
+  };
+}
+
 /** A curated list of items on a CollectionPage (e.g. /shelf). Generic
  * ItemList so the same helper works for books, links, anything. */
 export function itemListNode(opts: {

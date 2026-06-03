@@ -2,9 +2,22 @@
   import SeoHead from '$lib/components/SeoHead.svelte';
   import Gallery from '$lib/components/gallery/Gallery.svelte';
   import BrandSignoff from '$lib/components/frame/BrandSignoff.svelte';
+  import { SITE_PAGES, SITE_URL, homePageNode, itemListNode } from '$lib/seo';
+
+  // Structured site index for search + answer engines. Mirrors the
+  // natural-language /llms.txt and the sitemap so the same SITE_PAGES
+  // source feeds all three crawl surfaces.
+  const homeSchema = [
+    homePageNode(),
+    itemListNode({
+      path: '/',
+      name: 'threesam — site index',
+      items: SITE_PAGES.map((p) => ({ url: `${SITE_URL}${p.path}`, name: p.label })),
+    }),
+  ];
 </script>
 
-<SeoHead canonical="/" ogImage="/og/home.png" />
+<SeoHead canonical="/" ogImage="/og/home.png" schema={homeSchema} />
 
 <!--
   Single-viewport homepage on a flat --coin field: a 50dvh gallery strip
