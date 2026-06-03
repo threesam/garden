@@ -20,10 +20,12 @@
 >
   threesam
 </svelte:element>
-<!-- Mobile: stacked above the wordmark (both left) so the two never collide on
-     narrow screens. md+: spread to the opposite bottom corner. -->
+<!-- "certainly / uncertain" stacks one word per line. Right-aligned on md+
+     so both lines flush to the corner; left-aligned on mobile so they stack
+     cleanly above the wordmark on narrow screens. -->
 <p
-  class="absolute bottom-16 left-6 z-10 font-mono text-sm tracking-hero {color} md:bottom-8 md:left-auto md:right-8 md:text-base"
+  class="absolute bottom-20 left-6 z-10 text-left font-mono text-sm leading-tight tracking-hero {color} md:bottom-8 md:left-auto md:right-8 md:text-right md:text-base"
 >
-  certainly uncertain
+  <span class="block">certainly</span>
+  <span class="block">uncertain</span>
 </p>
