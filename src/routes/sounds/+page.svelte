@@ -328,18 +328,30 @@
 <div class="scrim scrim-bottom scrim-cream" class:playing={player.playing} aria-hidden="true"></div>
 <div class="scrim scrim-bottom scrim-dark" class:playing={player.playing} aria-hidden="true"></div>
 
-<footer class="transport" class:playing={player.playing}>
-  <button class="tp-play" aria-label={player.playing ? "pause" : "play"} onclick={toggleCurrent} disabled={!player.track}>
-    <PlayGlyph state={status()} />
+<footer
+  class="transport"
+  class:playing={player.playing}
+  role="region"
+  aria-label="audio player"
+>
+  <button
+    class="tp-play"
+    aria-label={!player.track ? 'no track selected' : player.playing ? 'pause' : 'play'}
+    onclick={toggleCurrent}
+    disabled={!player.track}
+  >
+    <span aria-hidden="true"><PlayGlyph state={status()} /></span>
   </button>
-  <div class="np">
+  <!-- aria-live="polite" on the now-playing region so screen readers
+       announce track changes without interrupting other speech. -->
+  <div class="np" aria-live="polite" aria-atomic="true">
     {#if player.track}
       <span class="np-title">{player.track.title}</span><span class="dim"> · {player.track.variant}</span>
     {:else}
       <span class="dim">select a track</span>
     {/if}
   </div>
-  <span class="t">{fmt(player.currentTime)}</span>
+  <span class="t" aria-label="elapsed time">{fmt(player.currentTime)}</span>
   <input
     class="scrub"
     type="range"
@@ -352,8 +364,10 @@
     onpointerup={() => setScrubbing(false)}
     onpointercancel={() => setScrubbing(false)}
     aria-label="seek"
+    aria-valuetext={`${fmt(player.currentTime)} of ${fmt(player.duration)}`}
+    disabled={!player.track}
   />
-  <span class="t">{fmt(player.duration)}</span>
+  <span class="t" aria-label="total duration">{fmt(player.duration)}</span>
 </footer>
 
 <audio bind:this={audioEl} crossorigin="anonymous" src={player.track?.src ?? ""} onended={playNext}></audio>
@@ -739,39 +753,41 @@
     pointer-events: none;
     transition: opacity 600ms linear;
   }
+  /* Scoop fades to roughly nav-row height — the 40 px nav coin plus
+     ~12 px padding above and below = ~4 rem. The cream stays solid for
+     the top 3 rem (covering the nav row) then falls off over the last
+     ~1 rem so the cards behind don't get smudged. */
   .scrim-top {
     top: 0;
-    height: 7rem;
+    height: 4rem;
   }
   .scrim-bottom {
     bottom: 0;
-    height: 12rem;
+    height: calc(var(--player-h) + 1rem);
   }
-  /* Desktop: cap the fades at nav height — the long gradient tails
-     read as too heavy at wider viewports. */
   @media (min-width: 768px) {
     .scrim-top,
     .scrim-bottom {
-      height: 2.5rem;
+      height: 3.5rem;
     }
   }
   .scrim-cream.scrim-top {
-    background: linear-gradient(to bottom, var(--white) 2.5rem, transparent);
+    background: linear-gradient(to bottom, var(--white) 3rem, transparent);
     opacity: 1;
   }
   .scrim-cream.scrim-bottom {
-    background: linear-gradient(to top, var(--white) 66px, transparent);
+    background: linear-gradient(to top, var(--white) calc(var(--player-h) + 0.25rem), transparent);
     opacity: 1;
   }
   .scrim-cream.playing {
     opacity: 0;
   }
   .scrim-dark.scrim-top {
-    background: linear-gradient(to bottom, var(--black) 2.5rem, transparent);
+    background: linear-gradient(to bottom, var(--black) 3rem, transparent);
     opacity: 0;
   }
   .scrim-dark.scrim-bottom {
-    background: linear-gradient(to top, var(--black) 66px, transparent);
+    background: linear-gradient(to top, var(--black) calc(var(--player-h) + 0.25rem), transparent);
     opacity: 0;
   }
   .scrim-dark.playing {
@@ -820,6 +836,14 @@
   .tp-play:disabled {
     opacity: 0.4;
     cursor: default;
+  }
+  /* Visible keyboard-focus ring on the play button + scrubber so
+     keyboard users (and screen readers' user-tracking) can see where
+     focus has landed. :focus-visible avoids the ring on mouse clicks. */
+  .tp-play:focus-visible,
+  .scrub:focus-visible {
+    outline: 2px solid var(--coin);
+    outline-offset: 3px;
   }
   .np {
     flex: 0 1 auto; /* may shrink (title ellipsis) so the scrubber keeps room */
