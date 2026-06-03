@@ -349,10 +349,13 @@
 						</div>
 					{/if}
 				</div>
-				<!-- label: below the image, full width, centered. Palette alternates per card. -->
+				<!-- label: below the image, full width, centered. Palette alternates
+				     per card. On hover the label bg matches the border ring
+				     (coin) so the card "lights up" as a single unit; text
+				     goes black so it stays legible on the gold. -->
 				<div
 					data-card-label
-					class="flex flex-1 items-center justify-center px-3 text-center font-mono text-xl font-bold uppercase tracking-pill lg:text-2xl {cream
+					class="flex flex-1 items-center justify-center px-3 text-center font-mono text-xl font-bold uppercase tracking-pill transition-colors duration-700 group-hover:bg-coin group-hover:text-black lg:text-2xl {cream
 						? 'bg-white text-black'
 						: 'bg-black text-white'}"
 				>
