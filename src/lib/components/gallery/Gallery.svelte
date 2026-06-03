@@ -346,8 +346,18 @@
 									<!-- Card-scale particle field: 1500 (was 4000) at point
 									     size 3 (was 2). Same visual density on a ~280 px card
 									     at ~60 % of the per-frame physics cost — particle
-									     repel is O(n) per frame. -->
-									<CanvasComp countOverride={1500} hideText pointSize={3} repelRadius={40} lowDpr />
+									     repel is O(n) per frame.
+									     color: brand --black (rgb 26,26,20) — matches the day21
+									     ABA sketch palette so the homepage tile reads as a
+									     preview of the route's primary sketch. -->
+									<CanvasComp
+										countOverride={1500}
+										hideText
+										pointSize={3}
+										repelRadius={40}
+										lowDpr
+										color={[26, 26, 20]}
+									/>
 								{:else if item.handle === 'thoughts'}
 									<CanvasComp slug="30" active={inView(i)} interactive={false} />
 								{:else if item.handle === 'sounds'}

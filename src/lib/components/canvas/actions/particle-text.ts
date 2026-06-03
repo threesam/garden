@@ -183,11 +183,15 @@ export interface ParticleTextParams {
   pointSize?: number;
   repelRadius?: number;
   lowDpr?: boolean;
+  // Fixed RGB (0-255 each) for every particle — used by the homepage analog
+  // card to match the day21 sketch's --black. Omit on /anything-but-analog
+  // to keep the original random gray field.
+  color?: [number, number, number];
 }
 
 export const particleText: Action<HTMLCanvasElement, ParticleTextParams> = (node, initialParams) => {
   const params = initialParams;
-  const { container, textCanvas, countOverride, hideText = false, pointSize = 1.0, repelRadius, lowDpr = false } = params;
+  const { container, textCanvas, countOverride, hideText = false, pointSize = 1.0, repelRadius, lowDpr = false, color } = params;
 
   const dpr = lowDpr ? 1 : (window.devicePixelRatio || 1);
   const picked = pickParticleCount();
@@ -362,10 +366,16 @@ export const particleText: Action<HTMLCanvasElement, ParticleTextParams> = (node
       velocities[i * 2] = Math.cos(angle) * spd;
       velocities[i * 2 + 1] = Math.sin(angle) * spd;
 
-      const g = (GRAY_MIN + Math.random() * grayRange) | 0;
-      colors[i * 3] = g;
-      colors[i * 3 + 1] = g;
-      colors[i * 3 + 2] = g;
+      if (color) {
+        colors[i * 3] = color[0];
+        colors[i * 3 + 1] = color[1];
+        colors[i * 3 + 2] = color[2];
+      } else {
+        const g = (GRAY_MIN + Math.random() * grayRange) | 0;
+        colors[i * 3] = g;
+        colors[i * 3 + 1] = g;
+        colors[i * 3 + 2] = g;
+      }
     }
 
     for (let i = 0; i < 2; i++) {
