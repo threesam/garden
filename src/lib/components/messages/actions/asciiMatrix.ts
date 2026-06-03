@@ -59,7 +59,11 @@ export const asciiMatrix: Action<HTMLCanvasElement, AsciiMatrixConfig> = (canvas
 		const m = parsed[idx];
 		const cellW = w / m.cols;
 		const cellH = h / m.rows;
-		const fontSize = Math.max(4, Math.floor(cellH * 0.9));
+		// 3 px floor (was 4) so a denser matrix can render ~25% smaller
+		// glyphs. Below 3 the chars are illegible at typical mobile DPR;
+		// above 3 the existing 0.9 multiplier keeps them snug in their
+		// cells.
+		const fontSize = Math.max(3, Math.floor(cellH * 0.9));
 
 		const ctx = canvas.getContext('2d')!;
 		const dpr = window.devicePixelRatio || 1;

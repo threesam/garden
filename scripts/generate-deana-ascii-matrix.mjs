@@ -31,12 +31,11 @@ const OUT = "src/lib/deana/ascii-matrices.ts";
 //
 // HEIGHT_RATIO 1.8 means each glyph cell is 1.8× as tall as wide. For a
 // 4:5 image area (h/w = 1.25): rows / cols = (h/w) / HEIGHT_RATIO = 1.25
-// / 1.8 ≈ 0.694. With COLS = 100 that gives ROWS ≈ 69. Bumped from 76×53
-// → finer grid means smaller chars on screen. Per-cell font hits the 4 px
-// floor past ~80 cols, so the visual change comes from packing more
-// glyphs into the same area rather than shrinking each glyph further.
-const COLS = 100;
-const ROWS = 69;
+// / 1.8 ≈ 0.694. With COLS = 130 that gives ROWS ≈ 90. Bumped from 100×69
+// → finer grid; renderer's fontSize floor was also dropped 4 → 3 so the
+// glyphs actually shrink at this density instead of clamping back.
+const COLS = 130;
+const ROWS = 90;
 const HEIGHT_RATIO = 1.8; // documented; not used in the bake itself
 
 // Identical to scripts/generate-deana-ascii.mjs so the chosen glyphs
