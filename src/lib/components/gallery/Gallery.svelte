@@ -350,12 +350,10 @@
 					{/if}
 				</div>
 				<!-- label: below the image, full width, centered. Palette alternates
-				     per card. On hover the label bg matches the border ring
-				     (coin) so the card "lights up" as a single unit; text
-				     goes black so it stays legible on the gold. -->
+				     per card and stays put on hover — only the ring changes. -->
 				<div
 					data-card-label
-					class="flex flex-1 items-center justify-center px-3 text-center font-mono text-xl font-bold uppercase tracking-pill transition-colors duration-700 group-hover:bg-coin group-hover:text-black lg:text-2xl {cream
+					class="flex flex-1 items-center justify-center px-3 text-center font-mono text-xl font-bold uppercase tracking-pill lg:text-2xl {cream
 						? 'bg-white text-black'
 						: 'bg-black text-white'}"
 				>
@@ -365,10 +363,14 @@
 						{item.label}
 					{/if}
 				</div>
-				<!-- Border overlay: transparent ring at rest, coin on hover.
-				     Inset so it paints crisply over the canvas + label. -->
+				<!-- Border overlay: transparent ring at rest; on hover the ring
+				     adopts the card's label-bg color so border and label read
+				     as the same hue. Inset so it paints crisply over the
+				     canvas + label. -->
 				<div
-					class="pointer-events-none absolute inset-0 rounded-2xl ring-2 ring-transparent ring-inset transition-shadow duration-700 group-hover:ring-coin"
+					class="pointer-events-none absolute inset-0 rounded-2xl ring-2 ring-transparent ring-inset transition-shadow duration-700 {cream
+						? 'group-hover:ring-white'
+						: 'group-hover:ring-black'}"
 				></div>
 			</a>
 		{/each}
