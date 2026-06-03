@@ -1,6 +1,10 @@
 <script lang="ts">
-	import AsciiGallery from '$lib/components/ascii/AsciiGallery.svelte';
-	import { DEANA_ASCII } from '$lib/deana/images.js';
+	// Homepage gallery deana card now renders ASCII from a pre-baked char
+	// matrix (~9 KB gz total for all 6 photos) instead of shipping the
+	// 2 MB of webp pre-bakes. The /deana page is untouched — still uses
+	// runtime AsciiImage on the raw photos.
+	import AsciiMatrixCanvas from './AsciiMatrixCanvas.svelte';
+	import { DEANA_MATRICES } from '$lib/deana/ascii-matrices.js';
 </script>
 
-<AsciiGallery srcs={DEANA_ASCII} class="absolute inset-0" sizes="(min-width: 1024px) 30vw, 50vw" />
+<AsciiMatrixCanvas matrices={DEANA_MATRICES} class="absolute inset-0" />
