@@ -7,6 +7,7 @@
   import VoronoiCanvas from '$lib/components/canvas/VoronoiCanvas.svelte';
   import VoronoiImage from '$lib/components/canvas/VoronoiImage.svelte';
   import AnythingButAnalogBanner from '$lib/components/banners/AnythingButAnalogBanner.svelte';
+  import { scheduleIdle, cancelIdle } from '$lib/perf/idle';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -59,35 +60,20 @@
             setup(node: Element) {
               let instance: ReturnType<typeof mount> | null = null;
               let idleHandle: number | null = null;
-              const ric =
-                typeof requestIdleCallback === 'function'
-                  ? requestIdleCallback
-                  : (cb: () => void) => setTimeout(cb, 1) as unknown as number;
-              const cancelRic =
-                typeof cancelIdleCallback === 'function'
-                  ? cancelIdleCallback
-                  : (h: number) => clearTimeout(h);
               // rootMargin 400px -> 200px keeps the prefetch buffer just
               // outside the viewport (one slot at a time during normal
-              // scroll instead of 2-3 simultaneously) and the mount goes
-              // through requestIdleCallback so the WebGL shader compile
-              // (~80-150 ms each) lands in an idle slot between scroll
-              // frames rather than stacking into a long task.
+              // scroll instead of 2-3 simultaneously); scheduleIdle()
+              // defers the mount so the WebGL shader compile (~80-150 ms)
+              // lands in an idle gap rather than stacking into a long task.
               const io = new IntersectionObserver(
                 (entries) => {
                   if (entries[0].isIntersecting && !instance) {
                     io.disconnect();
-                    idleHandle = ric(
-                      () => {
-                        idleHandle = null;
-                        if (instance) return;
-                        instance = mount(VoronoiImage, { target: node, props: { src, alt } });
-                      },
-                      // 2 s upper bound so banners always mount even on a
-                      // device that never goes truly idle (busy main
-                      // thread during long scrolls).
-                      { timeout: 2000 } as IdleRequestOptions,
-                    );
+                    idleHandle = scheduleIdle(() => {
+                      idleHandle = null;
+                      if (instance) return;
+                      instance = mount(VoronoiImage, { target: node, props: { src, alt } });
+                    });
                   }
                 },
                 { rootMargin: '200px' }
@@ -95,7 +81,7 @@
               io.observe(node);
               return () => {
                 io.disconnect();
-                if (idleHandle != null) cancelRic(idleHandle);
+                if (idleHandle != null) cancelIdle(idleHandle);
                 if (instance) unmount(instance);
               };
             },

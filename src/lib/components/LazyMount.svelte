@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { scheduleIdle, cancelIdle } from '$lib/perf/idle';
 
   interface Props {
     /**
@@ -44,30 +45,18 @@
     }
     // Snapshot rootMargin + useIdle so prop changes after mount have no effect.
     const margin = rootMargin;
-    const ric =
-      useIdle && typeof requestIdleCallback === 'function'
-        ? requestIdleCallback
-        : null;
-    const cancelRic =
-      typeof cancelIdleCallback === 'function' ? cancelIdleCallback : null;
+    const idle = useIdle;
     let idleHandle: number | null = null;
     const io = new IntersectionObserver(
       (entries) => {
         if (!entries.some((e) => e.isIntersecting)) return;
         io.disconnect();
-        if (ric) {
-          // 2 s upper bound so the mount fires even on a device that
-          // never goes truly idle (busy main thread during long scrolls).
-          idleHandle = ric(
-            () => {
-              idleHandle = null;
-              visible = true;
-            },
-            { timeout: 2000 } as IdleRequestOptions,
-          );
+        if (idle) {
+          idleHandle = scheduleIdle(() => {
+            idleHandle = null;
+            visible = true;
+          });
         } else {
-          // Falls through here when useIdle is off OR the browser doesn't
-          // support rIC — same behaviour as before the prop existed.
           visible = true;
         }
       },
@@ -76,7 +65,7 @@
     io.observe(host);
     return () => {
       io.disconnect();
-      if (idleHandle != null && cancelRic) cancelRic(idleHandle);
+      if (idleHandle != null) cancelIdle(idleHandle);
     };
   });
 </script>
