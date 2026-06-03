@@ -8,7 +8,7 @@ it was after that he was labeled permanently and totally disabled. he didn't let
 
 pain followed him around. the only time it didn't was when it snowed. for some reason, the atmospheric pressure, the cold air, whatever conditions led to snow meant that he wouldn't be in pain. so i always have really fond memories of snow when i was younger.
 
-another good thing about snow: no matter how much detritus litters the ghetto, snow washes the look all away. we all get to enjoy its deadly, cool, beauty.
+another good thing about snow: no matter how much shit litters the ghetto, snow washes the look all away. we all get to enjoy its deadly, cool, beauty.
 
 ## the last four months
 
