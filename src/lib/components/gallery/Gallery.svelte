@@ -304,6 +304,8 @@
 			     and adding the tilt+ring made it feel busy on hover. -->
 			{@const hoverless = item.handle === 'thoughts'}
 			{@const cardHover = hoverless ? '' : 'hover:shadow-none hover:[transform:rotate(-1.3deg)]'}
+			{@const ringPalette = cream ? 'group-hover:ring-white' : 'group-hover:ring-black'}
+			{@const ringHover = hoverless ? '' : ringPalette}
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
 			<a
 				href={item.href}
@@ -385,10 +387,6 @@
 				     adopts the card's label-bg color so border and label read
 				     as the same hue. Inset so it paints crisply over the
 				     canvas + label. Thoughts card opts out (hoverless). -->
-				{@const ringHover = (() => {
-					if (hoverless) return '';
-					return cream ? 'group-hover:ring-white' : 'group-hover:ring-black';
-				})()}
 				<div
 					class="pointer-events-none absolute inset-0 rounded-2xl ring-2 ring-transparent ring-inset transition-shadow duration-700 {ringHover}"
 				></div>
