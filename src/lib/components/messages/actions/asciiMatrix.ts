@@ -73,24 +73,25 @@ export const asciiMatrix: Action<HTMLCanvasElement, AsciiMatrixConfig> = (canvas
 		// Smoothstep keeps the crossfade easing on the canvas glyphs in sync
 		// with the CSS opacity ramps used elsewhere (AsciiImage etc.).
 		const smooth = t * t * (3 - 2 * t);
+		const rampMax = ASCII_RAMP.length - 1;
 
 		for (let y = 0; y < m.rows; y++) {
 			const line = m.lines[y] ?? '';
 			const blendLine = blend ? (blend.lines[y] ?? '') : '';
 			for (let x = 0; x < m.cols; x++) {
-				const glyph = line[x] ?? ' ';
-				const blendGlyph = blend ? (blendLine[x] ?? ' ') : glyph;
-				// When the two matrices disagree on a cell, we pick whichever
-				// glyph dominates the blend phase — keeps the field crisp
-				// rather than rendering both and getting a smudge.
-				const pickGlyph = !blend || smooth < 0.5 ? glyph : blendGlyph;
-				if (pickGlyph === ' ') continue;
-				const toneA = TONE_OF[glyph] ?? 0;
-				const toneB = blend ? (TONE_OF[blendGlyph] ?? 0) : toneA;
-				const tone = toneA * (1 - smooth) + toneB * smooth;
-				const alpha = 0.2 + tone * 0.75;
-				ctx.globalAlpha = alpha;
-				ctx.fillText(pickGlyph, x * cellW, y * cellH);
+				const glyphA = line[x] ?? ' ';
+				const glyphB = blend ? (blendLine[x] ?? ' ') : glyphA;
+				// Lerp the RAMP index between the two glyphs, then pick the
+				// glyph at the lerped index. Each cell walks smoothly through
+				// the ramp during the crossfade instead of hard-swapping at
+				// midpoint (which read as a sudden snap).
+				const idxA = TONE_OF[glyphA] ?? 0;
+				const idxB = TONE_OF[glyphB] ?? 0;
+				const tone = idxA * (1 - smooth) + idxB * smooth;
+				const glyph = ASCII_RAMP[Math.round(tone * rampMax)] ?? ' ';
+				if (glyph === ' ') continue;
+				ctx.globalAlpha = 0.2 + tone * 0.75;
+				ctx.fillText(glyph, x * cellW, y * cellH);
 			}
 		}
 		ctx.globalAlpha = 1;
@@ -102,7 +103,15 @@ export const asciiMatrix: Action<HTMLCanvasElement, AsciiMatrixConfig> = (canvas
 	}
 
 	function renderStatic() {
+		// Cancel any in-flight crossfade + scheduled next-cycle so we don't
+		// race the resize repaint. Restart the cycle clock from this static
+		// frame.
+		if (rafId) cancelAnimationFrame(rafId);
+		rafId = 0;
+		if (timerId) clearTimeout(timerId);
+		timerId = null;
 		renderMatrix(currentIdx);
+		scheduleNext();
 	}
 
 	function startTransition() {
@@ -136,11 +145,9 @@ export const asciiMatrix: Action<HTMLCanvasElement, AsciiMatrixConfig> = (canvas
 	const ro = new ResizeObserver(onResize);
 	ro.observe(container);
 
-	// Kick off after a frame so the container has been laid out.
-	requestAnimationFrame(() => {
-		renderStatic();
-		scheduleNext();
-	});
+	// Kick off after a frame so the container has been laid out. renderStatic
+	// itself schedules the next crossfade.
+	requestAnimationFrame(renderStatic);
 
 	return {
 		update(next: AsciiMatrixConfig) {
