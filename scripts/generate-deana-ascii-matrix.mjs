@@ -50,10 +50,39 @@ function lumToTone(lum) {
 }
 
 async function bake(src) {
-  // Cover-crop the source to fit COLS × ROWS at the card's aspect (4:5).
-  // Photos that don't already match crop their edges instead of stretching.
+  // Two-stage sample. The renderer draws each glyph in a cell that is
+  // HEIGHT_RATIO (1.8) times as tall as wide, so the matrix grid's pixel
+  // aspect (COLS:ROWS = 1.43:1) maps to a DISPLAY aspect of 4:5. Sharp
+  // doesn't know about the cell aspect, so a direct cover-fit to COLS x
+  // ROWS would crop a 1.43:1 landscape band from the source — which then
+  // gets vertically stretched at render time. To avoid that:
+  //
+  // 1. Extract a 4:5 (DISPLAY) crop of the source, centred. That's what
+  //    will actually be visible on the card.
+  // 2. Squish that crop down to COLS x ROWS with `fill`. The squish is
+  //    exactly the inverse of what the renderer's tall cells uncompress.
+  const meta = await sharp(src).metadata();
+  const srcW = meta.width ?? 0;
+  const srcH = meta.height ?? 0;
+  const TARGET_ASPECT = COLS / (ROWS * HEIGHT_RATIO); // = 4/5 by construction
+  const srcAspect = srcW / srcH;
+  let extractW;
+  let extractH;
+  if (srcAspect > TARGET_ASPECT) {
+    // source is wider than 4:5 — crop sides
+    extractH = srcH;
+    extractW = Math.round(extractH * TARGET_ASPECT);
+  } else {
+    // source is taller than 4:5 — crop top/bottom
+    extractW = srcW;
+    extractH = Math.round(extractW / TARGET_ASPECT);
+  }
+  const extractLeft = Math.round((srcW - extractW) / 2);
+  const extractTop = Math.round((srcH - extractH) / 2);
+
   const { data } = await sharp(src)
-    .resize(COLS, ROWS, { fit: "cover" })
+    .extract({ left: extractLeft, top: extractTop, width: extractW, height: extractH })
+    .resize(COLS, ROWS, { fit: "fill" })
     .toColourspace("srgb")
     .removeAlpha()
     .raw()
