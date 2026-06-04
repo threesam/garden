@@ -248,6 +248,11 @@ export interface VoronoiParams {
   scale?: number;
   fit?: 'contain' | 'cover';
   renderScale?: number;
+  /** Fires once the canvas has painted its first real frame — after the
+   *  image-backed texture is uploaded if imageSrc is set, or immediately
+   *  on the gradient-only path otherwise. Callers can flip an opacity
+   *  transition here to avoid the gradient-then-image flash. */
+  onReady?: () => void;
 }
 
 export const voronoi: Action<HTMLCanvasElement, VoronoiParams> = (node, initialParams) => {
@@ -260,6 +265,7 @@ export const voronoi: Action<HTMLCanvasElement, VoronoiParams> = (node, initialP
     scale,
     fit = 'contain',
     renderScale = 1,
+    onReady,
   } = params;
 
   const activeImageSrc =
@@ -276,6 +282,12 @@ export const voronoi: Action<HTMLCanvasElement, VoronoiParams> = (node, initialP
   let hovering = false;
   let dragging = false;
   let influence = 0;
+  // Image-backed instances skip rendering until the texture is uploaded —
+  // otherwise the shader's gradient cells flash on screen for a frame or
+  // two before the image-sampling path takes over. Gradient-only instances
+  // (no imageSrc) flip this true at init so they paint immediately.
+  let imageReady = !activeImageSrc;
+  let readyFired = false;
   const mouseUv = { x: -10, y: -10 };
   const smoothMouse = { x: -10, y: -10 };
 
@@ -358,6 +370,7 @@ export const voronoi: Action<HTMLCanvasElement, VoronoiParams> = (node, initialP
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
       gl.uniform1f(uImageAspect, img.width / img.height);
       gl.uniform1f(uHasImage, 1.0);
+      imageReady = true;
       needsRender = true;
       if (visible && !raf) raf = requestAnimationFrame(render);
     };
@@ -447,11 +460,17 @@ export const voronoi: Action<HTMLCanvasElement, VoronoiParams> = (node, initialP
       Math.abs(smoothMouse.x - prevMx) > 0.0005 ||
       Math.abs(smoothMouse.y - prevMy) > 0.0005;
 
+    if (!imageReady) return;
+
     if (changed || needsRender) {
       needsRender = false;
       gl.uniform1f(uInfluence, influence);
       gl.uniform2f(uMouse, smoothMouse.x, smoothMouse.y);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      if (!readyFired) {
+        readyFired = true;
+        onReady?.();
+      }
     }
   }
 
