@@ -2,10 +2,9 @@ import type { Action } from 'svelte/action';
 
 const SPEED = 0.3;
 const DEFAULT_REPEL_RADIUS = 180;
-// Repel was 1.0 — cursor visibly dragged through the field on lower-end
-// hardware because particles couldn't get out of the way in time. 3.0
-// pushes them clear within a couple of frames; the (falloff*falloff) curve
-// keeps the effect localized so far-away particles aren't disturbed.
+// Strong enough that particles clear the cursor within a couple of frames
+// on low-end hardware (weaker values let the cursor visibly drag through
+// the field). The (falloff*falloff) curve keeps the effect localized.
 const REPEL_STRENGTH = 3.0;
 const DAMPING = 0.85;
 

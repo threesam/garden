@@ -125,9 +125,6 @@ export const sketchHost: Action<HTMLCanvasElement, SketchHostParams> = (
 	function tickFrame() {
 		rafId = 0;
 		if (!activeRef || !api || !tick) return;
-		// No autoscroll-throttle for sketches: the walker reads as an
-		// abrupt speed change when throttle releases on hover. CPU savings
-		// here are paid back by the walker's TARGET reduction in day30.
 		tick(api, frame++);
 		rafId = requestAnimationFrame(tickFrame);
 	}
