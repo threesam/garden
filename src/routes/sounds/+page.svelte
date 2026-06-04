@@ -6,6 +6,7 @@
   import { player, attach, playTrack, toggle, seek, setScrubbing } from "$lib/sounds/player.svelte";
   import type { PageData } from "./$types";
   import type { Cue, Song } from "$lib/sounds/types";
+  import Img from "$lib/components/Img.svelte";
 
   let { data }: { data: PageData } = $props();
   let { manifest, base } = $derived(data);
@@ -261,13 +262,11 @@
         <div class="card" style="--rot:{fan(i)}deg; z-index:{40 - i};">
           <span class="ph">?</span>
           {#if t.cover}
-            <img
+            <Img
               src={coverUrl(t.cover)}
               alt=""
-              draggable="false"
-              loading={featured && i === 0 ? 'eager' : 'lazy'}
-              decoding="async"
-              fetchpriority={featured && i === 0 ? 'high' : 'low'}
+              draggable={false}
+              eager={featured && i === 0}
               onerror={imgErr}
             />
           {/if}
@@ -303,12 +302,9 @@
     <div class="hmbm-poster">
       <span class="hmbm-poster-ph" aria-hidden="true">?</span>
       {#if HMBM_FILM.poster}
-        <img
+        <Img
           src={coverUrl(HMBM_FILM.poster)}
           alt="how many blind mice? — film poster"
-          loading="lazy"
-          decoding="async"
-          fetchpriority="low"
           onerror={imgErr}
         />
       {/if}

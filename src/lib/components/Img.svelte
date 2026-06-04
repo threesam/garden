@@ -11,7 +11,10 @@
 		width?: number | string;
 		height?: number | string;
 		fadeMs?: number;
+		draggable?: boolean;
+		onerror?: (e: Event) => void;
 		class?: string;
+		style?: string;
 	}
 
 	let {
@@ -24,7 +27,10 @@
 		width,
 		height,
 		fadeMs = 700,
+		draggable,
+		onerror,
 		class: className = '',
+		style = '',
 	}: Props = $props();
 
 	// Eager (LCP candidate) always shows; lazy gates the reveal on the img's
@@ -41,10 +47,11 @@
 	{decoding}
 	{width}
 	{height}
+	{draggable}
+	{onerror}
 	loading={eager ? 'eager' : 'lazy'}
 	fetchpriority={eager ? 'high' : 'auto'}
 	onload={() => (hasLoaded = true)}
 	class="transition-opacity ease-out {className}"
-	style:opacity={visible ? 1 : 0}
-	style:transition-duration="{fadeMs}ms"
+	style="opacity: {visible ? 1 : 0}; transition-duration: {fadeMs}ms; {style}"
 />

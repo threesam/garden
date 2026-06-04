@@ -3,6 +3,7 @@
   import { collectionPageNode } from "$lib/seo";
   import ShelfHero from "$lib/components/ShelfHero.svelte";
   import { proxyImg } from "$lib/img";
+  import Img from "$lib/components/Img.svelte";
   import type { PageData } from "./$types";
 
   let { data }: { data: PageData } = $props();
@@ -43,12 +44,11 @@
         class="group relative block break-inside-avoid p-1.5 md:transition-[background-color,box-shadow] md:duration-300 md:ease-out md:hover:z-10 md:hover:bg-coin md:hover:shadow-[0_0_0_4px_var(--coin)]"
       >
         {#if book.coverUrl}
-          <img
+          <Img
             src={proxyImg(book.coverUrl, 320)}
             alt={book.cleanTitle}
             width={book.coverW ?? 200}
             height={book.coverH ?? 300}
-            loading="lazy"
             class="block h-auto w-full md:transition-[filter] md:duration-300 md:group-hover:grayscale"
           />
         {:else}
