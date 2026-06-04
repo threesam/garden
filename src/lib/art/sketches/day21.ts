@@ -1,13 +1,14 @@
 import type { Sketch } from "../types";
 
-// day21 — faithful port of the Sapper original: a jittered grid of particles
-// is shuffled, then revealed one per frame. Each active particle walks a
-// noise-angled flow field and paints a *circle* (not a line) at its new
-// position every frame. Size + stroke alpha come from a second noise
-// sample. Inside a central padded rectangle circles are white with faint
-// black strokes; outside they flip to black circles with red strokes — the
-// "fidenza + machine learning gone wrong" combo described in the original
-// Instagram post.
+// day21 — Sapper-style flow field of circles. A capped pool of particles
+// is shuffled, then revealed one per frame until the pool is full. Each
+// active particle walks a curl-of-noise flow field (divergence-free, so
+// they never pool in sinks), wraps at the canvas edges, and paints a
+// circle at its new position every frame. Size + stroke alpha come from
+// a second noise sample. Inside a central padded rectangle circles are
+// white with faint black strokes; outside they flip to black circles
+// with red strokes — the "fidenza + machine learning gone wrong" combo
+// from the original Instagram post.
 export const day21: Sketch = {
   slug: "21",
   title: "flow ml",
@@ -15,9 +16,11 @@ export const day21: Sketch = {
   setup(api) {
     const { ctx, w, h, rng, noise, map } = api;
     const smallSide = Math.min(w, h);
-    // Density dialed down from the Sapper original's 500 (which produced
-    // ~250k particles at a 1080p viewport — unnecessary) to 100, which
-    // still saturates the composition nicely at ~10k particles.
+    // Sapper original ran ~10k particles which (a) tanked perf and (b)
+    // packed the canvas so densely that pooling at flow-field sinks
+    // looked like a frozen field. Cap at 2500 — still saturates the
+    // composition while leaving headroom for the per-frame curl + draw.
+    const MAX_PARTICLES = 2500;
     const density = 100;
     const padding = 0.7;
     const space = (smallSide / density) * padding;
@@ -25,31 +28,31 @@ export const day21: Sketch = {
     const right = w / 2 + (smallSide / 2) * padding;
     const bottom = h / 2 - (smallSide / 2) * padding;
     const top = h / 2 + (smallSide / 2) * padding;
-    const multi = 0.004;
-    // Particles travel through and leave the system: a particle dies once it
-    // exits the canvas (with margin) or gets caught in an eddy past maxAge, so
-    // the field thins out and settles instead of redrawing ~10k points forever.
-    const margin = 60;
-    const maxAge = 500;
+
+    // Curl-of-noise (divergence-free) replaces the original's raw
+    // noise-as-angle, which had convergent sinks where particles drained
+    // and froze. ∂F_x/∂x + ∂F_y/∂y = 0 by construction so particles keep
+    // circulating instead of pooling.
+    const noiseScale = 0.004;
+    const curlStep = 0.02;
 
     interface V {
       x: number;
       y: number;
-      age: number;
-      dead?: boolean;
     }
     const vectors: V[] = [];
     for (let x = left; x < right; x += space) {
       for (let y = bottom; y < top; y += space) {
+        if (vectors.length >= MAX_PARTICLES) break;
         vectors.push({
           x: x + map(rng(), 0, 1, -space, space),
           y: y + map(rng(), 0, 1, -space, space),
-          age: 0,
         });
       }
+      if (vectors.length >= MAX_PARTICLES) break;
     }
-    // Fisher-Yates shuffle so the progressive reveal seeds randomly across
-    // the grid instead of sweeping corner-to-corner.
+    // Fisher-Yates shuffle so the progressive reveal seeds randomly
+    // across the grid instead of sweeping corner-to-corner.
     for (let i = vectors.length - 1; i > 0; i--) {
       const j = Math.floor(rng() * (i + 1));
       [vectors[i], vectors[j]] = [vectors[j], vectors[i]];
@@ -59,39 +62,29 @@ export const day21: Sketch = {
     ctx.fillRect(0, 0, w, h);
     ctx.lineWidth = 1;
 
-    // Once every revealed particle has died the field has settled, so skip the
-    // per-frame loop entirely instead of scanning all ~10k dead vectors forever.
-    let deadCount = 0;
     return {
       tick(_, frame) {
-        if (deadCount >= vectors.length) return;
         const revealed = Math.min(frame + 1, vectors.length);
         for (let i = 0; i < revealed; i++) {
           const v = vectors[i];
-          if (v.dead) continue;
-          v.age++;
-          // The original treats the noise value as "an angle in 0-720" and
-          // passes it straight to Math.cos/sin, which interpret it as
-          // radians. Keeping that literal — it produces more chaotic
-          // direction churn than a clean 0-2π mapping, which is what the
-          // aesthetic depends on.
-          const angle = map(noise(v.x * multi, v.y * multi), 0, 1, 0, 720);
-          v.x += Math.cos(angle);
-          v.y += Math.sin(angle);
 
-          // Once it travels off the canvas, or gets caught and lingers past
-          // maxAge, retire it so the field thins out and settles.
-          if (
-            v.x < -margin ||
-            v.x > w + margin ||
-            v.y < -margin ||
-            v.y > h + margin ||
-            v.age > maxAge
-          ) {
-            v.dead = true;
-            deadCount++;
-            continue;
-          }
+          // Curl-of-noise: treat `noise` as a stream function ψ and take
+          // its 2D curl — F = (∂ψ/∂y, -∂ψ/∂x) — via central differences.
+          // Four lookups per particle, ~10k per frame at MAX, negligible.
+          const nx = v.x * noiseScale;
+          const ny = v.y * noiseScale;
+          const dnx = (noise(nx + curlStep, ny) - noise(nx - curlStep, ny)) / (2 * curlStep);
+          const dny = (noise(nx, ny + curlStep) - noise(nx, ny - curlStep)) / (2 * curlStep);
+          const flowLen = Math.hypot(dny, -dnx) || 1;
+          v.x += dny / flowLen;
+          v.y += -dnx / flowLen;
+
+          // Asteroids-wrap so particles circulate forever instead of
+          // exiting the system — exit right → re-enter left, etc.
+          if (v.x < 0) v.x += w;
+          else if (v.x > w) v.x -= w;
+          if (v.y < 0) v.y += h;
+          else if (v.y > h) v.y -= h;
 
           const n = noise(v.x * 0.025, v.y * 0.025);
           const size = map(n, 0, 1, 1, 33);

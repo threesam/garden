@@ -1,6 +1,5 @@
 import type { Sketch } from "../types";
 import { sketchMode } from "../sketch-mode";
-import { isCanvasThrottled } from "$lib/perf-flags";
 
 // The crowd — procedural stick figures walking along a gentle NE-biased
 // flow field. Walkers are scattered across the canvas at init and wrap
@@ -354,16 +353,7 @@ export const day30: Sketch = {
           // lockstep with the card flip and the color shift. Cursor
           // orbit (only on routes that pass interactive=true) is
           // unaffected — it stays a deliberate, attention-grabbing pull.
-          //
-          // Frame-rate compensation: the homepage gallery throttles every
-          // canvas to 30 fps while its strip auto-scrolls (sketch-host
-          // drops alternate frames via shouldSkipThrottledFrame). When the
-          // user hovers, the strip stops and throttle releases — without
-          // this compensation walkers visually jump to 2× speed. Doubling
-          // per-tick delta while throttled keeps the perceived speed flat
-          // across the hover transition.
-          const throttleScale = isCanvasThrottled() ? 2 : 1;
-          const speedScale = (1 - currentSlow * 0.85) * throttleScale;
+          const speedScale = 1 - currentSlow * 0.85;
           wk.x += (Math.cos(moveAngle) * wk.speed + repelX * SEPARATION_GAIN) * speedScale + orbitX;
           wk.y += (Math.sin(moveAngle) * wk.speed + repelY * SEPARATION_GAIN) * speedScale + orbitY;
 
