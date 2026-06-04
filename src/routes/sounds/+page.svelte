@@ -863,11 +863,25 @@
   .np-title {
     font-weight: 700;
   }
+  /* Idle transport bg is cream-tinted; coin on cream fails AA contrast. Use
+     dark text at idle and only flip to coin when playing (bg is dark). */
   .t {
     flex: 0 0 auto;
     font-size: 0.72rem;
-    color: var(--coin);
+    color: var(--black);
     font-variant-numeric: tabular-nums;
+  }
+  .transport.playing .t {
+    color: var(--coin);
+  }
+  /* Same flip for the `.dim` "now playing" subtitle inside the transport. */
+  .transport .dim {
+    color: var(--black);
+    opacity: 0.7;
+  }
+  .transport.playing .dim {
+    color: var(--coin);
+    opacity: 0.7;
   }
   .scrub {
     flex: 1 1 auto;
