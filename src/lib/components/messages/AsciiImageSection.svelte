@@ -11,10 +11,10 @@
 
 	let { ascii, eager = false }: Props = $props();
 
-	// Each section starts hidden and fades in on the img's `load` event so a
-	// scrolled-to section never flashes a half-decoded frame. The eager hero
-	// still fetches at high priority — only the visual reveal is gated.
-	let loaded = $state(false);
+	// Lazy sections gate visual reveal on the img's load event so a scrolled-to
+	// section never flashes a half-decoded frame. The eager hero skips the gate
+	// — hiding the LCP candidate behind a 700 ms fade would tank the score.
+	let loaded = $state(eager);
 </script>
 
 <section
@@ -31,8 +31,7 @@
 		decoding="async"
 		onload={() => (loaded = true)}
 		class="absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ease-out"
-		class:opacity-0={!loaded}
-		class:opacity-100={loaded}
+		style:opacity={loaded ? 1 : 0}
 	/>
 	<span
 		class="pointer-events-none absolute bottom-6 left-6 z-10 font-mono text-2xl font-bold uppercase tracking-pill text-black md:bottom-10 md:left-10 md:text-5xl"

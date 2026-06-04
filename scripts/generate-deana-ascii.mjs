@@ -133,7 +133,9 @@ async function bake(src) {
   return { base, glyphs: parts.length - 3, lg: lg.size, sm: sm.size };
 }
 
-for (const f of SRC_FILES) {
-  const r = await bake(join(SRC_DIR, f));
+// sharp releases the event loop between I/O hops, so all 6 bakes run in
+// parallel — wall-clock drops roughly proportional to core count.
+const results = await Promise.all(SRC_FILES.map((f) => bake(join(SRC_DIR, f))));
+for (const r of results) {
   console.log(`${r.base}: ${r.glyphs} glyphs → -lg ${Math.round(r.lg / 1024)}KB, -sm ${Math.round(r.sm / 1024)}KB`);
 }
