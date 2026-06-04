@@ -1,6 +1,6 @@
 <script lang="ts">
 	import DanaLabel from './DanaLabel.svelte';
-	import Image from '$lib/components/Image.svelte';
+	import Img from '$lib/components/Img.svelte';
 	import { asciiSrcset, type AsciiSrc } from '$lib/deana/images';
 
 	interface Props {
@@ -17,7 +17,7 @@
 	class="relative h-dvh w-full overflow-hidden bg-white"
 	style="content-visibility: auto; contain-intrinsic-size: 100vw 100dvh;"
 >
-	<Image
+	<Img
 		src={ascii.lg}
 		srcset={asciiSrcset(ascii)}
 		sizes="100vw"
