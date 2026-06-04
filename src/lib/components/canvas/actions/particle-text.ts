@@ -2,10 +2,9 @@ import type { Action } from 'svelte/action';
 
 const SPEED = 0.3;
 const DEFAULT_REPEL_RADIUS = 180;
-// Repel was 1.0 — cursor visibly dragged through the field on lower-end
-// hardware because particles couldn't get out of the way in time. 3.0
-// pushes them clear within a couple of frames; the (falloff*falloff) curve
-// keeps the effect localized so far-away particles aren't disturbed.
+// Strong enough that particles clear the cursor within a couple of frames
+// on low-end hardware (weaker values let the cursor visibly drag through
+// the field). The (falloff*falloff) curve keeps the effect localized.
 const REPEL_STRENGTH = 3.0;
 const DAMPING = 0.85;
 
@@ -43,6 +42,14 @@ void main() {
   vec2 pos = a_position;
   vec2 vel = a_velocity;
 
+  // Forward Euler ordering: advance position with the OLD velocity, THEN
+  // fold in the new repel impulse. Semi-implicit (vel-first then pos)
+  // would compound the new impulse as ~dt² in position — at 30fps the
+  // cursor scatter was visibly ~2× per-second vs 60fps. Forward Euler
+  // makes the new impulse linear in dt, so per-real-second behavior
+  // matches across frame rates.
+  pos += vel * u_dt;
+
   if (u_mouse.x >= 0.0) {
     vec2 diff = pos - u_mouse;
     float distSq = dot(diff, diff);
@@ -50,15 +57,10 @@ void main() {
     if (distSq < radiusSq && distSq > 0.5) {
       float dist = sqrt(distSq);
       float falloff = 1.0 - dist / ${glf(repelRadius)};
-      // u_dt expressed in 60fps-frame units — at 30fps it's 2, so each tick
-      // integrates two frames of repel impulse + position advance. Keeps the
-      // cursor responsiveness frame-rate independent.
       float force = falloff * falloff * ${glf(REPEL_STRENGTH)} * u_dt;
       vel += (diff / dist) * force;
     }
   }
-
-  pos += vel * u_dt;
 
   vec2 uv = pos / u_resolution;
   if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0) {

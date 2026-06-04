@@ -70,13 +70,10 @@ export const day30: Sketch = {
     }
 
     const walkers: Walker[] = [];
-    // Sized to hit 60fps with comfortable headroom now that the fade
-    // runs at 1x CSS pixels (lowDpr) — the dominant remaining cost is
-    // per-walker strokeRect calls (~6 each). Counts trimmed 20 % vs the
-    // earlier baseline (175 → 140, 75 → 60 → 112/48) so the sketch can
-    // run un-throttled even when the homepage gallery strip is auto-
-    // scrolling — the prior throttle-on-autoscroll mechanism caused a
-    // visible speed jump when hover released it.
+    // Sized to hit 60fps with headroom (the sketch runs un-throttled even
+    // while the homepage gallery strip auto-scrolls). Dominant per-frame
+    // cost is per-walker strokeRect calls (~6 each) on top of the lowDpr
+    // alpha-blended fillRect; budget bounds the walker count.
     const TARGET = w < 768 ? 48 : 112;
 
     const halfW = w / 2;
