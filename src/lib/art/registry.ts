@@ -27,7 +27,6 @@ import { day27 } from "./sketches/day27";
 import { day28 } from "./sketches/day28";
 import { day29 } from "./sketches/day29";
 import { day30 } from "./sketches/day30";
-import { day31 } from "./sketches/day31";
 import { day32 } from "./sketches/day32";
 import { day33 } from "./sketches/day33";
 
@@ -37,7 +36,6 @@ import { day33 } from "./sketches/day33";
 export const sketches: Sketch[] = [
   day33,
   day32,
-  day31,
   day30,
   day29,
   day28,
@@ -73,7 +71,7 @@ export const sketches: Sketch[] = [
  * otherwise not ready for a curated tour). Still accessible via
  * `/anything-but-analog/raw/<n>` for direct viewing.
  *
- * Visible tour: 21, 23, 25, 30, 31.
+ * Visible tour: 21, 23, 25, 30.
  */
 export const HIDDEN_SLUGS = new Set<string>([
   "1",
