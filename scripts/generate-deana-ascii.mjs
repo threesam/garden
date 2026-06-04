@@ -119,11 +119,12 @@ async function bake(src) {
 
   const base = parse(src).name;
   mkdirSync(OUT_DIR, { recursive: true });
-  // Lossy webp at q=40. We tried lossless first (great in theory for our 8-tone
+  // Lossy webp. We tried lossless first (great in theory for our 8-tone
   // palette) but the rasterized text edges defeat its entropy coder — lossy
-  // wins by a wide margin on this content. q=40 is the sweet spot where every
-  // glyph stays identifiable but smooth-area bytes drop dramatically.
-  const WEBP_OPTS = { quality: 40, effort: 6, smartSubsample: true };
+  // wins. q=69 paired with the CELL=3 bake — at q=40 the tiny glyphs
+  // smeared into a muddy gradient (read as "overcompressed"); q=69 keeps
+  // each glyph readable while still ~3× smaller than lossless.
+  const WEBP_OPTS = { quality: 69, effort: 6, smartSubsample: true };
   const lg = await sharp(svg).webp(WEBP_OPTS).toFile(join(OUT_DIR, `${base}-lg.webp`));
   const sm = await sharp(svg)
     .resize(SM_W)
