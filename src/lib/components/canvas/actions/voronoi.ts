@@ -1,5 +1,4 @@
 import type { Action } from 'svelte/action';
-import { shouldSkipThrottledFrame } from '$lib/perf-flags';
 import { compileShader } from '$lib/canvas/gl-utils';
 import { parseHex } from '$lib/canvas/color';
 
@@ -425,14 +424,9 @@ export const voronoi: Action<HTMLCanvasElement, VoronoiParams> = (node, initialP
   });
   resizeObserver.observe(node);
 
-  let throttleFrame = 0;
   function render() {
     raf = 0;
     if (!visible) return;
-    if (shouldSkipThrottledFrame(++throttleFrame)) {
-      raf = requestAnimationFrame(render);
-      return;
-    }
     raf = requestAnimationFrame(render);
 
     // Snappy easings so the image-reveal tracks the cursor near-instantly; a

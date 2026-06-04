@@ -3,7 +3,6 @@ import type { Sketch } from '$lib/art/types';
 import { loadSketch } from '$lib/art/load-sketch';
 import { mulberry32 } from '$lib/art/rng';
 import { makeNoise } from '$lib/art/noise';
-import { shouldSkipThrottledFrame } from '$lib/perf-flags';
 
 export interface SketchHostParams {
 	slug: string;
@@ -126,11 +125,9 @@ export const sketchHost: Action<HTMLCanvasElement, SketchHostParams> = (
 	function tickFrame() {
 		rafId = 0;
 		if (!activeRef || !api || !tick) return;
-		if (shouldSkipThrottledFrame(frame)) {
-			frame++;
-			rafId = requestAnimationFrame(tickFrame);
-			return;
-		}
+		// No autoscroll-throttle for sketches: the walker reads as an
+		// abrupt speed change when throttle releases on hover. CPU savings
+		// here are paid back by the walker's TARGET reduction in day30.
 		tick(api, frame++);
 		rafId = requestAnimationFrame(tickFrame);
 	}

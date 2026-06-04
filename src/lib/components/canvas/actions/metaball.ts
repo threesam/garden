@@ -1,5 +1,4 @@
 import type { Action } from 'svelte/action';
-import { shouldSkipThrottledFrame } from '$lib/perf-flags';
 import { compileShader } from '$lib/canvas/gl-utils';
 
 const NUM_BALLS = 12;
@@ -88,12 +87,13 @@ export const metaball: Action<HTMLCanvasElement, MetaballParams> = (node, initia
   const uTime = gl.getUniformLocation(prog, 'uTime');
   const uRes = gl.getUniformLocation(prog, 'uResolution');
   const uColorLoc = gl.getUniformLocation(prog, 'uColor');
-  const uBalls: (WebGLUniformLocation | null)[] = [];
-  const uRadii: (WebGLUniformLocation | null)[] = [];
-  for (let i = 0; i < NUM_BALLS; i++) {
-    uBalls.push(gl.getUniformLocation(prog, `uBalls[${i}]`));
-    uRadii.push(gl.getUniformLocation(prog, `uRadii[${i}]`));
-  }
+  // Single bulk-array location per uniform array — the `[0]` name addresses
+  // the whole array in WebGL, so uniform2fv / uniform1fv can push all 12
+  // entries in one call. Drops per-frame uniform updates 24 → 2 (~92 %).
+  const uBallsLoc = gl.getUniformLocation(prog, 'uBalls[0]');
+  const uRadiiLoc = gl.getUniformLocation(prog, 'uRadii[0]');
+  const ballsBuf = new Float32Array(NUM_BALLS * 2);
+  const radiiBuf = new Float32Array(NUM_BALLS);
 
   gl.enable(gl.BLEND);
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -188,16 +188,11 @@ export const metaball: Action<HTMLCanvasElement, MetaballParams> = (node, initia
 
   let raf = 0;
   let isVisible = true;
-  let throttleFrame = 0;
   const t0 = performance.now();
 
   function tick() {
     raf = 0;
     if (!isVisible) return;
-    if (shouldSkipThrottledFrame(++throttleFrame)) {
-      raf = requestAnimationFrame(tick);
-      return;
-    }
     const now = performance.now();
     const t = (now - t0) / 1000;
 
@@ -245,9 +240,13 @@ export const metaball: Action<HTMLCanvasElement, MetaballParams> = (node, initia
     gl.uniform2f(uRes, w, h);
     gl.uniform3f(uColorLoc, color[0], color[1], color[2]);
     for (let i = 0; i < NUM_BALLS; i++) {
-      gl.uniform2f(uBalls[i], balls[i].x, h - balls[i].y);
-      gl.uniform1f(uRadii[i], balls[i].r);
+      const b = balls[i];
+      ballsBuf[i * 2] = b.x;
+      ballsBuf[i * 2 + 1] = h - b.y;
+      radiiBuf[i] = b.r;
     }
+    gl.uniform2fv(uBallsLoc, ballsBuf);
+    gl.uniform1fv(uRadiiLoc, radiiBuf);
 
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
