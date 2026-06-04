@@ -350,7 +350,12 @@ export const day30: Sketch = {
           // lockstep with the card flip and the color shift. Cursor
           // orbit (only on routes that pass interactive=true) is
           // unaffected — it stays a deliberate, attention-grabbing pull.
-          const speedScale = 1 - currentSlow * 0.85;
+          //
+          // Homepage gallery card (sketchMode.active=false): walkers run at
+          // 1/3 base speed so the card reads as a calm vignette rather than
+          // a buzzing crowd, while the /thoughts route keeps full-speed
+          // walkers with the hover slowdown intact.
+          const speedScale = active ? 1 - currentSlow * 0.85 : 1 / 3;
           wk.x += (Math.cos(moveAngle) * wk.speed + repelX * SEPARATION_GAIN) * speedScale + orbitX;
           wk.y += (Math.sin(moveAngle) * wk.speed + repelY * SEPARATION_GAIN) * speedScale + orbitY;
 
