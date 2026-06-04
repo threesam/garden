@@ -215,12 +215,15 @@ export const metaball: Action<HTMLCanvasElement, MetaballParams> = (node, initia
         const dx = attractX - b.x;
         const dy = attractY - b.y;
         const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-        b.vx += (dx / dist) * 0.15;
-        b.vy += (dy / dist) * 0.15;
-        b.vx += (-dy / dist) * 0.08;
-        b.vy += (dx / dist) * 0.08;
-        b.vx *= 0.95;
-        b.vy *= 0.95;
+        // Stiffer attract + lower velocity damping so blobs coalesce
+        // around the cursor in ~200 ms instead of the old ~600 ms drift.
+        // Tangent stays gentler than radial — keeps the spiral readable.
+        b.vx += (dx / dist) * 0.35;
+        b.vy += (dy / dist) * 0.35;
+        b.vx += (-dy / dist) * 0.14;
+        b.vy += (dx / dist) * 0.14;
+        b.vx *= 0.88;
+        b.vy *= 0.88;
       } else {
         const speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
         if (speed > 1.3) {
