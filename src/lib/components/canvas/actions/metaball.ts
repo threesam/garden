@@ -218,21 +218,12 @@ export const metaball: Action<HTMLCanvasElement, MetaballParams> = (node, initia
     }
 
     for (const b of balls) {
-      // Forward Euler: advance position with OLD velocity, THEN apply the
-      // new impulse + damping. Semi-implicit ordering would compound new
-      // impulses as ~dt² in position — at 30 fps the coalesce was ~2×
-      // stronger per-second than at 60 fps. Forward Euler keeps the
-      // per-real-second behavior consistent across frame rates.
-      b.x += b.vx * dt;
-      b.y += b.vy * dt;
-      if (b.x < 0 || b.x > w) b.vx *= -1;
-      if (b.y < 0 || b.y > h) b.vy *= -1;
-
       if (attracting) {
         const dx = attractX - b.x;
         const dy = attractY - b.y;
         const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-        // Stiff attract + low damping so blobs coalesce in ~200 ms.
+        // Stiffer attract + lower velocity damping so blobs coalesce
+        // around the cursor in ~200 ms instead of the old ~600 ms drift.
         // Tangent stays gentler than radial — keeps the spiral readable.
         b.vx += (dx / dist) * 0.35 * dt;
         b.vy += (dy / dist) * 0.35 * dt;
@@ -249,6 +240,11 @@ export const metaball: Action<HTMLCanvasElement, MetaballParams> = (node, initia
           b.vy *= d;
         }
       }
+
+      b.x += b.vx * dt;
+      b.y += b.vy * dt;
+      if (b.x < 0 || b.x > w) b.vx *= -1;
+      if (b.y < 0 || b.y > h) b.vy *= -1;
     }
 
     const color = params.color ?? [0.1, 0.1, 0.08];
