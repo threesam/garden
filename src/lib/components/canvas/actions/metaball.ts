@@ -189,12 +189,19 @@ export const metaball: Action<HTMLCanvasElement, MetaballParams> = (node, initia
   let raf = 0;
   let isVisible = true;
   const t0 = performance.now();
+  let lastTickT = performance.now();
 
   function tick() {
     raf = 0;
     if (!isVisible) return;
     const now = performance.now();
     const t = (now - t0) / 1000;
+    // dt expressed in 60fps-frame units, clamped so a tab-switch resume
+    // doesn't fling balls across the canvas. Lets mobile (30fps) feel
+    // as snappy as desktop (60fps): each tick integrates two frames'
+    // worth of attract impulse + damping.
+    const dt = Math.min((now - lastTickT) / 16.67, 3);
+    lastTickT = now;
 
     let attractX = 0;
     let attractY = 0;
@@ -218,22 +225,24 @@ export const metaball: Action<HTMLCanvasElement, MetaballParams> = (node, initia
         // Stiffer attract + lower velocity damping so blobs coalesce
         // around the cursor in ~200 ms instead of the old ~600 ms drift.
         // Tangent stays gentler than radial — keeps the spiral readable.
-        b.vx += (dx / dist) * 0.35;
-        b.vy += (dy / dist) * 0.35;
-        b.vx += (-dy / dist) * 0.14;
-        b.vy += (dx / dist) * 0.14;
-        b.vx *= 0.88;
-        b.vy *= 0.88;
+        b.vx += (dx / dist) * 0.35 * dt;
+        b.vy += (dy / dist) * 0.35 * dt;
+        b.vx += (-dy / dist) * 0.14 * dt;
+        b.vy += (dx / dist) * 0.14 * dt;
+        const damp = Math.pow(0.88, dt);
+        b.vx *= damp;
+        b.vy *= damp;
       } else {
         const speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
         if (speed > 1.3) {
-          b.vx *= 0.98;
-          b.vy *= 0.98;
+          const d = Math.pow(0.98, dt);
+          b.vx *= d;
+          b.vy *= d;
         }
       }
 
-      b.x += b.vx;
-      b.y += b.vy;
+      b.x += b.vx * dt;
+      b.y += b.vy * dt;
       if (b.x < 0 || b.x > w) b.vx *= -1;
       if (b.y < 0 || b.y > h) b.vy *= -1;
     }

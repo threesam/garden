@@ -33,6 +33,7 @@ in vec2 a_velocity;
 
 uniform vec2 u_resolution;
 uniform vec2 u_mouse;
+uniform float u_dt;
 uniform sampler2D u_collision;
 
 out vec2 v_position;
@@ -49,12 +50,15 @@ void main() {
     if (distSq < radiusSq && distSq > 0.5) {
       float dist = sqrt(distSq);
       float falloff = 1.0 - dist / ${glf(repelRadius)};
-      float force = falloff * falloff * ${glf(REPEL_STRENGTH)};
+      // u_dt expressed in 60fps-frame units — at 30fps it's 2, so each tick
+      // integrates two frames of repel impulse + position advance. Keeps the
+      // cursor responsiveness frame-rate independent.
+      float force = falloff * falloff * ${glf(REPEL_STRENGTH)} * u_dt;
       vel += (diff / dist) * force;
     }
   }
 
-  pos += vel;
+  pos += vel * u_dt;
 
   vec2 uv = pos / u_resolution;
   if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0) {
@@ -237,6 +241,7 @@ export const particleText: Action<HTMLCanvasElement, ParticleTextParams> = (node
   let uU = {
     resolution: null as WebGLUniformLocation | null,
     mouse: null as WebGLUniformLocation | null,
+    dt: null as WebGLUniformLocation | null,
     collision: null as WebGLUniformLocation | null,
   };
   let rA = { position: -1, color: -1 };
@@ -275,6 +280,7 @@ export const particleText: Action<HTMLCanvasElement, ParticleTextParams> = (node
     uU = {
       resolution: gl.getUniformLocation(updateProg, 'u_resolution'),
       mouse: gl.getUniformLocation(updateProg, 'u_mouse'),
+      dt: gl.getUniformLocation(updateProg, 'u_dt'),
       collision: gl.getUniformLocation(updateProg, 'u_collision'),
     };
     rA = {
@@ -568,9 +574,18 @@ export const particleText: Action<HTMLCanvasElement, ParticleTextParams> = (node
     updateRect();
   }
 
+  let lastTickT = performance.now();
+
   function tick() {
     rafId = 0;
     if (!gl || !particlesInitialized || !textTexture || !isVisible) return;
+
+    const now = performance.now();
+    // dt in 60fps-frame units, clamped so a tab-switch resume doesn't
+    // teleport particles. Lets mobile (30fps) feel as snappy as desktop:
+    // shader integrates two frames of repel + advance per tick.
+    const dt = Math.min((now - lastTickT) / 16.67, 3);
+    lastTickT = now;
 
     const inIdx = activeIdx;
     const outIdx = animate ? 1 - activeIdx : activeIdx;
@@ -579,6 +594,7 @@ export const particleText: Action<HTMLCanvasElement, ParticleTextParams> = (node
       gl.useProgram(updateProg);
       gl.uniform2f(uU.resolution, w, h);
       gl.uniform2f(uU.mouse, mouseX, mouseY);
+      gl.uniform1f(uU.dt, dt);
       gl.uniform1i(uU.collision, 0);
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, textTexture);

@@ -326,17 +326,15 @@
 									     bright glowing forms regardless of which book is featured. -->
 									<CanvasComp color={[245 / 255, 244 / 255, 240 / 255]} />
 								{:else if item.handle === 'anything-but-analog'}
-									<!-- Card-scale particle field: 1500 (was 4000) at point
-									     size 3 (was 2). Same visual density on a ~280 px card
-									     at ~60 % of the per-frame physics cost — particle
-									     repel is O(n) per frame.
-									     color: brand --black (rgb 26,26,20) — matches the day21
-									     ABA sketch palette so the homepage tile reads as a
-									     preview of the route's primary sketch. -->
+									<!-- Card-scale particle field, 1500 dots in brand --black
+									     (rgb 26,26,20) so the homepage tile reads as a preview
+									     of the day21 ABA sketch palette. pointSize back to 1 —
+									     3 was too chunky and read as distracting blobs at this
+									     card size. -->
 									<CanvasComp
 										countOverride={1500}
 										hideText
-										pointSize={3}
+										pointSize={1}
 										repelRadius={40}
 										lowDpr
 										color={[26, 26, 20]}
