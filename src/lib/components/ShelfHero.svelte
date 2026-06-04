@@ -93,9 +93,13 @@
 		aria-hidden="true"
 	></div>
 
+	<!-- Backdrop, not headline — full-opacity blobs of a saturated dominant
+	     color (e.g. neon yellow on this cover) overpowered the content and
+	     read as a glitch rather than ambient mood. 0.45 keeps the colour
+	     cue but lets the text breathe. -->
 	<div
 		class="pointer-events-none absolute inset-0 transition-opacity duration-1000 ease-out"
-		style="z-index: 2; opacity: {metaballsHidden ? 0 : 1};"
+		style="z-index: 2; opacity: {metaballsHidden ? 0 : 0.45};"
 	>
 		<MetaballCanvas {color} trackCursor={false} {target} />
 	</div>
