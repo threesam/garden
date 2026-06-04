@@ -10,16 +10,17 @@
 	}
 
 	let { ascii, eager = false }: Props = $props();
+
+	// Each section starts hidden and fades in on the img's `load` event so a
+	// scrolled-to section never flashes a half-decoded frame. The eager hero
+	// still fetches at high priority — only the visual reveal is gated.
+	let loaded = $state(false);
 </script>
 
 <section
 	class="relative h-dvh w-full overflow-hidden bg-white"
 	style="content-visibility: auto; contain-intrinsic-size: 100vw 100dvh;"
 >
-	<!-- Static <img> instead of the runtime AsciiImage canvas — same visual
-	     since the pre-bake feeds from the same RAMP / lumToTone. Browser
-	     native loading="lazy" handles off-screen deferral; no JS, no per-
-	     frame work. -->
 	<img
 		src={ascii.lg}
 		srcset={asciiSrcset(ascii)}
@@ -28,7 +29,10 @@
 		loading={eager ? 'eager' : 'lazy'}
 		fetchpriority={eager ? 'high' : 'auto'}
 		decoding="async"
-		class="absolute inset-0 h-full w-full object-cover"
+		onload={() => (loaded = true)}
+		class="absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ease-out"
+		class:opacity-0={!loaded}
+		class:opacity-100={loaded}
 	/>
 	<span
 		class="pointer-events-none absolute bottom-6 left-6 z-10 font-mono text-2xl font-bold uppercase tracking-pill text-black md:bottom-10 md:left-10 md:text-5xl"
