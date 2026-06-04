@@ -41,7 +41,11 @@
   })}
 />
 
-<main class="bg-white">
+<!-- Desktop scroll-snap: main becomes a contained scroller at lg+ and the
+     full-screen AsciiImageSections snap into view (proximity, so tall data
+     sections in between scroll freely). Mobile leaves it as native document
+     scroll — snap-mandatory on touch reads as fighty. -->
+<main class="bg-white lg:h-dvh lg:overflow-y-auto lg:snap-y lg:snap-proximity">
   <AsciiImageSection ascii={DEANA_ASCII[0]} eager />
 
   <section class="w-full bg-white px-3 py-12 md:px-6 md:py-24">

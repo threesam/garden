@@ -18,7 +18,7 @@
 </script>
 
 <section
-	class="relative h-dvh w-full overflow-hidden bg-white"
+	class="relative h-dvh w-full overflow-hidden bg-white lg:snap-start"
 	style="content-visibility: auto; contain-intrinsic-size: 100vw 100dvh;"
 >
 	<img
