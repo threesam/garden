@@ -2,7 +2,6 @@
 	import { onMount } from 'svelte';
 	import type { Component } from 'svelte';
 	import DanaLabel from '$lib/components/messages/DanaLabel.svelte';
-	import { setCanvasThrottled } from '$lib/perf-flags';
 
 	type ItemHandle =
 		| 'self'
@@ -143,16 +142,6 @@
 			offsetRef = ((offsetRef % stripW) + stripW) % stripW;
 			stripEl!.style.transform = `translate3d(${-offsetRef}px,0,0)`;
 
-			// Throttle canvas work only while actively autoscrolling or being
-			// dragged/flung — NOT while the strip glides to a stop on hover.
-			// Otherwise the cursor-reactive cards (analog repel, shelf metaballs)
-			// stay at 30fps through the ~0.6s deceleration and feel laggy the moment
-			// you hover to interact. Ample headroom exists (60fps holds at 6x CPU)
-			// to run them full-rate during the brief glide.
-			const autoscrolling = targetSpeedRef !== 0 && Math.abs(speedRef) > 0.5;
-			const dragging = drag.active || Math.abs(drag.velocity) > 0.5;
-			setCanvasThrottled(autoscrolling || dragging);
-
 			const stride = stripW / UNIQUE_COUNT;
 			if (measured && stride > 0) {
 				const sectionW = section.clientWidth;
@@ -182,7 +171,6 @@
 				!drag.active;
 			if (isIdle) {
 				rafRef = 0;
-				setCanvasThrottled(false);
 				return;
 			}
 			rafRef = requestAnimationFrame(tick);
@@ -270,7 +258,6 @@
 			window.removeEventListener('pointerup', onUp);
 			window.removeEventListener('pointercancel', onUp);
 			section.removeEventListener('wheel', onWheel);
-			setCanvasThrottled(false);
 		};
 	});
 

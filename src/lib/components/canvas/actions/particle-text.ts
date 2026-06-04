@@ -1,9 +1,12 @@
 import type { Action } from 'svelte/action';
-import { shouldSkipThrottledFrame } from '$lib/perf-flags';
 
 const SPEED = 0.3;
 const DEFAULT_REPEL_RADIUS = 180;
-const REPEL_STRENGTH = 1.0;
+// Repel was 1.0 — cursor visibly dragged through the field on lower-end
+// hardware because particles couldn't get out of the way in time. 3.0
+// pushes them clear within a couple of frames; the (falloff*falloff) curve
+// keeps the effect localized so far-away particles aren't disturbed.
+const REPEL_STRENGTH = 3.0;
 const DAMPING = 0.85;
 
 function pickParticleCount(): { count: number; animate: boolean } {
@@ -215,7 +218,6 @@ export const particleText: Action<HTMLCanvasElement, ParticleTextParams> = (node
   let rectTop = 0;
   let activeIdx = 0;
   let particlesInitialized = false;
-  let throttleFrame = 0;
   let collisionMask: Uint8Array | null = null;
 
   let gl: WebGL2RenderingContext | null = null;
@@ -569,10 +571,6 @@ export const particleText: Action<HTMLCanvasElement, ParticleTextParams> = (node
   function tick() {
     rafId = 0;
     if (!gl || !particlesInitialized || !textTexture || !isVisible) return;
-    if (animate && shouldSkipThrottledFrame(++throttleFrame)) {
-      rafId = requestAnimationFrame(tick);
-      return;
-    }
 
     const inIdx = activeIdx;
     const outIdx = animate ? 1 - activeIdx : activeIdx;
