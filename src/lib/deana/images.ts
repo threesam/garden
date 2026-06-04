@@ -19,7 +19,7 @@ export interface AsciiSrc {
 // prints. Bump every time scripts/generate-deana-ascii.mjs changes the look
 // (CELL, ramp, lumToTone) so browsers fetch the new bake instead of serving
 // the stale cached webp from the same URL.
-const DEANA_V = 7;
+const DEANA_V = 8;
 
 export const DEANA_ASCII: AsciiSrc[] = ASCII_BASES.map((base) => ({
 	sm: `/assets/deana-ascii/${base}-sm.webp?v=${DEANA_V}`,

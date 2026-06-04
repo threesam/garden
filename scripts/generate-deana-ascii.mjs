@@ -23,11 +23,13 @@ const SRC_FILES = [
   "deana-hero-6.webp",
 ];
 const OUT_DIR = "static/assets/deana-ascii";
-// Larger cell -> fewer, chunkier glyphs. CELL=7: readable as coarse ASCII
-// print, more facial detail than 9 without going back to pixel-soup.
+// Larger cell -> fewer, chunkier glyphs. CELL=5 (~30 % finer than the
+// earlier 7) lands the /deana hero sections in their sweet spot: enough
+// facial detail to read as a portrait, still chunky enough that the
+// glyph grid is visible from a normal reading distance.
 // Bump DEANA_V in src/lib/deana/images.ts when changing this so the
 // browser actually fetches the new bake past Vercel's immutable cache.
-const CELL = 7;
+const CELL = 5;
 const HEIGHT_RATIO = 1.8; // glyph cell is taller than wide
 // The card displays at ~432px wide on lg (30vw of 1440) and full-bleed on
 // /deana (100vw). LG=700 is enough headroom for 2x retina at the card and
