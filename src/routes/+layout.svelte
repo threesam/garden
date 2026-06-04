@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import '../app.css';
   // Self-hosted fonts via @fontsource (drops Google Fonts CDN dependency)
   // wght = proportional weight axis (300-1000); mono = MONO axis (proportional↔mono);
@@ -14,19 +15,26 @@
   import Anchor from '$lib/components/frame/Anchor.svelte';
 
   let { children } = $props();
-</script>
 
-<svelte:head>
-  <!-- Warm the TCP+TLS handshake to the analytics origin so the async
-       script tag below doesn't pay that latency on cold visits. -->
-  <link rel="preconnect" href="https://analytics.sixtom.com" crossorigin />
-  <link rel="dns-prefetch" href="https://analytics.sixtom.com" />
-  <script
-    src="https://analytics.sixtom.com/script.js"
-    data-website-id="2a502ffa-58a1-4057-be13-e46f0354cfb7"
-    async
-  ></script>
-</svelte:head>
+  // Analytics only fire on the canonical prod host. Vercel preview URLs
+  // and local dev see no tracker — so feature work, link checks, and
+  // automated runs don't pollute the dashboard. Hostname check happens
+  // post-hydration (prerendered HTML is identical across hosts).
+  onMount(() => {
+    if (location.hostname !== 'threesam.com') return;
+    const preconnect = Object.assign(document.createElement('link'), {
+      rel: 'preconnect',
+      href: 'https://analytics.sixtom.com',
+      crossOrigin: 'anonymous',
+    });
+    const script = Object.assign(document.createElement('script'), {
+      src: 'https://analytics.sixtom.com/script.js',
+      async: true,
+    });
+    script.dataset.websiteId = '2a502ffa-58a1-4057-be13-e46f0354cfb7';
+    document.head.append(preconnect, script);
+  });
+</script>
 
 <OutboundTracker />
 <Guide />
