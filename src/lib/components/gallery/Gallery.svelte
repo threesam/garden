@@ -296,20 +296,23 @@
 				class="gallery-card group relative flex h-full shrink-0 flex-col overflow-hidden rounded-2xl shadow-sm transition-[transform,box-shadow] duration-700 hover:shadow-none hover:[transform:rotate(-1.3deg)]"
 				style="aspect-ratio: 20 / 29;"
 			>
-				<!-- image area: locked to 4:5 so canvases that bake at that
-				     aspect (deana ASCII matrix etc.) render without stretch.
-				     The card aspect (20:29) is 4:5 + ~14% fixed-height label.
-				     Cream by default; shelf overrides to dark because the
-				     coin-blob metaballs need a dark canvas to read as
-				     blooming gold. -->
+				<!-- Image area: locked to 4:5 so canvases that bake at that aspect
+				     render without stretch. The card aspect (20:29) is 4:5 + ~14%
+				     fixed-height label. Static shell bg is the OPPOSITE of the
+				     label palette (cream label → black shell, dark label → cream
+				     shell) so a card scrolling into view has a high-contrast
+				     placeholder while its canvas mounts and paints, then the
+				     canvas fades in on top instead of popping. -->
 				<div
-					class="relative w-full overflow-hidden {item.handle === 'shelf'
-						? 'bg-black'
-						: 'bg-white'}"
+					class="relative w-full overflow-hidden {cream ? 'bg-black' : 'bg-white'}"
 					style="aspect-ratio: 4 / 5;"
 				>
 					{#if visible}
-						<div class="absolute inset-0">
+						<!-- Canvas container fades in after a short delay (enough for
+						     the first frame to paint), so cards arriving mid-scroll
+						     never flash a half-rendered frame. CSS animation is
+						     re-triggered every time the {#if} re-mounts the div. -->
+						<div class="canvas-fade-in absolute inset-0">
 							{#await getCanvasModule(item.handle) then CanvasComp}
 								{#if item.handle === 'self'}
 									<CanvasComp
@@ -328,9 +331,7 @@
 								{:else if item.handle === 'anything-but-analog'}
 									<!-- Card-scale particle field, 1500 dots in brand --black
 									     (rgb 26,26,20) so the homepage tile reads as a preview
-									     of the day21 ABA sketch palette. pointSize back to 1 —
-									     3 was too chunky and read as distracting blobs at this
-									     card size. -->
+									     of the day21 ABA sketch palette. -->
 									<CanvasComp
 										countOverride={1500}
 										hideText
@@ -375,3 +376,24 @@
 		{/each}
 	</div>
 </section>
+
+<style>
+	/* 200 ms delay gives the canvas time to land its first paint so the
+	   fade reveals real content, not a blank backdrop. 500 ms is short
+	   enough that a card scrolling past doesn't feel like it lingers. */
+	.canvas-fade-in {
+		animation: gallery-card-canvas-in 500ms ease-out 200ms forwards;
+		opacity: 0;
+	}
+	@keyframes gallery-card-canvas-in {
+		to {
+			opacity: 1;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.canvas-fade-in {
+			animation: none;
+			opacity: 1;
+		}
+	}
+</style>
