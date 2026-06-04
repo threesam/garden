@@ -125,15 +125,9 @@
 			lastRef = now;
 			if (stripW < 2) measure();
 
-			// Stop is instant — the previous 0.1 lerp glided to a stop over
-			// ~600 ms which read as sluggish on hover (cursor is over the card,
-			// strip is still drifting). Resuming still eases in over ~2 s so it
-			// doesn't feel jerky when the cursor leaves.
-			if (targetSpeedRef === 0) {
-				speedRef = 0;
-			} else {
-				speedRef += (targetSpeedRef - speedRef) * 0.02;
-			}
+			const lerpRate = targetSpeedRef === 0 ? 0.1 : 0.02;
+			speedRef += (targetSpeedRef - speedRef) * lerpRate;
+			if (Math.abs(speedRef) < 0.1) speedRef = 0;
 
 			if (!drag.active) {
 				if (Math.abs(drag.velocity) > 0.5) {
