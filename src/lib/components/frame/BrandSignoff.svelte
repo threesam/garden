@@ -20,20 +20,32 @@
   const tag = $derived(heading ? 'h1' : 'div');
   const color = $derived(tone === 'light' ? 'text-white' : 'text-black');
 
-  // "threesam" + the inert "n a k e" tail. Each letter is a flex item; when
-  // game mode is active the original t/h/r/e/e/a/m collapse (opacity 0,
-  // max-width 0) so the "s" slides to the start, then the trailing n/a/k/e
-  // expand from max-width 0 to spell "snake".
+  // "threesam" + two inert tails — "n a k e" after the m, and "e s s a g e
+  // _ m e ?" after the m. Each letter is a flex item; when game mode is
+  // active the original t/h/r/e/e/a/m collapse (opacity 0, max-width 0)
+  // so the "s" slides to the start, then the n/a/k/e tail expands.
+  // Hover/click on the "m" runs the same trick with the message tail.
   const PRE_LETTERS = ['t', 'h', 'r', 'e', 'e'];
-  const POST_LETTERS = ['a', 'm'];
+  const MID_LETTERS = ['a']; // sits between s and m
   const SNAKE_TAIL = ['n', 'a', 'k', 'e'];
+  const MESSAGE_TAIL = ['e', 's', 's', 'a', 'g', 'e', ' ', 'm', 'e', '?'];
   const active = $derived(gameMode.active);
+
+  // Persistent reveal of the message tail — primary path on touch (no hover);
+  // also lets desktop users click instead of holding the mouse over the "m".
+  // Reset when the game starts so the two tails never both expand at once.
+  let messageOn = $state(false);
+  const toggleMessage = () => (messageOn = !messageOn);
+  $effect(() => {
+    if (active) messageOn = false;
+  });
 </script>
 
 <svelte:element
   this={tag}
   class="wordmark absolute bottom-6 left-6 z-50 flex font-mono text-3xl font-bold tracking-meta {color} md:bottom-8 md:left-8 md:text-4xl"
   class:is-game={active}
+  class:show-message={messageOn && !active}
   class:wordmark-hidden={gameMode.wordmarkSlotOccupied}
 >
   {#each PRE_LETTERS as l, i (`pre-${i}`)}
@@ -56,11 +68,28 @@
         }
       : undefined}
   >s</span>
-  {#each POST_LETTERS as l, i (`post-${i}`)}
+  {#each MID_LETTERS as l, i (`mid-${i}`)}
     <span class="letter">{l}</span>
   {/each}
+  <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+  <span
+    class="letter m-letter clickable"
+    onclick={toggleMessage}
+    role="button"
+    tabindex="0"
+    aria-label={messageOn ? 'hide message me?' : 'show message me?'}
+    onkeydown={(e: KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleMessage();
+      }
+    }}
+  >m</span>
   {#each SNAKE_TAIL as l, i (`tail-${i}`)}
     <span class="tail" style="--tail-delay: {200 + i * 130}ms">{l}</span>
+  {/each}
+  {#each MESSAGE_TAIL as l, i (`msg-${i}`)}
+    <span class="msg-tail" style="--msg-delay: {100 + i * 80}ms">{l}</span>
   {/each}
 </svelte:element>
 <!-- Tagline (anchored bottom-right). Fades out at the same time as the
@@ -86,7 +115,8 @@
     align-items: baseline;
   }
   .letter,
-  .tail {
+  .tail,
+  .msg-tail {
     display: inline-block;
     overflow: hidden;
     white-space: pre;
@@ -96,13 +126,15 @@
     max-width: 1em;
     opacity: 1;
   }
-  /* Trailing snake letters start collapsed and silent. */
-  .tail {
+  /* Trailing snake + message letters start collapsed and silent. */
+  .tail,
+  .msg-tail {
     max-width: 0;
     opacity: 0;
     transition-delay: 0ms;
   }
-  .s-letter.clickable {
+  .s-letter.clickable,
+  .m-letter.clickable {
     cursor: pointer;
   }
   .tagline {
@@ -132,6 +164,42 @@
     opacity: 1;
     transition-delay: var(--tail-delay, 0ms);
   }
+
+  /* HOVER PREVIEWS (desktop only — :has() does the parent-of-hovered-child
+     trick that CSS otherwise can't):
+     - hovering the clickable "s" isolates it — same shape as is-game, but
+       without expanding the snake tail (it stays a preview until click).
+     - hovering "m" isolates m and trickles in "essage me?" the same way the
+       snake tail trickles in. */
+  @media (hover: hover) {
+    .wordmark:has(.s-letter.clickable:hover) .letter:not(.s-letter),
+    .wordmark:has(.s-letter.clickable:focus-visible) .letter:not(.s-letter) {
+      max-width: 0;
+      opacity: 0;
+    }
+    .wordmark:has(.m-letter:hover) .letter:not(.m-letter),
+    .wordmark:has(.m-letter:focus-visible) .letter:not(.m-letter) {
+      max-width: 0;
+      opacity: 0;
+    }
+    .wordmark:has(.m-letter:hover) .msg-tail,
+    .wordmark:has(.m-letter:focus-visible) .msg-tail {
+      max-width: 1em;
+      opacity: 1;
+      transition-delay: var(--msg-delay, 0ms);
+    }
+  }
+  /* PERSISTENT MESSAGE REVEAL — click-toggled (primary path on touch where
+     :hover never fires, and a stickier alternative on desktop). */
+  .show-message .letter:not(.m-letter) {
+    max-width: 0;
+    opacity: 0;
+  }
+  .show-message .msg-tail {
+    max-width: 1em;
+    opacity: 1;
+    transition-delay: var(--msg-delay, 0ms);
+  }
   /* Alien hover gag preserved from #215 */
   .alien {
     display: none;
@@ -160,6 +228,7 @@
   @media (prefers-reduced-motion: reduce) {
     .letter,
     .tail,
+    .msg-tail,
     .alien {
       transition: none;
     }
