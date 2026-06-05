@@ -20,15 +20,22 @@
 	const TICK_MS = 110;
 
 	function reset() {
-		const cx = Math.floor(cols / 2);
-		const cy = Math.floor(rows / 2);
+		// Spawn fully below the canvas (head at y=rows is off-screen by one
+		// row; body trails further down). Direction is up, so the first few
+		// ticks march the snake into view from below — head emerges at the
+		// 3rd column where the "1" countdown was, reading as the snake
+		// bursting up through the letter. step()'s lower-boundary check is
+		// only `head[1] >= rows` *after* a move, so the off-screen start
+		// state itself never triggers game-over.
+		const startX = 2;
+		const startY = rows;
 		snake = [
-			[cx, cy],
-			[cx - 1, cy],
-			[cx - 2, cy],
+			[startX, startY],
+			[startX, startY + 1],
+			[startX, startY + 2],
 		];
-		dir = [1, 0];
-		pendingDir = [1, 0];
+		dir = [0, -1];
+		pendingDir = [0, -1];
 		score = 0;
 		gameOver = false;
 		placeFood();
