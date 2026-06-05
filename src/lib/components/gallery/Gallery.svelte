@@ -333,7 +333,7 @@
 									     (rgb 26,26,20) so the homepage tile reads as a preview
 									     of the day21 ABA sketch palette. -->
 									<CanvasComp
-										countOverride={3000}
+										countOverride={6000}
 										hideText
 										pointSize={1}
 										repelRadius={40}
