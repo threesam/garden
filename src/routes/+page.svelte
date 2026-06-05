@@ -42,6 +42,26 @@
 
   <BrandSignoff heading gameClickable />
 
+  <!-- Centered countdown ("3" → "2" → "1" → "slither!") between the
+       letter animation finishing and the game appearing. Each step
+       crossfades the new label in / old label out. -->
+  {#if gameMode.countdownText}
+    <div
+      class="pointer-events-none fixed inset-0 z-30 grid place-items-center"
+      transition:fade={{ duration: 200 }}
+    >
+      {#key gameMode.countdownText}
+        <p
+          class="font-mono text-7xl font-bold uppercase tracking-pill text-black md:text-9xl"
+          in:fade={{ duration: 250 }}
+          out:fade={{ duration: 200 }}
+        >
+          {gameMode.countdownText}
+        </p>
+      {/key}
+    </div>
+  {/if}
+
   {#if gameMode.gameMounted}
     <div transition:fade={{ duration: 500 }}>
       <SnakeGame />
