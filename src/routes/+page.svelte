@@ -57,8 +57,13 @@
     </div>
   {/if}
 
+  <!-- SnakeGame wrapped in transition:fade so the dead canvas dissolves
+       smoothly when restart()/stop() unmounts it — without this, the
+       canvas snapped off instantly while the countdown digit / wordmark
+       faded in. Svelte defers DOM removal until the outro completes,
+       so the component's own cleanup runs at fade-end. -->
   {#if gameMode.gameMounted}
-    <div class="burst-in">
+    <div transition:fade={{ duration: 400 }}>
       <SnakeGame />
     </div>
   {/if}
@@ -111,23 +116,8 @@
       transform: translateY(0) scale(1);
     }
   }
-  /* Game wrapper just fades in — the burst-up motion is the game snake
-     itself slithering up out of the bottom-left where the countdown was,
-     not the canvas moving. */
-  :global(.burst-in) {
-    animation: burst-in 400ms ease-out;
-  }
-  @keyframes burst-in {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
   @media (prefers-reduced-motion: reduce) {
-    :global(.countdown-digit),
-    :global(.burst-in) {
+    :global(.countdown-digit) {
       animation: none;
     }
   }

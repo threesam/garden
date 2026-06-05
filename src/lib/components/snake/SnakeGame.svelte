@@ -107,9 +107,12 @@
 		else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') setDir([0, 1]);
 		else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') setDir([-1, 0]);
 		else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') setDir([1, 0]);
-		else if (e.key === 'r' || e.key === 'R') reset();
 		else if (e.key === 'Escape') gameMode.stop();
 		else return;
+		// "r" restart removed: it called the local reset() which left
+		// gameMode's pending game-over/replay timers running — the "again?"
+		// prompt would pop on top of a live game ~2 s later. Restart now
+		// flows exclusively through gameMode.restart() via the button.
 		e.preventDefault();
 	}
 
