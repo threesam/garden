@@ -2,10 +2,13 @@ import type { Action } from 'svelte/action';
 
 const SPEED = 0.3;
 const DEFAULT_REPEL_RADIUS = 180;
-// Strong enough that particles clear the cursor within a couple of frames
-// on low-end hardware (weaker values let the cursor visibly drag through
-// the field). The (falloff*falloff) curve keeps the effect localized.
-const REPEL_STRENGTH = 3.0;
+// Gentle enough that the cursor brushes particles aside rather than
+// flinging them across the canvas. The previous 3.0 made every pass
+// kick particles up to bouncing-off-edges velocity. The per-frame
+// REPEL_DAMP below bleeds residual cursor-impulse so the field settles
+// back to baseline drift within ~500 ms instead of pinballing forever.
+const REPEL_STRENGTH = 1.5;
+const REPEL_DAMP = 0.96;
 const DAMPING = 0.85;
 
 function pickParticleCount(): { count: number; animate: boolean } {
@@ -58,6 +61,12 @@ void main() {
   }
 
   pos += vel * u_dt;
+
+  // Bleed cursor-impulse so particles settle back to baseline drift
+  // instead of bouncing edge-to-edge forever. dt-scaled so per-real-
+  // second decay rate is constant across frame rates. SPEED floor
+  // below re-energizes them if this drags vel below baseline.
+  vel *= pow(${glf(REPEL_DAMP)}, u_dt);
 
   vec2 uv = pos / u_resolution;
   if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0) {
