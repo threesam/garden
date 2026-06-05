@@ -60,11 +60,13 @@
 		const head: [number, number] = [snake[0][0] + dir[0], snake[0][1] + dir[1]];
 		if (head[0] < 0 || head[0] >= cols || head[1] < 0 || head[1] >= rows) {
 			gameOver = true;
+			gameMode.handleGameOver();
 			return;
 		}
 		for (const [sx, sy] of snake) {
 			if (sx === head[0] && sy === head[1]) {
 				gameOver = true;
+				gameMode.handleGameOver();
 				return;
 			}
 		}
@@ -107,9 +109,12 @@
 		else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') setDir([0, 1]);
 		else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') setDir([-1, 0]);
 		else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') setDir([1, 0]);
-		else if (e.key === 'r' || e.key === 'R') reset();
 		else if (e.key === 'Escape') gameMode.stop();
 		else return;
+		// "r" restart removed: it called the local reset() which left
+		// gameMode's pending game-over/replay timers running — the "again?"
+		// prompt would pop on top of a live game ~2 s later. Restart now
+		// flows exclusively through gameMode.restart() via the button.
 		e.preventDefault();
 	}
 
@@ -167,6 +172,8 @@
 		draw();
 	}
 
+	let tickId: number | undefined;
+
 	onMount(() => {
 		resize();
 		window.addEventListener('keydown', onKey);
@@ -181,12 +188,12 @@
 		document.body.style.overflow = 'hidden';
 		document.body.style.overscrollBehavior = 'none';
 
-		const id = window.setInterval(() => {
+		tickId = window.setInterval(() => {
 			step();
 			draw();
 		}, TICK_MS);
 		return () => {
-			window.clearInterval(id);
+			if (tickId !== undefined) window.clearInterval(tickId);
 			window.removeEventListener('keydown', onKey);
 			window.removeEventListener('resize', resize);
 			document.documentElement.style.overflow = prevHtmlOverflow;
@@ -196,18 +203,25 @@
 	});
 
 	$effect(() => {
-		// Redraw whenever reactive state changes that draw() reads
+		// Redraw on state changes draw() actually reads. gameOver isn't
+		// one of them — it doesn't affect pixels — so it stays out.
 		void snake;
 		void food;
-		void gameOver;
 		draw();
 	});
 
-	// Surface local gameOver to the shared store so the page can render
-	// the "game over" / "again?" overlay above the canvas — and so the
-	// wordmark stays hidden through the replay countdown.
+	// Freeze the tick on either edge that ends the game:
+	//   - local gameOver true (snake died) — avoids ~9 wasted redraws/s
+	//     through the "game over" hold and the indefinite "again?" wait.
+	//   - gameMode.gameMounted false (user quit) — Svelte's transition:fade
+	//     keeps this component in the DOM for 400 ms after the {#if} flips
+	//     false; without freezing here the snake would visibly slither
+	//     through the outro instead of freezing in place.
 	$effect(() => {
-		gameMode.gameOver = gameOver;
+		if ((gameOver || !gameMode.gameMounted) && tickId !== undefined) {
+			window.clearInterval(tickId);
+			tickId = undefined;
+		}
 	});
 </script>
 
@@ -224,17 +238,13 @@
 	ontouchend={onTouchEnd}
 >
 	<canvas bind:this={canvas}></canvas>
-	<!-- Top-left badge — same position + size in both states. Bare
-	     number while playing; "game over" label once the snake dies. The
-	     bottom-left "again?" replay prompt is rendered by the parent so
-	     it can outlive this component's unmount during the countdown. -->
+	<!-- Bare score, top-left. Stays put across the whole session — game
+	     play, dead-snake pause, and the replay countdown all read against
+	     the same number. The bottom-left wordmark slot is where the page
+	     stages "game over" → "again?" → countdown digits. -->
 	<div
 		class="pointer-events-none absolute left-6 top-6 font-mono text-3xl font-bold text-black md:left-8 md:top-8 md:text-4xl"
 	>
-		{#if gameOver}
-			<span class="uppercase tracking-pill">game over</span>
-		{:else}
-			{score}
-		{/if}
+		{score}
 	</div>
 </div>
