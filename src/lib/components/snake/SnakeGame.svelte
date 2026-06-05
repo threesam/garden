@@ -60,11 +60,13 @@
 		const head: [number, number] = [snake[0][0] + dir[0], snake[0][1] + dir[1]];
 		if (head[0] < 0 || head[0] >= cols || head[1] < 0 || head[1] >= rows) {
 			gameOver = true;
+			gameMode.handleGameOver();
 			return;
 		}
 		for (const [sx, sy] of snake) {
 			if (sx === head[0] && sy === head[1]) {
 				gameOver = true;
+				gameMode.handleGameOver();
 				return;
 			}
 		}
@@ -170,6 +172,8 @@
 		draw();
 	}
 
+	let tickId: number | undefined;
+
 	onMount(() => {
 		resize();
 		window.addEventListener('keydown', onKey);
@@ -184,12 +188,12 @@
 		document.body.style.overflow = 'hidden';
 		document.body.style.overscrollBehavior = 'none';
 
-		const id = window.setInterval(() => {
+		tickId = window.setInterval(() => {
 			step();
 			draw();
 		}, TICK_MS);
 		return () => {
-			window.clearInterval(id);
+			if (tickId !== undefined) window.clearInterval(tickId);
 			window.removeEventListener('keydown', onKey);
 			window.removeEventListener('resize', resize);
 			document.documentElement.style.overflow = prevHtmlOverflow;
@@ -199,19 +203,22 @@
 	});
 
 	$effect(() => {
-		// Redraw whenever reactive state changes that draw() reads
+		// Redraw on state changes draw() actually reads. gameOver isn't
+		// one of them — it doesn't affect pixels — so it stays out.
 		void snake;
 		void food;
-		void gameOver;
 		draw();
 	});
 
-	// Fire the page's game-over choreography once when the local snake
-	// dies. handleGameOver() guards against re-entry, so this fires once
-	// per game; nothing else needs to happen when gameOver flips back to
-	// false (the whole component re-mounts on restart with a fresh state).
+	// Stop the tick the instant the snake dies. The canvas already shows
+	// the final frame; without this, step() (early-returning) and draw()
+	// (re-painting an unchanged picture) keep firing 9×/s through the
+	// 2 s "game over" hold and the indefinite "again?" wait.
 	$effect(() => {
-		if (gameOver) gameMode.handleGameOver();
+		if (gameOver && tickId !== undefined) {
+			window.clearInterval(tickId);
+			tickId = undefined;
+		}
 	});
 </script>
 

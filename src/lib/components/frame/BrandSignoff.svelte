@@ -34,10 +34,7 @@
   this={tag}
   class="wordmark absolute bottom-6 left-6 z-50 flex font-mono text-3xl font-bold tracking-meta {color} md:bottom-8 md:left-8 md:text-4xl"
   class:is-game={active}
-  class:wordmark-hidden={gameMode.countdownText ||
-    gameMode.gameMounted ||
-    gameMode.gameOver ||
-    gameMode.replayReady}
+  class:wordmark-hidden={gameMode.wordmarkSlotOccupied}
 >
   {#each PRE_LETTERS as l, i (`pre-${i}`)}
     <span class="letter">{l}</span>

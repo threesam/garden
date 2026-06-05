@@ -67,21 +67,27 @@ class GameMode {
 		});
 	}
 
-	// SnakeGame calls this once when its snake dies. We hold "game over"
-	// in the wordmark slot for 2 s, fade it out, then surface "again?" in
-	// the same slot — never overlapping. The dead canvas stays painted
-	// behind both messages.
+	// SnakeGame calls this once at the edge where its local gameOver flips
+	// true. Hold "game over" in the wordmark slot for the dwell, fade it
+	// out, then surface "again?" — never overlapping (replayReady flips
+	// only after the fade-out window completes).
 	handleGameOver() {
-		if (this.gameOver || this.replayReady) return;
 		this.gameOver = true;
-		this.sched(GAME_OVER_HOLD_MS, () => {
-			this.gameOver = false;
-			// Wait for the fade-out before showing the replay prompt so the
-			// two messages don't overlap in the same slot.
-			this.sched(GAME_OVER_FADE_MS, () => {
-				this.replayReady = true;
-			});
-		});
+		this.sched(GAME_OVER_HOLD_MS, () => (this.gameOver = false));
+		this.sched(GAME_OVER_HOLD_MS + GAME_OVER_FADE_MS, () => (this.replayReady = true));
+	}
+
+	// True whenever something other than the idle wordmark owns the
+	// bottom-left slot (countdown digit, live/dead game canvas, "game
+	// over" message, or "again?" prompt). BrandSignoff reads this to
+	// hide the wordmark during those beats.
+	get wordmarkSlotOccupied() {
+		return (
+			this.countdownText !== '' ||
+			this.gameMounted ||
+			this.gameOver ||
+			this.replayReady
+		);
 	}
 
 	// Replay after game-over. Skip the letter animation (we're already in
