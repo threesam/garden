@@ -1,25 +1,22 @@
 // Module-level reactive state for the "click the s" snake easter egg on
 // the homepage.
 //
-// Three flags drive the open/close UI sequence:
+// The bottom-left wordmark is the countdown vehicle — "snake" → "3" → "2"
+// → "1" → game burst. Centered countdown felt scattered; anchoring it to
+// the wordmark spot makes the camera follow the action.
+//
+// Flags driving the UI:
 //
 //   active          — wordmark "threesam → snake" letter animation runs;
 //                     gallery + tagline fade out
-//   countdownText   — empty | "3" | "2" | "1" | "slither!"; centered
-//                     overlay shown between the letter animation and the
-//                     game appearing
-//   gameMounted     — SnakeGame component is in the DOM (faded in/out via
-//                     Svelte's transition:fade on the wrapper)
-//
-// Open: active=true → 1200 ms (letter anim) → countdown "3"/"2"/"1"/
-//       "slither!" each ~500 ms → countdownText="" + gameMounted=true.
-// Close: gameMounted=false → 500 ms (game fade-out) → active=false.
-//
-// Every scheduled timer is cleared on the opposite action so rapid toggles
-// don't strand state.
+//   countdownText   — empty | "3" | "2" | "1"; when non-empty, the
+//                     wordmark hides and this text takes its bottom-left
+//                     slot
+//   gameMounted     — SnakeGame fades up from below as the final "1"
+//                     scales out — reads as the snake bursting up
+//                     through the letter
 const LETTER_ANIM_MS = 1200;
 const COUNT_STEP_MS = 500;
-const SLITHER_MS = 700;
 const CLOSE_DELAY_MS = 500;
 
 class GameMode {
@@ -51,9 +48,8 @@ class GameMode {
 		t += COUNT_STEP_MS;
 		this.sched(t, () => (this.countdownText = '1'));
 		t += COUNT_STEP_MS;
-		this.sched(t, () => (this.countdownText = 'slither!'));
-		t += SLITHER_MS;
 		this.sched(t, () => {
+			// "1" exits + game enters in the same beat — burst feel.
 			this.countdownText = '';
 			this.gameMounted = true;
 		});

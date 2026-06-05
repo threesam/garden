@@ -3,7 +3,6 @@
   import Gallery from '$lib/components/gallery/Gallery.svelte';
   import BrandSignoff from '$lib/components/frame/BrandSignoff.svelte';
   import SnakeGame from '$lib/components/snake/SnakeGame.svelte';
-  import { fade } from 'svelte/transition';
   import { gameMode } from '$lib/game-mode.svelte';
   import { SITE_PAGES, SITE_URL, homePageNode, itemListNode } from '$lib/seo';
 
@@ -42,29 +41,63 @@
 
   <BrandSignoff heading gameClickable />
 
-  <!-- Centered countdown ("3" → "2" → "1" → "slither!") between the
-       letter animation finishing and the game appearing. Each step
-       crossfades the new label in / old label out. -->
+  <!-- Countdown sits in the same bottom-left slot as the wordmark — the
+       wordmark fades out for the duration so this is the only thing in
+       that spot. Each digit crossfades in/out (250 ms in, scale-up out
+       so the last one feels like it bursts as the game arrives). -->
   {#if gameMode.countdownText}
     <div
-      class="pointer-events-none fixed inset-0 z-30 grid place-items-center"
-      transition:fade={{ duration: 200 }}
+      class="pointer-events-none absolute bottom-6 left-6 z-50 font-mono text-3xl font-bold text-black md:bottom-8 md:left-8 md:text-4xl"
     >
       {#key gameMode.countdownText}
-        <p
-          class="font-mono text-7xl font-bold uppercase tracking-pill text-black md:text-9xl"
-          in:fade={{ duration: 250 }}
-          out:fade={{ duration: 200 }}
-        >
-          {gameMode.countdownText}
-        </p>
+        <span class="countdown-digit inline-block">{gameMode.countdownText}</span>
       {/key}
     </div>
   {/if}
 
   {#if gameMode.gameMounted}
-    <div transition:fade={{ duration: 500 }}>
+    <div class="burst-in">
       <SnakeGame />
     </div>
   {/if}
 </main>
+
+<style>
+  /* Each digit pops in fast, scales out as the next one (or the game)
+     replaces it — last "1" still uses these timings so its exit doubles
+     as the burst-up cue. */
+  :global(.countdown-digit) {
+    animation: countdown-in 250ms ease-out;
+  }
+  @keyframes countdown-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.85);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  /* Game wrapper rises up from below + fades in — "snake bursts up
+     through the letter" — and shrinks back down on close. */
+  :global(.burst-in) {
+    animation: burst-in 500ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  @keyframes burst-in {
+    from {
+      opacity: 0;
+      transform: translateY(60px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(.countdown-digit),
+    :global(.burst-in) {
+      animation: none;
+    }
+  }
+</style>
