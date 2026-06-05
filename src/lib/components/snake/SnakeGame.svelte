@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { fade } from 'svelte/transition';
 	import { gameMode } from '$lib/game-mode.svelte';
 
 	// Snake game. Coin (yellow) page bg shines through; the snake + food
@@ -203,6 +202,13 @@
 		void gameOver;
 		draw();
 	});
+
+	// Surface local gameOver to the shared store so the page can render
+	// the "game over" / "again?" overlay above the canvas — and so the
+	// wordmark stays hidden through the replay countdown.
+	$effect(() => {
+		gameMode.gameOver = gameOver;
+	});
 </script>
 
 <!-- touch-action: none disables the browser's default panning + pinch +
@@ -218,31 +224,17 @@
 	ontouchend={onTouchEnd}
 >
 	<canvas bind:this={canvas}></canvas>
-	{#if gameOver}
-		<!-- Game-over panel anchored bottom-left so "play again" triggers a
-		     fresh burst up through the same corner the snake first emerged
-		     from. transition:fade lets the panel dissolve while the new
-		     snake rises out of the canvas below. -->
-		<div
-			class="pointer-events-auto absolute bottom-6 left-6 font-mono text-black md:bottom-8 md:left-8"
-			transition:fade={{ duration: 300 }}
-		>
-			<p class="mb-2 text-3xl font-bold tracking-pill uppercase">game over</p>
-			<p class="mb-4 text-base">score: {score}</p>
-			<button
-				class="rounded-full bg-black px-6 py-2 font-bold uppercase tracking-pill text-[var(--coin)] hover:bg-zinc-900"
-				onclick={reset}
-			>
-				play again
-			</button>
-		</div>
-	{:else}
-		<!-- Bare number top-left, sized to match the wordmark in the opposite
-		     corner — the context makes "this is the score" obvious. -->
-		<div
-			class="pointer-events-none absolute left-6 top-6 font-mono text-3xl font-bold text-black md:left-8 md:top-8 md:text-4xl"
-		>
+	<!-- Top-left badge — same position + size in both states. Bare
+	     number while playing; "game over" label once the snake dies. The
+	     bottom-left "again?" replay prompt is rendered by the parent so
+	     it can outlive this component's unmount during the countdown. -->
+	<div
+		class="pointer-events-none absolute left-6 top-6 font-mono text-3xl font-bold text-black md:left-8 md:top-8 md:text-4xl"
+	>
+		{#if gameOver}
+			<span class="uppercase tracking-pill">game over</span>
+		{:else}
 			{score}
-		</div>
-	{/if}
+		{/if}
+	</div>
 </div>
