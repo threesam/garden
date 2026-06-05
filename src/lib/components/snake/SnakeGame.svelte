@@ -203,11 +203,12 @@
 		draw();
 	});
 
-	// Surface local gameOver to the shared store so the page can render
-	// the "game over" / "again?" overlay above the canvas — and so the
-	// wordmark stays hidden through the replay countdown.
+	// Fire the page's game-over choreography once when the local snake
+	// dies. handleGameOver() guards against re-entry, so this fires once
+	// per game; nothing else needs to happen when gameOver flips back to
+	// false (the whole component re-mounts on restart with a fresh state).
 	$effect(() => {
-		gameMode.gameOver = gameOver;
+		if (gameOver) gameMode.handleGameOver();
 	});
 </script>
 
@@ -224,17 +225,13 @@
 	ontouchend={onTouchEnd}
 >
 	<canvas bind:this={canvas}></canvas>
-	<!-- Top-left badge — same position + size in both states. Bare
-	     number while playing; "game over" label once the snake dies. The
-	     bottom-left "again?" replay prompt is rendered by the parent so
-	     it can outlive this component's unmount during the countdown. -->
+	<!-- Bare score, top-left. Stays put across the whole session — game
+	     play, dead-snake pause, and the replay countdown all read against
+	     the same number. The bottom-left wordmark slot is where the page
+	     stages "game over" → "again?" → countdown digits. -->
 	<div
 		class="pointer-events-none absolute left-6 top-6 font-mono text-3xl font-bold text-black md:left-8 md:top-8 md:text-4xl"
 	>
-		{#if gameOver}
-			<span class="uppercase tracking-pill">game over</span>
-		{:else}
-			{score}
-		{/if}
+		{score}
 	</div>
 </div>

@@ -63,15 +63,30 @@
     </div>
   {/if}
 
-  <!-- Replay prompt: shown when the snake's dead, sits in the wordmark
-       slot (same coords as the "snake" letters / countdown digit). Click
-       runs gameMode.restart() — countdown starts synchronously, so the
-       fade-out of "again?" overlaps the fade-in of "3" in the same spot. -->
+  <!-- Post-death choreography. The dead snake canvas stays painted; the
+       bottom-left wordmark slot stages two beats in sequence (never
+       overlapping — gameMode times the gap so the out-fade completes
+       before "again?" mounts):
+
+       1. "game over" lingers ~2 s then fades out.
+       2. "again?" fades in — click runs gameMode.restart(), which
+          synchronously hands the slot off to the "3" countdown digit. -->
   {#if gameMode.gameOver}
+    <div
+      class="pointer-events-none absolute bottom-6 left-6 z-50 font-mono text-3xl font-bold uppercase tracking-pill text-black md:bottom-8 md:left-8 md:text-4xl"
+      in:fade={{ duration: 250 }}
+      out:fade={{ duration: 400 }}
+    >
+      game over
+    </div>
+  {/if}
+
+  {#if gameMode.replayReady}
     <button
       type="button"
       class="absolute bottom-6 left-6 z-50 cursor-pointer font-mono text-3xl font-bold text-black md:bottom-8 md:left-8 md:text-4xl"
       onclick={() => gameMode.restart()}
+      in:fade={{ duration: 250 }}
       out:fade={{ duration: 300 }}
     >
       again?
