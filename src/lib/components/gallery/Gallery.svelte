@@ -335,7 +335,7 @@
 									<CanvasComp
 										countOverride={1500}
 										hideText
-										pointSize={1}
+										pointSize={2}
 										repelRadius={40}
 										lowDpr
 										color={[26, 26, 20]}
