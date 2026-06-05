@@ -62,6 +62,21 @@
       <SnakeGame />
     </div>
   {/if}
+
+  <!-- Replay prompt: shown when the snake's dead, sits in the wordmark
+       slot (same coords as the "snake" letters / countdown digit). Click
+       runs gameMode.restart() — countdown starts synchronously, so the
+       fade-out of "again?" overlaps the fade-in of "3" in the same spot. -->
+  {#if gameMode.gameOver}
+    <button
+      type="button"
+      class="absolute bottom-6 left-6 z-50 cursor-pointer font-mono text-3xl font-bold text-black md:bottom-8 md:left-8 md:text-4xl"
+      onclick={() => gameMode.restart()}
+      out:fade={{ duration: 300 }}
+    >
+      again?
+    </button>
+  {/if}
 </main>
 
 <style>
