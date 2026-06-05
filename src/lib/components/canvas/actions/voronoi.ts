@@ -430,8 +430,15 @@ export const voronoi: Action<HTMLCanvasElement, VoronoiParams> = (node, initialP
   );
   observer.observe(node);
 
+  // Skip height-only resizes. iOS Safari grows the viewport as the URL
+  // bar collapses on scroll — without this filter every scroll reshuffles
+  // every cell, which reads as the whole hero re-rolling under the user.
+  // Width changes (rotation, real layout shifts) still trigger a re-fit.
+  let lastWidth = node.offsetWidth;
   let resizeTimer = 0;
   const resizeObserver = new ResizeObserver(() => {
+    if (node.offsetWidth === lastWidth) return;
+    lastWidth = node.offsetWidth;
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(resize, 100) as unknown as number;
   });
