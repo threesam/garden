@@ -32,7 +32,7 @@
 
 <svelte:element
   this={tag}
-  class="wordmark absolute bottom-6 left-6 z-10 flex font-mono text-3xl font-bold tracking-meta {color} md:bottom-8 md:left-8 md:text-4xl"
+  class="wordmark absolute bottom-6 left-6 z-50 flex font-mono text-3xl font-bold tracking-meta {color} md:bottom-8 md:left-8 md:text-4xl"
   class:is-game={active}
 >
   {#each PRE_LETTERS as l, i (`pre-${i}`)}
@@ -62,10 +62,12 @@
     <span class="tail" style="--tail-delay: {200 + i * 130}ms">{l}</span>
   {/each}
 </svelte:element>
-<!-- Tagline (anchored bottom-right) — unchanged, with the alien gag from
-     PR #215 still kicking in on hover. -->
+<!-- Tagline (anchored bottom-right). Fades out at the same time as the
+     gallery while gameMode.active so "snake" + game read as the only
+     content. -->
 <p
   class="tagline absolute right-6 bottom-6 z-10 text-right font-mono text-sm leading-tight tracking-hero {color} md:right-8 md:bottom-8 md:text-base"
+  class:tagline-hidden={active}
 >
   <span class="block md:inline">certainly</span><span class="alien" aria-hidden="true"
     ><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
@@ -101,6 +103,13 @@
   }
   .s-letter.clickable {
     cursor: pointer;
+  }
+  .tagline {
+    transition: opacity 500ms ease-out;
+  }
+  .tagline-hidden {
+    opacity: 0;
+    pointer-events: none;
   }
   /* GAME ACTIVE — every non-s letter collapses; the snake tail expands
      with staggered delays so the wordmark reads "s" → "snake". */
