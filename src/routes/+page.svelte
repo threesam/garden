@@ -3,6 +3,7 @@
   import Gallery from '$lib/components/gallery/Gallery.svelte';
   import BrandSignoff from '$lib/components/frame/BrandSignoff.svelte';
   import SnakeGame from '$lib/components/snake/SnakeGame.svelte';
+  import { fade } from 'svelte/transition';
   import { gameMode } from '$lib/game-mode.svelte';
   import { SITE_PAGES, SITE_URL, homePageNode, itemListNode } from '$lib/seo';
 
@@ -41,7 +42,9 @@
 
   <BrandSignoff heading gameClickable />
 
-  {#if gameMode.active}
-    <SnakeGame />
+  {#if gameMode.gameMounted}
+    <div transition:fade={{ duration: 500 }}>
+      <SnakeGame />
+    </div>
   {/if}
 </main>
