@@ -106,7 +106,16 @@
 	}
 
 	let touchStart: { x: number; y: number } | null = null;
+	// Buttons + other interactive controls inside the game (e.g. "play again"
+	// on the game-over overlay) need touchstart→click to fire. preventDefault
+	// on touchstart kills that synthetic click on iOS, so we skip the swipe
+	// handler entirely when the touch begins on an interactive descendant.
+	function isInteractiveTarget(target: EventTarget | null): boolean {
+		const el = target as HTMLElement | null;
+		return !!el?.closest('button, a, [role="button"]');
+	}
 	function onTouchStart(e: TouchEvent) {
+		if (isInteractiveTarget(e.target)) return;
 		// preventDefault on touchstart cancels Arc/Safari's edge-swipe-back
 		// gesture from competing with our left/right swipes.
 		e.preventDefault();
@@ -114,11 +123,13 @@
 		if (t) touchStart = { x: t.clientX, y: t.clientY };
 	}
 	function onTouchMove(e: TouchEvent) {
+		if (isInteractiveTarget(e.target)) return;
 		// Block the vertical-pan / overscroll spring while a touch is in
 		// flight — without this the game container slid up and bounced back.
 		e.preventDefault();
 	}
 	function onTouchEnd(e: TouchEvent) {
+		if (isInteractiveTarget(e.target)) return;
 		e.preventDefault();
 		if (!touchStart) return;
 		const t = e.changedTouches[0];
