@@ -23,12 +23,13 @@
 	function reset() {
 		// Spawn fully below the canvas (head at y=rows is off-screen by one
 		// row; body trails further down). Direction is up, so the first few
-		// ticks march the snake into view from below — head emerges at the
-		// 3rd column where the "1" countdown was, reading as the snake
-		// bursting up through the letter. step()'s lower-boundary check is
-		// only `head[1] >= rows` *after* a move, so the off-screen start
-		// state itself never triggers game-over.
-		const startX = 2;
+		// ticks march the snake into view from below — head emerges in the
+		// 2nd column, which lines up under the wordmark text (.left-6 is
+		// 24 px; CELL is 24 px → col-1 straddles the same x as the first
+		// letter). step()'s lower-boundary check is only `head[1] >= rows`
+		// *after* a move, so the off-screen start state never triggers
+		// game-over.
+		const startX = 1;
 		const startY = rows;
 		snake = [
 			[startX, startY],
