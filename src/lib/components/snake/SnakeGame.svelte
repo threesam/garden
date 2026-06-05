@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
 	import { gameMode } from '$lib/game-mode.svelte';
 
 	// Snake game. Coin (yellow) page bg shines through; the snake + food
@@ -217,8 +218,13 @@
 >
 	<canvas bind:this={canvas}></canvas>
 	{#if gameOver}
+		<!-- Game-over panel anchored bottom-left so "play again" triggers a
+		     fresh burst up through the same corner the snake first emerged
+		     from. transition:fade lets the panel dissolve while the new
+		     snake rises out of the canvas below. -->
 		<div
-			class="pointer-events-auto absolute inset-x-0 top-1/2 -translate-y-1/2 grid place-items-center font-mono text-black"
+			class="pointer-events-auto absolute bottom-6 left-6 font-mono text-black md:bottom-8 md:left-8"
+			transition:fade={{ duration: 300 }}
 		>
 			<p class="mb-2 text-3xl font-bold tracking-pill uppercase">game over</p>
 			<p class="mb-4 text-base">score: {score}</p>
@@ -230,10 +236,12 @@
 			</button>
 		</div>
 	{:else}
+		<!-- Bare number top-left, sized to match the wordmark in the opposite
+		     corner — the context makes "this is the score" obvious. -->
 		<div
-			class="pointer-events-none absolute left-6 top-6 font-mono text-sm font-bold uppercase tracking-pill text-black md:left-8 md:top-8"
+			class="pointer-events-none absolute left-6 top-6 font-mono text-3xl font-bold text-black md:left-8 md:top-8 md:text-4xl"
 		>
-			score: {score}
+			{score}
 		</div>
 	{/if}
 </div>
