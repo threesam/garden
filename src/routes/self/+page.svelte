@@ -156,7 +156,17 @@
     />
   </picture>
   {#if heroMounted}
-    <VoronoiCanvas invert imageSrc="/assets/self-hero.webp" showLetters={false} fit="cover" />
+    <!-- mobileImageSrc matches the <picture> source so what voronoi paints
+         IS the same content as the LCP bitmap underneath. Without it, mobile
+         portrait viewports flashed the mobile photo, then voronoi overlaid
+         the desktop photo — different framings stacked. -->
+    <VoronoiCanvas
+      invert
+      imageSrc="/assets/self-hero.webp"
+      mobileImageSrc="/assets/self-hero-mobile.webp"
+      showLetters={false}
+      fit="cover"
+    />
   {/if}
   <h1
     class="pointer-events-none absolute bottom-6 left-6 z-10 font-mono text-3xl font-bold uppercase tracking-base text-white md:bottom-20 md:left-20 md:text-8xl"
