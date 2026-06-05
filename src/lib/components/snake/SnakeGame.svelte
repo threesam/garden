@@ -107,10 +107,19 @@
 
 	let touchStart: { x: number; y: number } | null = null;
 	function onTouchStart(e: TouchEvent) {
+		// preventDefault on touchstart cancels Arc/Safari's edge-swipe-back
+		// gesture from competing with our left/right swipes.
+		e.preventDefault();
 		const t = e.touches[0];
 		if (t) touchStart = { x: t.clientX, y: t.clientY };
 	}
+	function onTouchMove(e: TouchEvent) {
+		// Block the vertical-pan / overscroll spring while a touch is in
+		// flight — without this the game container slid up and bounced back.
+		e.preventDefault();
+	}
 	function onTouchEnd(e: TouchEvent) {
+		e.preventDefault();
 		if (!touchStart) return;
 		const t = e.changedTouches[0];
 		if (!t) return;
@@ -143,6 +152,16 @@
 		resize();
 		window.addEventListener('keydown', onKey);
 		window.addEventListener('resize', resize);
+		// Lock the document scroll while the game is mounted so iOS / Arc
+		// can't elastic-scroll the page underneath when a swipe gesture
+		// crosses the container.
+		const prevHtmlOverflow = document.documentElement.style.overflow;
+		const prevBodyOverflow = document.body.style.overflow;
+		const prevOverscroll = document.body.style.overscrollBehavior;
+		document.documentElement.style.overflow = 'hidden';
+		document.body.style.overflow = 'hidden';
+		document.body.style.overscrollBehavior = 'none';
+
 		const id = window.setInterval(() => {
 			step();
 			draw();
@@ -151,6 +170,9 @@
 			window.clearInterval(id);
 			window.removeEventListener('keydown', onKey);
 			window.removeEventListener('resize', resize);
+			document.documentElement.style.overflow = prevHtmlOverflow;
+			document.body.style.overflow = prevBodyOverflow;
+			document.body.style.overscrollBehavior = prevOverscroll;
 		};
 	});
 
@@ -163,11 +185,16 @@
 	});
 </script>
 
+<!-- touch-action: none disables the browser's default panning + pinch +
+     edge-swipe handlers so our swipe direction logic is the only thing
+     reading the gesture. overscroll-behavior: none belt-and-suspenders
+     for the elastic-bounce that html-overflow lock already kills. -->
 <div
-	class="fixed inset-0 z-40 grid place-items-center bg-[var(--coin)]"
+	class="fixed inset-0 z-40 grid place-items-center bg-[var(--coin)] [overscroll-behavior:none] [touch-action:none]"
 	role="application"
 	aria-label="snake game"
 	ontouchstart={onTouchStart}
+	ontouchmove={onTouchMove}
 	ontouchend={onTouchEnd}
 >
 	<canvas bind:this={canvas}></canvas>
