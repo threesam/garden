@@ -13,11 +13,10 @@
   let { data }: { data: PageData } = $props();
   let { markdown } = $derived(data);
 
-  // Defer the WebGL hero voronoi to the frame after first paint. The
-  // static <img> below paints the bitmap LCP candidate, and the H1
-  // "self" lands fast — the canvas's shader compile + first frame
-  // shouldn't block either. Same pattern as /thoughts day30 — LH perf
-  // gains ~20pts from this defer alone.
+  // Voronoi mounts on the frame after hydration. With no bare <img>
+  // underneath any more (removed below), there's nothing else painting
+  // the hero — the H1 "self" + bg-black wrapper is what the visitor
+  // sees until the WebGL pipeline warms and the canvas fades in.
   let heroMounted = $state(false);
   onMount(() => {
     requestAnimationFrame(() => {
@@ -142,24 +141,18 @@
   />
 </svelte:head>
 
-<div class="relative h-dvh w-full overflow-hidden">
-  <!-- LCP element: paints in one frame from the matching preload. The
-       voronoi canvas overdraws once its WebGL pipeline warms up. -->
-  <picture>
-    <source srcset="/assets/self-hero-mobile.webp" media="(orientation: portrait)" />
-    <img
-      src="/assets/self-hero.webp"
-      alt=""
-      fetchpriority="high"
-      decoding="async"
-      class="absolute inset-0 h-full w-full object-cover"
-    />
-  </picture>
+<!-- h-svh (not h-dvh) so iOS's address-bar collapse doesn't grow the
+     container mid-scroll — the voronoi action resizes on width OR height
+     change, which was reshuffling all the cells the moment the user
+     started scrolling. svh is the static "small" viewport height that
+     never moves once the page is settled. -->
+<div class="relative h-svh w-full overflow-hidden bg-black">
   {#if heroMounted}
-    <!-- mobileImageSrc matches the <picture> source so what voronoi paints
-         IS the same content as the LCP bitmap underneath. Without it, mobile
-         portrait viewports flashed the mobile photo, then voronoi overlaid
-         the desktop photo — different framings stacked. -->
+    <!-- No bare <img> any more — the bare bitmap appearing for a beat
+         before voronoi took over read as "two images stacked" on mobile.
+         The preload above still primes the cache so the voronoi action's
+         own image fetch is instant; LCP falls to the H1 "self" but the
+         visual integrity of the hero is the priority here. -->
     <VoronoiCanvas
       invert
       imageSrc="/assets/self-hero.webp"
