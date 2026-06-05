@@ -3,6 +3,7 @@
   import Gallery from '$lib/components/gallery/Gallery.svelte';
   import BrandSignoff from '$lib/components/frame/BrandSignoff.svelte';
   import SnakeGame from '$lib/components/snake/SnakeGame.svelte';
+  import { fade } from 'svelte/transition';
   import { gameMode } from '$lib/game-mode.svelte';
   import { SITE_PAGES, SITE_URL, homePageNode, itemListNode } from '$lib/seo';
 
@@ -48,6 +49,7 @@
   {#if gameMode.countdownText}
     <div
       class="pointer-events-none absolute bottom-6 left-6 z-50 font-mono text-3xl font-bold text-black md:bottom-8 md:left-8 md:text-4xl"
+      out:fade={{ duration: 300 }}
     >
       {#key gameMode.countdownText}
         <span class="countdown-digit inline-block">{gameMode.countdownText}</span>
@@ -79,19 +81,18 @@
       transform: translateY(0) scale(1);
     }
   }
-  /* Game wrapper rises up from below + fades in — "snake bursts up
-     through the letter" — and shrinks back down on close. */
+  /* Game wrapper just fades in — the burst-up motion is the game snake
+     itself slithering up out of the bottom-left where the countdown was,
+     not the canvas moving. */
   :global(.burst-in) {
-    animation: burst-in 500ms cubic-bezier(0.2, 0.7, 0.2, 1);
+    animation: burst-in 400ms ease-out;
   }
   @keyframes burst-in {
     from {
       opacity: 0;
-      transform: translateY(60px) scale(0.96);
     }
     to {
       opacity: 1;
-      transform: translateY(0) scale(1);
     }
   }
   @media (prefers-reduced-motion: reduce) {
