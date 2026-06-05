@@ -71,7 +71,14 @@ class GameMode {
 	// true. Hold "game over" in the wordmark slot for the dwell, fade it
 	// out, then surface "again?" — never overlapping (replayReady flips
 	// only after the fade-out window completes).
+	//
+	// `gameMounted` guard handles the Esc-during-collision race: stop()
+	// sets gameMounted=false synchronously, but the SnakeGame outro keeps
+	// ticking for ~400 ms. A late step() during that window could call
+	// here over an already-closing game; we'd schedule a "replayReady"
+	// timer that surfaces "again?" on the idle homepage 2.4 s later.
 	handleGameOver() {
+		if (!this.gameMounted) return;
 		this.gameOver = true;
 		this.sched(GAME_OVER_HOLD_MS, () => (this.gameOver = false));
 		this.sched(GAME_OVER_HOLD_MS + GAME_OVER_FADE_MS, () => (this.replayReady = true));

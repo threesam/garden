@@ -210,12 +210,15 @@
 		draw();
 	});
 
-	// Stop the tick the instant the snake dies. The canvas already shows
-	// the final frame; without this, step() (early-returning) and draw()
-	// (re-painting an unchanged picture) keep firing 9×/s through the
-	// 2 s "game over" hold and the indefinite "again?" wait.
+	// Freeze the tick on either edge that ends the game:
+	//   - local gameOver true (snake died) — avoids ~9 wasted redraws/s
+	//     through the "game over" hold and the indefinite "again?" wait.
+	//   - gameMode.gameMounted false (user quit) — Svelte's transition:fade
+	//     keeps this component in the DOM for 400 ms after the {#if} flips
+	//     false; without freezing here the snake would visibly slither
+	//     through the outro instead of freezing in place.
 	$effect(() => {
-		if (gameOver && tickId !== undefined) {
+		if ((gameOver || !gameMode.gameMounted) && tickId !== undefined) {
 			window.clearInterval(tickId);
 			tickId = undefined;
 		}
