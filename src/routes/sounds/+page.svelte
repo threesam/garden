@@ -62,9 +62,16 @@
   // the ingest leaves a trailing "–null" end on the last HMBM cue's timecode
   const cueTime = (tc: string) => tc.replace(/[-–]null$/, "");
 
-  // Hide a cover/poster that fails to load so the "?" placeholder behind it shows
-  // through (some film posters aren't mirrored to R2 yet).
-  const imgErr = (e: Event) => ((e.currentTarget as HTMLElement).style.display = "none");
+  // Track covers that fail to load by slug. The previous design layered a
+  // "?" placeholder behind the <Img> and hid the img on error so the "?"
+  // showed through — but lazy <Img> starts at opacity 0 and .card img's
+  // `transition: filter` kills the opacity transition, so the "?" bled
+  // through fully-loaded covers on slow networks. Now we render the
+  // image OR the "?" mutually exclusively (state-driven on error).
+  const coverErrors = $state<Record<string, true>>({});
+  const onCoverError = (key: string) => () => {
+    coverErrors[key] = true;
+  };
 
   // umami custom events — "what gets played". The umami script is loaded
   // site-wide in +layout.svelte; no-op (via ?.) during SSR / if it's blocked.
@@ -260,15 +267,16 @@
     <div class="deck">
       {#each song.versions as v, i (v.src)}
         <div class="card" style="--rot:{fan(i)}deg; z-index:{40 - i};">
-          <span class="ph">?</span>
-          {#if t.cover}
+          {#if t.cover && !coverErrors[song.slug]}
             <Img
               src={coverUrl(t.cover)}
               alt=""
               draggable={false}
               eager={featured && i === 0}
-              onerror={imgErr}
+              onerror={onCoverError(song.slug)}
             />
+          {:else}
+            <span class="ph">?</span>
           {/if}
         </div>
       {/each}
@@ -300,13 +308,14 @@
     <h2 class="hmbm-title">{HMBM_FILM.title}</h2>
     <p class="hmbm-meta">sk+w · film score · {HMBM_FILM.year} · {manifest.scores.hmbm.length} cues</p>
     <div class="hmbm-poster">
-      <span class="hmbm-poster-ph" aria-hidden="true">?</span>
-      {#if HMBM_FILM.poster}
+      {#if HMBM_FILM.poster && !coverErrors["hmbm"]}
         <Img
           src={coverUrl(HMBM_FILM.poster)}
           alt="how many blind mice? — film poster"
-          onerror={imgErr}
+          onerror={onCoverError("hmbm")}
         />
+      {:else}
+        <span class="hmbm-poster-ph" aria-hidden="true">?</span>
       {/if}
       <span class="badge badge-score">score</span>
       <div class="cue-list">
