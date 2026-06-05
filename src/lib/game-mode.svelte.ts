@@ -1,53 +1,69 @@
 // Module-level reactive state for the "click the s" snake easter egg on
 // the homepage.
 //
-// Two flags, intentionally split so the open/close UI sequences read in
-// the right order:
+// Three flags drive the open/close UI sequence:
 //
-//   active        — wordmark "threesam → snake" letter animation runs
-//   gameMounted   — SnakeGame component is in the DOM (fades in/out
-//                   via Svelte's transition:fade on the wrapper)
+//   active          — wordmark "threesam → snake" letter animation runs;
+//                     gallery + tagline fade out
+//   countdownText   — empty | "3" | "2" | "1" | "slither!"; centered
+//                     overlay shown between the letter animation and the
+//                     game appearing
+//   gameMounted     — SnakeGame component is in the DOM (faded in/out via
+//                     Svelte's transition:fade on the wrapper)
 //
-// Opening:  active=true at click → 1200 ms later → gameMounted=true.
-//           So the letters finish their transition first, THEN the game
-//           fades up on top.
+// Open: active=true → 1200 ms (letter anim) → countdown "3"/"2"/"1"/
+//       "slither!" each ~500 ms → countdownText="" + gameMounted=true.
+// Close: gameMounted=false → 500 ms (game fade-out) → active=false.
 //
-// Closing:  gameMounted=false at click → 500 ms later → active=false.
-//           Game fades out first, THEN the letters reverse back to
-//           "threesam".
-const OPEN_DELAY_MS = 1200;
+// Every scheduled timer is cleared on the opposite action so rapid toggles
+// don't strand state.
+const LETTER_ANIM_MS = 1200;
+const COUNT_STEP_MS = 500;
+const SLITHER_MS = 700;
 const CLOSE_DELAY_MS = 500;
 
 class GameMode {
 	active = $state(false);
+	countdownText = $state('');
 	gameMounted = $state(false);
-	private openTimer: number | null = null;
-	private closeTimer: number | null = null;
+	private timers: number[] = [];
+
+	private sched(ms: number, fn: () => void) {
+		const id = window.setTimeout(fn, ms);
+		this.timers.push(id);
+	}
+
+	private clearTimers() {
+		for (const id of this.timers) clearTimeout(id);
+		this.timers = [];
+	}
 
 	start() {
-		if (this.closeTimer !== null) {
-			clearTimeout(this.closeTimer);
-			this.closeTimer = null;
-		}
+		this.clearTimers();
 		this.active = true;
-		if (this.openTimer !== null) clearTimeout(this.openTimer);
-		this.openTimer = window.setTimeout(() => {
+		this.countdownText = '';
+		this.gameMounted = false;
+
+		let t = LETTER_ANIM_MS;
+		this.sched(t, () => (this.countdownText = '3'));
+		t += COUNT_STEP_MS;
+		this.sched(t, () => (this.countdownText = '2'));
+		t += COUNT_STEP_MS;
+		this.sched(t, () => (this.countdownText = '1'));
+		t += COUNT_STEP_MS;
+		this.sched(t, () => (this.countdownText = 'slither!'));
+		t += SLITHER_MS;
+		this.sched(t, () => {
+			this.countdownText = '';
 			this.gameMounted = true;
-			this.openTimer = null;
-		}, OPEN_DELAY_MS);
+		});
 	}
 
 	stop() {
-		if (this.openTimer !== null) {
-			clearTimeout(this.openTimer);
-			this.openTimer = null;
-		}
+		this.clearTimers();
+		this.countdownText = '';
 		this.gameMounted = false;
-		if (this.closeTimer !== null) clearTimeout(this.closeTimer);
-		this.closeTimer = window.setTimeout(() => {
-			this.active = false;
-			this.closeTimer = null;
-		}, CLOSE_DELAY_MS);
+		this.sched(CLOSE_DELAY_MS, () => (this.active = false));
 	}
 }
 
