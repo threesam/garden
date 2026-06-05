@@ -1,12 +1,21 @@
 <script lang="ts">
   import { preloadCode } from '$app/navigation';
   import { NAV_ROUTES } from '$lib/nav';
+  import { gameMode } from '$lib/game-mode.svelte';
 
   let open = $state(false);
   let hovered = $state(false);
   let locked = $state(false);
+  // Snake game on the homepage: the back face's rotated "+" is already an
+  // "x" glyph, so we reuse it. When the game is active, clicking the coin
+  // quits the game instead of opening the nav menu.
+  const inGame = $derived(gameMode.active);
 
   function handleCoinClick() {
+    if (inGame) {
+      gameMode.stop();
+      return;
+    }
     open = !open;
     if (!open) {
       hovered = false;
@@ -15,6 +24,7 @@
   }
 
   function handleCoinMouseEnter() {
+    if (inGame) return;
     if (!locked) hovered = true;
     // Warm all route JS chunks on first coin hover — no-op on subsequent calls.
     for (const r of NAV_ROUTES) {
@@ -29,6 +39,7 @@
 
   // Derived coin transform — no nested ternary.
   const coinTransform = $derived((() => {
+    if (inGame) return 'rotateY(180deg) rotate(45deg)';
     if (open) return 'rotateY(180deg) rotate(45deg)';
     if (hovered) return 'rotateY(180deg)';
     return 'rotateY(0deg)';
