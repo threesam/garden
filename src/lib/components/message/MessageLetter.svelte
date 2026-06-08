@@ -70,6 +70,7 @@
 			class="honeypot"
 			type="text"
 			name="website"
+			bind:value={messageMode.website}
 			tabindex="-1"
 			autocomplete="off"
 			aria-hidden="true"

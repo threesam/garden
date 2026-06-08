@@ -13,15 +13,18 @@
 //   sent    — post succeeded; brief "sent it!" beat before auto-close
 //   error   — null when fine; string when the post failed
 
+import { EMAIL_RX, MAX_EMAIL_LEN, MAX_BODY_LEN } from '$lib/message-schema';
+
 const CLOSE_DELAY_MS = 500;
 const SENT_HOLD_MS = 1500;
-
-const EMAIL_RX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 class MessageMode {
 	active = $state(false);
 	email = $state('');
 	body = $state('');
+	// Honeypot — bound to a hidden field the user never sees. Bots that fill
+	// every input trip it; the server silently 200s without sending.
+	website = $state('');
 	sending = $state(false);
 	sent = $state(false);
 	error = $state<string | null>(null);
@@ -38,7 +41,14 @@ class MessageMode {
 	}
 
 	get formValid() {
-		return this.body.trim().length > 0 && EMAIL_RX.test(this.email.trim());
+		const email = this.email.trim();
+		const body = this.body.trim();
+		return (
+			body.length > 0 &&
+			body.length <= MAX_BODY_LEN &&
+			email.length <= MAX_EMAIL_LEN &&
+			EMAIL_RX.test(email)
+		);
 	}
 
 	start() {
@@ -57,6 +67,7 @@ class MessageMode {
 		this.sched(CLOSE_DELAY_MS, () => {
 			this.email = '';
 			this.body = '';
+			this.website = '';
 			this.sending = false;
 			this.sent = false;
 			this.error = null;
@@ -74,11 +85,13 @@ class MessageMode {
 				body: JSON.stringify({
 					email: this.email.trim(),
 					body: this.body.trim(),
+					website: this.website,
 				}),
 			});
 			if (!res.ok) {
-				const data = (await res.json().catch(() => null)) as { error?: string } | null;
-				this.error = data?.error || 'failed to send';
+				// SvelteKit's error() returns { message }, not { error }.
+				const data = (await res.json().catch(() => null)) as { message?: string } | null;
+				this.error = data?.message || 'failed to send';
 				return;
 			}
 			this.sent = true;

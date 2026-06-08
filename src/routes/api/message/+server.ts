@@ -8,8 +8,9 @@
 //     the bot thinks it succeeded.
 //   - Best-effort per-IP rate limit (in-memory; resets per cold start
 //     on Vercel, so it's a speed-bump not a fortress).
-//   - Strict size + format validation; nothing about the schema is
-//     forgiving.
+//   - Strict size + format validation. The limits live in
+//     $lib/message-schema so the client form gates on the exact same
+//     rules and the two can't drift apart.
 //
 // Env (set in Vercel):
 //   RESEND_API_KEY     — required. Resend dashboard → API Keys.
@@ -21,17 +22,22 @@
 import { json, error } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { Resend } from 'resend';
+import { createTtlCache } from '$lib/server/ttl-cache';
+import { EMAIL_RX, MAX_EMAIL_LEN, MAX_BODY_LEN } from '$lib/message-schema';
 import type { RequestHandler } from './$types';
 
-const EMAIL_RX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const MAX_BODY_LEN = 5000;
-const MAX_EMAIL_LEN = 200;
 const RATE_LIMIT_MS = 60_000;
 const RATE_LIMIT_MAX_ENTRIES = 256;
 const TO_EMAIL = 'sam@threesam.com';
 const DEFAULT_FROM = 'onboarding@resend.dev';
 
-const lastSent = new Map<string, number>();
+// Per-IP last-send timestamps. Entries self-expire after RATE_LIMIT_MS and the
+// cache evicts the oldest once past the cap, so the map stays bounded on a warm
+// serverless instance without a manual sweep.
+const rateLimit = createTtlCache<number>({
+	ttlMs: RATE_LIMIT_MS,
+	maxEntries: RATE_LIMIT_MAX_ENTRIES,
+});
 
 // Structured, greppable server log — one JSON line per request outcome so
 // Vercel log search can filter by `event`. Deliberately omits message bodies
@@ -64,16 +70,6 @@ function resendClient(): Resend {
 	return _resend;
 }
 
-// Evict stale rate-limit entries inline; without this `lastSent` grows
-// unboundedly across a warm serverless instance. Costs O(n) but only
-// runs once the map is past its soft cap.
-function sweepRateLimit(now: number) {
-	if (lastSent.size < RATE_LIMIT_MAX_ENTRIES) return;
-	for (const [ip, ts] of lastSent) {
-		if (now - ts > RATE_LIMIT_MS) lastSent.delete(ip);
-	}
-}
-
 export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 	const ip = getClientAddress();
 
@@ -103,31 +99,46 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 		error(400, 'invalid message');
 	}
 
-	const now = Date.now();
-	const last = lastSent.get(ip);
-	if (last && now - last < RATE_LIMIT_MS) {
-		log('rate_limited', { ip, sinceMs: now - last });
-		error(429, 'slow down');
-	}
-	// Mark the IP *before* the await so two near-simultaneous requests
-	// from the same address don't both read undefined and both send.
-	lastSent.set(ip, now);
-	sweepRateLimit(now);
-
+	// Config check before the rate-limit mark so a misconfigured deploy
+	// returns 500 without burning the caller's one-per-minute window.
 	if (!env.RESEND_API_KEY) {
 		log('config_error', { ip, reason: 'RESEND_API_KEY missing' });
 		error(500, 'service unavailable');
 	}
 
+	// Mark the IP *before* the send so two near-simultaneous requests from one
+	// address can't both fire. A failed send releases the mark (below) so a
+	// transient Resend error doesn't lock a real sender out for a minute.
+	const last = rateLimit.get(ip);
+	if (last !== undefined) {
+		log('rate_limited', { ip, sinceMs: Date.now() - last });
+		error(429, 'slow down');
+	}
+	rateLimit.set(ip, Date.now());
+
 	const from = env.MESSAGE_FROM_EMAIL || DEFAULT_FROM;
-	const result = await resendClient().emails.send({
-		from,
-		to: TO_EMAIL,
-		replyTo: email,
-		subject: `message me — ${email}`,
-		text: body,
-	});
+	const started = Date.now();
+	const result = await resendClient()
+		.emails.send({
+			from,
+			to: TO_EMAIL,
+			replyTo: email,
+			subject: `message me — ${email}`,
+			text: body,
+		})
+		.catch((err: unknown) => {
+			// Network/SDK throw (vs the structured { error } below).
+			rateLimit.delete(ip);
+			log('resend_error', {
+				ip,
+				from,
+				thrown: true,
+				message: err instanceof Error ? err.message : String(err),
+			});
+			error(502, 'failed to send');
+		});
 	if (result.error) {
+		rateLimit.delete(ip);
 		log('resend_error', { ip, from, name: result.error.name, message: result.error.message });
 		error(502, 'failed to send');
 	}
@@ -137,7 +148,7 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 		id: result.data?.id,
 		emailDomain: emailDomain(email),
 		bodyLen: body.length,
-		ms: Date.now() - now,
+		ms: Date.now() - started,
 	});
 	return json({ ok: true });
 };

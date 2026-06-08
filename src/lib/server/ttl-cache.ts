@@ -27,5 +27,8 @@ export function createTtlCache<V>({ ttlMs, maxEntries = 500 }: TtlCacheOptions) 
       }
       map.set(key, { value, expiresAt: Date.now() + ttlMs });
     },
+    delete(key: string): void {
+      map.delete(key);
+    },
   };
 }
