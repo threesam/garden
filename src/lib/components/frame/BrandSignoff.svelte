@@ -11,12 +11,19 @@
   // `gameClickable` exposes the snake-game easter egg: clicking the "s"
   // toggles gameMode and triggers the letter-collapse → "snake" sequence.
   import { gameMode } from '$lib/game-mode.svelte';
+  import { messageMode } from '$lib/message-mode.svelte';
 
   let {
     heading = false,
     tone = 'dark',
     gameClickable = false,
-  }: { heading?: boolean; tone?: 'dark' | 'light'; gameClickable?: boolean } = $props();
+    messageClickable = false,
+  }: {
+    heading?: boolean;
+    tone?: 'dark' | 'light';
+    gameClickable?: boolean;
+    messageClickable?: boolean;
+  } = $props();
   const tag = $derived(heading ? 'h1' : 'div');
   const color = $derived(tone === 'light' ? 'text-white' : 'text-black');
 
@@ -33,12 +40,13 @@
 
   // Persistent reveal of the message tail — primary path on touch (no hover);
   // also lets desktop users click instead of holding the mouse over the "m".
-  // Reset when the game starts so the two tails never both expand at once.
+  // The toggle no-ops while the game is running so the two tails can't
+  // both expand at once.
   let messageOn = $state(false);
-  const toggleMessage = () => (messageOn = !messageOn);
-  $effect(() => {
-    if (active) messageOn = false;
-  });
+  const toggleMessage = () => {
+    if (active) return;
+    messageOn = !messageOn;
+  };
 </script>
 
 <svelte:element
@@ -46,7 +54,7 @@
   class="wordmark absolute bottom-6 left-6 z-50 flex font-mono text-3xl font-bold tracking-meta {color} md:bottom-8 md:left-8 md:text-4xl"
   class:is-game={active}
   class:show-message={messageOn && !active}
-  class:wordmark-hidden={gameMode.wordmarkSlotOccupied}
+  class:wordmark-hidden={gameMode.wordmarkSlotOccupied || messageMode.active}
 >
   {#each PRE_LETTERS as l, i (`pre-${i}`)}
     <span class="letter">{l}</span>
@@ -88,18 +96,30 @@
   {#each SNAKE_TAIL as l, i (`tail-${i}`)}
     <span class="tail" style="--tail-delay: {200 + i * 130}ms">{l}</span>
   {/each}
-  {#each MESSAGE_TAIL as l, i (`msg-${i}`)}
-    <span class="msg-tail" style="--msg-delay: {100 + i * 80}ms">{l}</span>
-  {/each}
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <!-- Single delegated handler for the whole message tail. `display:
+       contents` keeps the inner spans as direct flex children of the
+       wordmark; clicks on any letter bubble here. Letters are
+       individually unclickable when collapsed (max-width: 0 → no
+       hitbox), so the wrapper only fires when something is visible. -->
+  <span
+    class="msg-tail-group"
+    class:clickable={messageClickable}
+    onclick={messageClickable ? () => messageMode.start() : undefined}
+  >
+    {#each MESSAGE_TAIL as l, i (`msg-${i}`)}
+      <span class="msg-tail" style="--msg-delay: {100 + i * 80}ms">{l}</span>
+    {/each}
+  </span>
 </svelte:element>
-<!-- Tagline (anchored bottom-right). Fades out at the same time as the
-     gallery while gameMode.active so "snake" + game read as the only
-     content. -->
+<!-- Tagline (anchored bottom-right). Fades out alongside the gallery
+     during snake game or "message me?" letter mode so the active
+     experience reads as the only content. -->
 <p
   class="tagline absolute right-6 bottom-6 z-10 text-right font-mono text-sm leading-tight tracking-hero {color} md:right-8 md:bottom-8 md:text-base"
-  class:tagline-hidden={active}
->
-  <span class="block md:inline">certainly</span><span class="alien" aria-hidden="true"
+  class:tagline-hidden={active || messageMode.active}
+><span class="block md:inline">certainly</span><span class="alien" aria-hidden="true"
     ><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
       <path
         fill="currentColor"
@@ -133,8 +153,12 @@
     opacity: 0;
     transition-delay: 0ms;
   }
+  .msg-tail-group {
+    display: contents;
+  }
   .s-letter.clickable,
-  .m-letter.clickable {
+  .m-letter.clickable,
+  .msg-tail-group.clickable .msg-tail {
     cursor: pointer;
   }
   .tagline {

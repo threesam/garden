@@ -56,6 +56,7 @@
     "marked": "17.0.5",
     "marked-emoji": "2.0.2",
     "node-emoji": "2.2.0",
+    "resend": "6.12.4",
     "sharp": "0.34.5",
     "three": "0.183.2"
   }
