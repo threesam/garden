@@ -407,8 +407,13 @@ export const voronoi: Action<HTMLCanvasElement, VoronoiParams> = (node, initialP
   node.addEventListener('touchend', onTouchEnd);
 
   function resize() {
-    node.width = Math.max(1, Math.round(node.offsetWidth * renderScale));
-    node.height = Math.max(1, Math.round(node.offsetHeight * renderScale));
+    // Render at the device's physical pixel density (capped at 2× for perf)
+    // so the cell edges stay crisp on retina screens — without this the
+    // buffer is CSS-pixel sized and the browser upscales it, blurring the
+    // lines on a 2–3× phone.
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    node.width = Math.max(1, Math.round(node.offsetWidth * renderScale * dpr));
+    node.height = Math.max(1, Math.round(node.offsetHeight * renderScale * dpr));
     gl.viewport(0, 0, node.width, node.height);
     gl.uniform2f(uResolution, node.width, node.height);
     const resolvedScale = scale ?? (node.offsetWidth < MOBILE_BREAK ? SCALE_MOBILE : SCALE_DESKTOP);
@@ -430,15 +435,26 @@ export const voronoi: Action<HTMLCanvasElement, VoronoiParams> = (node, initialP
   );
   observer.observe(node);
 
-  // Skip height-only resizes. iOS Safari grows the viewport as the URL
-  // bar collapses on scroll — without this filter every scroll reshuffles
-  // every cell, which reads as the whole hero re-rolling under the user.
-  // Width changes (rotation, real layout shifts) still trigger a re-fit.
+  // Re-fit on width changes (rotation, real layout shifts) and on aspect
+  // changes. The aspect trigger is what catches the one-time banner reshape
+  // when the source image loads and the container swaps the placeholder aspect
+  // for the image's real one — without it the canvas keeps the wrong-aspect
+  // buffer and object-cover scales it up, blurring + cropping the result.
+  //
+  // Height-only changes at a CONSTANT aspect are still ignored: iOS Safari
+  // grows the viewport as the URL bar collapses on scroll, scaling dvh-sized
+  // banners proportionally (aspect unchanged) — re-fitting there would
+  // reshuffle every cell under the user.
   let lastWidth = node.offsetWidth;
+  let lastAspect = node.offsetWidth / Math.max(1, node.offsetHeight);
   let resizeTimer = 0;
   const resizeObserver = new ResizeObserver(() => {
-    if (node.offsetWidth === lastWidth) return;
-    lastWidth = node.offsetWidth;
+    const width = node.offsetWidth;
+    const aspect = width / Math.max(1, node.offsetHeight);
+    const aspectChanged = Math.abs(aspect - lastAspect) > lastAspect * 0.01;
+    if (width === lastWidth && !aspectChanged) return;
+    lastWidth = width;
+    lastAspect = aspect;
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(resize, 100) as unknown as number;
   });
