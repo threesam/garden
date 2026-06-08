@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
 	import { messageMode } from '$lib/message-mode.svelte';
+	import { MAX_BODY_LEN, MAX_EMAIL_LEN } from '$lib/message-schema';
 
 	// Imitates a handwritten letter: "hey Sam," at the top, an invisible
 	// textarea where the cursor starts (no placeholder — the blinking
@@ -46,7 +47,7 @@
 			use:autofocus
 			bind:value={messageMode.body}
 			rows="6"
-			maxlength="5000"
+			maxlength={MAX_BODY_LEN}
 			aria-label="your message"
 		></textarea>
 		<p class="line signoff">sincerely,</p>
@@ -55,7 +56,7 @@
 			type="email"
 			autocomplete="email"
 			inputmode="email"
-			maxlength="200"
+			maxlength={MAX_EMAIL_LEN}
 			placeholder="your email?"
 			aria-label="your email"
 			bind:value={messageMode.email}
