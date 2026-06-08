@@ -4,4 +4,5 @@
 // client would let someone hit "send it?" only to get a confusing 400.
 export const EMAIL_RX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const MAX_EMAIL_LEN = 200;
+export const MAX_NAME_LEN = 100;
 export const MAX_BODY_LEN = 5000;

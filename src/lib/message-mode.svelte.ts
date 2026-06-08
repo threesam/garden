@@ -13,15 +13,16 @@
 //   sent    — post succeeded; brief "sent it!" beat before auto-close
 //   error   — null when fine; string when the post failed
 
-import { EMAIL_RX, MAX_EMAIL_LEN, MAX_BODY_LEN } from '$lib/message-schema';
+import { EMAIL_RX, MAX_EMAIL_LEN, MAX_NAME_LEN, MAX_BODY_LEN } from '$lib/message-schema';
 
 const CLOSE_DELAY_MS = 500;
 const SENT_HOLD_MS = 1500;
 
 class MessageMode {
 	active = $state(false);
-	email = $state('');
 	body = $state('');
+	name = $state('');
+	email = $state('');
 	// Honeypot — bound to a hidden field the user never sees. Bots that fill
 	// every input trip it; the server silently 200s without sending.
 	website = $state('');
@@ -41,11 +42,14 @@ class MessageMode {
 	}
 
 	get formValid() {
+		const name = this.name.trim();
 		const email = this.email.trim();
 		const body = this.body.trim();
 		return (
 			body.length > 0 &&
 			body.length <= MAX_BODY_LEN &&
+			name.length > 0 &&
+			name.length <= MAX_NAME_LEN &&
 			email.length <= MAX_EMAIL_LEN &&
 			EMAIL_RX.test(email)
 		);
@@ -65,8 +69,9 @@ class MessageMode {
 		// Reset the form only after the close animation completes so the
 		// fields don't visibly clear while the card is still fading out.
 		this.sched(CLOSE_DELAY_MS, () => {
-			this.email = '';
 			this.body = '';
+			this.name = '';
+			this.email = '';
 			this.website = '';
 			this.sending = false;
 			this.sent = false;
@@ -75,7 +80,7 @@ class MessageMode {
 	}
 
 	async send() {
-		if (this.sending || !this.formValid) return;
+		if (this.sending || this.sent || !this.formValid) return;
 		this.sending = true;
 		this.error = null;
 		try {
@@ -83,6 +88,7 @@ class MessageMode {
 				method: 'POST',
 				headers: { 'content-type': 'application/json' },
 				body: JSON.stringify({
+					name: this.name.trim(),
 					email: this.email.trim(),
 					body: this.body.trim(),
 					website: this.website,

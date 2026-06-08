@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
 	import { messageMode } from '$lib/message-mode.svelte';
-	import { MAX_BODY_LEN, MAX_EMAIL_LEN } from '$lib/message-schema';
+	import { MAX_BODY_LEN, MAX_EMAIL_LEN, MAX_NAME_LEN } from '$lib/message-schema';
 
 	// Imitates a handwritten letter: "hey Sam," at the top, an invisible
 	// textarea where the cursor starts (no placeholder — the blinking
@@ -48,9 +48,19 @@
 			bind:value={messageMode.body}
 			rows="6"
 			maxlength={MAX_BODY_LEN}
+			placeholder="your message"
 			aria-label="your message"
 		></textarea>
 		<p class="line signoff">sincerely,</p>
+		<input
+			class="name"
+			type="text"
+			autocomplete="name"
+			maxlength={MAX_NAME_LEN}
+			placeholder="your name?"
+			aria-label="your name"
+			bind:value={messageMode.name}
+		/>
 		<input
 			class="email"
 			type="email"
@@ -91,9 +101,14 @@
 		z-index: 35;
 		inset: 0;
 		display: grid;
-		place-items: center;
+		place-items: start center;
+		overflow-y: auto;
 		background: var(--white);
-		padding: 6rem 1.5rem 8rem;
+		/* Snap to the top (below the nav coin); leave room at the bottom so
+		   the fixed "send message" action never covers the last field —
+		   growing with the keyboard inset so the email field can scroll
+		   clear of the action when the keyboard is open. */
+		padding: 4.5rem 1.5rem calc(8rem + var(--kb-inset, 0px));
 	}
 	@media (min-width: 768px) {
 		.card {
@@ -140,6 +155,7 @@
 		margin-top: 1.2rem;
 	}
 	.body,
+	.name,
 	.email {
 		width: 100%;
 		background: transparent;
@@ -155,14 +171,13 @@
 		min-height: 8rem;
 		line-height: 1.55;
 	}
-	.email {
-		padding-left: 0;
-	}
 	.body::placeholder,
+	.name::placeholder,
 	.email::placeholder {
 		color: rgba(0, 0, 0, 0.35);
 	}
 	.body:focus,
+	.name:focus,
 	.email:focus {
 		outline: none;
 	}

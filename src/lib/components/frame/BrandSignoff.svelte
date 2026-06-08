@@ -106,7 +106,14 @@
   <span
     class="msg-tail-group"
     class:clickable={messageClickable}
-    onclick={messageClickable ? () => messageMode.start() : undefined}
+    onclick={messageClickable
+      ? () => {
+          // Consume the reveal on entry so the wordmark is back to
+          // "threesam" (not stuck on "message me?") when the letter closes.
+          messageOn = false;
+          messageMode.start();
+        }
+      : undefined}
   >
     {#each MESSAGE_TAIL as l, i (`msg-${i}`)}
       <span class="msg-tail" style="--msg-delay: {100 + i * 80}ms">{l}</span>
