@@ -38,15 +38,20 @@
   const MESSAGE_TAIL = ['e', 's', 's', 'a', 'g', 'e', ' ', 'm', 'e', '?'];
   const active = $derived(gameMode.active);
 
-  // Persistent reveal of the message tail — primary path on touch (no hover);
-  // also lets desktop users click instead of holding the mouse over the "m".
-  // The toggle no-ops while the game is running so the two tails can't
-  // both expand at once.
+  // Click-toggled reveal of the message tail — the only path on every device
+  // (no hover preview, which would slide the "m" out from under the cursor and
+  // flicker). The toggle no-ops while the game is running so the two tails
+  // can't both expand at once.
   let messageOn = $state(false);
   const toggleMessage = () => {
     if (active) return;
     messageOn = !messageOn;
   };
+  // When the "message me?" letter closes (the x / Esc), drop the reveal so
+  // the wordmark returns to "threesam" instead of staying on "message me?".
+  $effect(() => {
+    if (!messageMode.active) messageOn = false;
+  });
 </script>
 
 <svelte:element
@@ -106,14 +111,7 @@
   <span
     class="msg-tail-group"
     class:clickable={messageClickable}
-    onclick={messageClickable
-      ? () => {
-          // Consume the reveal on entry so the wordmark is back to
-          // "threesam" (not stuck on "message me?") when the letter closes.
-          messageOn = false;
-          messageMode.start();
-        }
-      : undefined}
+    onclick={messageClickable ? () => messageMode.start() : undefined}
   >
     {#each MESSAGE_TAIL as l, i (`msg-${i}`)}
       <span class="msg-tail" style="--msg-delay: {100 + i * 80}ms">{l}</span>
@@ -196,28 +194,20 @@
     transition-delay: var(--tail-delay, 0ms);
   }
 
-  /* HOVER PREVIEWS (desktop only — :has() does the parent-of-hovered-child
-     trick that CSS otherwise can't):
-     - hovering the clickable "s" isolates it — same shape as is-game, but
-       without expanding the snake tail (it stays a preview until click).
-     - hovering "m" isolates m and trickles in "essage me?" the same way the
-       snake tail trickles in. */
+  /* HOVER PREVIEW (desktop only — :has() does the parent-of-hovered-child
+     trick that CSS otherwise can't): hovering the clickable "s" isolates it,
+     same shape as is-game but without expanding the snake tail (it stays a
+     preview until click).
+
+     The "m" intentionally has NO hover preview: revealing "message me?"
+     collapses the letters before the m, which slides the m left out from
+     under the cursor — the hover then drops and re-fires, flickering. So
+     "message me?" stays click-only; only a click ever moves the letters. */
   @media (hover: hover) {
     .wordmark:has(.s-letter.clickable:hover) .letter:not(.s-letter),
     .wordmark:has(.s-letter.clickable:focus-visible) .letter:not(.s-letter) {
       max-width: 0;
       opacity: 0;
-    }
-    .wordmark:has(.m-letter:hover) .letter:not(.m-letter),
-    .wordmark:has(.m-letter:focus-visible) .letter:not(.m-letter) {
-      max-width: 0;
-      opacity: 0;
-    }
-    .wordmark:has(.m-letter:hover) .msg-tail,
-    .wordmark:has(.m-letter:focus-visible) .msg-tail {
-      max-width: 1em;
-      opacity: 1;
-      transition-delay: var(--msg-delay, 0ms);
     }
   }
   /* PERSISTENT MESSAGE REVEAL — click-toggled (primary path on touch where
