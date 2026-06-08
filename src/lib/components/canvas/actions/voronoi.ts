@@ -31,6 +31,7 @@ const FRAGMENT_SHADER = `
   uniform float uImageAspect;
   uniform float uLetters;
   uniform float uCoverFit;
+  uniform vec3 uEdgeColor;
 
   varying vec2 vUv;
 
@@ -231,12 +232,12 @@ const FRAGMENT_SHADER = `
     // Grayscale (luminance) output — voronoi reads as black-and-white
     // mosaic regardless of the source image's color palette.
     float gray = dot(base, vec3(0.2126, 0.7152, 0.0722));
-    // Wider edge fade to the --black wrapper. Ramp spans the outer ~12% of
-    // the canvas so the rim softens further into the body — more visible
-    // halo than the prior tight 4% band.
+    // Fade the rim to the page's --black (not pure black) so the image
+    // dissolves into the body background instead of sitting on a true-black
+    // halo. Ramp spans the outer ~12% of the canvas.
     vec2 distToEdge = min(vUv, 1.0 - vUv);
     float edgeFade = smoothstep(0.0, 0.12, min(distToEdge.x, distToEdge.y));
-    gl_FragColor = vec4(vec3(gray * edgeFade), 1.0);
+    gl_FragColor = vec4(mix(uEdgeColor, vec3(gray), edgeFade), 1.0);
   }
 `;
 
@@ -332,6 +333,7 @@ export const voronoi: Action<HTMLCanvasElement, VoronoiParams> = (node, initialP
   const uImageAspect = gl.getUniformLocation(program, 'uImageAspect');
   const uLetters = gl.getUniformLocation(program, 'uLetters');
   const uCoverFit = gl.getUniformLocation(program, 'uCoverFit');
+  const uEdgeColor = gl.getUniformLocation(program, 'uEdgeColor');
 
   gl.uniform1f(uInvert, invert ? 1.0 : 0.0);
   gl.uniform3fv(uTopColor, topColor);
@@ -341,6 +343,7 @@ export const voronoi: Action<HTMLCanvasElement, VoronoiParams> = (node, initialP
   gl.uniform1f(uImageAspect, 1.0);
   gl.uniform1f(uLetters, showLetters ? 1.0 : 0.0);
   gl.uniform1f(uCoverFit, fit === 'cover' ? 1.0 : 0.0);
+  gl.uniform3fv(uEdgeColor, blackColor);
 
   let needsRender = true;
   let texture: WebGLTexture | null = null;
