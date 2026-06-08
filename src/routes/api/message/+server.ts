@@ -23,7 +23,7 @@ import { json, error } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { Resend } from 'resend';
 import { createTtlCache } from '$lib/server/ttl-cache';
-import { EMAIL_RX, MAX_EMAIL_LEN, MAX_BODY_LEN } from '$lib/message-schema';
+import { EMAIL_RX, MAX_EMAIL_LEN, MAX_NAME_LEN, MAX_BODY_LEN } from '$lib/message-schema';
 import type { RequestHandler } from './$types';
 
 const RATE_LIMIT_MS = 60_000;
@@ -48,6 +48,7 @@ type LogEvent =
 	| 'honeypot'
 	| 'rate_limited'
 	| 'invalid_payload'
+	| 'invalid_name'
 	| 'invalid_email'
 	| 'invalid_message'
 	| 'resend_error'
@@ -74,7 +75,7 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 	const ip = getClientAddress();
 
 	const payload = (await request.json().catch(() => null)) as
-		| { email?: unknown; body?: unknown; website?: unknown }
+		| { name?: unknown; email?: unknown; body?: unknown; website?: unknown }
 		| null;
 	if (!payload) {
 		log('invalid_payload', { ip });
@@ -88,8 +89,13 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 		return json({ ok: true });
 	}
 
+	const name = typeof payload.name === 'string' ? payload.name.trim() : '';
 	const email = typeof payload.email === 'string' ? payload.email.trim() : '';
 	const body = typeof payload.body === 'string' ? payload.body.trim() : '';
+	if (!name || name.length > MAX_NAME_LEN) {
+		log('invalid_name', { ip, nameLen: name.length });
+		error(400, 'invalid name');
+	}
 	if (!email || email.length > MAX_EMAIL_LEN || !EMAIL_RX.test(email)) {
 		log('invalid_email', { ip, emailLen: email.length });
 		error(400, 'invalid email');
@@ -123,8 +129,8 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 			from,
 			to: TO_EMAIL,
 			replyTo: email,
-			subject: `message me — ${email}`,
-			text: body,
+			subject: `message me — ${name}`,
+			text: `${body}\n\n— ${name}\n${email}`,
 		})
 		.catch((err: unknown) => {
 			// Network/SDK throw (vs the structured { error } below).

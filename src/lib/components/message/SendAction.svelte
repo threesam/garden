@@ -2,111 +2,84 @@
 	import { fade } from 'svelte/transition';
 	import { messageMode } from '$lib/message-mode.svelte';
 
-	// Bottom-right action label. Two letter sets sit in the same flex row,
-	// one collapsed at a time — same trick the wordmark uses for
-	// threesam ↔ snake / threesam ↔ message me?:
-	//
-	//   .ready  → form is filled & valid → "send it?" expands, "message
-	//             me?" collapses, click submits
-	//   default → "message me?" reads as a label, no-op click
-	const MESSAGE_CHARS = ['m', 'e', 's', 's', 'a', 'g', 'e', ' ', 'm', 'e', '?'];
-	const SEND_CHARS = ['s', 'e', 'n', 'd', ' ', 'i', 't', '?'];
-
+	// Bottom-right "send message" action. Muted + disabled until the letter is
+	// filled out — message + name + a valid email — then it lights up and
+	// submits on click / Enter / Space (native <button> handles the keys).
 	const ready = $derived(messageMode.formValid && !messageMode.sending && !messageMode.sent);
+	const label = $derived(messageMode.sending ? 'sending...' : 'send message');
+
+	// Keep the action visible above the on-screen keyboard. iOS Safari leaves
+	// position:fixed pinned to the layout viewport (i.e. behind the keyboard),
+	// so track the visual viewport and lift the button by the covered height.
+	$effect(() => {
+		const vv = window.visualViewport;
+		if (!vv) return;
+		const root = document.documentElement;
+		const update = () => {
+			const inset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+			root.style.setProperty('--kb-inset', `${inset}px`);
+		};
+		update();
+		vv.addEventListener('resize', update);
+		vv.addEventListener('scroll', update);
+		return () => {
+			vv.removeEventListener('resize', update);
+			vv.removeEventListener('scroll', update);
+			root.style.removeProperty('--kb-inset');
+		};
+	});
 
 	function onClick() {
 		if (!ready) return;
 		void messageMode.send();
 	}
-
-	function onKey(e: KeyboardEvent) {
-		if (!ready) return;
-		if (e.key === 'Enter' || e.key === ' ') {
-			e.preventDefault();
-			void messageMode.send();
-		}
-	}
 </script>
 
-<div
+<button
+	type="button"
 	class="action"
 	class:ready
-	class:clickable={ready}
-	role="button"
-	tabindex={ready ? 0 : -1}
-	aria-disabled={!ready}
-	aria-label={ready ? 'send the message' : 'message Sam — fill in the message and your email'}
+	disabled={!ready}
 	onclick={onClick}
-	onkeydown={onKey}
 	transition:fade={{ duration: 350 }}
 >
-	{#each MESSAGE_CHARS as l, i (`msg-${i}`)}
-		<span class="msg" style="--d: {i * 60}ms">{l}</span>
-	{/each}
-	{#each SEND_CHARS as l, i (`snd-${i}`)}
-		<span class="snd" style="--d: {i * 70}ms">{l}</span>
-	{/each}
-</div>
+	{label}
+</button>
 
 <style>
 	.action {
 		position: fixed;
-		bottom: 1.5rem;
 		right: 1.5rem;
+		bottom: calc(1.5rem + var(--kb-inset, 0px));
 		z-index: 50;
-		display: flex;
-		align-items: baseline;
+		margin: 0;
+		padding: 0;
+		border: 0;
+		background: none;
 		font-family: 'Recursive Mono', ui-monospace, monospace;
 		font-weight: 700;
 		font-size: 1.875rem;
 		letter-spacing: 0.04em;
 		color: var(--black);
+		white-space: nowrap;
+		opacity: 0.3;
+		cursor: not-allowed;
 		user-select: none;
-		cursor: default;
+		transition: opacity 300ms ease-out;
 	}
 	@media (min-width: 768px) {
 		.action {
-			bottom: 2rem;
 			right: 2rem;
+			bottom: calc(2rem + var(--kb-inset, 0px));
 			font-size: 2.25rem;
 		}
 	}
-	.action.clickable {
+	.action.ready {
+		opacity: 1;
 		cursor: pointer;
 	}
-	.msg,
-	.snd {
-		display: inline-block;
-		overflow: hidden;
-		white-space: pre;
-		transition:
-			max-width 450ms cubic-bezier(0.4, 0, 0.2, 1),
-			opacity 350ms ease-out;
-		max-width: 1em;
-		opacity: 1;
-		transition-delay: 0ms;
-	}
-	/* "send it?" is the alt set — collapsed by default. */
-	.snd {
-		max-width: 0;
-		opacity: 0;
-	}
-	/* READY (form valid): "message me?" collapses, "send it?" expands,
-	   both staggered so the morph reads as a transformation rather than
-	   a swap. */
-	.ready .msg {
-		max-width: 0;
-		opacity: 0;
-		transition-delay: var(--d, 0ms);
-	}
-	.ready .snd {
-		max-width: 1em;
-		opacity: 1;
-		transition-delay: var(--d, 0ms);
-	}
 	@media (prefers-reduced-motion: reduce) {
-		.msg,
-		.snd {
+		.action {
 			transition: none;
 		}
 	}
