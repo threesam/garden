@@ -105,8 +105,10 @@
 		overflow-y: auto;
 		background: var(--white);
 		/* Snap to the top (below the nav coin); leave room at the bottom so
-		   the fixed "send message" action never covers the last field. */
-		padding: 4.5rem 1.5rem 8rem;
+		   the fixed "send message" action never covers the last field —
+		   growing with the keyboard inset so the email field can scroll
+		   clear of the action when the keyboard is open. */
+		padding: 4.5rem 1.5rem calc(8rem + var(--kb-inset, 0px));
 	}
 	@media (min-width: 768px) {
 		.card {

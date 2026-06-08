@@ -80,7 +80,7 @@ class MessageMode {
 	}
 
 	async send() {
-		if (this.sending || !this.formValid) return;
+		if (this.sending || this.sent || !this.formValid) return;
 		this.sending = true;
 		this.error = null;
 		try {
