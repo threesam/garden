@@ -2,11 +2,12 @@
 	import { fade } from 'svelte/transition';
 	import { messageMode } from '$lib/message-mode.svelte';
 
-	// Bottom-right "send message" action. Muted + disabled until the letter is
-	// filled out — message + name + a valid email — then it lights up and
-	// submits on click / Enter / Space (native <button> handles the keys).
+	// Bottom-right "send" action. Muted + disabled until the letter is filled
+	// out — message + name + a valid email — then it lights up and submits on
+	// click / Enter / Space (native <button> handles the keys). Kept short so
+	// it doesn't crowd the fields when the keyboard squeezes the layout.
 	const ready = $derived(messageMode.formValid && !messageMode.sending && !messageMode.sent);
-	const label = $derived(messageMode.sending ? 'sending...' : 'send message');
+	const label = $derived(messageMode.sending ? 'sending...' : 'send');
 
 	// Keep the action visible above the on-screen keyboard. iOS Safari leaves
 	// position:fixed pinned to the layout viewport (i.e. behind the keyboard),
