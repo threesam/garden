@@ -11,7 +11,7 @@
   // homepage easter-egg mode (snake game, "message me?" letter) borrows
   // it: the coin flips to the x glyph and a click quits that mode
   // instead of opening the nav menu.
-  const inMode = $derived(gameMode.active || messageMode.active);
+  const inMode = $derived(gameMode.active || messageMode.active || messageMode.revealing);
 
   function handleCoinClick() {
     if (gameMode.active) {
@@ -20,6 +20,12 @@
     }
     if (messageMode.active) {
       messageMode.stop();
+      return;
+    }
+    if (messageMode.revealing) {
+      // "message me?" is revealed but the letter isn't open yet — the x
+      // cancels the reveal (restores the gallery) instead of opening the menu.
+      messageMode.revealing = false;
       return;
     }
     open = !open;

@@ -38,27 +38,24 @@
   const MESSAGE_TAIL = ['e', 's', 's', 'a', 'g', 'e', ' ', 'm', 'e', '?'];
   const active = $derived(gameMode.active);
 
-  // Click-toggled reveal of the message tail — the only path on every device
-  // (no hover preview, which would slide the "m" out from under the cursor and
-  // flicker). The toggle no-ops while the game is running so the two tails
-  // can't both expand at once.
-  let messageOn = $state(false);
+  // Click-toggled reveal of the message tail (click only — a hover preview
+  // would slide the "m" out from under the cursor and flicker). State lives on
+  // messageMode so the homepage can fade the gallery + tagline as the letters
+  // fade in, same as the snake game. messageMode.stop() clears it on close, so
+  // the wordmark returns to "threesam". No-op while the game is running so the
+  // two tails can't both expand at once.
   const toggleMessage = () => {
     if (active) return;
-    messageOn = !messageOn;
+    messageMode.revealing = !messageMode.revealing;
   };
-  // When the "message me?" letter closes (the x / Esc), drop the reveal so
-  // the wordmark returns to "threesam" instead of staying on "message me?".
-  $effect(() => {
-    if (!messageMode.active) messageOn = false;
-  });
+  const mLabel = $derived(messageMode.revealing ? 'hide message me?' : 'show message me?');
 </script>
 
 <svelte:element
   this={tag}
   class="wordmark absolute bottom-6 left-6 z-50 flex font-mono text-3xl font-bold tracking-meta {color} md:bottom-8 md:left-8 md:text-4xl"
   class:is-game={active}
-  class:show-message={messageOn && !active}
+  class:show-message={messageClickable && messageMode.revealing && !active}
   class:wordmark-hidden={gameMode.wordmarkSlotOccupied || messageMode.active}
 >
   {#each PRE_LETTERS as l, i (`pre-${i}`)}
@@ -86,17 +83,20 @@
   {/each}
   <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
   <span
-    class="letter m-letter clickable"
-    onclick={toggleMessage}
-    role="button"
-    tabindex="0"
-    aria-label={messageOn ? 'hide message me?' : 'show message me?'}
-    onkeydown={(e: KeyboardEvent) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        toggleMessage();
-      }
-    }}
+    class="letter m-letter"
+    class:clickable={messageClickable}
+    onclick={messageClickable ? toggleMessage : undefined}
+    role={messageClickable ? 'button' : undefined}
+    tabindex={messageClickable ? 0 : undefined}
+    aria-label={messageClickable ? mLabel : undefined}
+    onkeydown={messageClickable
+      ? (e: KeyboardEvent) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleMessage();
+          }
+        }
+      : undefined}
   >m</span>
   {#each SNAKE_TAIL as l, i (`tail-${i}`)}
     <span class="tail" style="--tail-delay: {200 + i * 130}ms">{l}</span>
@@ -123,7 +123,7 @@
      experience reads as the only content. -->
 <p
   class="tagline absolute right-6 bottom-6 z-10 text-right font-mono text-sm leading-tight tracking-hero {color} md:right-8 md:bottom-8 md:text-base"
-  class:tagline-hidden={active || messageMode.active}
+  class:tagline-hidden={active || messageMode.active || (messageClickable && messageMode.revealing)}
 ><span class="block md:inline">certainly</span><span class="alien" aria-hidden="true"
     ><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
       <path
