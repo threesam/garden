@@ -43,8 +43,8 @@
   <div class="h-[25dvh] w-full"></div>
   <div
     class="relative h-[50dvh] w-full transition-opacity duration-500 ease-out"
-    class:opacity-0={gameMode.active || messageMode.active}
-    class:pointer-events-none={gameMode.active || messageMode.active}
+    class:opacity-0={gameMode.active || messageMode.active || messageMode.revealing}
+    class:pointer-events-none={gameMode.active || messageMode.active || messageMode.revealing}
   >
     <Gallery />
   </div>

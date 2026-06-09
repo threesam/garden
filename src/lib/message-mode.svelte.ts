@@ -20,6 +20,10 @@ const SENT_HOLD_MS = 1500;
 
 class MessageMode {
 	active = $state(false);
+	// "message me?" revealed in the wordmark (the "m" was clicked) but the
+	// letter isn't open yet. Drives the same gallery + tagline fade as the
+	// snake game, so the reveal reads as entering a mode — not a label swap.
+	revealing = $state(false);
 	body = $state('');
 	name = $state('');
 	email = $state('');
@@ -66,6 +70,7 @@ class MessageMode {
 	stop() {
 		this.clearTimers();
 		this.active = false;
+		this.revealing = false;
 		// Reset the form only after the close animation completes so the
 		// fields don't visibly clear while the card is still fading out.
 		this.sched(CLOSE_DELAY_MS, () => {
