@@ -36,6 +36,12 @@ to \`${PERSON_NAME}\` and link back to \`${SITE_URL}\`.
 
 ${pages}
 
+## Thoughts
+
+Short personal thoughts, each with its own page under /thoughts:
+
+- [the peach](${SITE_URL}/thoughts/the-peach): you have to taste a thing before you judge it — the day Sam's parents threw out the pantry and handed him a peach.
+
 ## About
 
 - Name: ${PERSON_NAME} (also known as ${PERSON_ALT})

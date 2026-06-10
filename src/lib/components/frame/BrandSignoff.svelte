@@ -37,6 +37,9 @@
   const SNAKE_TAIL = ['n', 'a', 'k', 'e'];
   const MESSAGE_TAIL = ['e', 's', 's', 'a', 'g', 'e', ' ', 'm', 'e', '?'];
   const active = $derived(gameMode.active);
+  // The "threesam → snake" wordmark animation is snake-only; the alien's
+  // invaders game has no title sequence.
+  const isSnake = $derived(gameMode.active && gameMode.game === 'snake');
 
   // Click-toggled reveal of the message tail (click only — a hover preview
   // would slide the "m" out from under the cursor and flicker). State lives on
@@ -54,7 +57,7 @@
 <svelte:element
   this={tag}
   class="wordmark absolute bottom-6 left-6 z-50 flex font-mono text-3xl font-bold tracking-meta {color} md:bottom-8 md:left-8 md:text-4xl"
-  class:is-game={active}
+  class:is-game={isSnake}
   class:show-message={messageClickable && messageMode.revealing && !active}
   class:wordmark-hidden={gameMode.wordmarkSlotOccupied || messageMode.active}
 >
@@ -65,7 +68,7 @@
   <span
     class="letter s-letter"
     class:clickable={gameClickable && !active}
-    onclick={gameClickable ? () => (active ? gameMode.stop() : gameMode.start()) : undefined}
+    onclick={gameClickable ? () => (active ? gameMode.stop() : gameMode.start('snake')) : undefined}
     role={gameClickable ? 'button' : undefined}
     tabindex={gameClickable ? 0 : undefined}
     onkeydown={gameClickable
@@ -73,7 +76,7 @@
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             if (active) gameMode.stop();
-            else gameMode.start();
+            else gameMode.start('snake');
           }
         }
       : undefined}
@@ -124,7 +127,18 @@
 <p
   class="tagline absolute right-6 bottom-6 z-10 text-right font-mono text-sm leading-tight tracking-hero {color} md:right-8 md:bottom-8 md:text-base"
   class:tagline-hidden={active || messageMode.active || (messageClickable && messageMode.revealing)}
-><span class="block md:inline">certainly</span><span class="alien" aria-hidden="true"
+><span class="block md:inline">certainly</span><span
+      class="alien"
+      role="button"
+      tabindex="0"
+      aria-label="play space invaders"
+      onclick={() => gameMode.start('invaders')}
+      onkeydown={(e: KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          gameMode.start('invaders');
+        }
+      }}
     ><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
       <path
         fill="currentColor"
@@ -132,7 +146,7 @@
       />
       <ellipse cx="12" cy="15" rx="2.4" ry="4.2" transform="rotate(-18 12 15)" fill="#e8a317" />
       <ellipse cx="20" cy="15" rx="2.4" ry="4.2" transform="rotate(18 20 15)" fill="#e8a317" />
-    </svg></span><span class="block md:inline">uncertain</span>
+    </svg></span><span class="block md:ml-[0.4em] md:inline">uncertain</span>
 </p>
 
 <style>
@@ -228,6 +242,7 @@
     width: 0;
     opacity: 0;
     overflow: hidden;
+    cursor: pointer;
     transition:
       width 450ms cubic-bezier(0.4, 0, 0.2, 1),
       opacity 450ms ease-out;
@@ -241,7 +256,8 @@
     .alien {
       display: inline-block;
     }
-    .tagline:hover .alien {
+    .tagline:hover .alien,
+    .tagline:focus-within .alien {
       width: 1.6em;
       opacity: 1;
     }
