@@ -3,6 +3,7 @@
   import Gallery from '$lib/components/gallery/Gallery.svelte';
   import BrandSignoff from '$lib/components/frame/BrandSignoff.svelte';
   import SnakeGame from '$lib/components/snake/SnakeGame.svelte';
+  import InvadersGame from '$lib/components/invaders/InvadersGame.svelte';
   import MessageLetter from '$lib/components/message/MessageLetter.svelte';
   import SendAction from '$lib/components/message/SendAction.svelte';
   import { fade } from 'svelte/transition';
@@ -74,7 +75,11 @@
        so the component's own cleanup runs at fade-end. -->
   {#if gameMode.gameMounted}
     <div transition:fade={{ duration: 400 }}>
-      <SnakeGame />
+      {#if gameMode.game === 'invaders'}
+        <InvadersGame />
+      {:else}
+        <SnakeGame />
+      {/if}
     </div>
   {/if}
 
