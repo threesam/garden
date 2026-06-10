@@ -61,6 +61,12 @@
   const PIXEL_V = 2;
   const cards = [
     {
+      href: "/thoughts/the-peach",
+      title: "the peach",
+      description: "you have to taste it first.",
+      img: `/assets/thoughts-pixel/the-peach.webp?v=${PIXEL_V}`,
+    },
+    {
       href: "/self",
       title: "self",
       description: "growing up in trenton.",
@@ -83,7 +89,7 @@
 
 <SeoHead
   title="thoughts"
-  description="essays."
+  description="stories and thoughts."
   canonical="/thoughts"
   schema={blogNode({
     path: "/thoughts",
@@ -108,7 +114,7 @@
     </h1>
   </header>
   <section
-    class="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-6 md:grid-cols-3 md:gap-9"
+    class="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 md:gap-9"
   >
     {#each cards as card (card.href)}
       <a

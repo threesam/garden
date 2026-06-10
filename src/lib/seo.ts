@@ -14,6 +14,9 @@ export const KNOWS_ABOUT = [
   "Generative art",
   "Software engineering",
   "Human performance",
+  "Building with AI",
+  "AI orchestration",
+  "Agentic workflows",
 ];
 
 // Stable @ids so every page's graph references one shared Person/WebSite entity
@@ -50,7 +53,7 @@ export const SITE_PAGES: Array<{ path: string; label: string; blurb: string }> =
     label: "shelf",
     blurb: "Books, media, and the things that shape how Sam thinks.",
   },
-  { path: "/thoughts", label: "thoughts", blurb: "Essays (work in progress)." },
+  { path: "/thoughts", label: "thoughts", blurb: "Personal stories and thoughts." },
   { path: "/sounds", label: "sounds", blurb: "Original music — demos and scores." },
 ];
 
@@ -94,6 +97,8 @@ const PERSON_NODE = {
     "https://www.linkedin.com/in/threesam/",
     "https://github.com/threesam",
     "https://soundcloud.com/threesam",
+    "https://x.com/six_to_m",
+    "https://sixtom.com",
   ],
 };
 
@@ -143,18 +148,24 @@ export function articleNode(opts: {
   headline: string;
   image?: string;
   datePublished?: string;
+  dateModified?: string;
 }): object {
   const node: Record<string, unknown> = {
     "@type": "Article",
     "@id": `${absUrl(opts.path)}#article`,
     headline: opts.headline,
     url: absUrl(opts.path),
+    mainEntityOfPage: absUrl(opts.path),
     isPartOf: { "@id": WEBSITE_ID },
     author: { "@id": PERSON_ID },
     publisher: { "@id": PERSON_ID },
   };
   if (opts.image) node.image = absUrl(opts.image);
   if (opts.datePublished) node.datePublished = opts.datePublished;
+  // Always present so engines have a freshness signal; an explicit value wins
+  // when an essay is edited, else it mirrors datePublished.
+  if (opts.dateModified ?? opts.datePublished)
+    node.dateModified = opts.dateModified ?? opts.datePublished;
   return node;
 }
 

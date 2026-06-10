@@ -23,6 +23,7 @@ const OUT_DIR = "static/assets/thoughts-pixel";
 // variance that 29 grayscale pixels blur into a smooth gradient
 // instead of reading as discrete 13px blocks like the other cards.
 const TARGETS = [
+  { src: "the-peach-src.jpg", out: "the-peach.webp" },
   { src: "self-hero.webp", out: "self.webp" },
   { src: "benny-photos/033.jpg", out: "benny.webp" },
   { src: "dad-1.webp", out: "dad.webp" },
