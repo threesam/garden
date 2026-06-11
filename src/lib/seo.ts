@@ -97,6 +97,7 @@ const PERSON_NODE = {
     "https://www.linkedin.com/in/threesam/",
     "https://github.com/threesam",
     "https://soundcloud.com/threesam",
+    "https://substack.com/@threesam",
     "https://x.com/six_to_m",
     "https://sixtom.com",
   ],
