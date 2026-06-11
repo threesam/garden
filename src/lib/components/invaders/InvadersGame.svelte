@@ -4,11 +4,14 @@
 
 	// Space Invaders, swarm edition — the tagline alien multiplied into a
 	// flocking horde (boids: separation + alignment + cohesion) that pours down
-	// at you instead of marching in a grid. Same arcade semantics as snake
-	// (countdown → fade gallery → play → game over → again?), wired through
-	// gameMode. Black shapes on a transparent canvas; the --coin page bg shines
-	// through. The cannon AUTO-FIRES — you just move (arrow keys / A-D, or drag
-	// on touch) to aim the stream into the swarm. Escape quits.
+	// at you. Same arcade semantics as snake (countdown → fade gallery → play →
+	// game over → again?), wired through gameMode. Black shapes on a transparent
+	// canvas; the --coin page bg shines through.
+	//
+	// The ship is a clean triangle and AUTO-FIRES — you just move (arrow keys /
+	// A-D, or drag on touch) to aim. Intensity scales with time survived: the
+	// ship powers up (more lasers, faster lasers, quicker cadence, nimbler ship)
+	// while the swarm flies faster — a rising arms race. Escape quits.
 
 	let canvas: HTMLCanvasElement | undefined = $state();
 	let score = $state(0);
@@ -22,48 +25,59 @@
 	const BLACK = '#1a1a14';
 
 	type Alien = { x: number; y: number; vx: number; vy: number; alive: boolean };
-	type Shot = { x: number; y: number };
+	type Bullet = { x: number; y: number; vx: number; vy: number };
+	type Bomb = { x: number; y: number };
 
 	const ALIEN_N = 56; // a real swarm
 	const ALIEN = 24; // sprite box (px)
 	const MARGIN = 16;
-	const PLAYER_W = 38;
-	const PLAYER_H = 18;
-	const PLAYER_SPEED = 380; // px/s
-	const BULLET_SPEED = 820; // px/s up
+	const PLAYER_W = 40;
+	const PLAYER_H = 22;
 	const BOMB_SPEED = 280; // px/s down
 	const BULLET_W = 3;
 	const BULLET_H = 14;
 	const BOMB_W = 4;
 	const BOMB_H = 12;
 	const BOMB_INTERVAL_MS = 1500;
-	const FIRE_INTERVAL_MS = 200; // auto-cannon cadence (faster, for more aliens)
 
-	// Boids tuning. Forces are accelerations (px/s²); velocity is clamped to
-	// maxSpeed so the flock flies fast laterally while descending steadily.
-	const NEIGHBOR_R = 64;
-	const SEP_R = 30;
-	const A_SEP = 240; // separation (avoid crowding) — dominant, keeps them spread
-	const A_ALI = 70; // alignment (match neighbours' heading)
-	const A_COH = 55; // cohesion (steer toward the local centre)
-	const A_EDGE = 400; // bounce off the side/top walls
-	const DOWN_ACCEL = 36; // steady downward pressure (the threat)
-	const HUNT_ACCEL = 16; // mild drift toward the cannon's column
-	const MAX_DESCENT = 55; // cap downward drift — fast lateral flock, steady (winnable) descent
+	// --- Intensity scaling (by time survived) -------------------------------
+	// A rising crescendo: every LEVEL_SECS the ship powers up (more lasers,
+	// faster lasers, quicker cadence, nimbler ship) AND the swarm flies faster.
+	// Time-based (not clear-gated) so the ramp is always felt, however you play.
+	const LEVEL_SECS = 7;
+	const GUNS_MAX = 6;
+	const FAN = 0.2; // half-spread (radians) of the multi-laser fan
+	const level = () => 1 + Math.floor(gameTime / LEVEL_SECS);
+	const guns = () => Math.min(GUNS_MAX, level()); // level 1 → 1 laser … 6+ → 6
+	const fireMs = () => Math.max(60, 200 - (level() - 1) * 22); // quicker cadence
+	const bulletSpeed = () => 820 + (level() - 1) * 80; // faster lasers
+	const playerSpeed = () => 360 + (level() - 1) * 42; // nimbler ship
+	const swarmSpeed = () => 175 + (level() - 1) * 16; // faster swarm
 
 	// Imperative game state (mutated in the rAF loop; not Svelte-reactive —
 	// the loop redraws every frame, so reactivity would be wasted work).
 	let W = 0;
 	let H = 0;
 	let aliens: Alien[] = [];
-	let maxSpeed = 175; // "fly faster"; bumps a touch per wave
+	let gameTime = 0; // seconds survived — drives the intensity level
 	let bombTimer = 0;
 	let fireTimer = 0;
 	let player = 0; // ship left edge x
-	let bullets: Shot[] = [];
-	let bombs: Shot[] = [];
-	let wave = 1;
+	let bullets: Bullet[] = [];
+	let bombs: Bomb[] = [];
 	const keys = new Set<string>();
+
+	// Boids tuning. Forces are accelerations (px/s²); velocity is clamped to
+	// maxSpeed, and downward speed is capped so the flock flies fast laterally
+	// while descending steadily (and clearably).
+	const NEIGHBOR_R = 64;
+	const SEP_R = 30;
+	const A_SEP = 240; // separation (avoid crowding) — dominant
+	const A_ALI = 70; // alignment (match neighbours' heading)
+	const A_COH = 55; // cohesion (steer toward the local centre)
+	const DOWN_ACCEL = 36; // steady downward pressure (the threat)
+	const HUNT_ACCEL = 16; // mild drift toward the cannon's column
+	const MAX_DESCENT = 55; // cap downward drift — keeps the swarm survivable
 
 	const playerY = () => H - 54;
 	const aliveAliens = () => aliens.filter((a) => a.alive);
@@ -83,7 +97,6 @@
 	}
 
 	function newWave() {
-		maxSpeed = 175 + (wave - 1) * 20;
 		bombTimer = 0;
 		fireTimer = 0;
 		bombs = [];
@@ -94,7 +107,7 @@
 	function reset() {
 		score = 0;
 		gameOver = false;
-		wave = 1;
+		gameTime = 0;
 		player = W / 2 - PLAYER_W / 2;
 		newWave();
 	}
@@ -112,10 +125,29 @@
 		bombs.push({ x: a.x + ALIEN / 2 - BOMB_W / 2, y: a.y + ALIEN });
 	}
 
-	// One boids step. O(n²) neighbour scan — n≈56, trivial at 60fps.
+	// Auto-cannon: fire a fan of `guns()` lasers from the ship's nose.
+	function fireVolley() {
+		const g = guns();
+		const sp = bulletSpeed();
+		const x = player + PLAYER_W / 2 - BULLET_W / 2;
+		const y = playerY() - 4 - BULLET_H; // from the triangle apex
+		if (g === 1) {
+			bullets.push({ x, y, vx: 0, vy: -sp });
+			return;
+		}
+		for (let i = 0; i < g; i++) {
+			const t = (i - (g - 1) / 2) / ((g - 1) / 2); // -1 … 1
+			const ang = t * FAN;
+			bullets.push({ x, y, vx: Math.sin(ang) * sp, vy: -Math.cos(ang) * sp });
+		}
+	}
+
+	// One boids step. O(n²) neighbour scan — n≈56, trivial at 60fps. Returns
+	// true if a head reached the ship's row (game over).
 	function flock(dt: number): boolean {
 		const alive = aliveAliens();
 		const cx = player + PLAYER_W / 2;
+		const ms = swarmSpeed();
 		for (const a of alive) {
 			let sepX = 0;
 			let sepY = 0;
@@ -165,24 +197,31 @@
 			// Goal: steady descent + a mild hunt toward the cannon's column.
 			ax += HUNT_ACCEL * Math.sign(cx - a.x);
 			ay += DOWN_ACCEL;
-			// Walls: stay on screen horizontally, off the top.
-			if (a.x < MARGIN) ax += A_EDGE;
-			else if (a.x > W - MARGIN) ax -= A_EDGE;
-			if (a.y < MARGIN) ay += A_EDGE;
 			// Integrate + clamp speed.
 			a.vx += ax * dt;
 			a.vy += ay * dt;
 			const sp = Math.hypot(a.vx, a.vy);
-			if (sp > maxSpeed) {
-				a.vx = (a.vx / sp) * maxSpeed;
-				a.vy = (a.vy / sp) * maxSpeed;
+			if (sp > ms) {
+				a.vx = (a.vx / sp) * ms;
+				a.vy = (a.vy / sp) * ms;
 			}
-			// Keep the flock zippy sideways but only inching down — the cap on
-			// downward speed is what makes the wave clearable.
 			if (a.vy > MAX_DESCENT) a.vy = MAX_DESCENT;
 			a.x += a.vx * dt;
 			a.y += a.vy * dt;
-			// Reached the cannon's row → defenses overrun.
+			// Hard walls — a head can NEVER leave the screen (you must always be
+			// able to shoot it). Bounce off the sides + top instead of looping.
+			if (a.x < MARGIN) {
+				a.x = MARGIN;
+				if (a.vx < 0) a.vx = -a.vx * 0.7;
+			} else if (a.x + ALIEN > W - MARGIN) {
+				a.x = W - MARGIN - ALIEN;
+				if (a.vx > 0) a.vx = -a.vx * 0.7;
+			}
+			if (a.y < MARGIN) {
+				a.y = MARGIN;
+				if (a.vy < 0) a.vy = -a.vy * 0.7;
+			}
+			// Reached the ship's row → defenses overrun.
 			if (a.y + ALIEN >= playerY()) return true;
 		}
 		return false;
@@ -190,24 +229,29 @@
 
 	function update(dt: number) {
 		if (gameOver) return;
+		gameTime += dt;
 
-		// Player (held keys).
+		// Player (held keys) — speed scales up with the ship's power.
+		const speed = playerSpeed();
 		const left = keys.has('ArrowLeft') || keys.has('a') || keys.has('A');
 		const right = keys.has('ArrowRight') || keys.has('d') || keys.has('D');
-		if (left) player -= PLAYER_SPEED * dt;
-		if (right) player += PLAYER_SPEED * dt;
+		if (left) player -= speed * dt;
+		if (right) player += speed * dt;
 		player = Math.max(8, Math.min(W - PLAYER_W - 8, player));
 
-		// Auto-cannon: fire on a fixed cadence, no input needed.
+		// Auto-cannon.
 		fireTimer += dt * 1000;
-		if (fireTimer >= FIRE_INTERVAL_MS) {
+		if (fireTimer >= fireMs()) {
 			fireTimer = 0;
-			bullets.push({ x: player + PLAYER_W / 2 - BULLET_W / 2, y: playerY() - BULLET_H });
+			fireVolley();
 		}
-		for (const b of bullets) b.y -= BULLET_SPEED * dt;
-		bullets = bullets.filter((b) => b.y + BULLET_H > 0);
-		// Resolve bullet↔alien hits (each bullet kills at most one alien).
-		const survivors: Shot[] = [];
+		for (const b of bullets) {
+			b.x += b.vx * dt;
+			b.y += b.vy * dt;
+		}
+		bullets = bullets.filter((b) => b.y + BULLET_H > 0 && b.x + BULLET_W > 0 && b.x < W);
+		// Resolve laser↔alien hits (each laser kills at most one alien).
+		const survivors: Bullet[] = [];
 		for (const b of bullets) {
 			let hit = false;
 			for (const a of aliens) {
@@ -228,15 +272,14 @@
 		}
 		bullets = survivors;
 
-		// Flock the swarm; a boid reaching the cannon's row ends the game.
+		// Flock the swarm; a boid reaching the ship's row ends the game.
 		if (flock(dt)) {
 			endGame();
 			return;
 		}
 
-		// Cleared the swarm → next wave (faster).
+		// Cleared the swarm → a fresh one (intensity keeps climbing by time).
 		if (aliveAliens().length === 0) {
-			wave += 1;
 			newWave();
 			return;
 		}
@@ -291,11 +334,16 @@
 
 		for (const a of aliens) if (a.alive) drawAlien(ctx, a);
 
-		// Player cannon: base bar + a short turret.
+		// Player: a clean upward triangle, nose where the lasers emit.
 		const py = playerY();
+		const cx = player + PLAYER_W / 2;
 		ctx.fillStyle = BLACK;
-		ctx.fillRect(player, py + 6, PLAYER_W, PLAYER_H - 6);
-		ctx.fillRect(player + PLAYER_W / 2 - 3, py, 6, 8);
+		ctx.beginPath();
+		ctx.moveTo(cx, py - 4);
+		ctx.lineTo(player, py + PLAYER_H);
+		ctx.lineTo(player + PLAYER_W, py + PLAYER_H);
+		ctx.closePath();
+		ctx.fill();
 
 		for (const b of bullets) ctx.fillRect(b.x, b.y, BULLET_W, BULLET_H);
 		for (const b of bombs) ctx.fillRect(b.x, b.y, BOMB_W, BOMB_H);
