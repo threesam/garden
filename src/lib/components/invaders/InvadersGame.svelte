@@ -2,55 +2,61 @@
 	import { onMount } from 'svelte';
 	import { gameMode } from '$lib/game-mode.svelte';
 
-	// Space Invaders — the tagline alien, multiplied into a marching horde, so
-	// the thing you clicked is literally what you're shooting. Same arcade
-	// semantics as snake (countdown → fade gallery → play → game over →
-	// again?), wired through gameMode. Black shapes on a transparent canvas;
-	// the --coin page bg shines through. The cannon AUTO-FIRES — you just move
-	// (arrow keys / A-D, or drag on touch) to aim. Escape quits.
+	// Space Invaders, swarm edition — the tagline alien multiplied into a
+	// flocking horde (boids: separation + alignment + cohesion) that pours down
+	// at you instead of marching in a grid. Same arcade semantics as snake
+	// (countdown → fade gallery → play → game over → again?), wired through
+	// gameMode. Black shapes on a transparent canvas; the --coin page bg shines
+	// through. The cannon AUTO-FIRES — you just move (arrow keys / A-D, or drag
+	// on touch) to aim the stream into the swarm. Escape quits.
 
 	let canvas: HTMLCanvasElement | undefined = $state();
 	let score = $state(0);
 	let gameOver = $state(false);
 
-	// The tagline alien head (viewBox 0..32) reused as the invader sprite.
+	// The tagline alien head (viewBox 0..32) reused as the swarm sprite.
 	const ALIEN_PATH = new Path2D(
 		'M16 3c5.7 0 9.5 3.6 9.5 9 0 5.6-4 16-9.5 16S6.5 17.6 6.5 12c0-5.4 3.8-9 9.5-9z',
 	);
 	const COIN = '#e8a317';
 	const BLACK = '#1a1a14';
 
-	type Alien = { x: number; y: number; alive: boolean };
+	type Alien = { x: number; y: number; vx: number; vy: number; alive: boolean };
 	type Shot = { x: number; y: number };
 
-	const ROWS = 4;
-	const COLS = 8;
-	const ALIEN = 26; // sprite box (px)
-	const GAP_X = 22;
-	const GAP_Y = 20;
-	const STEP_X = 14; // horizontal march step
-	const STEP_DOWN = 22; // drop at edges
-	const MARGIN = 14; // edge padding the formation turns at
+	const ALIEN_N = 56; // a real swarm
+	const ALIEN = 24; // sprite box (px)
+	const MARGIN = 16;
 	const PLAYER_W = 38;
 	const PLAYER_H = 18;
 	const PLAYER_SPEED = 380; // px/s
 	const BULLET_SPEED = 820; // px/s up
-	const BOMB_SPEED = 260; // px/s down
+	const BOMB_SPEED = 280; // px/s down
 	const BULLET_W = 3;
 	const BULLET_H = 14;
 	const BOMB_W = 4;
 	const BOMB_H = 12;
 	const BOMB_INTERVAL_MS = 1500;
-	const FIRE_INTERVAL_MS = 260; // auto-cannon cadence
+	const FIRE_INTERVAL_MS = 200; // auto-cannon cadence (faster, for more aliens)
+
+	// Boids tuning. Forces are accelerations (px/s²); velocity is clamped to
+	// maxSpeed so the flock flies fast laterally while descending steadily.
+	const NEIGHBOR_R = 64;
+	const SEP_R = 30;
+	const A_SEP = 240; // separation (avoid crowding) — dominant, keeps them spread
+	const A_ALI = 70; // alignment (match neighbours' heading)
+	const A_COH = 55; // cohesion (steer toward the local centre)
+	const A_EDGE = 400; // bounce off the side/top walls
+	const DOWN_ACCEL = 36; // steady downward pressure (the threat)
+	const HUNT_ACCEL = 16; // mild drift toward the cannon's column
+	const MAX_DESCENT = 55; // cap downward drift — fast lateral flock, steady (winnable) descent
 
 	// Imperative game state (mutated in the rAF loop; not Svelte-reactive —
 	// the loop redraws every frame, so reactivity would be wasted work).
 	let W = 0;
 	let H = 0;
 	let aliens: Alien[] = [];
-	let marchDir = 1; // 1 → right, -1 → left
-	let baseMarchMs = 600; // step cadence at full horde; shrinks per wave + as it thins
-	let marchTimer = 0;
+	let maxSpeed = 175; // "fly faster"; bumps a touch per wave
 	let bombTimer = 0;
 	let fireTimer = 0;
 	let player = 0; // ship left edge x
@@ -60,29 +66,29 @@
 	const keys = new Set<string>();
 
 	const playerY = () => H - 54;
-	const formationWidth = () => COLS * ALIEN + (COLS - 1) * GAP_X;
 	const aliveAliens = () => aliens.filter((a) => a.alive);
 
-	function newWave() {
-		const startX = (W - formationWidth()) / 2;
-		const startY = 70;
+	function spawnSwarm() {
+		const spread = Math.min(W * 0.72, 580);
 		aliens = [];
-		for (let r = 0; r < ROWS; r++) {
-			for (let c = 0; c < COLS; c++) {
-				aliens.push({
-					x: startX + c * (ALIEN + GAP_X),
-					y: startY + r * (ALIEN + GAP_Y),
-					alive: true,
-				});
-			}
+		for (let i = 0; i < ALIEN_N; i++) {
+			aliens.push({
+				x: W / 2 + (Math.random() - 0.5) * spread,
+				y: 20 + Math.random() * 110,
+				vx: (Math.random() - 0.5) * 60,
+				vy: 25 + Math.random() * 30,
+				alive: true,
+			});
 		}
-		marchDir = 1;
-		baseMarchMs = Math.max(180, 700 - (wave - 1) * 90);
-		marchTimer = 0;
+	}
+
+	function newWave() {
+		maxSpeed = 175 + (wave - 1) * 20;
 		bombTimer = 0;
 		fireTimer = 0;
 		bombs = [];
 		bullets = [];
+		spawnSwarm();
 	}
 
 	function reset() {
@@ -99,37 +105,87 @@
 		gameMode.handleGameOver();
 	}
 
-	function marchStep() {
-		const alive = aliveAliens();
-		if (alive.length === 0) return;
-		let minX = Infinity;
-		let maxX = -Infinity;
-		for (const a of alive) {
-			minX = Math.min(minX, a.x);
-			maxX = Math.max(maxX, a.x + ALIEN);
-		}
-		const hitRight = marchDir === 1 && maxX + STEP_X >= W - MARGIN;
-		const hitLeft = marchDir === -1 && minX - STEP_X <= MARGIN;
-		if (hitRight || hitLeft) {
-			marchDir *= -1;
-			for (const a of alive) a.y += STEP_DOWN;
-		} else {
-			for (const a of alive) a.x += STEP_X * marchDir;
-		}
-		// Horde reached the player's row → defenses overrun.
-		for (const a of alive) {
-			if (a.y + ALIEN >= playerY()) {
-				endGame();
-				return;
-			}
-		}
-	}
-
 	function dropBomb() {
 		const alive = aliveAliens();
 		if (alive.length === 0) return;
 		const a = alive[Math.floor(Math.random() * alive.length)];
 		bombs.push({ x: a.x + ALIEN / 2 - BOMB_W / 2, y: a.y + ALIEN });
+	}
+
+	// One boids step. O(n²) neighbour scan — n≈56, trivial at 60fps.
+	function flock(dt: number): boolean {
+		const alive = aliveAliens();
+		const cx = player + PLAYER_W / 2;
+		for (const a of alive) {
+			let sepX = 0;
+			let sepY = 0;
+			let aliX = 0;
+			let aliY = 0;
+			let cohX = 0;
+			let cohY = 0;
+			let n = 0;
+			for (const b of alive) {
+				if (b === a) continue;
+				const dx = a.x - b.x;
+				const dy = a.y - b.y;
+				const d2 = dx * dx + dy * dy;
+				if (d2 > NEIGHBOR_R * NEIGHBOR_R) continue;
+				const d = Math.sqrt(d2) || 0.001;
+				if (d < SEP_R) {
+					sepX += dx / d;
+					sepY += dy / d;
+				}
+				aliX += b.vx;
+				aliY += b.vy;
+				cohX += b.x;
+				cohY += b.y;
+				n++;
+			}
+			let ax = 0;
+			let ay = 0;
+			if (n > 0) {
+				aliX /= n;
+				aliY /= n;
+				cohX /= n;
+				cohY /= n;
+				const al = Math.hypot(aliX, aliY) || 1;
+				ax += A_ALI * (aliX / al);
+				ay += A_ALI * (aliY / al);
+				const tcx = cohX - a.x;
+				const tcy = cohY - a.y;
+				const cl = Math.hypot(tcx, tcy) || 1;
+				ax += A_COH * (tcx / cl);
+				ay += A_COH * (tcy / cl);
+			}
+			const sl = Math.hypot(sepX, sepY);
+			if (sl > 0) {
+				ax += A_SEP * (sepX / sl);
+				ay += A_SEP * (sepY / sl);
+			}
+			// Goal: steady descent + a mild hunt toward the cannon's column.
+			ax += HUNT_ACCEL * Math.sign(cx - a.x);
+			ay += DOWN_ACCEL;
+			// Walls: stay on screen horizontally, off the top.
+			if (a.x < MARGIN) ax += A_EDGE;
+			else if (a.x > W - MARGIN) ax -= A_EDGE;
+			if (a.y < MARGIN) ay += A_EDGE;
+			// Integrate + clamp speed.
+			a.vx += ax * dt;
+			a.vy += ay * dt;
+			const sp = Math.hypot(a.vx, a.vy);
+			if (sp > maxSpeed) {
+				a.vx = (a.vx / sp) * maxSpeed;
+				a.vy = (a.vy / sp) * maxSpeed;
+			}
+			// Keep the flock zippy sideways but only inching down — the cap on
+			// downward speed is what makes the wave clearable.
+			if (a.vy > MAX_DESCENT) a.vy = MAX_DESCENT;
+			a.x += a.vx * dt;
+			a.y += a.vy * dt;
+			// Reached the cannon's row → defenses overrun.
+			if (a.y + ALIEN >= playerY()) return true;
+		}
+		return false;
 	}
 
 	function update(dt: number) {
@@ -148,7 +204,6 @@
 			fireTimer = 0;
 			bullets.push({ x: player + PLAYER_W / 2 - BULLET_W / 2, y: playerY() - BULLET_H });
 		}
-		// Advance bullets; drop those off the top.
 		for (const b of bullets) b.y -= BULLET_SPEED * dt;
 		bullets = bullets.filter((b) => b.y + BULLET_H > 0);
 		// Resolve bullet↔alien hits (each bullet kills at most one alien).
@@ -173,20 +228,17 @@
 		}
 		bullets = survivors;
 
-		// March on a cadence that quickens as the horde thins (and per wave).
-		const alive = aliveAliens().length;
-		if (alive === 0) {
+		// Flock the swarm; a boid reaching the cannon's row ends the game.
+		if (flock(dt)) {
+			endGame();
+			return;
+		}
+
+		// Cleared the swarm → next wave (faster).
+		if (aliveAliens().length === 0) {
 			wave += 1;
 			newWave();
 			return;
-		}
-		const total = ROWS * COLS;
-		const interval = Math.max(110, baseMarchMs * (0.35 + 0.65 * (alive / total)));
-		marchTimer += dt * 1000;
-		if (marchTimer >= interval) {
-			marchTimer = 0;
-			marchStep();
-			if (gameOver) return;
 		}
 
 		// Enemy bombs.
@@ -267,8 +319,6 @@
 	}
 
 	// Touch: drag the ship to the finger (auto-fire handles shooting).
-	// Interactive descendants (the "again?" button) keep their synthetic
-	// click — see SnakeGame.
 	function isInteractiveTarget(target: EventTarget | null): boolean {
 		const el = target as HTMLElement | null;
 		return !!el?.closest('button, a, [role="button"]');
@@ -306,7 +356,7 @@
 		const dt = lastT ? Math.min(0.05, (t - lastT) / 1000) : 0;
 		lastT = t;
 		// Freeze on either end-edge (local death, or user quit mid-fade) so the
-		// horde doesn't keep marching through the 400 ms outro — mirrors snake.
+		// swarm doesn't keep flying through the 400 ms outro — mirrors snake.
 		if (!gameOver && gameMode.gameMounted) {
 			update(dt);
 			draw();
