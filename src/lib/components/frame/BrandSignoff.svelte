@@ -211,18 +211,19 @@
   }
 
   /* HOVER PREVIEW (desktop only — :has() does the parent-of-hovered-child
-     trick that CSS otherwise can't): hovering the clickable "s" isolates it,
-     same shape as is-game but without expanding the snake tail (it stays a
-     preview until click).
+     trick that CSS otherwise can't): hovering the clickable "s" fades the
+     other letters to transparent while keeping their width, so the "s" stays
+     put. Crucially it does NOT collapse them (max-width stays 1em) — collapsing
+     would slide the "s" leftward out from under the cursor, dropping :hover and
+     re-firing it in a flicker loop. Only a click runs the full collapse-to-
+     "snake" sequence (.is-game), where the layout shift is intended.
 
-     The "m" intentionally has NO hover preview: revealing "message me?"
-     collapses the letters before the m, which slides the m left out from
-     under the cursor — the hover then drops and re-fires, flickering. So
-     "message me?" stays click-only; only a click ever moves the letters. */
+     The "m" intentionally has NO hover preview at all: revealing "message me?"
+     always collapses the letters before it, sliding the m out from under the
+     cursor, so it stays click-only. */
   @media (hover: hover) {
     .wordmark:has(.s-letter.clickable:hover) .letter:not(.s-letter),
     .wordmark:has(.s-letter.clickable:focus-visible) .letter:not(.s-letter) {
-      max-width: 0;
       opacity: 0;
     }
   }

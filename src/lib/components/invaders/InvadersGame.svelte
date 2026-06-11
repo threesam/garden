@@ -41,14 +41,25 @@
 	const BOMB_INTERVAL_MS = 1500;
 
 	// --- Intensity scaling (by time survived) -------------------------------
-	// A rising crescendo: every LEVEL_SECS the ship powers up (more lasers,
-	// faster lasers, quicker cadence, nimbler ship) AND the swarm flies faster.
-	// Time-based (not clear-gated) so the ramp is always felt, however you play.
-	const LEVEL_SECS = 7;
+	// A rising crescendo: the ship powers up (more lasers, faster lasers,
+	// quicker cadence, nimbler ship) while the swarm flies faster. Time-based
+	// (not clear-gated) so the ramp is always felt, however you play.
+	//
+	// Two independent clocks, deliberately decoupled:
+	//  • `level` (one step per LEVEL_SECS) drives the speed/cadence scalars.
+	//  • `guns` has its OWN front-loaded-then-decelerating schedule. The opening
+	//    53-strong wave descends into the ship in ~12s, so lasers 2 and 3 must
+	//    arrive fast (7s / 15s) to clear it — the knife-edge the game is tuned
+	//    around. The climb to the 6-laser fan then DECELERATES (to ~85s) so peak
+	//    firepower is earned over a match, not handed over by ~35s (which turned
+	//    the mid-game into a trivial bullet-hose).
+	const LEVEL_SECS = 9;
 	const GUNS_MAX = 6;
 	const FAN = 0.2; // half-spread (radians) of the multi-laser fan
+	const GUN_AT = [0, 7, 15, 30, 52, 85]; // seconds-survived gate for lasers 1..6
 	const level = () => 1 + Math.floor(gameTime / LEVEL_SECS);
-	const guns = () => Math.min(GUNS_MAX, level()); // level 1 → 1 laser … 6+ → 6
+	// How many laser-gates we've passed (the leading 0 keeps laser 1 always on).
+	const guns = () => Math.min(GUNS_MAX, GUN_AT.filter((s) => gameTime >= s).length);
 	const fireMs = () => Math.max(60, 200 - (level() - 1) * 22); // quicker cadence
 	const bulletSpeed = () => 820 + (level() - 1) * 80; // faster lasers
 	const playerSpeed = () => 360 + (level() - 1) * 42; // nimbler ship
