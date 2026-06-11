@@ -58,11 +58,8 @@
 	const FAN = 0.2; // half-spread (radians) of the multi-laser fan
 	const GUN_AT = [0, 7, 15, 30, 52, 85]; // seconds-survived gate for lasers 1..6
 	const level = () => 1 + Math.floor(gameTime / LEVEL_SECS);
-	const guns = () => {
-		let g = 1;
-		for (let i = 1; i < GUN_AT.length; i++) if (gameTime >= GUN_AT[i]) g = i + 1;
-		return Math.min(GUNS_MAX, g);
-	};
+	// How many laser-gates we've passed (the leading 0 keeps laser 1 always on).
+	const guns = () => Math.min(GUNS_MAX, GUN_AT.filter((s) => gameTime >= s).length);
 	const fireMs = () => Math.max(60, 200 - (level() - 1) * 22); // quicker cadence
 	const bulletSpeed = () => 820 + (level() - 1) * 80; // faster lasers
 	const playerSpeed = () => 360 + (level() - 1) * 42; // nimbler ship
