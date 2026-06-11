@@ -6,8 +6,8 @@
 	// the thing you clicked is literally what you're shooting. Same arcade
 	// semantics as snake (countdown → fade gallery → play → game over →
 	// again?), wired through gameMode. Black shapes on a transparent canvas;
-	// the --coin page bg shines through. Arrow keys / A-D move, Space fires,
-	// Escape quits; on touch, drag to move and tap to fire.
+	// the --coin page bg shines through. The cannon AUTO-FIRES — you just move
+	// (arrow keys / A-D, or drag on touch) to aim. Escape quits.
 
 	let canvas: HTMLCanvasElement | undefined = $state();
 	let score = $state(0);
@@ -34,13 +34,14 @@
 	const PLAYER_W = 38;
 	const PLAYER_H = 18;
 	const PLAYER_SPEED = 380; // px/s
-	const BULLET_SPEED = 820; // px/s up — fast enough to land before the horde marches out of the column
+	const BULLET_SPEED = 820; // px/s up
 	const BOMB_SPEED = 260; // px/s down
 	const BULLET_W = 3;
 	const BULLET_H = 14;
 	const BOMB_W = 4;
 	const BOMB_H = 12;
 	const BOMB_INTERVAL_MS = 1500;
+	const FIRE_INTERVAL_MS = 260; // auto-cannon cadence
 
 	// Imperative game state (mutated in the rAF loop; not Svelte-reactive —
 	// the loop redraws every frame, so reactivity would be wasted work).
@@ -51,8 +52,9 @@
 	let baseMarchMs = 600; // step cadence at full horde; shrinks per wave + as it thins
 	let marchTimer = 0;
 	let bombTimer = 0;
+	let fireTimer = 0;
 	let player = 0; // ship left edge x
-	let bullet: Shot | null = null;
+	let bullets: Shot[] = [];
 	let bombs: Shot[] = [];
 	let wave = 1;
 	const keys = new Set<string>();
@@ -78,8 +80,9 @@
 		baseMarchMs = Math.max(180, 700 - (wave - 1) * 90);
 		marchTimer = 0;
 		bombTimer = 0;
+		fireTimer = 0;
 		bombs = [];
-		bullet = null;
+		bullets = [];
 	}
 
 	function reset() {
@@ -88,11 +91,6 @@
 		wave = 1;
 		player = W / 2 - PLAYER_W / 2;
 		newWave();
-	}
-
-	function fire() {
-		if (gameOver || bullet) return; // one shot in flight at a time (classic)
-		bullet = { x: player + PLAYER_W / 2 - BULLET_W / 2, y: playerY() - BULLET_H };
 	}
 
 	function endGame() {
@@ -144,27 +142,36 @@
 		if (right) player += PLAYER_SPEED * dt;
 		player = Math.max(8, Math.min(W - PLAYER_W - 8, player));
 
-		// Bullet + bullet↔alien collisions.
-		if (bullet) {
-			bullet.y -= BULLET_SPEED * dt;
-			if (bullet.y + BULLET_H < 0) bullet = null;
+		// Auto-cannon: fire on a fixed cadence, no input needed.
+		fireTimer += dt * 1000;
+		if (fireTimer >= FIRE_INTERVAL_MS) {
+			fireTimer = 0;
+			bullets.push({ x: player + PLAYER_W / 2 - BULLET_W / 2, y: playerY() - BULLET_H });
 		}
-		if (bullet) {
+		// Advance bullets; drop those off the top.
+		for (const b of bullets) b.y -= BULLET_SPEED * dt;
+		bullets = bullets.filter((b) => b.y + BULLET_H > 0);
+		// Resolve bullet↔alien hits (each bullet kills at most one alien).
+		const survivors: Shot[] = [];
+		for (const b of bullets) {
+			let hit = false;
 			for (const a of aliens) {
 				if (!a.alive) continue;
 				if (
-					bullet.x < a.x + ALIEN &&
-					bullet.x + BULLET_W > a.x &&
-					bullet.y < a.y + ALIEN &&
-					bullet.y + BULLET_H > a.y
+					b.x < a.x + ALIEN &&
+					b.x + BULLET_W > a.x &&
+					b.y < a.y + ALIEN &&
+					b.y + BULLET_H > a.y
 				) {
 					a.alive = false;
-					bullet = null;
 					score += 10;
+					hit = true;
 					break;
 				}
 			}
+			if (!hit) survivors.push(b);
 		}
+		bullets = survivors;
 
 		// March on a cadence that quickens as the horde thins (and per wave).
 		const alive = aliveAliens().length;
@@ -238,7 +245,7 @@
 		ctx.fillRect(player, py + 6, PLAYER_W, PLAYER_H - 6);
 		ctx.fillRect(player + PLAYER_W / 2 - 3, py, 6, 8);
 
-		if (bullet) ctx.fillRect(bullet.x, bullet.y, BULLET_W, BULLET_H);
+		for (const b of bullets) ctx.fillRect(b.x, b.y, BULLET_W, BULLET_H);
 		for (const b of bombs) ctx.fillRect(b.x, b.y, BOMB_W, BOMB_H);
 	}
 
@@ -249,11 +256,9 @@
 			return;
 		}
 		const k = e.key;
+		// Movement only — the cannon auto-fires, so there's no fire key.
 		if (k === 'ArrowLeft' || k === 'ArrowRight' || k === 'a' || k === 'A' || k === 'd' || k === 'D') {
 			keys.add(k);
-			e.preventDefault();
-		} else if (k === ' ' || k === 'ArrowUp' || k === 'w' || k === 'W') {
-			fire();
 			e.preventDefault();
 		}
 	}
@@ -261,30 +266,23 @@
 		keys.delete(e.key);
 	}
 
-	// Touch: drag the ship to the finger, tap to fire. Interactive descendants
-	// (the "again?" button) keep their synthetic click — see SnakeGame.
+	// Touch: drag the ship to the finger (auto-fire handles shooting).
+	// Interactive descendants (the "again?" button) keep their synthetic
+	// click — see SnakeGame.
 	function isInteractiveTarget(target: EventTarget | null): boolean {
 		const el = target as HTMLElement | null;
 		return !!el?.closest('button, a, [role="button"]');
 	}
-	let touchMoved = false;
 	function onTouchStart(e: TouchEvent) {
 		if (isInteractiveTarget(e.target)) return;
 		e.preventDefault();
-		touchMoved = false;
 	}
 	function onTouchMove(e: TouchEvent) {
 		if (isInteractiveTarget(e.target)) return;
 		e.preventDefault();
 		const t = e.touches[0];
 		if (!t) return;
-		touchMoved = true;
 		player = Math.max(8, Math.min(W - PLAYER_W - 8, t.clientX - PLAYER_W / 2));
-	}
-	function onTouchEnd(e: TouchEvent) {
-		if (isInteractiveTarget(e.target)) return;
-		e.preventDefault();
-		if (!touchMoved) fire();
 	}
 
 	function resize() {
@@ -346,16 +344,14 @@
 	});
 </script>
 
-<!-- touch-action: none so our drag/tap logic owns the gesture; overscroll
-     none belt-and-suspenders for elastic bounce the overflow lock already
-     kills. -->
+<!-- touch-action: none so our drag logic owns the gesture; overscroll none
+     belt-and-suspenders for elastic bounce the overflow lock already kills. -->
 <div
 	class="fixed inset-0 z-40 grid place-items-center bg-[var(--coin)] [overscroll-behavior:none] [touch-action:none]"
 	role="application"
 	aria-label="space invaders game"
 	ontouchstart={onTouchStart}
 	ontouchmove={onTouchMove}
-	ontouchend={onTouchEnd}
 >
 	<canvas bind:this={canvas}></canvas>
 	<div

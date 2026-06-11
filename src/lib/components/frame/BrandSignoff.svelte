@@ -132,9 +132,11 @@
       role="button"
       tabindex="0"
       aria-label="play space invaders"
-      onclick={() => gameMode.start('invaders')}
+      onclick={() => {
+        if (!gameMode.active) gameMode.start('invaders');
+      }}
       onkeydown={(e: KeyboardEvent) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if ((e.key === 'Enter' || e.key === ' ') && !gameMode.active) {
           e.preventDefault();
           gameMode.start('invaders');
         }
