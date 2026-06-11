@@ -420,6 +420,11 @@
 		window.addEventListener('keydown', onKey);
 		window.addEventListener('keyup', onKeyUp);
 		window.addEventListener('resize', resize);
+		// Touch must be NON-passive so preventDefault() actually suppresses the
+		// page scroll/overscroll — Svelte 5 inline ontouch* attributes register
+		// as passive, which silently no-ops preventDefault.
+		window.addEventListener('touchstart', onTouchStart, { passive: false });
+		window.addEventListener('touchmove', onTouchMove, { passive: false });
 		// Lock document scroll while mounted so iOS / Arc can't elastic-scroll
 		// the page underneath a gesture.
 		const prevHtmlOverflow = document.documentElement.style.overflow;
@@ -435,6 +440,8 @@
 			window.removeEventListener('keydown', onKey);
 			window.removeEventListener('keyup', onKeyUp);
 			window.removeEventListener('resize', resize);
+			window.removeEventListener('touchstart', onTouchStart);
+			window.removeEventListener('touchmove', onTouchMove);
 			document.documentElement.style.overflow = prevHtmlOverflow;
 			document.body.style.overflow = prevBodyOverflow;
 			document.body.style.overscrollBehavior = prevOverscroll;
@@ -448,8 +455,6 @@
 	class="fixed inset-0 z-40 grid place-items-center bg-[var(--coin)] [overscroll-behavior:none] [touch-action:none]"
 	role="application"
 	aria-label="space invaders game"
-	ontouchstart={onTouchStart}
-	ontouchmove={onTouchMove}
 >
 	<canvas bind:this={canvas}></canvas>
 	<div
