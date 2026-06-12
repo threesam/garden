@@ -9,7 +9,7 @@
 		const id = setInterval(() => {
 			idx = (idx + 1) % CHARS.length;
 		}, 2000);
-		return () => clearInterval(id);
+		return () => { clearInterval(id); };
 	});
 </script>
 

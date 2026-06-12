@@ -1,10 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
 
 // Preview port is configurable so concurrent git worktrees don't collide on 3000.
-const PORT = Number(process.env.PREVIEW_PORT) || 3000;
+const PORT = Number(process.env['PREVIEW_PORT']) || 3000;
 // Point the suite at a deployed origin (e.g. VISUAL_BASE_URL=https://threesam.com)
 // to capture or verify baselines against prod; unset → the local preview build.
-const EXTERNAL_BASE = process.env.VISUAL_BASE_URL;
+const EXTERNAL_BASE = process.env['VISUAL_BASE_URL'];
 
 export default defineConfig({
   testDir: './tests',
@@ -21,7 +21,7 @@ export default defineConfig({
         webServer: {
           command: `pnpm preview --port ${PORT}`,
           port: PORT,
-          reuseExistingServer: !process.env.CI,
+          reuseExistingServer: !process.env['CI'],
           timeout: 60_000,
         },
       }),

@@ -22,6 +22,7 @@
   "lh": "node scripts/lighthouse.mjs"
  },
  "devDependencies": {
+  "@eslint/js": "10.0.1",
   "@playwright/test": "1.60.0",
   "@sveltejs/adapter-vercel": "6.3.3",
   "@sveltejs/kit": "2.60.1",
@@ -33,11 +34,14 @@
   "@types/three": "0.183.1",
   "chrome-launcher": "1.2.1",
   "eslint": "10.4.0",
+  "eslint-plugin-svelte": "3.17.1",
+  "globals": "17.6.0",
   "lighthouse": "13.3.0",
   "svelte": "5.55.7",
   "svelte-check": "4.4.8",
   "tailwindcss": "4.3.0",
   "typescript": "6.0.3",
+  "typescript-eslint": "8.59.3",
   "vite": "8.0.13",
   "wrangler": "4.95.0"
  },

@@ -59,11 +59,15 @@
 	}
 
 	// Canvas modules loaded on demand, cached by handle.
-	const moduleCache = new Map<string, Promise<Component<any>>>();
+	// Heterogeneous canvas components — any is the honest cache value type.
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	type AnyComponent = Component<any>;
+	// eslint-disable-next-line svelte/prefer-svelte-reactivity -- import cache; never read by the template
+	const moduleCache = new Map<string, Promise<AnyComponent>>();
 
-	function getCanvasModule(handle: string): Promise<Component<any>> {
+	function getCanvasModule(handle: string): Promise<AnyComponent> {
 		if (moduleCache.has(handle)) return moduleCache.get(handle)!;
-		let p: Promise<Component<any>>;
+		let p: Promise<AnyComponent>;
 		if (handle === 'self') {
 			p = import('$lib/components/canvas/VoronoiCanvas.svelte').then((m) => m.default);
 		} else if (handle === 'deana') {
@@ -77,7 +81,7 @@
 		} else if (handle === 'sounds') {
 			p = import('$lib/sounds/EyeOcean.svelte').then((m) => m.default);
 		} else {
-			p = Promise.resolve(undefined as unknown as Component<any>);
+			p = Promise.resolve(undefined as unknown as AnyComponent);
 		}
 		moduleCache.set(handle, p);
 		return p;
@@ -284,15 +288,14 @@
 		class="flex h-full"
 		style="gap: {CARD_GAP}px; will-change: transform;"
 	>
-		{#each LOOPED as item, i (item.id + '-' + i)}
+		{#each LOOPED as item, i (`${item.id}-${i}`)}
 			{@const visible = isActive(i)}
 			{@const cream = paletteFor(i) === 'cream'}
-			<!-- svelte-ignore a11y_no_static_element_interactions -->
 			<a
 				href={item.href}
 				draggable="false"
 				data-sveltekit-preload-data="off"
-				onclick={(e) => handleClick(e, item)}
+				onclick={(e) => { handleClick(e, item); }}
 				class="gallery-card group relative flex h-full shrink-0 flex-col overflow-hidden rounded-2xl shadow-sm transition-[transform,box-shadow] duration-700 hover:shadow-none hover:[transform:rotate(-1.3deg)]"
 				style="aspect-ratio: 20 / 29;"
 			>

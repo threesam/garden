@@ -178,7 +178,7 @@ class CloudPipeline {
 
   subscribe(canvas: HTMLCanvasElement) {
     if (!this.gl) {
-      if (!this.init()) return () => {};
+      if (!this.init()) return () => undefined;
     }
     const ctx = canvas.getContext('2d');
     const entry: SubscriberEntry = {
@@ -229,6 +229,7 @@ class CloudPipeline {
     if (!this.vert || !this.frag) return false;
 
     const program = gl.createProgram();
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- createProgram returns null on a lost context despite the non-null lib type
     if (!program) return false;
     gl.attachShader(program, this.vert);
     gl.attachShader(program, this.frag);

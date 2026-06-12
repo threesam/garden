@@ -30,7 +30,7 @@ export const WEBSITE_ID = `${SITE_URL}/#website`;
  * formats. (The homepage gallery curates its own visual subset separately, as
  * its cards carry per-handle canvas wiring beyond a plain path/label.)
  */
-export const SITE_PAGES: Array<{ path: string; label: string; blurb: string }> = [
+export const SITE_PAGES: { path: string; label: string; blurb: string }[] = [
   {
     path: "/self",
     label: "self",
@@ -219,7 +219,7 @@ export function creativeWorkNode(opts: {
 /** BreadcrumbList — gives answer engines a way to surface the page in
  * site context ("Home › Shelf"). Pass the trail from root → current. */
 export function breadcrumbNode(
-  trail: Array<{ path: string; name: string }>,
+  trail: { path: string; name: string }[],
 ): object {
   return {
     "@type": "BreadcrumbList",
@@ -239,7 +239,7 @@ export function breadcrumbNode(
 export function musicPlaylistNode(opts: {
   path: string;
   name: string;
-  tracks: Array<{ name: string; url?: string }>;
+  tracks: { name: string; url?: string }[];
 }): object {
   return {
     "@type": "MusicPlaylist",
@@ -281,7 +281,7 @@ export function homePageNode(): object {
 export function itemListNode(opts: {
   path: string;
   name: string;
-  items: Array<{ url: string; name: string }>;
+  items: { url: string; name: string }[];
 }): object {
   return {
     "@type": "ItemList",

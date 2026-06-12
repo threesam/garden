@@ -52,7 +52,7 @@ export const sketchHost: Action<HTMLCanvasElement, SketchHostParams> = (
 	// the most recent value without closing over the initial props object.
 	let activeRef = params.active;
 
-	const container = canvas.parentElement as HTMLElement;
+	const container = canvas.parentElement!;
 
 	function applyInteractive() {
 		canvas.style.pointerEvents = params.interactive === false ? 'none' : '';
@@ -85,7 +85,7 @@ export const sketchHost: Action<HTMLCanvasElement, SketchHostParams> = (
 			};
 		} else {
 			api = {
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
 				ctx: null as any,
 				w,
 				h,
@@ -149,7 +149,7 @@ export const sketchHost: Action<HTMLCanvasElement, SketchHostParams> = (
 	let loadToken = 0;
 	function load(slug: string) {
 		const token = ++loadToken;
-		loadSketch(slug).then((s) => {
+		void loadSketch(slug).then((s) => {
 			if (destroyed || token !== loadToken) return;
 			sketch = s;
 			stateSync();

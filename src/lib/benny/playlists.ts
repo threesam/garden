@@ -1,8 +1,8 @@
-export type BennyPlaylist = {
+export interface BennyPlaylist {
   id: string;
   name: string;
   tracks: number;
-};
+}
 
 export const BENNY_PLAYLISTS: BennyPlaylist[] = [
   { id: "76qH1PE3VujjzRO5CUAJFA", name: "Hip-Hop / Rap", tracks: 368 },

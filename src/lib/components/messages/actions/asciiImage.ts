@@ -14,7 +14,8 @@ export interface AsciiImageConfig {
 }
 
 export const asciiImage: Action<HTMLCanvasElement, AsciiImageConfig> = (canvas, config) => {
-	let { srcs, inverted = false, onReady } = config;
+	const { onReady } = config;
+	let { srcs, inverted = false } = config;
 	let firstFramePainted = false;
 
 	const container = canvas.parentElement as HTMLDivElement;

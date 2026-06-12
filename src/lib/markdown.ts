@@ -3,12 +3,12 @@ import { markedEmoji } from "marked-emoji";
 import * as emoji from "node-emoji";
 import { linkClasses } from "$lib/components/link";
 
-const emojiMap = new Proxy({} as Record<string, string>, {
+const emojiMap = new Proxy({}, {
   get(_, name: string) {
-    return emoji.get(name as string);
+    return emoji.get(name);
   },
   has(_, name: string) {
-    return emoji.has(name as string);
+    return emoji.has(name);
   },
 });
 
@@ -50,7 +50,7 @@ export function createMarkdownRenderer(): Marked {
         return `<a href="${href}"${external ? ' target="_blank" rel="noopener noreferrer"' : ""} class="${linkClasses}">${text}</a>`;
       },
       image({ href, text }) {
-        if (text && text.includes("|")) {
+        if (text.includes("|")) {
           const parts = text.split("|");
           const heading = parts[0]!.trim().replace(/\\n/g, "<br/>");
           const color = parts[1]?.trim() || "white";
@@ -66,7 +66,7 @@ export function createMarkdownRenderer(): Marked {
         }
         const dims = knownDimensions[href];
         const dimAttrs = dims ? ` width="${dims.w}" height="${dims.h}"` : '';
-        return `<img src="${href}" alt="${text ?? ""}"${dimAttrs} class="relative my-9 -mx-6 block w-full rounded-lg md:-mx-9" loading="lazy" />`;
+        return `<img src="${href}" alt="${text}"${dimAttrs} class="relative my-9 -mx-6 block w-full rounded-lg md:-mx-9" loading="lazy" />`;
       },
     },
   });

@@ -26,7 +26,7 @@
      * (`/anything-but-analog/<slug>`) should pass their full trail. Top-
      * level routes leave this undefined and get a Home → Page crumb
      * derived from SITE_PAGES. Pass `null` to suppress the breadcrumb. */
-    breadcrumbTrail?: Array<{ path: string; name: string }> | null | undefined;
+    breadcrumbTrail?: { path: string; name: string }[] | null | undefined;
   }
   let {
     title,
@@ -102,5 +102,6 @@
     raw-text <script>, so a real element would emit the placeholder, not the data.
     Safe here — graphScript is our own data with `<` escaped (see jsonLdToScript).
   -->
+  <!-- eslint-disable-next-line svelte/no-at-html-tags, no-useless-escape -- JSON-LD built by jsonLdToScript (escapes `<` to \u003c); the `<\/script>` escape is REQUIRED: a literal close-tag anywhere in a .svelte file ends the component script for Svelte's parser -->
   {@html `<script type="application/ld+json">${graphScript}<\/script>`}
 </svelte:head>

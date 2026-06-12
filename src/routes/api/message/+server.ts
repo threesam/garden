@@ -67,7 +67,7 @@ const emailDomain = (email: string) => email.slice(email.lastIndexOf('@') + 1) |
 // parses the key + sets up the fetch wrapper — skip that on the hot path.
 let _resend: Resend | null = null;
 function resendClient(): Resend {
-	if (!_resend) _resend = new Resend(env['RESEND_API_KEY']);
+	_resend ??= new Resend(env['RESEND_API_KEY']);
 	return _resend;
 }
 
@@ -151,7 +151,7 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 
 	log('sent', {
 		ip,
-		id: result.data?.id,
+		id: result.data.id,
 		emailDomain: emailDomain(email),
 		bodyLen: body.length,
 		ms: Date.now() - started,

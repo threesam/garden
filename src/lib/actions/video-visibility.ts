@@ -41,10 +41,10 @@ export const videoVisibility: Action<HTMLVideoElement, VideoVisibilityOptions | 
       if (!entry) return;
       if (entry.isIntersecting) {
         if (autoplay) {
-          void node.play().catch(() => {});
+          void node.play().catch(() => undefined);
         } else if (wasPlaying) {
           wasPlaying = false;
-          void node.play().catch(() => {});
+          void node.play().catch(() => undefined);
         }
       } else if (!node.paused) {
         ourPause = true;

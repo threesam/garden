@@ -15,6 +15,7 @@
 	const sam = wordsData.sam_cloud as WordEntry[];
 	const dia = wordsData.dia_cloud as WordEntry[];
 
+	// eslint-disable-next-line svelte/prefer-svelte-reactivity -- computed once at init; never read by the template
 	const merged = new Map<string, number>();
 	for (const e of sam) merged.set(e.word, (merged.get(e.word) ?? 0) + e.count);
 	for (const e of dia) merged.set(e.word, (merged.get(e.word) ?? 0) + e.count);
@@ -45,7 +46,7 @@
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 		for (const w of layoutWords) {
-			const opacity = 0.2 + ((w.count ?? 0) / max) * 0.8;
+			const opacity = 0.2 + (w.count / max) * 0.8;
 			ctx.save();
 			ctx.translate(canvas.width / 2 + w.x, canvas.height / 2 + w.y);
 			ctx.rotate((w.rotate * Math.PI) / 180);
@@ -53,7 +54,7 @@
 			ctx.fillStyle = `rgba(${baseColor[0]},${baseColor[1]},${baseColor[2]},${opacity})`;
 			ctx.textAlign = 'center';
 			ctx.textBaseline = 'middle';
-			ctx.fillText(w.text ?? '', 0, 0);
+			ctx.fillText(w.text, 0, 0);
 			ctx.restore();
 		}
 	}

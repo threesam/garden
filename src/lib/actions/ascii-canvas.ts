@@ -12,7 +12,7 @@ export interface AsciiCanvasParams {
  * the container's offsetWidth/offsetHeight to size the canvas.
  */
 export const asciiCanvas: Action<HTMLCanvasElement, AsciiCanvasParams> = (canvas, params) => {
-	let { src, cellSize = 3 } = params ?? {};
+	let { src, cellSize = 3 } = params;
 	const img = new Image();
 	const sample = document.createElement('canvas');
 	let resizeTimeout: ReturnType<typeof setTimeout>;

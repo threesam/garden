@@ -257,7 +257,7 @@ export interface VoronoiParams {
 }
 
 export const voronoi: Action<HTMLCanvasElement, VoronoiParams> = (node, initialParams) => {
-  const params: VoronoiParams = initialParams ?? {};
+  const params: VoronoiParams = initialParams;
   const {
     invert = false,
     showLetters = true,
@@ -303,7 +303,7 @@ export const voronoi: Action<HTMLCanvasElement, VoronoiParams> = (node, initialP
   const frag = compileShader(gl,gl.FRAGMENT_SHADER, FRAGMENT_SHADER);
   if (!vert || !frag) return {};
 
-  const program = gl.createProgram()!;
+  const program = gl.createProgram();
   gl.attachShader(program, vert);
   gl.attachShader(program, frag);
   gl.linkProgram(program);
@@ -388,7 +388,7 @@ export const voronoi: Action<HTMLCanvasElement, VoronoiParams> = (node, initialP
 
   const onMouseEnter = () => { hovering = true; };
   const onMouseLeave = () => { hovering = false; dragging = false; };
-  const onMouseMove = (e: MouseEvent) => updateMouseUv(e);
+  const onMouseMove = (e: MouseEvent) => { updateMouseUv(e); };
   const onMouseDown = () => { dragging = true; };
   const onMouseUp = () => { dragging = false; };
   const onTouchStart = (e: TouchEvent) => {

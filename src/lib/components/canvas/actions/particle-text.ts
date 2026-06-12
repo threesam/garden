@@ -173,7 +173,7 @@ function linkProgram(
   fs: WebGLShader,
   transformFeedbackVaryings?: string[],
 ): WebGLProgram {
-  const program = gl.createProgram()!;
+  const program = gl.createProgram();
   gl.attachShader(program, vs);
   gl.attachShader(program, fs);
   if (transformFeedbackVaryings) {
@@ -304,11 +304,11 @@ export const particleText: Action<HTMLCanvasElement, ParticleTextParams> = (node
       goldVicinity: gl.getUniformLocation(renderProg, 'u_goldVicinity'),
     };
 
-    posBuffers = [gl.createBuffer()!, gl.createBuffer()!];
-    velBuffers = [gl.createBuffer()!, gl.createBuffer()!];
+    posBuffers = [gl.createBuffer(), gl.createBuffer()];
+    velBuffers = [gl.createBuffer(), gl.createBuffer()];
     colorBuffer = gl.createBuffer();
-    vaos = [gl.createVertexArray()!, gl.createVertexArray()!];
-    renderVaos = [gl.createVertexArray()!, gl.createVertexArray()!];
+    vaos = [gl.createVertexArray(), gl.createVertexArray()];
+    renderVaos = [gl.createVertexArray(), gl.createVertexArray()];
 
     particlesInitialized = false;
     textTexture = null;
@@ -320,10 +320,10 @@ export const particleText: Action<HTMLCanvasElement, ParticleTextParams> = (node
     if (!gl) return;
     if (textTexture) gl.deleteTexture(textTexture);
     if (colorBuffer) gl.deleteBuffer(colorBuffer);
-    posBuffers.forEach((b) => gl!.deleteBuffer(b));
-    velBuffers.forEach((b) => gl!.deleteBuffer(b));
-    vaos.forEach((v) => gl!.deleteVertexArray(v));
-    renderVaos.forEach((v) => gl!.deleteVertexArray(v));
+    posBuffers.forEach((b) => { gl!.deleteBuffer(b); });
+    velBuffers.forEach((b) => { gl!.deleteBuffer(b); });
+    vaos.forEach((v) => { gl!.deleteVertexArray(v); });
+    renderVaos.forEach((v) => { gl!.deleteVertexArray(v); });
     if (updateProg) gl.deleteProgram(updateProg);
     if (renderProg) gl.deleteProgram(renderProg);
     if (updateVS) gl.deleteShader(updateVS);

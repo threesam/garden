@@ -20,7 +20,7 @@ test.describe('seo node builders', () => {
     ];
     const node = breadcrumbNode(trail) as Record<string, unknown>;
     expect(node['@type']).toBe('BreadcrumbList');
-    const items = node['itemListElement'] as Array<Record<string, unknown>>;
+    const items = node['itemListElement'] as Record<string, unknown>[];
     expect(items).toHaveLength(2);
     expect(items[0]!['position']).toBe(1);
     expect(items[1]!['position']).toBe(2);
@@ -37,7 +37,7 @@ test.describe('seo node builders', () => {
       ],
     }) as Record<string, unknown>;
     expect(node['@type']).toBe('ItemList');
-    const items = node['itemListElement'] as Array<Record<string, unknown>>;
+    const items = node['itemListElement'] as Record<string, unknown>[];
     expect(items).toHaveLength(2);
     expect(items[0]!['position']).toBe(1);
     expect(items[1]!['url']).toBe('https://example.com/book-2');
@@ -54,7 +54,7 @@ test.describe('seo node builders', () => {
     }) as Record<string, unknown>;
     expect(node['@type']).toBe('MusicPlaylist');
     expect(node['numTracks']).toBe(2);
-    const tracks = node['track'] as Array<Record<string, unknown>>;
+    const tracks = node['track'] as Record<string, unknown>[];
     expect(tracks[0]!['@type']).toBe('MusicRecording');
     expect(tracks[0]!['position']).toBe(1);
     expect(tracks[0]!['url']).toBe(`${SITE_URL}/sounds#t1`);
@@ -66,7 +66,7 @@ test.describe('seo node builders', () => {
     const pageNode = { '@type': 'Article', '@id': 'x' };
     const graph = buildGraph(pageNode) as Record<string, unknown>;
     expect(graph['@context']).toBe('https://schema.org');
-    const nodes = graph['@graph'] as Array<Record<string, unknown>>;
+    const nodes = graph['@graph'] as Record<string, unknown>[];
     expect(nodes).toHaveLength(3);
     expect(nodes[0]!['@type']).toBe('Person');
     expect(nodes[1]!['@type']).toBe('WebSite');
@@ -122,7 +122,7 @@ test.describe('per-page schema graph', () => {
   // Each route emits a JSON-LD <script>; verify the graph contains the
   // shared Person + WebSite + a page-specific node + breadcrumb where
   // applicable.
-  const cases: Array<{ path: string; pageType: string; expectBreadcrumb: boolean }> = [
+  const cases: { path: string; pageType: string; expectBreadcrumb: boolean }[] = [
     { path: '/shelf', pageType: 'CollectionPage', expectBreadcrumb: true },
     { path: '/sounds', pageType: 'CollectionPage', expectBreadcrumb: true },
     { path: '/thoughts', pageType: 'Blog', expectBreadcrumb: true },
@@ -138,7 +138,7 @@ test.describe('per-page schema graph', () => {
       const raw = await page.locator('script[type="application/ld+json"]').first().textContent();
       expect(raw, 'page must emit at least one JSON-LD <script>').toBeTruthy();
       const graph = JSON.parse(raw!) as Record<string, unknown>;
-      const nodes = graph['@graph'] as Array<Record<string, unknown>>;
+      const nodes = graph['@graph'] as Record<string, unknown>[];
       const types = nodes.map((n) => n['@type']);
       expect(types).toContain('Person');
       expect(types).toContain('WebSite');

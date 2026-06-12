@@ -31,7 +31,7 @@
 	let activeIdx = $state(0);
 
 	onMount(() => {
-		const el = document.getElementById('art-scroller') as HTMLElement | null;
+		const el = document.getElementById('art-scroller');
 		if (!el) return;
 
 		let rafId = 0;

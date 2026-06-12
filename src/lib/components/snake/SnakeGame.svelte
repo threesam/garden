@@ -10,7 +10,7 @@
 	let canvas: HTMLCanvasElement | undefined = $state();
 	let cols = $state(20);
 	let rows = $state(20);
-	let snake = $state<Array<[number, number]>>([]);
+	let snake = $state<[number, number][]>([]);
 	let dir = $state<[number, number]>([1, 0]);
 	let pendingDir = $state<[number, number]>([1, 0]);
 	let food = $state<[number, number]>([0, 0]);
@@ -44,7 +44,7 @@
 
 	function placeFood() {
 		const occupied = new Set(snake.map(([x, y]) => `${x},${y}`));
-		const free: Array<[number, number]> = [];
+		const free: [number, number][] = [];
 		for (let x = 0; x < cols; x++) {
 			for (let y = 0; y < rows; y++) {
 				if (!occupied.has(`${x},${y}`)) free.push([x, y]);

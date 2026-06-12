@@ -54,7 +54,7 @@ export const GET: RequestHandler = async ({ url }) => {
       .toBuffer();
   } catch (err) {
     console.error('[api/img] sharp pipeline failed', { src, w, err });
-    throw error(502, 'image processing failed');
+    error(502, 'image processing failed');
   }
 
   const data = resizedBuf.buffer.slice(

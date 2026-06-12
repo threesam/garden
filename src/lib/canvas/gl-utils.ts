@@ -27,6 +27,7 @@ export function linkProgram(
   frag: WebGLShader,
 ): WebGLProgram | null {
   const program = gl.createProgram();
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- createProgram returns null on a lost context despite the non-null lib type
   if (!program) return null;
   gl.attachShader(program, vert);
   gl.attachShader(program, frag);

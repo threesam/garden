@@ -135,7 +135,7 @@
     let onResize: (() => void) | undefined;
     let ro: ResizeObserver | undefined;
     if (fixed) {
-      onResize = () => applySize(window.innerWidth, window.innerHeight);
+      onResize = () => { applySize(window.innerWidth, window.innerHeight); };
       onResize();
       window.addEventListener("resize", onResize);
     } else {

@@ -2,7 +2,7 @@
 	import modulesData from '../../../../data/messages/dianchik/modules-data.json';
 
 	const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
-	const heatmap = modulesData.heatmap as number[][];
+	const heatmap = modulesData.heatmap;
 
 	const maxVal = Math.max(...heatmap.flat());
 

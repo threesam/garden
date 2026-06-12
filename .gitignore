@@ -76,3 +76,4 @@ lh-triage.json
 next-env.d.ts
 package/
 public/
+.worktrees/

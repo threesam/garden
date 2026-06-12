@@ -18,5 +18,23 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noPropertyAccessFromIndexSignature": true
-  }
+  },
+  // Copy of the generated .svelte-kit/tsconfig.json include (TS doesn't merge
+  // include across extends) PLUS the .well-known routes: `**` globs skip
+  // dot-directories, so those +server.ts files were silently unchecked.
+  "include": [
+    ".svelte-kit/ambient.d.ts",
+    ".svelte-kit/non-ambient.d.ts",
+    ".svelte-kit/types/**/$types.d.ts",
+    "vite.config.js",
+    "vite.config.ts",
+    "playwright.config.ts",
+    "src/**/*.js",
+    "src/**/*.ts",
+    "src/**/*.svelte",
+    "src/routes/.well-known/**/*.ts",
+    "tests/**/*.js",
+    "tests/**/*.ts",
+    "tests/**/*.svelte"
+  ]
 }

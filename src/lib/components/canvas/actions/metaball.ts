@@ -61,7 +61,7 @@ export interface MetaballParams {
 }
 
 export const metaball: Action<HTMLCanvasElement, MetaballParams> = (node, initialParams) => {
-  let params: MetaballParams = initialParams ?? {};
+  let params: MetaballParams = initialParams;
 
   const glRaw = node.getContext('webgl', { alpha: true, premultipliedAlpha: false });
   if (!glRaw) return {};
@@ -71,7 +71,7 @@ export const metaball: Action<HTMLCanvasElement, MetaballParams> = (node, initia
   const vs = compileShader(gl, gl.VERTEX_SHADER, VERT);
   const fs = compileShader(gl, gl.FRAGMENT_SHADER, FRAG);
   if (!vs || !fs) return {};
-  const prog = gl.createProgram()!;
+  const prog = gl.createProgram();
   gl.attachShader(prog, vs);
   gl.attachShader(prog, fs);
   gl.linkProgram(prog);
@@ -273,7 +273,7 @@ export const metaball: Action<HTMLCanvasElement, MetaballParams> = (node, initia
   resize();
   initBalls();
 
-  const ro = new ResizeObserver(() => resize());
+  const ro = new ResizeObserver(() => { resize(); });
   ro.observe(node);
 
   const io = new IntersectionObserver(

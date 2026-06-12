@@ -31,7 +31,7 @@ const AI_AGENTS = [
 // these explicitly is the agentic equivalent of a content-licence stamp.
 const CONTENT_SIGNAL = 'search=yes, ai-train=yes, ai-input=yes';
 
-export async function GET() {
+export function GET() {
   const aiBlock = AI_AGENTS.map(
     (ua) => `User-agent: ${ua}\nContent-Signal: ${CONTENT_SIGNAL}\nAllow: /`,
   ).join('\n\n');

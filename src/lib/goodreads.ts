@@ -65,7 +65,7 @@ function stripHtml(html: string): string {
 }
 
 function parseSeries(title: string): { cleanTitle: string; series: string | null; seriesNumber: number | null } {
-  const match = title.match(/^(.+?)\s*\(([^,]+),\s*#([\d.]+)\)\s*$/);
+  const match = /^(.+?)\s*\(([^,]+),\s*#([\d.]+)\)\s*$/.exec(title);
   if (match) {
     return {
       cleanTitle: match[1]!.trim(),
@@ -107,8 +107,8 @@ async function fetchPage(shelf: string, page: number): Promise<RawEntry[]> {
   const res = await fetch(url);
   if (!res.ok) return [];
   const xml = await res.text();
-  const parsed = parser.parse(xml);
-  const items = parsed?.rss?.channel?.item;
+  const parsed = parser.parse(xml) as { rss?: { channel?: { item?: RawEntry | RawEntry[] } } };
+  const items = parsed.rss?.channel?.item;
   if (!items) return [];
   const data: RawEntry[] = Array.isArray(items) ? items : [items];
   cache.set(url, data);
