@@ -71,9 +71,9 @@ export function renderAsciiFrame(
 	for (let y = 0; y < rows; y++) {
 		for (let x = 0; x < cols; x++) {
 			const off = (y * cols + x) * 4;
-			const r = pixels[off];
-			const g = pixels[off + 1];
-			const b = pixels[off + 2];
+			const r = pixels[off]!;
+			const g = pixels[off + 1]!;
+			const b = pixels[off + 2]!;
 
 			const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
 			const tone = lumToTone(lum);

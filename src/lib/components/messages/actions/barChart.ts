@@ -12,7 +12,7 @@ import type { ChartConfiguration } from 'chart.js';
 Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip);
 
 export const barChart: Action<HTMLCanvasElement, ChartConfiguration> = (node, config) => {
-	let chart = new Chart(node, config);
+	const chart = new Chart(node, config);
 
 	return {
 		update(next: ChartConfiguration) {

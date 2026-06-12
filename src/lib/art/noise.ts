@@ -15,7 +15,7 @@ export function makeNoise(seed: number) {
     return (n & 0x7fffffff) / 0x7fffffff;
   }
 
-  return function noise(x: number, y: number = 0, z: number = 0): number {
+  return function noise(x: number, y = 0, z = 0): number {
     const xi = Math.floor(x);
     const yi = Math.floor(y);
     const zi = Math.floor(z);

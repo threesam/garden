@@ -40,7 +40,7 @@ export const day14: Sketch = {
     // shuffle
     for (let i = vectors.length - 1; i > 0; i--) {
       const j = Math.floor(rng() * (i + 1));
-      [vectors[i], vectors[j]] = [vectors[j], vectors[i]];
+      [vectors[i], vectors[j]] = [vectors[j]!, vectors[i]!];
     }
 
     ctx.fillStyle = "rgb(26,26,20)";
@@ -50,7 +50,7 @@ export const day14: Sketch = {
       tick(_, frame) {
         const max = Math.min(frame + 1, vectors.length);
         for (let i = 0; i < max; i++) {
-          const v = vectors[i];
+          const v = vectors[i]!;
           const angle = map(noise(v.x * multi, v.y * multi), 0, 1, 0, Math.PI * 4);
           v.x += Math.cos(angle);
           v.y += Math.sin(angle);

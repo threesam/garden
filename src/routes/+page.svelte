@@ -105,7 +105,7 @@
     <button
       type="button"
       class="absolute bottom-6 left-6 z-50 cursor-pointer font-mono text-3xl font-bold text-black md:bottom-8 md:left-8 md:text-4xl"
-      onclick={() => gameMode.restart()}
+      onclick={() => { gameMode.restart(); }}
       in:fade={{ duration: 250 }}
       out:fade={{ duration: 300 }}
     >

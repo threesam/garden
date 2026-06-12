@@ -68,7 +68,7 @@
   <span
     class="letter s-letter"
     class:clickable={gameClickable && !active}
-    onclick={gameClickable ? () => (active ? gameMode.stop() : gameMode.start('snake')) : undefined}
+    onclick={gameClickable ? () => { if (active) { gameMode.stop(); } else { gameMode.start('snake'); } } : undefined}
     role={gameClickable ? 'button' : undefined}
     tabindex={gameClickable ? 0 : undefined}
     onkeydown={gameClickable
@@ -114,7 +114,7 @@
   <span
     class="msg-tail-group"
     class:clickable={messageClickable}
-    onclick={messageClickable ? () => messageMode.start() : undefined}
+    onclick={messageClickable ? () => { messageMode.start(); } : undefined}
   >
     {#each MESSAGE_TAIL as l, i (`msg-${i}`)}
       <span class="msg-tail" style="--msg-delay: {100 + i * 80}ms">{l}</span>

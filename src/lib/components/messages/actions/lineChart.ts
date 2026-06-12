@@ -14,7 +14,7 @@ import type { ChartConfiguration } from 'chart.js';
 Chart.register(LineController, LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Filler);
 
 export const lineChart: Action<HTMLCanvasElement, ChartConfiguration> = (node, config) => {
-	let chart = new Chart(node, config);
+	const chart = new Chart(node, config);
 
 	return {
 		update(next: ChartConfiguration) {

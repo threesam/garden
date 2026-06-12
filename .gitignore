@@ -65,3 +65,15 @@ content/notes/
 # `/sounds/*` (files-only) form above.
 !/static/audio/sounds/covers/
 lh-triage.json
+
+# agent-session artifacts
+.claude/
+.superset/
+.playwright-mcp/
+
+# Next-era leftovers (never part of the SvelteKit build)
+.next/
+next-env.d.ts
+package/
+public/
+.worktrees/

@@ -22,7 +22,7 @@ export interface Sketch {
   /** Optional short caption rendered bottom-right of the sketch section. */
   description?: string;
   // 2d sketches use the ctx directly; 3d sketches return three.js renderer via cleanup
-  setup: (api: SketchAPI, canvas: HTMLCanvasElement) => SketchResult | void;
+  setup: (api: SketchAPI, canvas: HTMLCanvasElement) => SketchResult | undefined;
   // When true, host skips 2d setup (sketch manages its own canvas/context, e.g. webgl/three)
   manualCanvas?: boolean;
   /**

@@ -19,7 +19,7 @@ async function probeCoverDims(
   url: string,
 ): Promise<{ coverW: number; coverH: number } | undefined> {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), PROBE_TIMEOUT_MS);
+  const timer = setTimeout(() => { controller.abort(); }, PROBE_TIMEOUT_MS);
   try {
     const res = await fetch(url, { signal: controller.signal });
     if (!res.ok) return undefined;
@@ -43,7 +43,7 @@ async function attachCoverDims(books: Book[]): Promise<void> {
   let cursor = 0;
   const worker = async () => {
     while (cursor < targets.length) {
-      const book = targets[cursor++];
+      const book = targets[cursor++]!;
       const dims = await probeCoverDims(book.coverUrl);
       if (dims) {
         book.coverW = dims.coverW;

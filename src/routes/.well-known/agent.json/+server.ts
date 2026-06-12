@@ -17,7 +17,7 @@ export function GET() {
 			url: `${SITE_URL}${p.path}`,
 			description: p.blurb,
 		};
-		if (MARKDOWN_PATHS.has(p.path)) page.markdownUrl = `${SITE_URL}${p.path}.md`;
+		if (MARKDOWN_PATHS.has(p.path)) page['markdownUrl'] = `${SITE_URL}${p.path}.md`;
 		return page;
 	});
 

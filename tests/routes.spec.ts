@@ -1,8 +1,11 @@
 import { test, expect } from '@playwright/test';
 import { KEPT_ROUTES } from './routes';
 
+// `css:` prefix → assert by locator instead of text. The homepage wordmark
+// renders per-letter spans (snake easter egg), so no contiguous 'threesam'
+// text node exists to match.
 const ROUTE_MARKERS: Record<string, string> = {
-  '/':                              'threesam',
+  '/':                              'css:.letter',
   '/shelf':                         'shelf',
   '/sounds':                        'sounds',
   '/thoughts':                      'thoughts',
@@ -41,7 +44,11 @@ test.describe('smoke', () => {
       const resp = await page.goto(path);
       expect(resp?.status()).toBe(200);
       const marker = ROUTE_MARKERS[path];
-      if (marker) await expect(page.getByText(marker, { exact: false }).first()).toBeVisible();
+      if (marker?.startsWith('css:')) {
+        await expect(page.locator(marker.slice(4)).first()).toBeVisible();
+      } else if (marker) {
+        await expect(page.getByText(marker, { exact: false }).first()).toBeVisible();
+      }
       expect(errors, `console errors on ${path}: ${errors.join('\n')}`).toEqual([]);
     });
   }

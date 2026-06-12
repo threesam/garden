@@ -74,12 +74,12 @@
     // Idle palette: cream bg (--white), dark eye sclera (--black tint),
     // cream pupils. Playing palette: --black bg, cream sclera, dark pupils.
     // --white #f5f4f0, --black #1a1a14, cream sclera rgb(255,250,200).
-    const IDLE_BG = [245, 244, 240]; // --white
-    const PLAY_BG = [26, 26, 20];    // --black
-    const IDLE_EYE = [26, 26, 20];   // --black-ish sclera on cream
-    const PLAY_EYE = [255, 250, 200]; // cream sclera on black (existing)
-    const IDLE_PUPIL = [255, 250, 200]; // cream pupil on dark eye
-    const PLAY_PUPIL = [26, 26, 20];    // dark pupil on cream eye
+    const IDLE_BG = [245, 244, 240] as const; // --white
+    const PLAY_BG = [26, 26, 20] as const;    // --black
+    const IDLE_EYE = [26, 26, 20] as const;   // --black-ish sclera on cream
+    const PLAY_EYE = [255, 250, 200] as const; // cream sclera on black (existing)
+    const IDLE_PUPIL = [255, 250, 200] as const; // cream pupil on dark eye
+    const PLAY_PUPIL = [26, 26, 20] as const;    // dark pupil on cream eye
 
     function lerp(a: number, b: number, t: number): number {
       return Math.round(a + (b - a) * t);
@@ -135,7 +135,7 @@
     let onResize: (() => void) | undefined;
     let ro: ResizeObserver | undefined;
     if (fixed) {
-      onResize = () => applySize(window.innerWidth, window.innerHeight);
+      onResize = () => { applySize(window.innerWidth, window.innerHeight); };
       onResize();
       window.addEventListener("resize", onResize);
     } else {
@@ -253,8 +253,8 @@
           // precomputed per-cell jitter + a gentle lean that follows the current
           const ci = idx; // this cell's index into the precomputed arrays
           idx++;
-          const cx = px + jitterX[ci] + (n - 0.5) * cell * 0.3;
-          const cy = py + jitterY[ci] + (n - 0.5) * cell * 0.2;
+          const cx = px + jitterX[ci]! + (n - 0.5) * cell * 0.3;
+          const cy = py + jitterY[ci]! + (n - 0.5) * cell * 0.2;
           const size = base * (0.32 + n * 1.0);
           if (size < 1) continue;
 
@@ -276,8 +276,8 @@
           const pupil = Math.max(1.5, size * 0.3);
           const maxReach = ((size - pupil) / 2) * 0.8; // keeps the pupil inside the eye
           // idle: this eye looks in its own stable random direction
-          const rox = restX[ci] * maxReach * 0.7;
-          const roy = restY[ci] * maxReach * 0.7;
+          const rox = restX[ci]! * maxReach * 0.7;
+          const roy = restY[ci]! * maxReach * 0.7;
           // engaged: aim toward the eased gaze/cursor point
           let tox = rox;
           let toy = roy;

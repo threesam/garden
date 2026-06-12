@@ -36,7 +36,7 @@
 			return;
 		}
 		let cancelled = false;
-		extractDominantColor(proxyImg(featured.coverUrl, 200)).then((c) => {
+		void extractDominantColor(proxyImg(featured.coverUrl, 200)).then((c) => {
 			if (cancelled) return;
 			if (c) color = c;
 			metaballsHidden = false;
@@ -144,7 +144,7 @@
 					<h2 class="text-3xl font-bold leading-tight md:text-4xl">{featured.cleanTitle}</h2>
 					<div class="text-base opacity-70">
 						{featured.author}{#if featured.series}
-							{' · '}
+							 · 
 							{featured.series} #{featured.seriesNumber}
 						{/if}
 					</div>

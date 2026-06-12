@@ -42,7 +42,7 @@
 />
 
 <main class="bg-white">
-  <AsciiImageSection ascii={DEANA_ASCII[0]} eager />
+  <AsciiImageSection ascii={DEANA_ASCII[0]!} eager />
 
   <section class="w-full bg-white px-3 py-12 md:px-6 md:py-24">
     <div class="mx-auto w-full max-w-7xl flex flex-col {g}">
@@ -57,7 +57,7 @@
     </div>
   </section>
 
-  <AsciiImageSection ascii={DEANA_ASCII[1]} />
+  <AsciiImageSection ascii={DEANA_ASCII[1]!} />
 
   <section class="w-full bg-white px-3 py-12 md:px-6 md:py-24">
     <div class="mx-auto w-full max-w-7xl flex flex-col {g}">
@@ -72,7 +72,7 @@
     </div>
   </section>
 
-  <AsciiImageSection ascii={DEANA_ASCII[2]} />
+  <AsciiImageSection ascii={DEANA_ASCII[2]!} />
 
   <section class="w-full bg-white px-3 py-12 md:px-6 md:py-24">
     <div class="mx-auto w-full max-w-7xl flex flex-col {g}">
@@ -109,7 +109,7 @@
     </div>
   </section>
 
-  <AsciiImageSection ascii={DEANA_ASCII[3]} />
+  <AsciiImageSection ascii={DEANA_ASCII[3]!} />
 
   <section class="w-full bg-white px-3 py-12 md:px-6 md:py-24">
     <div class="mx-auto w-full max-w-7xl flex flex-col {g}">

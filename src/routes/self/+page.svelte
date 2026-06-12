@@ -26,10 +26,10 @@
 
   // Extract banner images (alt contains "|") from the markdown,
   // replacing each with a <!-- slot-id --> marker.
-  type BannerSlot = { src: string; alt: string };
+  interface BannerSlot { src: string; alt: string }
 
   const extracted = $derived.by(() => {
-    if (!markdown) return { processed: '', banners: {} as Record<string, BannerSlot> };
+    if (!markdown) return { processed: '', banners: {} };
     const banners: Record<string, BannerSlot> = {};
     let i = 0;
     const imageRegex = /!\[([^\]]*)\]\(([^)\s]+)\)/g;
@@ -66,7 +66,7 @@
               // lands in an idle gap rather than stacking into a long task.
               const io = new IntersectionObserver(
                 (entries) => {
-                  if (entries[0].isIntersecting && !instance) {
+                  if (entries[0]?.isIntersecting && !instance) {
                     io.disconnect();
                     idleHandle = scheduleIdle(() => {
                       idleHandle = null;
@@ -81,7 +81,7 @@
               return () => {
                 io.disconnect();
                 if (idleHandle != null) cancelIdle(idleHandle);
-                if (instance) unmount(instance);
+                if (instance) void unmount(instance);
               };
             },
           })),
@@ -98,7 +98,7 @@
         target: node,
         props: { href: '/anything-but-analog' },
       });
-      return () => unmount(instance);
+      return () => { void unmount(instance); };
     },
   }));
 

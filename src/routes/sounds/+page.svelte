@@ -20,11 +20,8 @@
   // tab return; the lock drops automatically when playback stops.
   $effect(() => {
     if (!player.playing) return;
-    const api = (
-      navigator as Navigator & {
-        wakeLock?: { request(type: "screen"): Promise<{ release(): Promise<void> }> };
-      }
-    ).wakeLock;
+    const api = navigator.wakeLock;
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- lib.dom declares wakeLock as always-present; older mobile browsers still lack it
     if (!api) return;
     let lock: { release(): Promise<void> } | null = null;
     let active = true;
@@ -33,20 +30,20 @@
       try {
         const next = await api.request("screen");
         if (active) lock = next;
-        else await next.release().catch(() => {}); // released during the await
+        else await next.release().catch(() => undefined); // released during the await
       } catch {
         // denied (tab not visible / insecure context) — ignore
       }
     };
     const onVisible = () => {
-      if (active && document.visibilityState === "visible") acquire();
+      if (active && document.visibilityState === "visible") void acquire();
     };
-    acquire();
+    void acquire();
     document.addEventListener("visibilitychange", onVisible);
     return () => {
       active = false;
       document.removeEventListener("visibilitychange", onVisible);
-      lock?.release().catch(() => {});
+      void lock?.release().catch(() => undefined);
     };
   });
 
@@ -148,24 +145,25 @@
 
   const play = (song: Song) => {
     const v = song.versions[0];
+    if (!v) return; // data invariant: every song ships at least one version
     const src = url(v.src);
     if (player.track?.src === src) {
-      toggleCurrent(); // clicking the current card toggles it, not a fresh play
+      void toggleCurrent(); // clicking the current card toggles it, not a fresh play
       return;
     }
     trackEvent("sounds-play", { slug: song.slug, variant: v.variant });
-    playTrack({ src, title: song.title, variant: v.variant, slug: song.slug });
+    void playTrack({ src, title: song.title, variant: v.variant, slug: song.slug });
   };
 
   const playCue = (cue: Cue) => {
     const src = url(cue.src);
     if (player.track?.src === src) {
-      toggleCurrent();
+      void toggleCurrent();
       return;
     }
     const tc = cueTime(cue.timecode);
     trackEvent("sounds-play", { slug: "hmbm", variant: tc });
-    playTrack({ src, title: `how many blind mice? ${tc}`, variant: "cue", slug: cue.src });
+    void playTrack({ src, title: `how many blind mice? ${tc}`, variant: "cue", slug: cue.src });
   };
 
   // Auto-advance when a track ends: the next grid song, or the next HMBM cue —
@@ -232,7 +230,7 @@
     // scroll or resize event to catch it
     const ro = new ResizeObserver(updateGaze);
     ro.observe(document.body);
-    return () => ro.disconnect();
+    return () => { ro.disconnect(); };
   });
 
   const fmt = (s: number) => {
@@ -284,7 +282,7 @@
       <button
         class="play"
         aria-label={active ? `pause ${song.title}` : `play ${song.title}`}
-        onclick={() => play(song)}
+        onclick={() => { play(song); }}
       >
         <span class="disc"><PlayGlyph state={tileStatus(song.slug)} /></span>
       </button>
@@ -323,7 +321,7 @@
           <button
             class="cue-chip"
             class:on={player.track?.src === url(cue.src) && player.playing}
-            onclick={() => playCue(cue)}
+            onclick={() => { playCue(cue); }}
           >▸ {cueTime(cue.timecode)}</button>
         {/each}
       </div>
@@ -371,10 +369,10 @@
     max={player.duration || 0}
     step="0.1"
     value={player.currentTime}
-    oninput={(e) => seek(+e.currentTarget.value)}
-    onpointerdown={() => setScrubbing(true)}
-    onpointerup={() => setScrubbing(false)}
-    onpointercancel={() => setScrubbing(false)}
+    oninput={(e) => { seek(+e.currentTarget.value); }}
+    onpointerdown={() => { setScrubbing(true); }}
+    onpointerup={() => { setScrubbing(false); }}
+    onpointercancel={() => { setScrubbing(false); }}
     aria-label="seek"
     aria-valuetext={`${fmt(player.currentTime)} of ${fmt(player.duration)}`}
     disabled={!player.track}
@@ -484,16 +482,6 @@
     transform-origin: 50% 90%;
     transition: transform 0.38s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
-  .card img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    filter: grayscale(1);
-    transition: filter 0.4s ease;
-  }
   .ph {
     position: absolute;
     inset: 0;
@@ -504,12 +492,6 @@
   }
   .stack:hover .card {
     transform: rotate(calc(var(--rot) * 1.85)) translateY(-3px);
-  }
-  /* covers sit in grayscale, bloom to color on hover (and while loading/playing) */
-  .stack:hover .card img,
-  .stack.loading .card img,
-  .stack.playing .card img {
-    filter: grayscale(0);
   }
   /* coin ring hugging the playing card — on the top card itself, so the outline
      follows its 8px radius, tracks its transform, and isn't clipped: wraps
@@ -675,18 +657,6 @@
     border: 1px solid rgba(245, 244, 240, 0.16);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
     background: var(--black);
-  }
-  .hmbm-poster img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: grayscale(1);
-    transition: filter 0.4s ease;
-  }
-  .hmbm:hover .hmbm-poster img {
-    filter: grayscale(0);
   }
   .hmbm-poster-ph {
     position: absolute;
@@ -922,9 +892,6 @@
     }
     .hmbm-poster {
       max-width: none; /* full-span on phones */
-    }
-    .hmbm-poster img {
-      filter: none; /* no hover on touch — show the poster in colour */
     }
   }
 

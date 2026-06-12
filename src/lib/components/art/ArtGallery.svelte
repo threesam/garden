@@ -6,7 +6,7 @@
 	export interface SketchMeta {
 		slug: string;
 		date: string;
-		description?: string;
+		description?: string | undefined;
 	}
 
 	interface Props {
@@ -31,7 +31,7 @@
 	let activeIdx = $state(0);
 
 	onMount(() => {
-		const el = document.getElementById('art-scroller') as HTMLElement | null;
+		const el = document.getElementById('art-scroller');
 		if (!el) return;
 
 		let rafId = 0;

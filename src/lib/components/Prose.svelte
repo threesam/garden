@@ -28,7 +28,7 @@
       if (before.trim()) {
         result.push({ type: "html", html: md.parse(before) as string });
       }
-      result.push({ type: "slot", id: match[1] });
+      result.push({ type: "slot", id: match[1]! });
       lastIndex = match.index + match[0].length;
     }
 
@@ -45,8 +45,9 @@
 <!-- {@html} is safe here: content is author-controlled markdown, not user input -->
 {#each parts as part (part.type === "html" ? part.html : part.id)}
   {#if part.type === "html"}
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -- author-authored markdown rendered by our own pipeline, no user input -->
     {@html part.html}
   {:else if part.type === "slot" && slots?.[part.id]}
-    {@render slots[part.id]()}
+    {@render slots[part.id]!()}
   {/if}
 {/each}

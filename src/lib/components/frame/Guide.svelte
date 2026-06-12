@@ -40,7 +40,7 @@
     if (!locked) hovered = true;
     // Warm all route JS chunks on first coin hover — no-op on subsequent calls.
     for (const r of NAV_ROUTES) {
-      preloadCode(r.href);
+      void preloadCode(r.href);
     }
   }
 
