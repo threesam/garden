@@ -97,7 +97,9 @@ const PERSON_NODE = {
     "https://www.linkedin.com/in/threesam/",
     "https://github.com/threesam",
     "https://soundcloud.com/threesam",
-    "https://substack.com/@threesam",
+    // Substack deliberately unlisted: the profile has no publication yet, and
+    // a sameAs pointing at an empty shell is an anti-signal. Re-add when
+    // essays actually syndicate there.
     "https://x.com/six_to_m",
     "https://sixtom.com",
   ],
