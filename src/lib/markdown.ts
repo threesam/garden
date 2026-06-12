@@ -12,6 +12,12 @@ const emojiMap = new Proxy({}, {
   },
 });
 
+// Minimal escape for text interpolated into a double-quoted HTML attribute.
+// (& first so it doesn't re-escape the entities it just produced.)
+function escapeAttr(text: string): string {
+  return text.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+}
+
 // Known intrinsic dimensions for inline (non-banner) images.
 // Allows browsers to reserve layout space before image loads, preventing CLS.
 const knownDimensions: Record<string, { w: number; h: number }> = {
@@ -62,11 +68,11 @@ export function createMarkdownRenderer(): Marked {
           if (isCenter) hClass = "left-1/2 -translate-x-1/2 text-center";
           else if (isRight) hClass = "right-6 text-right md:right-18";
           const vClass = isBottom ? "bottom-6 md:bottom-18" : "top-6 md:top-18";
-          return `<div class="relative my-12 -mx-6 md:-mx-9"><img src="${href}" alt="${heading}" class="w-full md:rounded-lg" loading="lazy" /><span class="absolute ${vClass} ${hClass} font-mono text-2xl font-bold uppercase tracking-base md:text-5xl" style="color: ${color}">${heading}</span></div>`;
+          return `<div class="relative my-12 -mx-6 md:-mx-9"><img src="${href}" alt="${escapeAttr(heading)}" class="w-full md:rounded-lg" loading="lazy" /><span class="absolute ${vClass} ${hClass} font-mono text-2xl font-bold uppercase tracking-base md:text-5xl" style="color: ${color}">${heading}</span></div>`;
         }
         const dims = knownDimensions[href];
         const dimAttrs = dims ? ` width="${dims.w}" height="${dims.h}"` : '';
-        return `<img src="${href}" alt="${text}"${dimAttrs} class="relative my-9 -mx-6 block w-full rounded-lg md:-mx-9" loading="lazy" />`;
+        return `<img src="${href}" alt="${escapeAttr(text)}"${dimAttrs} class="relative my-9 -mx-6 block w-full rounded-lg md:-mx-9" loading="lazy" />`;
       },
     },
   });

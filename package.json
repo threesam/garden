@@ -9,7 +9,7 @@
   "preview": "vite preview",
   "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --fail-on-warnings",
   "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-  "test": "playwright test",
+  "test": "vitest run",
   "test:visual": "playwright test tests/visual.spec.ts",
   "test:smoke": "playwright test tests/routes.spec.ts",
   "lint": "eslint .",
@@ -19,7 +19,9 @@
   "bake:thoughts": "node scripts/generate-thoughts-pixel.mjs",
   "sounds:ingest": "node scripts/sounds/ingest.mjs",
   "sounds:deploy": "node scripts/sounds/deploy-r2.mjs",
-  "lh": "node scripts/lighthouse.mjs"
+  "lh": "node scripts/lighthouse.mjs",
+  "test:watch": "vitest",
+  "test:e2e": "playwright test"
  },
  "devDependencies": {
   "@eslint/js": "10.0.1",
@@ -43,6 +45,7 @@
   "typescript": "6.0.3",
   "typescript-eslint": "8.59.3",
   "vite": "8.0.13",
+  "vitest": "4.1.6",
   "wrangler": "4.95.0"
  },
  "pnpm": {
