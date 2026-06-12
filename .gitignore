@@ -45,6 +45,15 @@ data/finance/
 # git worktrees
 .worktrees/
 
+# leftovers from the Next.js era + agent-session artifacts — never commit.
+# (a stray `git add -A` once swept 6,475 of these into a feature commit.)
+/.next/
+next-env.d.ts
+/.claude/
+/.playwright-mcp/
+/.superset/
+/test-results/
+
 # large media imports
 static/assets/messages/
 data/messages/dianchik/conversation.json
