@@ -66,7 +66,7 @@
               // lands in an idle gap rather than stacking into a long task.
               const io = new IntersectionObserver(
                 (entries) => {
-                  if (entries[0].isIntersecting && !instance) {
+                  if (entries[0]?.isIntersecting && !instance) {
                     io.disconnect();
                     idleHandle = scheduleIdle(() => {
                       idleHandle = null;

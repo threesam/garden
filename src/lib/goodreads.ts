@@ -68,9 +68,9 @@ function parseSeries(title: string): { cleanTitle: string; series: string | null
   const match = title.match(/^(.+?)\s*\(([^,]+),\s*#([\d.]+)\)\s*$/);
   if (match) {
     return {
-      cleanTitle: match[1].trim(),
-      series: match[2].trim(),
-      seriesNumber: parseFloat(match[3]),
+      cleanTitle: match[1]!.trim(),
+      series: match[2]!.trim(),
+      seriesNumber: parseFloat(match[3]!),
     };
   }
   return { cleanTitle: title, series: null, seriesNumber: null };

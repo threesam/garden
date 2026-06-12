@@ -132,7 +132,7 @@
 	function dropBomb() {
 		const alive = aliveAliens();
 		if (alive.length === 0) return;
-		const a = alive[Math.floor(Math.random() * alive.length)];
+		const a = alive[Math.floor(Math.random() * alive.length)]!;
 		bombs.push({ x: a.x + ALIEN / 2 - BOMB_W / 2, y: a.y + ALIEN });
 	}
 

@@ -6,7 +6,7 @@ import { makeNoise } from '$lib/art/noise';
 
 export interface SketchHostParams {
 	slug: string;
-	seed?: number;
+	seed?: number | undefined;
 	/**
 	 * When true the sketch ticks. When false it stops ticking (frees the CPU)
 	 * but keeps the last frame painted so it can be faded out.

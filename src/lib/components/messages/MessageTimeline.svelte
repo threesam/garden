@@ -8,8 +8,8 @@
 		labels: rawData.labels,
 		sam: rawData.sam,
 		dianchik: rawData.dianchik,
-		sam_media: extra.sam_media ?? [],
-		dianchik_media: extra.dianchik_media ?? [],
+		sam_media: extra['sam_media'] ?? [],
+		dianchik_media: extra['dianchik_media'] ?? [],
 	};
 
 	type Tab = 'messages' | 'media';
@@ -69,7 +69,7 @@
 							maxRotation: 90,
 							callback: function (_: unknown, index: number) {
 								const l = chartData.labels[index];
-								return l.endsWith('-01') ? l.slice(0, 4) : '';
+								return l?.endsWith('-01') ? l.slice(0, 4) : '';
 							},
 						},
 						grid: { display: false },
@@ -92,21 +92,19 @@
 						bodyFont: { family: 'monospace', size: 11 },
 						padding: 10,
 						callbacks: {
-							title: (items: { dataIndex: number }[]) => chartData.labels[items[0].dataIndex],
-							label: (item: {
-								dataset: { label?: string };
-								dataIndex: number;
-								raw: unknown;
-							}) => {
+							title: (items: { dataIndex: number }[]) =>
+								items[0] ? chartData.labels[items[0].dataIndex] : undefined,
+							// Untyped param so Chart.js's contextual TooltipItem type applies.
+							label: (item) => {
 								const samVal =
-									t === 'messages'
+									(t === 'messages'
 										? chartData.sam[item.dataIndex]
-										: chartData.sam_media[item.dataIndex];
+										: chartData.sam_media[item.dataIndex]) ?? 0;
 								const diaVal =
-									t === 'messages'
+									(t === 'messages'
 										? chartData.dianchik[item.dataIndex]
-										: chartData.dianchik_media[item.dataIndex];
-								return `${item.dataset.label}: ${item.raw} ${label} (${samVal + diaVal} total)`;
+										: chartData.dianchik_media[item.dataIndex]) ?? 0;
+								return `${item.dataset.label ?? ''}: ${String(item.raw)} ${label} (${samVal + diaVal} total)`;
 							},
 						},
 					},

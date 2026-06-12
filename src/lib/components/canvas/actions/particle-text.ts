@@ -193,15 +193,15 @@ export interface ParticleTextParams {
   container: HTMLDivElement;
   // The hidden text canvas node (for rendering text bitmap)
   textCanvas: HTMLCanvasElement;
-  countOverride?: number;
-  hideText?: boolean;
-  pointSize?: number;
-  repelRadius?: number;
-  lowDpr?: boolean;
+  countOverride?: number | undefined;
+  hideText?: boolean | undefined;
+  pointSize?: number | undefined;
+  repelRadius?: number | undefined;
+  lowDpr?: boolean | undefined;
   // Fixed RGB (0-255 each) for every particle — used by the homepage analog
   // card to match the day21 sketch's --black. Omit on /anything-but-analog
   // to keep the original random gray field.
-  color?: [number, number, number];
+  color?: [number, number, number] | undefined;
 }
 
 export const particleText: Action<HTMLCanvasElement, ParticleTextParams> = (node, initialParams) => {
@@ -360,7 +360,7 @@ export const particleText: Action<HTMLCanvasElement, ParticleTextParams> = (node
         for (let retry = 0; retry < 12; retry++) {
           const cx = Math.min(w - 1, Math.floor(px));
           const cy = Math.min(h - 1, Math.floor(py));
-          if (mask[cy * w + cx] < 50) { ok = true; break; }
+          if (mask[cy * w + cx]! < 50) { ok = true; break; }
           px = Math.random() * w;
           py = Math.random() * h;
         }
@@ -368,7 +368,7 @@ export const particleText: Action<HTMLCanvasElement, ParticleTextParams> = (node
           let cx = Math.min(w - 1, Math.floor(px));
           let cy = Math.min(h - 1, Math.floor(py));
           for (let step = 0; step < w * h; step++) {
-            if (mask[cy * w + cx] < 50) { px = cx + 0.5; py = cy + 0.5; break; }
+            if (mask[cy * w + cx]! < 50) { px = cx + 0.5; py = cy + 0.5; break; }
             cx++;
             if (cx >= w) { cx = 0; cy = (cy + 1) % h; }
           }
@@ -395,27 +395,27 @@ export const particleText: Action<HTMLCanvasElement, ParticleTextParams> = (node
     }
 
     for (let i = 0; i < 2; i++) {
-      gl!.bindBuffer(gl!.ARRAY_BUFFER, posBuffers[i]);
+      gl!.bindBuffer(gl!.ARRAY_BUFFER, posBuffers[i]!);
       gl!.bufferData(gl!.ARRAY_BUFFER, positions, gl!.DYNAMIC_COPY);
-      gl!.bindBuffer(gl!.ARRAY_BUFFER, velBuffers[i]);
+      gl!.bindBuffer(gl!.ARRAY_BUFFER, velBuffers[i]!);
       gl!.bufferData(gl!.ARRAY_BUFFER, velocities, gl!.DYNAMIC_COPY);
     }
     gl!.bindBuffer(gl!.ARRAY_BUFFER, colorBuffer);
     gl!.bufferData(gl!.ARRAY_BUFFER, colors, gl!.STATIC_DRAW);
 
     for (let i = 0; i < 2; i++) {
-      gl!.bindVertexArray(vaos[i]);
-      gl!.bindBuffer(gl!.ARRAY_BUFFER, posBuffers[i]);
+      gl!.bindVertexArray(vaos[i]!);
+      gl!.bindBuffer(gl!.ARRAY_BUFFER, posBuffers[i]!);
       gl!.enableVertexAttribArray(uA.position);
       gl!.vertexAttribPointer(uA.position, 2, gl!.FLOAT, false, 0, 0);
-      gl!.bindBuffer(gl!.ARRAY_BUFFER, velBuffers[i]);
+      gl!.bindBuffer(gl!.ARRAY_BUFFER, velBuffers[i]!);
       gl!.enableVertexAttribArray(uA.velocity);
       gl!.vertexAttribPointer(uA.velocity, 2, gl!.FLOAT, false, 0, 0);
     }
 
     for (let i = 0; i < 2; i++) {
-      gl!.bindVertexArray(renderVaos[i]);
-      gl!.bindBuffer(gl!.ARRAY_BUFFER, posBuffers[i]);
+      gl!.bindVertexArray(renderVaos[i]!);
+      gl!.bindBuffer(gl!.ARRAY_BUFFER, posBuffers[i]!);
       gl!.enableVertexAttribArray(rA.position);
       gl!.vertexAttribPointer(rA.position, 2, gl!.FLOAT, false, 0, 0);
       gl!.bindBuffer(gl!.ARRAY_BUFFER, colorBuffer);
@@ -502,8 +502,9 @@ export const particleText: Action<HTMLCanvasElement, ParticleTextParams> = (node
         const yAt = (i: number) => (h * (i + 1)) / (lines.length + 1);
 
         for (let i = 0; i < lines.length; i++) {
-          tCtx.fillStyle = lines[i] === 'ANALOG' ? whiteColor : textColor;
-          tCtx.fillText(lines[i], startX, yAt(i));
+          const line = lines[i]!;
+          tCtx.fillStyle = line === 'ANALOG' ? whiteColor : textColor;
+          tCtx.fillText(line, startX, yAt(i));
         }
 
         const analogIdx = lines.indexOf('ANALOG');
@@ -514,11 +515,12 @@ export const particleText: Action<HTMLCanvasElement, ParticleTextParams> = (node
         goldVicinity = goldCircle.r * 0.5;
 
         for (let i = 0; i < lines.length; i++) {
-          cCtx.fillText(lines[i], startX, yAt(i));
+          cCtx.fillText(lines[i]!, startX, yAt(i));
         }
 
         const collisionData = cCtx.getImageData(0, 0, w, h).data;
-        for (let i = 0; i < r8.length; i++) r8[i] = collisionData[i * 4 + 3];
+        // Alpha channel at RGBA stride 4: r8.length = w*h, collisionData = w*h*4.
+        for (let i = 0; i < r8.length; i++) r8[i] = collisionData[i * 4 + 3]!;
         collisionMask = r8;
       } else {
         const prefix = 'ANYTHING BUT ';
@@ -560,7 +562,8 @@ export const particleText: Action<HTMLCanvasElement, ParticleTextParams> = (node
         cCtx.fillText(highlight, startX + prefixWidth, centerY);
 
         const collisionData = cCtx.getImageData(0, 0, w, h).data;
-        for (let i = 0; i < r8.length; i++) r8[i] = collisionData[i * 4 + 3];
+        // Alpha channel at RGBA stride 4: r8.length = w*h, collisionData = w*h*4.
+        for (let i = 0; i < r8.length; i++) r8[i] = collisionData[i * 4 + 3]!;
         collisionMask = r8;
       }
     } else {
@@ -607,9 +610,9 @@ export const particleText: Action<HTMLCanvasElement, ParticleTextParams> = (node
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, textTexture);
 
-      gl.bindVertexArray(vaos[inIdx]);
-      gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, posBuffers[outIdx]);
-      gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 1, velBuffers[outIdx]);
+      gl.bindVertexArray(vaos[inIdx]!);
+      gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, posBuffers[outIdx]!);
+      gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 1, velBuffers[outIdx]!);
       gl.enable(gl.RASTERIZER_DISCARD);
       gl.beginTransformFeedback(gl.POINTS);
       gl.drawArrays(gl.POINTS, 0, PARTICLE_COUNT);
@@ -626,7 +629,7 @@ export const particleText: Action<HTMLCanvasElement, ParticleTextParams> = (node
     gl.uniform1f(rU.goldRadius, goldCircle.r);
     gl.uniform3f(rU.goldColor, goldRGB[0], goldRGB[1], goldRGB[2]);
     gl.uniform1f(rU.goldVicinity, goldVicinity);
-    gl.bindVertexArray(renderVaos[outIdx]);
+    gl.bindVertexArray(renderVaos[outIdx]!);
 
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);

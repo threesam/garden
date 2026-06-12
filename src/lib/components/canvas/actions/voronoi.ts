@@ -242,18 +242,18 @@ const FRAGMENT_SHADER = `
 `;
 
 export interface VoronoiParams {
-  invert?: boolean;
-  showLetters?: boolean;
-  imageSrc?: string;
-  mobileImageSrc?: string;
-  scale?: number;
-  fit?: 'contain' | 'cover';
-  renderScale?: number;
+  invert?: boolean | undefined;
+  showLetters?: boolean | undefined;
+  imageSrc?: string | undefined;
+  mobileImageSrc?: string | undefined;
+  scale?: number | undefined;
+  fit?: 'contain' | 'cover' | undefined;
+  renderScale?: number | undefined;
   /** Fires once the canvas has painted its first real frame — after the
    *  image-backed texture is uploaded if imageSrc is set, or immediately
    *  on the gradient-only path otherwise. Callers can flip an opacity
    *  transition here to avoid the gradient-then-image flash. */
-  onReady?: () => void;
+  onReady?: (() => void) | undefined;
 }
 
 export const voronoi: Action<HTMLCanvasElement, VoronoiParams> = (node, initialParams) => {

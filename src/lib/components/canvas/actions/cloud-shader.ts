@@ -85,11 +85,11 @@ function buildTileableFbmTexture(size: number): Uint8Array {
   for (let i = 255; i > 0; i--) {
     seed = (seed * 9301 + 49297) % 233280;
     const j = Math.floor((seed / 233280) * (i + 1));
-    const tmp = perm[i];
-    perm[i] = perm[j];
+    const tmp = perm[i]!;
+    perm[i] = perm[j]!;
     perm[j] = tmp;
   }
-  for (let i = 0; i < 256; i++) perm[256 + i] = perm[i];
+  for (let i = 0; i < 256; i++) perm[256 + i] = perm[i]!;
 
   function grad(hash: number, x: number, y: number) {
     const h = hash & 7;
@@ -117,10 +117,11 @@ function buildTileableFbmTexture(size: number): Uint8Array {
     const py1 = (py + 1) % period;
     const fx = x - xi;
     const fy = y - yi;
-    const aa = grad(perm[(perm[px] + py) & 255], fx, fy);
-    const ba = grad(perm[(perm[px1] + py) & 255], fx - 1, fy);
-    const ab = grad(perm[(perm[px] + py1) & 255], fx, fy - 1);
-    const bb = grad(perm[(perm[px1] + py1) & 255], fx - 1, fy - 1);
+    // perm is 512 long and indices are masked to 0–255, so reads are in-bounds.
+    const aa = grad(perm[(perm[px]! + py) & 255]!, fx, fy);
+    const ba = grad(perm[(perm[px1]! + py) & 255]!, fx - 1, fy);
+    const ab = grad(perm[(perm[px]! + py1) & 255]!, fx, fy - 1);
+    const bb = grad(perm[(perm[px1]! + py1) & 255]!, fx - 1, fy - 1);
     const u = fadeCurve(fx);
     const v = fadeCurve(fy);
     return Math.max(0, Math.min(1, lerp(lerp(aa, ba, u), lerp(ab, bb, u), v) * 0.5 + 0.5));

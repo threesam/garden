@@ -252,7 +252,7 @@ export const metaball: Action<HTMLCanvasElement, MetaballParams> = (node, initia
     gl.uniform2f(uRes, w, h);
     gl.uniform3f(uColorLoc, color[0], color[1], color[2]);
     for (let i = 0; i < NUM_BALLS; i++) {
-      const b = balls[i];
+      const b = balls[i]!;
       ballsBuf[i * 2] = b.x;
       ballsBuf[i * 2 + 1] = h - b.y;
       radiiBuf[i] = b.r;

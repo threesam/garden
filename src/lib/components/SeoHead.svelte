@@ -10,23 +10,23 @@
   } from '$lib/seo';
 
   interface Props {
-    title?: string;
-    description?: string;
-    ogImage?: string;
-    canonical?: string;
+    title?: string | undefined;
+    description?: string | undefined;
+    ogImage?: string | undefined;
+    canonical?: string | undefined;
     /** URL of the hero LCP image to preload. Adds a high-priority preload hint. */
-    preloadImage?: string;
+    preloadImage?: string | undefined;
     /** og:type — 'website' (default), 'article', or 'profile'. */
-    ogType?: string;
+    ogType?: string | undefined;
     /** Alt text for the social image. Falls back to the resolved page title. */
-    ogImageAlt?: string;
+    ogImageAlt?: string | undefined;
     /** Page-specific schema.org node(s) merged into the JSON-LD @graph (with Person + WebSite). */
-    schema?: object | object[];
+    schema?: object | object[] | undefined;
     /** Override the auto-derived breadcrumb trail. Leaf paths
      * (`/anything-but-analog/<slug>`) should pass their full trail. Top-
      * level routes leave this undefined and get a Home → Page crumb
      * derived from SITE_PAGES. Pass `null` to suppress the breadcrumb. */
-    breadcrumbTrail?: Array<{ path: string; name: string }> | null;
+    breadcrumbTrail?: Array<{ path: string; name: string }> | null | undefined;
   }
   let {
     title,

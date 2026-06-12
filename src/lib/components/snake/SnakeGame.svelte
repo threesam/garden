@@ -51,13 +51,13 @@
 			}
 		}
 		if (free.length === 0) return;
-		food = free[Math.floor(Math.random() * free.length)];
+		food = free[Math.floor(Math.random() * free.length)]!;
 	}
 
 	function step() {
 		if (gameOver) return;
 		dir = pendingDir;
-		const head: [number, number] = [snake[0][0] + dir[0], snake[0][1] + dir[1]];
+		const head: [number, number] = [snake[0]![0] + dir[0], snake[0]![1] + dir[1]];
 		if (head[0] < 0 || head[0] >= cols || head[1] < 0 || head[1] >= rows) {
 			gameOver = true;
 			gameMode.handleGameOver();

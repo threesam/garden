@@ -52,7 +52,7 @@ export function createMarkdownRenderer(): Marked {
       image({ href, text }) {
         if (text && text.includes("|")) {
           const parts = text.split("|");
-          const heading = parts[0].trim().replace(/\\n/g, "<br/>");
+          const heading = parts[0]!.trim().replace(/\\n/g, "<br/>");
           const color = parts[1]?.trim() || "white";
           const pos = parts[2]?.trim() || "left";
           const isBottom = pos.startsWith("bottom");
@@ -93,7 +93,7 @@ export function splitMarkdownContent(markdown: string): ContentPart[] {
     if (before.trim()) {
       parts.push({ type: "html", html: md.parse(before) as string });
     }
-    parts.push({ type: "slot", name: match[1] });
+    parts.push({ type: "slot", name: match[1]! });
     lastIndex = match.index + match[0].length;
   }
 

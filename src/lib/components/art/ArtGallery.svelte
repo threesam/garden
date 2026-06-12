@@ -6,7 +6,7 @@
 	export interface SketchMeta {
 		slug: string;
 		date: string;
-		description?: string;
+		description?: string | undefined;
 	}
 
 	interface Props {

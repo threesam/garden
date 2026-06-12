@@ -12,6 +12,6 @@ export const prerender = true;
 export const load: PageServerLoad = () => {
   return {
     manifest: manifest as SoundsManifest,
-    base: env.PUBLIC_SOUNDS_BASE ?? "",
+    base: env["PUBLIC_SOUNDS_BASE"] ?? "",
   };
 };

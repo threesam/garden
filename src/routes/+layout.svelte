@@ -31,7 +31,7 @@
       src: 'https://analytics.sixtom.com/script.js',
       async: true,
     });
-    script.dataset.websiteId = '2a502ffa-58a1-4057-be13-e46f0354cfb7';
+    script.dataset['websiteId'] = '2a502ffa-58a1-4057-be13-e46f0354cfb7';
     document.head.append(preconnect, script);
   });
 </script>

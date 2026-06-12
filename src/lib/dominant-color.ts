@@ -22,10 +22,11 @@ export async function extractDominantColor(
         const buckets = new Map<string, { r: number; g: number; b: number; count: number; score: number }>();
 
         for (let i = 0; i < data.length; i += 4) {
-          const r = data[i];
-          const g = data[i + 1];
-          const b = data[i + 2];
-          const a = data[i + 3];
+          // RGBA stride: ImageData length is a multiple of 4, so i+1..i+3 are in-bounds.
+          const r = data[i]!;
+          const g = data[i + 1]!;
+          const b = data[i + 2]!;
+          const a = data[i + 3]!;
           if (a < 200) continue;
 
           const max = Math.max(r, g, b);

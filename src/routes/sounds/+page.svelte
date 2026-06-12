@@ -148,6 +148,7 @@
 
   const play = (song: Song) => {
     const v = song.versions[0];
+    if (!v) return; // data invariant: every song ships at least one version
     const src = url(v.src);
     if (player.track?.src === src) {
       toggleCurrent(); // clicking the current card toggles it, not a fresh play
@@ -484,16 +485,6 @@
     transform-origin: 50% 90%;
     transition: transform 0.38s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
-  .card img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    filter: grayscale(1);
-    transition: filter 0.4s ease;
-  }
   .ph {
     position: absolute;
     inset: 0;
@@ -504,12 +495,6 @@
   }
   .stack:hover .card {
     transform: rotate(calc(var(--rot) * 1.85)) translateY(-3px);
-  }
-  /* covers sit in grayscale, bloom to color on hover (and while loading/playing) */
-  .stack:hover .card img,
-  .stack.loading .card img,
-  .stack.playing .card img {
-    filter: grayscale(0);
   }
   /* coin ring hugging the playing card — on the top card itself, so the outline
      follows its 8px radius, tracks its transform, and isn't clipped: wraps
@@ -675,18 +660,6 @@
     border: 1px solid rgba(245, 244, 240, 0.16);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
     background: var(--black);
-  }
-  .hmbm-poster img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: grayscale(1);
-    transition: filter 0.4s ease;
-  }
-  .hmbm:hover .hmbm-poster img {
-    filter: grayscale(0);
   }
   .hmbm-poster-ph {
     position: absolute;
@@ -922,9 +895,6 @@
     }
     .hmbm-poster {
       max-width: none; /* full-span on phones */
-    }
-    .hmbm-poster img {
-      filter: none; /* no hover on touch — show the poster in colour */
     }
   }
 

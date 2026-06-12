@@ -16,17 +16,17 @@
 
 		const initialHash = window.location.hash.replace(/^#/, '');
 		if (initialHash) {
-			const target = sections.find((s) => s.dataset.artSlug === initialHash);
+			const target = sections.find((s) => s.dataset['artSlug'] === initialHash);
 			if (target) target.scrollIntoView({ block: 'start', behavior: 'instant' });
 		}
 
-		let currentSlug = initialHash || sections[0].dataset.artSlug!;
+		let currentSlug = initialHash || sections[0]!.dataset['artSlug']!;
 		const visibility = new Map<string, number>();
 
 		const io = new IntersectionObserver(
 			(entries) => {
 				for (const entry of entries) {
-					const slug = (entry.target as HTMLElement).dataset.artSlug;
+					const slug = (entry.target as HTMLElement).dataset['artSlug'];
 					if (!slug) continue;
 					visibility.set(slug, entry.intersectionRatio);
 				}

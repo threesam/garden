@@ -28,7 +28,7 @@
       if (before.trim()) {
         result.push({ type: "html", html: md.parse(before) as string });
       }
-      result.push({ type: "slot", id: match[1] });
+      result.push({ type: "slot", id: match[1]! });
       lastIndex = match.index + match[0].length;
     }
 
@@ -47,6 +47,6 @@
   {#if part.type === "html"}
     {@html part.html}
   {:else if part.type === "slot" && slots?.[part.id]}
-    {@render slots[part.id]()}
+    {@render slots[part.id]!()}
   {/if}
 {/each}

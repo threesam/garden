@@ -40,8 +40,8 @@
 						{#each { length: 24 } as _, h (h)}
 							<div
 								class="flex-1 rounded-[2px] transition-colors"
-								style="height: 18px; background-color: {cellColor(heatmap[dow][h])};"
-								title="{day} {h}:00 — {heatmap[dow][h]} messages"
+								style="height: 18px; background-color: {cellColor(heatmap[dow]![h]!)};"
+								title="{day} {h}:00 — {heatmap[dow]![h]!} messages"
 							></div>
 						{/each}
 					</div>

@@ -20,11 +20,11 @@ test.describe('seo node builders', () => {
     ];
     const node = breadcrumbNode(trail) as Record<string, unknown>;
     expect(node['@type']).toBe('BreadcrumbList');
-    const items = node.itemListElement as Array<Record<string, unknown>>;
+    const items = node['itemListElement'] as Array<Record<string, unknown>>;
     expect(items).toHaveLength(2);
-    expect(items[0].position).toBe(1);
-    expect(items[1].position).toBe(2);
-    expect(items[1].item).toBe(`${SITE_URL}/shelf`);
+    expect(items[0]!['position']).toBe(1);
+    expect(items[1]!['position']).toBe(2);
+    expect(items[1]!['item']).toBe(`${SITE_URL}/shelf`);
   });
 
   test('itemListNode wraps {url, name} pairs as ItemList ListItems', () => {
@@ -37,10 +37,10 @@ test.describe('seo node builders', () => {
       ],
     }) as Record<string, unknown>;
     expect(node['@type']).toBe('ItemList');
-    const items = node.itemListElement as Array<Record<string, unknown>>;
+    const items = node['itemListElement'] as Array<Record<string, unknown>>;
     expect(items).toHaveLength(2);
-    expect(items[0].position).toBe(1);
-    expect(items[1].url).toBe('https://example.com/book-2');
+    expect(items[0]!['position']).toBe(1);
+    expect(items[1]!['url']).toBe('https://example.com/book-2');
   });
 
   test('musicPlaylistNode emits MusicPlaylist with numbered MusicRecording tracks', () => {
@@ -53,13 +53,13 @@ test.describe('seo node builders', () => {
       ],
     }) as Record<string, unknown>;
     expect(node['@type']).toBe('MusicPlaylist');
-    expect(node.numTracks).toBe(2);
-    const tracks = node.track as Array<Record<string, unknown>>;
-    expect(tracks[0]['@type']).toBe('MusicRecording');
-    expect(tracks[0].position).toBe(1);
-    expect(tracks[0].url).toBe(`${SITE_URL}/sounds#t1`);
+    expect(node['numTracks']).toBe(2);
+    const tracks = node['track'] as Array<Record<string, unknown>>;
+    expect(tracks[0]!['@type']).toBe('MusicRecording');
+    expect(tracks[0]!['position']).toBe(1);
+    expect(tracks[0]!['url']).toBe(`${SITE_URL}/sounds#t1`);
     // No url for track 2 → key omitted, not undefined.
-    expect('url' in tracks[1]).toBe(false);
+    expect('url' in tracks[1]!).toBe(false);
   });
 
   test('buildGraph always emits Person + WebSite plus the page node(s)', () => {
@@ -68,8 +68,8 @@ test.describe('seo node builders', () => {
     expect(graph['@context']).toBe('https://schema.org');
     const nodes = graph['@graph'] as Array<Record<string, unknown>>;
     expect(nodes).toHaveLength(3);
-    expect(nodes[0]['@type']).toBe('Person');
-    expect(nodes[1]['@type']).toBe('WebSite');
+    expect(nodes[0]!['@type']).toBe('Person');
+    expect(nodes[1]!['@type']).toBe('WebSite');
     expect(nodes[2]).toBe(pageNode);
   });
 });

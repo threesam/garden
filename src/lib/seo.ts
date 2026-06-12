@@ -163,12 +163,12 @@ export function articleNode(opts: {
     author: { "@id": PERSON_ID },
     publisher: { "@id": PERSON_ID },
   };
-  if (opts.image) node.image = absUrl(opts.image);
-  if (opts.datePublished) node.datePublished = opts.datePublished;
+  if (opts.image) node['image'] = absUrl(opts.image);
+  if (opts.datePublished) node['datePublished'] = opts.datePublished;
   // Always present so engines have a freshness signal; an explicit value wins
   // when an essay is edited, else it mirrors datePublished.
   if (opts.dateModified ?? opts.datePublished)
-    node.dateModified = opts.dateModified ?? opts.datePublished;
+    node['dateModified'] = opts.dateModified ?? opts.datePublished;
   return node;
 }
 
@@ -211,8 +211,8 @@ export function creativeWorkNode(opts: {
     creator: { "@id": PERSON_ID },
     isPartOf: { "@id": `${SITE_URL}/anything-but-analog#webpage` },
   };
-  if (opts.image) node.image = absUrl(opts.image);
-  if (opts.datePublished) node.datePublished = opts.datePublished;
+  if (opts.image) node['image'] = absUrl(opts.image);
+  if (opts.datePublished) node['datePublished'] = opts.datePublished;
   return node;
 }
 
