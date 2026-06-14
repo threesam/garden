@@ -22,6 +22,7 @@
   title="shelf"
   description="Books, media, and the things that shape how I think."
   canonical="/shelf"
+  ogImage="/og/shelf.jpg"
   preloadImage={featuredCoverPreload}
   schema={collectionPageNode({
     path: "/shelf",

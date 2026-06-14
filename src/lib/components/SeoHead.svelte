@@ -43,7 +43,7 @@
   const resolvedTitle = $derived(resolveTitle(title));
   const resolvedDescription = $derived(description ?? SITE_DESCRIPTION);
   const resolvedOg = $derived.by(() => {
-    const path = ogImage ?? '/og/default.png';
+    const path = ogImage ?? '/og/home.png';
     if (path.startsWith('http')) return path;
     return `${SITE_URL}${path}`;
   });
