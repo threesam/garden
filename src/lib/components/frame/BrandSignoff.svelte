@@ -102,7 +102,7 @@
       : undefined}
   >m</span>
   {#each SNAKE_TAIL as l, i (`tail-${i}`)}
-    <span class="tail" style="--tail-delay: {200 + i * 130}ms">{l}</span>
+    <span class="tail" style:--tail-delay="{200 + i * 130}ms">{l}</span>
   {/each}
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -117,7 +117,7 @@
     onclick={messageClickable ? () => { messageMode.start(); } : undefined}
   >
     {#each MESSAGE_TAIL as l, i (`msg-${i}`)}
-      <span class="msg-tail" style="--msg-delay: {100 + i * 80}ms">{l}</span>
+      <span class="msg-tail" style:--msg-delay="{100 + i * 80}ms">{l}</span>
     {/each}
   </span>
 </svelte:element>

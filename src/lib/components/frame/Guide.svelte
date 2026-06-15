@@ -72,18 +72,17 @@
   style="border:0;outline:0;background:none;padding:0;margin:0;appearance:none;-webkit-appearance:none;box-shadow:none;transform:translateZ(0)"
   class="fixed top-5 right-5 z-[9999] cursor-pointer md:top-6 md:right-8"
 >
+  <!-- style: directives (not a dynamic style string) so the box-shadow /
+       transform values serialize identically on server and client — a
+       multi-line interpolated style attribute SSRs verbatim, the browser
+       normalizes it, and the two no longer match -> hydration_mismatch. -->
   <div
-    style="
-      width:40px;
-      height:40px;
-      border-radius:50%;
-      background-color:var(--coin);
-      box-shadow:{coinBoxShadow};
-      transition:transform 300ms ease-in-out, box-shadow 300ms ease-in-out;
-      transform-style:preserve-3d;
-      transform:{coinTransform};
-      position:relative;
-    "
+    class="relative size-10 rounded-full"
+    style:background-color="var(--coin)"
+    style:box-shadow={coinBoxShadow}
+    style:transition="transform 300ms ease-in-out, box-shadow 300ms ease-in-out"
+    style:transform-style="preserve-3d"
+    style:transform={coinTransform}
   >
     <!-- Front face — hamburger -->
     <span
