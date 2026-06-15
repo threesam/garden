@@ -23,6 +23,15 @@ describe("image renderer", () => {
     expect(html).not.toContain("width=");
   });
 
+  it("keeps inline images inside the section padding, centered (no edge bleed)", () => {
+    const html = render("![chip](/assets/chip-malt-new-address.png)");
+    // Sits at content width within the section's padding (aligned with the body
+    // text), not bled to the edges with negative side-margins.
+    expect(html).toContain("w-full");
+    expect(html).not.toContain("-mx-");
+    expect(html).not.toContain("bleed-x");
+  });
+
   it("renders the pipe syntax as a captioned banner with color and position", () => {
     const html = render("![heading text|coral|bottom right](/assets/banner.jpg)");
     expect(html).toContain("style=\"color: coral\"");
