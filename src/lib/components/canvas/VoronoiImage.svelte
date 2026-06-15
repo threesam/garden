@@ -1,19 +1,33 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import VoronoiCanvas from './VoronoiCanvas.svelte';
+  import LazyMount from '$lib/components/LazyMount.svelte';
 
   interface Props {
     src: string;
     alt: string;
+    /**
+     * Intrinsic aspect ratio (width / height). When supplied the banner box
+     * reserves its true shape on first render, so the canvas fades into
+     * already-correct space instead of snapping when the bitmap decodes —
+     * no CLS. Omit only for assets not in the dimensions map; the onMount
+     * fallback below then self-corrects (with the old one-time shift).
+     */
+    aspect?: number | undefined;
   }
 
-  let { src, alt }: Props = $props();
+  let { src, alt, aspect: initialAspect }: Props = $props();
 
-  let aspect = $state(2576 / 1449);
+  // Resolve order: the precomputed prop → an onload-measured fallback → a
+  // last-resort landscape guess (2576/1449) for unmapped assets. Mapped
+  // banners get their true shape on first render, so there's no snap.
+  let measuredAspect = $state<number | null>(null);
+  const aspect = $derived(initialAspect ?? measuredAspect ?? 2576 / 1449);
 
   onMount(() => {
+    if (initialAspect != null) return;
     const img = new Image();
-    img.onload = () => { aspect = img.width / img.height; };
+    img.onload = () => { measuredAspect = img.width / img.height; };
     img.src = src;
   });
 
@@ -61,7 +75,12 @@
     style="--banner-aspect: {aspect}"
   >
     <div class="voronoi-banner-inner">
-      <VoronoiCanvas imageSrc={src} invert showLetters={false} />
+      <!-- Box reserves space immediately; only the WebGL canvas is deferred
+           until it scrolls near the viewport (idle-scheduled so six shader
+           compiles don't stack into a long task at load). -->
+      <LazyMount class="absolute inset-0" rootMargin="200px" useIdle>
+        <VoronoiCanvas imageSrc={src} invert showLetters={false} />
+      </LazyMount>
       <span
         class="absolute {vClass} {hClass} font-mono text-2xl font-bold uppercase tracking-base md:text-5xl pointer-events-none z-10"
         style="color: {color}; white-space: pre-line"
@@ -75,7 +94,9 @@
     class="relative my-9 -mx-6 w-full overflow-hidden rounded-lg md:-mx-9"
     style="aspect-ratio: {aspect}"
   >
-    <VoronoiCanvas imageSrc={src} invert showLetters={false} />
+    <LazyMount class="absolute inset-0" rootMargin="200px" useIdle>
+      <VoronoiCanvas imageSrc={src} invert showLetters={false} />
+    </LazyMount>
     {#if alt}
       <span class="sr-only">{alt}</span>
     {/if}
