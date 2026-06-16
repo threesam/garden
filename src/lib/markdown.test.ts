@@ -45,6 +45,18 @@ describe("image renderer", () => {
     expect(html).toContain("style=\"color: white\"");
     expect(html).toContain("top-6");
   });
+
+  it("escapes banner heading + color so they can't break out of the {@html} markup", () => {
+    const html = render('![<script>x|red"><b>|left](/assets/banner.jpg)');
+    expect(html).not.toContain("<script>"); // heading tag neutralized in the <span>
+    expect(html).not.toContain('color: red"><b>'); // color can't break the style attribute
+    expect(html).toContain("&lt;script>x"); // heading survives, entity-escaped
+  });
+
+  it("still renders the intended <br/> from \\n in banner headings", () => {
+    const html = render("![FAULT\\nLINES|white](/assets/banner.jpg)");
+    expect(html).toContain("FAULT<br/>LINES</span>");
+  });
 });
 
 describe("link renderer", () => {

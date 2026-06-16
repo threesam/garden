@@ -53,8 +53,11 @@ export function createMarkdownRenderer(): Marked {
       image({ href, text }) {
         if (text.includes("|")) {
           const parts = text.split("|");
-          const heading = parts[0]!.trim().replace(/\\n/g, "<br/>");
-          const color = parts[1]?.trim() || "white";
+          // Escape heading + color before they're interpolated into the {@html}
+          // banner markup; re-introduce the one intended tag (\n → <br/>).
+          const rawHeading = parts[0]!.trim();
+          const heading = escapeAttr(rawHeading).replace(/\\n/g, "<br/>");
+          const color = escapeAttr(parts[1]?.trim() || "white");
           const pos = parts[2]?.trim() || "left";
           const isBottom = pos.startsWith("bottom");
           const isRight = pos.includes("right");
@@ -63,7 +66,7 @@ export function createMarkdownRenderer(): Marked {
           if (isCenter) hClass = "left-1/2 -translate-x-1/2 text-center";
           else if (isRight) hClass = "right-6 text-right md:right-18";
           const vClass = isBottom ? "bottom-6 md:bottom-18" : "top-6 md:top-18";
-          return `<div class="relative my-12 -mx-6 md:-mx-9"><img src="${href}" alt="${escapeAttr(heading)}" class="w-full md:rounded-lg" loading="lazy" /><span class="absolute ${vClass} ${hClass} font-mono text-2xl font-bold uppercase tracking-base md:text-5xl" style="color: ${color}">${heading}</span></div>`;
+          return `<div class="relative my-12 -mx-6 md:-mx-9"><img src="${href}" alt="${escapeAttr(rawHeading)}" class="w-full md:rounded-lg" loading="lazy" /><span class="absolute ${vClass} ${hClass} font-mono text-2xl font-bold uppercase tracking-base md:text-5xl" style="color: ${color}">${heading}</span></div>`;
         }
         const dims = assetDimensions[href];
         const dimAttrs = dims ? ` width="${dims.w}" height="${dims.h}"` : '';
