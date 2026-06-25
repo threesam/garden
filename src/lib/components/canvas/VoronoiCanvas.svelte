@@ -2,7 +2,7 @@
   import { voronoi } from './actions/voronoi';
   import type { VoronoiParams } from './actions/voronoi';
 
-  interface Props extends VoronoiParams {}
+  type Props = VoronoiParams;
 
   let {
     invert = false,

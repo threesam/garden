@@ -1,12 +1,18 @@
 import { test, expect } from '@playwright/test';
 import { KEPT_ROUTES } from './routes';
 
+declare global {
+  interface Window {
+    __freezeRAF?: () => void;
+  }
+}
+
 async function freezePage(page: import('@playwright/test').Page) {
   // Freeze JS-driven RAF animations by replacing rAF with a no-op after one frame
   await page.addInitScript(() => {
     const originalRAF = window.requestAnimationFrame.bind(window);
     let frozen = false;
-    (window as any).__freezeRAF = () => { frozen = true; };
+    window.__freezeRAF = () => { frozen = true; };
     window.requestAnimationFrame = (cb) => {
       if (frozen) return 0;
       return originalRAF(cb);
@@ -45,7 +51,7 @@ test.describe('visual parity', () => {
         `,
       });
       // Freeze RAF after initial render
-      await page.evaluate(() => { (window as any).__freezeRAF?.(); });
+      await page.evaluate(() => { window.__freezeRAF?.(); });
       // Wait for all images to settle (with 8s timeout per image)
       await page.evaluate(() => {
         const timeout = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -91,7 +97,7 @@ test.describe('visual parity', () => {
     await page.addStyleTag({
       content: `*, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }`,
     });
-    await page.evaluate(() => { (window as any).__freezeRAF?.(); });
+    await page.evaluate(() => { window.__freezeRAF?.(); });
     await page.waitForTimeout(600);
 
     const masks = [

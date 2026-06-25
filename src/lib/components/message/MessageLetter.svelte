@@ -23,7 +23,7 @@
 			if (e.key === 'Escape') messageMode.stop();
 		};
 		window.addEventListener('keydown', onKey);
-		return () => window.removeEventListener('keydown', onKey);
+		return () => { window.removeEventListener('keydown', onKey); };
 	});
 </script>
 
@@ -38,7 +38,7 @@
 		class="sheet"
 		onsubmit={(e) => {
 			e.preventDefault();
-			messageMode.send();
+			void messageMode.send();
 		}}
 	>
 		<p class="line greeting">hey Sam,</p>

@@ -24,9 +24,9 @@
 	const COIN = '#e8a317';
 	const BLACK = '#1a1a14';
 
-	type Alien = { x: number; y: number; vx: number; vy: number; alive: boolean };
-	type Bullet = { x: number; y: number; vx: number; vy: number };
-	type Bomb = { x: number; y: number };
+	interface Alien { x: number; y: number; vx: number; vy: number; alive: boolean }
+	interface Bullet { x: number; y: number; vx: number; vy: number }
+	interface Bomb { x: number; y: number }
 
 	const ALIEN_N = 56; // a real swarm
 	const ALIEN = 24; // sprite box (px)
@@ -76,6 +76,7 @@
 	let player = 0; // ship left edge x
 	let bullets: Bullet[] = [];
 	let bombs: Bomb[] = [];
+	// eslint-disable-next-line svelte/prefer-svelte-reactivity -- rAF-loop input state; never read by the template
 	const keys = new Set<string>();
 
 	// Boids tuning. Forces are accelerations (px/s²); velocity is clamped to
@@ -132,7 +133,7 @@
 	function dropBomb() {
 		const alive = aliveAliens();
 		if (alive.length === 0) return;
-		const a = alive[Math.floor(Math.random() * alive.length)];
+		const a = alive[Math.floor(Math.random() * alive.length)]!;
 		bombs.push({ x: a.x + ALIEN / 2 - BOMB_W / 2, y: a.y + ALIEN });
 	}
 

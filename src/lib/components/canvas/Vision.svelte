@@ -3,7 +3,7 @@
 
   interface Props {
     src: string;
-    poster?: string;
+    poster?: string | undefined;
   }
 
   let { src, poster }: Props = $props();

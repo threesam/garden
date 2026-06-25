@@ -67,7 +67,7 @@ const emailDomain = (email: string) => email.slice(email.lastIndexOf('@') + 1) |
 // parses the key + sets up the fetch wrapper — skip that on the hot path.
 let _resend: Resend | null = null;
 function resendClient(): Resend {
-	if (!_resend) _resend = new Resend(env.RESEND_API_KEY);
+	_resend ??= new Resend(env['RESEND_API_KEY']);
 	return _resend;
 }
 
@@ -107,7 +107,7 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 
 	// Config check before the rate-limit mark so a misconfigured deploy
 	// returns 500 without burning the caller's one-per-minute window.
-	if (!env.RESEND_API_KEY) {
+	if (!env['RESEND_API_KEY']) {
 		log('config_error', { ip, reason: 'RESEND_API_KEY missing' });
 		error(500, 'service unavailable');
 	}
@@ -122,7 +122,7 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 	}
 	rateLimit.set(ip, Date.now());
 
-	const from = env.MESSAGE_FROM_EMAIL || DEFAULT_FROM;
+	const from = env['MESSAGE_FROM_EMAIL'] || DEFAULT_FROM;
 	const started = Date.now();
 	const result = await resendClient()
 		.emails.send({
@@ -151,7 +151,7 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 
 	log('sent', {
 		ip,
-		id: result.data?.id,
+		id: result.data.id,
 		emailDomain: emailDomain(email),
 		bodyLen: body.length,
 		ms: Date.now() - started,

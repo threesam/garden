@@ -14,7 +14,7 @@
   import OutboundTracker from '$lib/components/OutboundTracker.svelte';
   import Anchor from '$lib/components/frame/Anchor.svelte';
 
-  let { children } = $props();
+  let { children }: { children: import('svelte').Snippet } = $props();
 
   // Analytics only fire on the canonical prod host. Vercel preview URLs
   // and local dev see no tracker — so feature work, link checks, and
@@ -31,7 +31,7 @@
       src: 'https://analytics.sixtom.com/script.js',
       async: true,
     });
-    script.dataset.websiteId = '2a502ffa-58a1-4057-be13-e46f0354cfb7';
+    script.dataset['websiteId'] = '2a502ffa-58a1-4057-be13-e46f0354cfb7';
     document.head.append(preconnect, script);
   });
 </script>

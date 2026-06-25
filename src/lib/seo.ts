@@ -30,7 +30,7 @@ export const WEBSITE_ID = `${SITE_URL}/#website`;
  * formats. (The homepage gallery curates its own visual subset separately, as
  * its cards carry per-handle canvas wiring beyond a plain path/label.)
  */
-export const SITE_PAGES: Array<{ path: string; label: string; blurb: string }> = [
+export const SITE_PAGES: { path: string; label: string; blurb: string }[] = [
   {
     path: "/self",
     label: "self",
@@ -163,12 +163,12 @@ export function articleNode(opts: {
     author: { "@id": PERSON_ID },
     publisher: { "@id": PERSON_ID },
   };
-  if (opts.image) node.image = absUrl(opts.image);
-  if (opts.datePublished) node.datePublished = opts.datePublished;
+  if (opts.image) node['image'] = absUrl(opts.image);
+  if (opts.datePublished) node['datePublished'] = opts.datePublished;
   // Always present so engines have a freshness signal; an explicit value wins
   // when an essay is edited, else it mirrors datePublished.
   if (opts.dateModified ?? opts.datePublished)
-    node.dateModified = opts.dateModified ?? opts.datePublished;
+    node['dateModified'] = opts.dateModified ?? opts.datePublished;
   return node;
 }
 
@@ -211,15 +211,15 @@ export function creativeWorkNode(opts: {
     creator: { "@id": PERSON_ID },
     isPartOf: { "@id": `${SITE_URL}/anything-but-analog#webpage` },
   };
-  if (opts.image) node.image = absUrl(opts.image);
-  if (opts.datePublished) node.datePublished = opts.datePublished;
+  if (opts.image) node['image'] = absUrl(opts.image);
+  if (opts.datePublished) node['datePublished'] = opts.datePublished;
   return node;
 }
 
 /** BreadcrumbList — gives answer engines a way to surface the page in
  * site context ("Home › Shelf"). Pass the trail from root → current. */
 export function breadcrumbNode(
-  trail: Array<{ path: string; name: string }>,
+  trail: { path: string; name: string }[],
 ): object {
   return {
     "@type": "BreadcrumbList",
@@ -239,7 +239,7 @@ export function breadcrumbNode(
 export function musicPlaylistNode(opts: {
   path: string;
   name: string;
-  tracks: Array<{ name: string; url?: string }>;
+  tracks: { name: string; url?: string }[];
 }): object {
   return {
     "@type": "MusicPlaylist",
@@ -281,7 +281,7 @@ export function homePageNode(): object {
 export function itemListNode(opts: {
   path: string;
   name: string;
-  items: Array<{ url: string; name: string }>;
+  items: { url: string; name: string }[];
 }): object {
   return {
     "@type": "ItemList",

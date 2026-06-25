@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createRawSnippet, mount, onMount, unmount } from 'svelte';
+  import { mount, onMount, unmount } from 'svelte';
   import '$lib/fonts/epilogue'; // .tier-essay body copy
   import SeoHead from '$lib/components/SeoHead.svelte';
   import { profilePageNode } from '$lib/seo';
@@ -7,7 +7,7 @@
   import VoronoiCanvas from '$lib/components/canvas/VoronoiCanvas.svelte';
   import VoronoiImage from '$lib/components/canvas/VoronoiImage.svelte';
   import AnythingButAnalogBanner from '$lib/components/banners/AnythingButAnalogBanner.svelte';
-  import { scheduleIdle, cancelIdle } from '$lib/perf/idle';
+  import { assetAspect } from '$lib/asset-dimensions';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -26,10 +26,10 @@
 
   // Extract banner images (alt contains "|") from the markdown,
   // replacing each with a <!-- slot-id --> marker.
-  type BannerSlot = { src: string; alt: string };
+  interface BannerSlot { src: string; alt: string }
 
   const extracted = $derived.by(() => {
-    if (!markdown) return { processed: '', banners: {} as Record<string, BannerSlot> };
+    if (!markdown) return { processed: '', banners: {} };
     const banners: Record<string, BannerSlot> = {};
     let i = 0;
     const imageRegex = /!\[([^\]]*)\]\(([^)\s]+)\)/g;
@@ -42,68 +42,46 @@
     return { processed, banners };
   });
 
-  // createRawSnippet mounts VoronoiImage components into Prose's slot system,
-  // bypassing SSR hydration issues with {@html} markers. Mount is deferred
-  // until the slot scrolls within 400px of the viewport — voronoi canvases
-  // are expensive (each is a WebGL pipeline) and the 6 banners eat ~1s of
-  // TBT if mounted eagerly.
+  // Each banner is a mount-fn slot: Prose renders a placeholder <div> in its
+  // single {@html} pass and calls mount() into it after hydration (no
+  // interleaved {@render}, so no hydration_mismatch). VoronoiImage mounts
+  // eagerly so its banner box reserves the correct layout space up front (via
+  // the precomputed `aspect`) — no CLS. The expensive bit, the WebGL canvas,
+  // is deferred inside VoronoiImage (LazyMount + idle) so the six shader
+  // compiles still don't stack ~1s of TBT at load.
   const voronoiSlots = $derived(
     Object.fromEntries(
       Object.entries(extracted.banners).map(([id, banner]) => {
         const src = banner.src;
         const alt = banner.alt;
+        const aspect = assetAspect(src);
         return [
           id,
-          createRawSnippet(() => ({
-            render: () => `<div data-voronoi-slot="${id}" class="my-12 -mx-6 md:-mx-9"></div>`,
-            setup(node: Element) {
-              let instance: ReturnType<typeof mount> | null = null;
-              let idleHandle: number | null = null;
-              // rootMargin 400px -> 200px keeps the prefetch buffer just
-              // outside the viewport (one slot at a time during normal
-              // scroll instead of 2-3 simultaneously); scheduleIdle()
-              // defers the mount so the WebGL shader compile (~80-150 ms)
-              // lands in an idle gap rather than stacking into a long task.
-              const io = new IntersectionObserver(
-                (entries) => {
-                  if (entries[0].isIntersecting && !instance) {
-                    io.disconnect();
-                    idleHandle = scheduleIdle(() => {
-                      idleHandle = null;
-                      if (instance) return;
-                      instance = mount(VoronoiImage, { target: node, props: { src, alt } });
-                    });
-                  }
-                },
-                { rootMargin: '200px' }
-              );
-              io.observe(node);
-              return () => {
-                io.disconnect();
-                if (idleHandle != null) cancelIdle(idleHandle);
-                if (instance) unmount(instance);
-              };
+          {
+            class: 'my-12 -mx-6 md:-mx-9',
+            mount: (node: HTMLElement) => {
+              const instance = mount(VoronoiImage, { target: node, props: { src, alt, aspect } });
+              return () => { void unmount(instance); };
             },
-          })),
+          },
         ];
       })
     )
   );
 
   // The <!-- anything-but-analog --> slot in self.md renders the ABA full-bleed banner.
-  const abaSnippet = createRawSnippet(() => ({
-    render: () => `<div data-aba-slot></div>`,
-    setup(node: Element) {
+  const abaSlot = {
+    mount: (node: HTMLElement) => {
       const instance = mount(AnythingButAnalogBanner, {
         target: node,
         props: { href: '/anything-but-analog' },
       });
-      return () => unmount(instance);
+      return () => { void unmount(instance); };
     },
-  }));
+  };
 
   const proseSlots = $derived({
-    'anything-but-analog': abaSnippet,
+    'anything-but-analog': abaSlot,
     ...voronoiSlots,
   });
 </script>
@@ -125,12 +103,17 @@
        viewports fetch the 170 KB portrait variant, landscape the 225 KB
        landscape. media= on each preload means only one fires per viewport,
        and it matches the <source>/<img> the browser will actually paint. -->
+  <!-- crossorigin="anonymous" matches the WebGL texture fetch in the voronoi
+       action (img.crossOrigin = 'anonymous'). Without it the preload's
+       credentials mode differs from the actual request, so the browser won't
+       reuse the preloaded bytes and warns the preload went unused. -->
   <link
     rel="preload"
     as="image"
     href="/assets/self-hero-mobile.webp"
     media="(orientation: portrait)"
     fetchpriority="high"
+    crossorigin="anonymous"
   />
   <link
     rel="preload"
@@ -138,6 +121,7 @@
     href="/assets/self-hero.webp"
     media="(orientation: landscape)"
     fetchpriority="high"
+    crossorigin="anonymous"
   />
 </svelte:head>
 

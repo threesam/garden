@@ -1,0 +1,40 @@
+# Lockdown gates: every PR and push to main must hold the line on
+# strict TS (svelte-check --fail-on-warnings), strict ESLint, unit tests,
+# and a production build. Playwright e2e/visual runs locally against prod
+# parity (see CLAUDE.md) — not here, to keep CI fast and browser-free.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.29.3
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: install (frozen)
+        run: pnpm install --frozen-lockfile
+
+      - name: typecheck (svelte-check, zero warnings)
+        run: pnpm check
+
+      - name: lint (eslint strict type-checked)
+        run: pnpm lint
+
+      - name: unit tests (vitest)
+        run: pnpm test
+
+      - name: build (vite production)
+        run: pnpm build

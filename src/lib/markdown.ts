@@ -2,21 +2,22 @@ import { Marked } from "marked";
 import { markedEmoji } from "marked-emoji";
 import * as emoji from "node-emoji";
 import { linkClasses } from "$lib/components/link";
+import { assetDimensions } from "$lib/asset-dimensions";
 
-const emojiMap = new Proxy({} as Record<string, string>, {
+const emojiMap = new Proxy({}, {
   get(_, name: string) {
-    return emoji.get(name as string);
+    return emoji.get(name);
   },
   has(_, name: string) {
-    return emoji.has(name as string);
+    return emoji.has(name);
   },
 });
 
-// Known intrinsic dimensions for inline (non-banner) images.
-// Allows browsers to reserve layout space before image loads, preventing CLS.
-const knownDimensions: Record<string, { w: number; h: number }> = {
-  '/assets/chip-malt-new-address.png': { w: 1142, h: 134 },
-};
+// Minimal escape for text interpolated into a double-quoted HTML attribute.
+// (& first so it doesn't re-escape the entities it just produced.)
+function escapeAttr(text: string): string {
+  return text.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+}
 
 export function createMarkdownRenderer(): Marked {
   const md = new Marked();
@@ -50,10 +51,13 @@ export function createMarkdownRenderer(): Marked {
         return `<a href="${href}"${external ? ' target="_blank" rel="noopener noreferrer"' : ""} class="${linkClasses}">${text}</a>`;
       },
       image({ href, text }) {
-        if (text && text.includes("|")) {
+        if (text.includes("|")) {
           const parts = text.split("|");
-          const heading = parts[0].trim().replace(/\\n/g, "<br/>");
-          const color = parts[1]?.trim() || "white";
+          // Escape heading + color before they're interpolated into the {@html}
+          // banner markup; re-introduce the one intended tag (\n → <br/>).
+          const rawHeading = parts[0]!.trim();
+          const heading = escapeAttr(rawHeading).replace(/\\n/g, "<br/>");
+          const color = escapeAttr(parts[1]?.trim() || "white");
           const pos = parts[2]?.trim() || "left";
           const isBottom = pos.startsWith("bottom");
           const isRight = pos.includes("right");
@@ -62,11 +66,13 @@ export function createMarkdownRenderer(): Marked {
           if (isCenter) hClass = "left-1/2 -translate-x-1/2 text-center";
           else if (isRight) hClass = "right-6 text-right md:right-18";
           const vClass = isBottom ? "bottom-6 md:bottom-18" : "top-6 md:top-18";
-          return `<div class="relative my-12 -mx-6 md:-mx-9"><img src="${href}" alt="${heading}" class="w-full md:rounded-lg" loading="lazy" /><span class="absolute ${vClass} ${hClass} font-mono text-2xl font-bold uppercase tracking-base md:text-5xl" style="color: ${color}">${heading}</span></div>`;
+          return `<div class="relative my-12 -mx-6 md:-mx-9"><img src="${href}" alt="${escapeAttr(rawHeading)}" class="w-full md:rounded-lg" loading="lazy" /><span class="absolute ${vClass} ${hClass} font-mono text-2xl font-bold uppercase tracking-base md:text-5xl" style="color: ${color}">${heading}</span></div>`;
         }
-        const dims = knownDimensions[href];
+        const dims = assetDimensions[href];
         const dimAttrs = dims ? ` width="${dims.w}" height="${dims.h}"` : '';
-        return `<img src="${href}" alt="${text ?? ""}"${dimAttrs} class="relative my-9 -mx-6 block w-full rounded-lg md:-mx-9" loading="lazy" />`;
+        // Sits at content width inside the section's padding (aligned with the
+        // body text) and centred — no edge bleed.
+        return `<img src="${href}" alt="${escapeAttr(text)}"${dimAttrs} class="relative my-9 block w-full rounded-lg" loading="lazy" />`;
       },
     },
   });
@@ -93,7 +99,7 @@ export function splitMarkdownContent(markdown: string): ContentPart[] {
     if (before.trim()) {
       parts.push({ type: "html", html: md.parse(before) as string });
     }
-    parts.push({ type: "slot", name: match[1] });
+    parts.push({ type: "slot", name: match[1]! });
     lastIndex = match.index + match[0].length;
   }
 

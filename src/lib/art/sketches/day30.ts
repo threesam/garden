@@ -257,8 +257,7 @@ export const day30: Sketch = {
 
         // Rebuild spatial hash.
         grid.clear();
-        for (let i = 0; i < walkers.length; i++) {
-          const wk = walkers[i];
+        for (const wk of walkers) {
           const cx = Math.floor(wk.x / CELL);
           const cy = Math.floor(wk.y / CELL);
           const k = cellKey(cx, cy);
@@ -267,8 +266,7 @@ export const day30: Sketch = {
           else grid.set(k, [wk]);
         }
 
-        for (let i = 0; i < walkers.length; i++) {
-          const wk = walkers[i];
+        for (const wk of walkers) {
           // Curl-of-noise: treat `noise` as a stream function ψ and
           // take its 2D curl — F = (∂ψ/∂y, -∂ψ/∂x) — via central
           // differences. Four noise lookups per walker; 900 × 4 =
@@ -294,8 +292,7 @@ export const day30: Sketch = {
             for (let oy = -1; oy <= 1; oy++) {
               const bucket = grid.get(cellKey(cx + ox, cy + oy));
               if (!bucket) continue;
-              for (let j = 0; j < bucket.length; j++) {
-                const other = bucket[j];
+              for (const other of bucket) {
                 if (other === wk) continue;
                 const ddx = wk.x - other.x;
                 const ddy = wk.y - other.y;

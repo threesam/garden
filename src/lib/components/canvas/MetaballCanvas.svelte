@@ -2,7 +2,7 @@
   import { metaball } from './actions/metaball';
   import type { MetaballParams } from './actions/metaball';
 
-  interface Props extends MetaballParams {}
+  type Props = MetaballParams;
 
   let {
     color = [0.1, 0.1, 0.08],

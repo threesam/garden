@@ -41,7 +41,7 @@
 		// worse than a single blank frame.
 		const preload = () => {
 			if (cancelled) return;
-			Promise.all(
+			void Promise.all(
 				srcs.slice(1).map((s, i) => {
 					const img = new Image();
 					img.srcset = asciiSrcset(s);
@@ -51,7 +51,7 @@
 						() => {
 							if (!cancelled) mounted.add(i + 1);
 						},
-						() => {},
+						() => undefined, // resolve regardless — a failed preload just skips the crossfade
 					);
 				}),
 			).then(startCycle);

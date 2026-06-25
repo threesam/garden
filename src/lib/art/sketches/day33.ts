@@ -40,8 +40,9 @@ export const day33: Sketch = {
           video: { width: 640, height: 480 },
           audio: false,
         });
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- set by cleanup() during the getUserMedia await; the rule can't model cross-closure mutation
         if (cancelled) {
-          stream.getTracks().forEach((t) => t.stop());
+          stream.getTracks().forEach((t) => { t.stop(); });
           return;
         }
         video = document.createElement("video");
@@ -59,7 +60,7 @@ export const day33: Sketch = {
 
     function onClick() {
       if (!armed) return;
-      enable();
+      void enable();
     }
     // Arm the click handler after one tick so the sketch doesn't grab the
     // very scroll-click that landed the user on the section.
@@ -100,7 +101,7 @@ export const day33: Sketch = {
         window.clearTimeout(armTimer);
         canvas.removeEventListener("click", onClick);
         canvas.removeEventListener("touchend", onClick);
-        if (stream) stream.getTracks().forEach((t) => t.stop());
+        if (stream) stream.getTracks().forEach((t) => { t.stop(); });
         if (video) video.srcObject = null;
       },
     };

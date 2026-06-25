@@ -1,5 +1,5 @@
 import type { Action } from 'svelte/action';
-import { sampleImage, renderAsciiFrame, getGrid } from '$lib/ascii/ascii-utils.js';
+import { sampleImage, getGrid } from '$lib/ascii/ascii-utils.js';
 
 const FADE_MS = 800;
 const CYCLE_MS = 3000;
@@ -14,7 +14,8 @@ export interface AsciiImageConfig {
 }
 
 export const asciiImage: Action<HTMLCanvasElement, AsciiImageConfig> = (canvas, config) => {
-	let { srcs, inverted = false, onReady } = config;
+	const { onReady } = config;
+	let { srcs, inverted = false } = config;
 	let firstFramePainted = false;
 
 	const container = canvas.parentElement as HTMLDivElement;
@@ -86,10 +87,11 @@ export const asciiImage: Action<HTMLCanvasElement, AsciiImageConfig> = (canvas, 
 
 		for (let y = 0; y < rows; y++) {
 			for (let x = 0; x < cols; x++) {
+				// RGBA stride: pixels.length = cols * rows * 4, so off..off+2 are in-bounds.
 				const off = (y * cols + x) * 4;
-				const r = pixels[off];
-				const g = pixels[off + 1];
-				const b = pixels[off + 2];
+				const r = pixels[off]!;
+				const g = pixels[off + 1]!;
+				const b = pixels[off + 2]!;
 				const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
 
 				// lumToTone
@@ -120,7 +122,7 @@ export const asciiImage: Action<HTMLCanvasElement, AsciiImageConfig> = (canvas, 
 		const { w, h, cols, rows } = getLayout();
 		if (w === 0 || h === 0) return;
 		if (w !== lastW || h !== lastH) setupCanvas(w, h);
-		const pixels = sampleImg(images[currentIdx], cols, rows, w, h);
+		const pixels = sampleImg(images[currentIdx]!, cols, rows, w, h);
 		if (!pixels) return;
 		renderFrame(pixels, cols, rows, w, h);
 	}
@@ -132,8 +134,8 @@ export const asciiImage: Action<HTMLCanvasElement, AsciiImageConfig> = (canvas, 
 		if (w === 0 || h === 0) return;
 		if (w !== lastW || h !== lastH) setupCanvas(w, h);
 
-		const cur = sampleImg(images[currentIdx], cols, rows, w, h);
-		const nxt = sampleImg(images[nextIdx], cols, rows, w, h);
+		const cur = sampleImg(images[currentIdx]!, cols, rows, w, h);
+		const nxt = sampleImg(images[nextIdx]!, cols, rows, w, h);
 		if (!cur) return;
 		const curPixels = cur;
 
@@ -146,7 +148,7 @@ export const asciiImage: Action<HTMLCanvasElement, AsciiImageConfig> = (canvas, 
 
 			if (nxt) {
 				for (let i = 0; i < curPixels.length; i++) {
-					blended[i] = Math.floor(curPixels[i] * (1 - smooth) + nxt[i] * smooth);
+					blended[i] = Math.floor(curPixels[i]! * (1 - smooth) + nxt[i]! * smooth);
 				}
 				renderFrame(blended, cols, rows, w, h);
 			} else {

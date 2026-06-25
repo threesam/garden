@@ -15,17 +15,18 @@ export async function extractDominantColor(
         canvas.width = size;
         canvas.height = size;
         const ctx = canvas.getContext("2d", { willReadFrequently: true });
-        if (!ctx) return resolve(null);
+        if (!ctx) { resolve(null); return; }
         ctx.drawImage(img, 0, 0, size, size);
         const { data } = ctx.getImageData(0, 0, size, size);
 
         const buckets = new Map<string, { r: number; g: number; b: number; count: number; score: number }>();
 
         for (let i = 0; i < data.length; i += 4) {
-          const r = data[i];
-          const g = data[i + 1];
-          const b = data[i + 2];
-          const a = data[i + 3];
+          // RGBA stride: ImageData length is a multiple of 4, so i+1..i+3 are in-bounds.
+          const r = data[i]!;
+          const g = data[i + 1]!;
+          const b = data[i + 2]!;
+          const a = data[i + 3]!;
           if (a < 200) continue;
 
           const max = Math.max(r, g, b);
@@ -61,7 +62,7 @@ export async function extractDominantColor(
           }
         }
 
-        if (buckets.size === 0) return resolve(null);
+        if (buckets.size === 0) { resolve(null); return; }
 
         let winner: { r: number; g: number; b: number; count: number } | null = null;
         for (const bucket of buckets.values()) {
@@ -69,7 +70,7 @@ export async function extractDominantColor(
             winner = { r: bucket.r, g: bucket.g, b: bucket.b, count: bucket.score };
           }
         }
-        if (!winner) return resolve(null);
+        if (!winner) { resolve(null); return; }
 
         resolve([
           winner.r / winner.count / 255,
@@ -80,7 +81,7 @@ export async function extractDominantColor(
         resolve(null);
       }
     };
-    img.onerror = () => resolve(null);
+    img.onerror = () => { resolve(null); };
     img.src = src;
   });
 }

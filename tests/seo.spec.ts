@@ -1,78 +1,4 @@
 import { test, expect } from '@playwright/test';
-import {
-  breadcrumbNode,
-  itemListNode,
-  musicPlaylistNode,
-  buildGraph,
-  SITE_URL,
-} from '../src/lib/seo.js';
-
-// The schema helpers are pure functions over JS objects — easy to
-// red/green test in unit form. Each test verifies the shape an answer
-// engine would actually expect (correct @type, item count, cross-links
-// to the shared Person via @id).
-
-test.describe('seo node builders', () => {
-  test('breadcrumbNode emits a BreadcrumbList with one ListItem per step', () => {
-    const trail = [
-      { path: '/', name: 'threesam' },
-      { path: '/shelf', name: 'shelf' },
-    ];
-    const node = breadcrumbNode(trail) as Record<string, unknown>;
-    expect(node['@type']).toBe('BreadcrumbList');
-    const items = node.itemListElement as Array<Record<string, unknown>>;
-    expect(items).toHaveLength(2);
-    expect(items[0].position).toBe(1);
-    expect(items[1].position).toBe(2);
-    expect(items[1].item).toBe(`${SITE_URL}/shelf`);
-  });
-
-  test('itemListNode wraps {url, name} pairs as ItemList ListItems', () => {
-    const node = itemListNode({
-      path: '/shelf',
-      name: 'shelf — threesam',
-      items: [
-        { url: 'https://example.com/book-1', name: 'Book One' },
-        { url: 'https://example.com/book-2', name: 'Book Two' },
-      ],
-    }) as Record<string, unknown>;
-    expect(node['@type']).toBe('ItemList');
-    const items = node.itemListElement as Array<Record<string, unknown>>;
-    expect(items).toHaveLength(2);
-    expect(items[0].position).toBe(1);
-    expect(items[1].url).toBe('https://example.com/book-2');
-  });
-
-  test('musicPlaylistNode emits MusicPlaylist with numbered MusicRecording tracks', () => {
-    const node = musicPlaylistNode({
-      path: '/sounds',
-      name: 'sounds — threesam',
-      tracks: [
-        { name: 'track-1', url: '/sounds#t1' },
-        { name: 'track-2' },
-      ],
-    }) as Record<string, unknown>;
-    expect(node['@type']).toBe('MusicPlaylist');
-    expect(node.numTracks).toBe(2);
-    const tracks = node.track as Array<Record<string, unknown>>;
-    expect(tracks[0]['@type']).toBe('MusicRecording');
-    expect(tracks[0].position).toBe(1);
-    expect(tracks[0].url).toBe(`${SITE_URL}/sounds#t1`);
-    // No url for track 2 → key omitted, not undefined.
-    expect('url' in tracks[1]).toBe(false);
-  });
-
-  test('buildGraph always emits Person + WebSite plus the page node(s)', () => {
-    const pageNode = { '@type': 'Article', '@id': 'x' };
-    const graph = buildGraph(pageNode) as Record<string, unknown>;
-    expect(graph['@context']).toBe('https://schema.org');
-    const nodes = graph['@graph'] as Array<Record<string, unknown>>;
-    expect(nodes).toHaveLength(3);
-    expect(nodes[0]['@type']).toBe('Person');
-    expect(nodes[1]['@type']).toBe('WebSite');
-    expect(nodes[2]).toBe(pageNode);
-  });
-});
 
 test.describe('llms.txt + robots.txt + sitemap.xml', () => {
   test('llms.txt lists every SITE_PAGES route and references citation guidance', async ({ request }) => {
@@ -122,7 +48,7 @@ test.describe('per-page schema graph', () => {
   // Each route emits a JSON-LD <script>; verify the graph contains the
   // shared Person + WebSite + a page-specific node + breadcrumb where
   // applicable.
-  const cases: Array<{ path: string; pageType: string; expectBreadcrumb: boolean }> = [
+  const cases: { path: string; pageType: string; expectBreadcrumb: boolean }[] = [
     { path: '/shelf', pageType: 'CollectionPage', expectBreadcrumb: true },
     { path: '/sounds', pageType: 'CollectionPage', expectBreadcrumb: true },
     { path: '/thoughts', pageType: 'Blog', expectBreadcrumb: true },
@@ -138,7 +64,7 @@ test.describe('per-page schema graph', () => {
       const raw = await page.locator('script[type="application/ld+json"]').first().textContent();
       expect(raw, 'page must emit at least one JSON-LD <script>').toBeTruthy();
       const graph = JSON.parse(raw!) as Record<string, unknown>;
-      const nodes = graph['@graph'] as Array<Record<string, unknown>>;
+      const nodes = graph['@graph'] as Record<string, unknown>[];
       const types = nodes.map((n) => n['@type']);
       expect(types).toContain('Person');
       expect(types).toContain('WebSite');

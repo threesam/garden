@@ -6,11 +6,11 @@ const STATIC_ROUTES = ['/', ...SITE_PAGES.map((p) => p.path)];
 
 export const prerender = true;
 
-export async function GET() {
+export function GET() {
   // Only emit <lastmod> where we have a real content date; stamping every
   // static route with the build time is meaningless and search engines learn
   // to distrust it.
-  const entries: Array<{ url: string; lastmod?: string }> = [
+  const entries: { url: string; lastmod?: string }[] = [
     ...STATIC_ROUTES.map((p) => ({ url: `${SITE_URL}${p}` })),
     ...visibleSketches.map((s) => ({
       url: `${SITE_URL}/anything-but-analog/${s.slug}`,

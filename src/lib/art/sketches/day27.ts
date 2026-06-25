@@ -34,7 +34,7 @@ export const day27: Sketch = {
           x,
           y,
           size: Math.floor(map(n, 0, 1, space * 0.69, space * 1.5)),
-          color: palette[Math.floor(rng() * palette.length)],
+          color: palette[Math.floor(rng() * palette.length)]!,
           a: Math.floor(map(y, start, end, 255, 10)),
         });
       }

@@ -12,7 +12,7 @@
 		exchange: ExchangeMsg[];
 	}
 
-	const firstNight = (modulesData as Record<string, unknown>).first_night as FirstNightData | null;
+	const firstNight = (modulesData as Record<string, unknown>)['first_night'] as FirstNightData | null;
 </script>
 
 {#if firstNight}

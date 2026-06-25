@@ -15,20 +15,20 @@
   }
 
   interface Props {
-    src?: string;
-    sources?: Source[];
-    tracks?: Track[];
-    poster?: string;
-    autoplay?: boolean;
-    controls?: boolean;
-    loop?: boolean;
-    muted?: boolean;
-    playsinline?: boolean;
-    preload?: '' | 'none' | 'metadata' | 'auto';
-    fetchpriority?: 'high' | 'low' | 'auto';
-    'aria-label'?: string;
-    class?: string;
-    children?: import('svelte').Snippet;
+    src?: string | undefined;
+    sources?: Source[] | undefined;
+    tracks?: Track[] | undefined;
+    poster?: string | undefined;
+    autoplay?: boolean | undefined;
+    controls?: boolean | undefined;
+    loop?: boolean | undefined;
+    muted?: boolean | undefined;
+    playsinline?: boolean | undefined;
+    preload?: '' | 'none' | 'metadata' | 'auto' | undefined;
+    fetchpriority?: 'high' | 'low' | 'auto' | undefined;
+    'aria-label'?: string | undefined;
+    class?: string | undefined;
+    children?: import('svelte').Snippet | undefined;
   }
 
   let {
@@ -67,7 +67,7 @@
   muted={muted || undefined}
   playsinline={playsinline || undefined}
   {preload}
-  {fetchpriority}
+  fetchpriority={fetchpriority ?? 'auto'}
   aria-label={ariaLabel}
   class={klass}
   use:videoVisibility={{ autoplay }}

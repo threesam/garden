@@ -58,6 +58,7 @@
 
     <!-- Rendered by the shared markdown renderer (styled prose), same
          treatment the other content pages use. Author-controlled markdown. -->
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -- author-authored markdown rendered by our own pipeline -->
     {@html html}
 
     <footer class="mt-18 border-t border-zinc-800 pt-9 md:mt-24">

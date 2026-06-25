@@ -55,7 +55,7 @@ export const day21: Sketch = {
     // across the grid instead of sweeping corner-to-corner.
     for (let i = vectors.length - 1; i > 0; i--) {
       const j = Math.floor(rng() * (i + 1));
-      [vectors[i], vectors[j]] = [vectors[j], vectors[i]];
+      [vectors[i], vectors[j]] = [vectors[j]!, vectors[i]!];
     }
 
     ctx.fillStyle = "rgb(26,26,20)";
@@ -66,7 +66,7 @@ export const day21: Sketch = {
       tick(_, frame) {
         const revealed = Math.min(frame + 1, vectors.length);
         for (let i = 0; i < revealed; i++) {
-          const v = vectors[i];
+          const v = vectors[i]!;
 
           // Curl-of-noise: treat `noise` as a stream function ψ and take
           // its 2D curl — F = (∂ψ/∂y, -∂ψ/∂x) — via central differences.

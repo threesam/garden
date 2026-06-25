@@ -10,12 +10,12 @@
 	import { DEANA_ASCII } from '$lib/deana/images.js';
 
 	const HP_ASCII = [
-		DEANA_ASCII[4],
-		DEANA_ASCII[0],
-		DEANA_ASCII[1],
-		DEANA_ASCII[2],
-		DEANA_ASCII[3],
-		DEANA_ASCII[5],
+		DEANA_ASCII[4]!,
+		DEANA_ASCII[0]!,
+		DEANA_ASCII[1]!,
+		DEANA_ASCII[2]!,
+		DEANA_ASCII[3]!,
+		DEANA_ASCII[5]!,
 	];
 </script>
 

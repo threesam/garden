@@ -10,7 +10,7 @@
 	let canvas: HTMLCanvasElement | undefined = $state();
 	let cols = $state(20);
 	let rows = $state(20);
-	let snake = $state<Array<[number, number]>>([]);
+	let snake = $state<[number, number][]>([]);
 	let dir = $state<[number, number]>([1, 0]);
 	let pendingDir = $state<[number, number]>([1, 0]);
 	let food = $state<[number, number]>([0, 0]);
@@ -44,20 +44,20 @@
 
 	function placeFood() {
 		const occupied = new Set(snake.map(([x, y]) => `${x},${y}`));
-		const free: Array<[number, number]> = [];
+		const free: [number, number][] = [];
 		for (let x = 0; x < cols; x++) {
 			for (let y = 0; y < rows; y++) {
 				if (!occupied.has(`${x},${y}`)) free.push([x, y]);
 			}
 		}
 		if (free.length === 0) return;
-		food = free[Math.floor(Math.random() * free.length)];
+		food = free[Math.floor(Math.random() * free.length)]!;
 	}
 
 	function step() {
 		if (gameOver) return;
 		dir = pendingDir;
-		const head: [number, number] = [snake[0][0] + dir[0], snake[0][1] + dir[1]];
+		const head: [number, number] = [snake[0]![0] + dir[0], snake[0]![1] + dir[1]];
 		if (head[0] < 0 || head[0] >= cols || head[1] < 0 || head[1] >= rows) {
 			gameOver = true;
 			gameMode.handleGameOver();

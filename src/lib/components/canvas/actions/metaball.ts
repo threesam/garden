@@ -61,7 +61,7 @@ export interface MetaballParams {
 }
 
 export const metaball: Action<HTMLCanvasElement, MetaballParams> = (node, initialParams) => {
-  let params: MetaballParams = initialParams ?? {};
+  let params: MetaballParams = initialParams;
 
   const glRaw = node.getContext('webgl', { alpha: true, premultipliedAlpha: false });
   if (!glRaw) return {};
@@ -71,7 +71,7 @@ export const metaball: Action<HTMLCanvasElement, MetaballParams> = (node, initia
   const vs = compileShader(gl, gl.VERTEX_SHADER, VERT);
   const fs = compileShader(gl, gl.FRAGMENT_SHADER, FRAG);
   if (!vs || !fs) return {};
-  const prog = gl.createProgram()!;
+  const prog = gl.createProgram();
   gl.attachShader(prog, vs);
   gl.attachShader(prog, fs);
   gl.linkProgram(prog);
@@ -252,7 +252,7 @@ export const metaball: Action<HTMLCanvasElement, MetaballParams> = (node, initia
     gl.uniform2f(uRes, w, h);
     gl.uniform3f(uColorLoc, color[0], color[1], color[2]);
     for (let i = 0; i < NUM_BALLS; i++) {
-      const b = balls[i];
+      const b = balls[i]!;
       ballsBuf[i * 2] = b.x;
       ballsBuf[i * 2 + 1] = h - b.y;
       radiiBuf[i] = b.r;
@@ -273,7 +273,7 @@ export const metaball: Action<HTMLCanvasElement, MetaballParams> = (node, initia
   resize();
   initBalls();
 
-  const ro = new ResizeObserver(() => resize());
+  const ro = new ResizeObserver(() => { resize(); });
   ro.observe(node);
 
   const io = new IntersectionObserver(
