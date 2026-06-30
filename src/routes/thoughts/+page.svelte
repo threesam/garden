@@ -58,13 +58,19 @@
   // ?v=N busts the immutable 1-year cache when we re-bake the source
   // (covers iOS Safari, which won't even check the server otherwise).
   // Bump the version every time you change generate-thoughts-pixel.mjs.
-  const PIXEL_V = 2;
+  const PIXEL_V = 3;
   const cards = [
     {
       href: "/thoughts/the-peach",
       title: "the peach",
       description: "you have to taste it first.",
       img: `/assets/thoughts-pixel/the-peach.webp?v=${PIXEL_V}`,
+    },
+    {
+      href: "/thoughts/certainly-uncertain",
+      title: "certainly uncertain",
+      description: "crush the chips.",
+      img: `/assets/thoughts-pixel/certainly-uncertain.webp?v=${PIXEL_V}`,
     },
     {
       href: "/self",

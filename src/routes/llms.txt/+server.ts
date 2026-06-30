@@ -41,6 +41,7 @@ ${pages}
 Short personal thoughts, each with its own page under /thoughts:
 
 - [the peach](${SITE_URL}/thoughts/the-peach): you have to taste a thing before you judge it — the day Sam's parents threw out the pantry and handed him a peach.
+- [certainly uncertain](${SITE_URL}/thoughts/certainly-uncertain): the same day the pantry got emptied, told through what was underneath it — agency, the certainty that you can't know, and the cost of never feeling done.
 
 ## About
 
