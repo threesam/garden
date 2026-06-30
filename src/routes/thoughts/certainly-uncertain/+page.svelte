@@ -16,13 +16,10 @@
   description="the only certainty is that you can't know."
   canonical="/thoughts/certainly-uncertain"
   ogType="article"
-  ogImage="/assets/certainly-uncertain.webp"
-  ogImageAlt="a grid of book covers from a personal library"
-  preloadImage="/assets/certainly-uncertain.webp"
   schema={articleNode({
     path: "/thoughts/certainly-uncertain",
     headline: "certainly uncertain",
-    image: "/assets/certainly-uncertain.webp",
+    image: "/og/home.png",
     datePublished: PUBLISHED,
   })}
   breadcrumbTrail={[
@@ -46,15 +43,6 @@
         certainly uncertain
       </h1>
     </header>
-
-    <img
-      src="/assets/certainly-uncertain.webp"
-      alt="a grid of book covers from a personal library"
-      width="1080"
-      height="1350"
-      fetchpriority="high"
-      class="my-9 block w-full rounded-2xl md:my-12"
-    />
 
     <!-- Rendered by the shared markdown renderer (styled prose), same
          treatment the other content pages use. Author-controlled markdown. -->
