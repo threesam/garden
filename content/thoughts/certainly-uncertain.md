@@ -4,7 +4,9 @@ every cabinet opened and emptied into the sea of a gazillion gallon garbage bags
 
 a wasteland.
 
-> "we're gonna make some changes." — my mom and pop
+> "we're gonna make some changes."
+>
+> — my mom and pop
 
 they'd spent a decade in comfort, in routines they never examined, habituating advice they never confronted.
 
