@@ -46,6 +46,13 @@ export function createMarkdownRenderer(): Marked {
       hr() {
         return '<hr class="my-12 border-t border-current/10" />';
       },
+      blockquote({ tokens }) {
+        // No global blockquote styling exists, so render a minimal
+        // coin-bar pull-quote: just a left border in the coin accent.
+        // The inner paragraph keeps its own font/size/color.
+        const body = this.parser.parse(tokens);
+        return `<blockquote class="my-12 border-l-2 border-coin pl-6 md:pl-9">${body}</blockquote>`;
+      },
       link({ href, text }) {
         const external = href.startsWith("http") || href.startsWith("//");
         return `<a href="${href}"${external ? ' target="_blank" rel="noopener noreferrer"' : ""} class="${linkClasses}">${text}</a>`;
