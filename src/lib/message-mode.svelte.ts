@@ -107,11 +107,9 @@ class MessageMode {
 				return;
 			}
 			this.sent = true;
-			// ponytail: the server 200s silently on its honeypot path too (so a
-			// caught bot can't tell), which means this can't distinguish a real
-			// send from a bot trip — same accepted ceiling as this repo's own
-			// quiet-list signup event. Server-side emission would fix it; not
-			// worth it for one low-volume contact form.
+			// Honeypot responses are also silent 200s, so this counts accepted
+			// submissions, not guaranteed sends — same ceiling as the repo's own
+			// quiet-list event. Not worth server-side emission for one form.
 			window.umami?.track('message-sent');
 			this.sched(SENT_HOLD_MS, () => this.stop());
 		} catch {
