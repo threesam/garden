@@ -103,12 +103,20 @@ class MessageMode {
 				// SvelteKit's error() returns { message }, not { error }.
 				const data = (await res.json().catch(() => null)) as { message?: string } | null;
 				this.error = data?.message || 'failed to send';
+				window.umami?.track('message-error');
 				return;
 			}
 			this.sent = true;
+			// ponytail: the server 200s silently on its honeypot path too (so a
+			// caught bot can't tell), which means this can't distinguish a real
+			// send from a bot trip — same accepted ceiling as this repo's own
+			// quiet-list signup event. Server-side emission would fix it; not
+			// worth it for one low-volume contact form.
+			window.umami?.track('message-sent');
 			this.sched(SENT_HOLD_MS, () => this.stop());
 		} catch {
 			this.error = 'failed to send';
+			window.umami?.track('message-error');
 		} finally {
 			this.sending = false;
 		}

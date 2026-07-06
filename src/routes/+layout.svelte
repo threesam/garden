@@ -16,12 +16,14 @@
 
   let { children }: { children: import('svelte').Snippet } = $props();
 
-  // Analytics only fire on the canonical prod host. Vercel preview URLs
+  // Analytics only fire on the canonical prod host(s). Vercel preview URLs
   // and local dev see no tracker — so feature work, link checks, and
   // automated runs don't pollute the dashboard. Hostname check happens
   // post-hydration (prerendered HTML is identical across hosts).
+  // Both apex and www serve live 200s (no redirect between them — verified
+  // via curl), so both must be allowlisted or www visitors go untracked.
   onMount(() => {
-    if (location.hostname !== 'threesam.com') return;
+    if (!['threesam.com', 'www.threesam.com'].includes(location.hostname)) return;
     const preconnect = Object.assign(document.createElement('link'), {
       rel: 'preconnect',
       href: 'https://analytics.sixtom.com',
