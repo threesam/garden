@@ -13,6 +13,7 @@
     href="https://sixtom.com"
     target="_blank"
     rel="noopener noreferrer"
+    data-umami-event="sixtom-click"
     class="rounded-full px-3 py-1.5 font-mono text-[10px] tracking-label text-zinc-400 transition-transform duration-300 hover:scale-110 hover:duration-[4000ms] hover:ease-out md:text-xs"
   >
     studio ↗

@@ -71,6 +71,9 @@ class MessageMode {
 	}
 
 	start() {
+		// Funnel entry for the message form — pairs with message-sent /
+		// message-error so open → sent conversion is measurable.
+		safeTrack('message-open');
 		this.clearTimers();
 		this.active = true;
 		this.sending = false;
