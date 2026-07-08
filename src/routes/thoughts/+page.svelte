@@ -127,6 +127,7 @@
         href={card.href}
         onmouseenter={enterCard}
         onmouseleave={leaveCard}
+        onclick={() => window.umami?.track("thoughts-card-click", { href: card.href })}
         class="group relative block transition-transform duration-700 hover:[transform:rotate(-1.3deg)]"
       >
         <!-- mobile: image-fills card, bottom-left white title + description over a dark→transparent fade -->

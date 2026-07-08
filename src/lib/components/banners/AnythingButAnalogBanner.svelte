@@ -37,7 +37,11 @@
 {/snippet}
 
 {#if href}
-	<a href={href} class="block">
+	<a
+		href={href}
+		class="block"
+		onclick={() => window.umami?.track('aba-banner-click')}
+	>
 		{@render body()}
 	</a>
 {:else}
