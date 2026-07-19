@@ -6,22 +6,11 @@
   import InvadersGame from '$lib/components/invaders/InvadersGame.svelte';
   import MessageLetter from '$lib/components/message/MessageLetter.svelte';
   import SendAction from '$lib/components/message/SendAction.svelte';
-  import { onMount } from 'svelte';
   import { fade } from 'svelte/transition';
   import { gameMode } from '$lib/game-mode.svelte';
   import { messageMode } from '$lib/message-mode.svelte';
   import { diveMode } from '$lib/dive-mode.svelte';
   import { SITE_PAGES, SITE_URL, homePageNode, itemListNode } from '$lib/seo';
-
-  // Testing shortcut: land on the homepage with ?test and run the whole
-  // send-off straight through to pyre — no click needed — so the full
-  // cross-property hand-off can be exercised in one step. ?test also
-  // ejects analytics (app.html), and diveMode carries it to pyre, so the
-  // test dive is analytics-clean end to end. ?test=0 (rejoin) never dives.
-  onMount(() => {
-    const test = new URLSearchParams(location.search).get('test');
-    if (test !== null && test !== '0') diveMode.start();
-  });
 
   // Structured site index for search + answer engines. Mirrors the
   // natural-language /llms.txt and the sitemap so the same SITE_PAGES
