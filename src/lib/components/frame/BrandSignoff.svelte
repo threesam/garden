@@ -281,6 +281,10 @@
     width: 1.4em;
     height: 1.4em;
     display: block;
+    /* even breathing room: "certainly" contributes 0.2em trailing
+       letter-space on the left, "uncertain" a 0.4em margin on the right —
+       shifting the figure 0.2em right makes both visual gaps 0.4em */
+    margin-left: 0.2em;
   }
   @media (min-width: 768px) {
     .diver {
