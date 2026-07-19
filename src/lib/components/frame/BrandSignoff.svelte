@@ -158,20 +158,24 @@
 </svelte:element>
 <!-- Tagline (anchored bottom-right). Fades out alongside the gallery
      during snake game or "message me?" letter mode so the active
-     experience reads as the only content. -->
+     experience reads as the only content. The whole line is the door to
+     pyredivers.com — hover pops the diver open between the words. -->
 <p
   class="tagline absolute right-6 bottom-6 z-10 text-right font-mono text-sm leading-tight tracking-hero {color} md:right-8 md:bottom-8 md:text-base"
   class:tagline-hidden={active || messageMode.active || (messageClickable && messageMode.revealing)}
-><span class="block md:inline">certainly</span><a
-      class="diver"
-      href="https://pyredivers.com/?dive"
-      aria-label="dive into pyre divers"
-    ><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+><a
+    class="tagline-link"
+    href="https://pyredivers.com/?dive"
+    aria-label="certainly uncertain — dive into pyre divers"
+  ><span class="block md:inline">certainly</span><span class="diver"
+      ><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
       <g stroke="currentColor" stroke-width="2.6" stroke-linecap="round" fill="none">
         <circle cx="16" cy="7" r="3.4" />
         <path d="M16 10.5 L16 20 M16 13 L9 17 M16 13 L23 17 M16 20 L11 27 M16 20 L21 27" />
       </g>
-    </svg></a><span class="block md:ml-[0.4em] md:inline">uncertain</span>
+    </svg></span
+  ><span class="block md:ml-[0.4em] md:inline">uncertain</span></a
+  >
 </p>
 
 <style>
@@ -261,10 +265,16 @@
     opacity: 1;
     transition-delay: var(--msg-delay, 0ms);
   }
-  /* The diver in the tagline is the door to pyredivers.com — ?dive tells
-     the far side to open on our marigold and run the arrival sequence, so
-     the hop reads as one scene. Reveal mechanics inherited from the old
-     alien gag (#215); the alien itself now lives in the wordmark's "a". */
+  /* The whole tagline is the door to pyredivers.com — ?dive tells the far
+     side to open on our marigold and run the arrival sequence, so the hop
+     reads as one scene. Reveal mechanics inherited from the old alien gag
+     (#215); the alien itself now lives in the wordmark's "a". */
+  .tagline-link {
+    display: inline-block;
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+  }
   .diver {
     display: none;
     vertical-align: middle;
