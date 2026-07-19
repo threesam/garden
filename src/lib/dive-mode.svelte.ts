@@ -27,9 +27,21 @@ class DiveMode {
 	start() {
 		if (this.leaving) return;
 		this.leaving = true;
-		window.setTimeout(() => {
-			window.location.href = DIVE_URL;
-		}, LEAVE_MS);
+		// carry ?test through so the pyre side ejects analytics too — a
+		// test session dives clean end to end (pyre reads has('test')
+		// independent of ?dive). DIVE_URL already ends in `?dive`.
+		const test = browser ? new URLSearchParams(location.search).get('test') : null;
+		const url = test === null ? DIVE_URL : `${DIVE_URL}&test=${encodeURIComponent(test)}`;
+		const go = () => {
+			window.location.href = url;
+		};
+		// reduced motion: skip the fade, hand off immediately. Single home
+		// for this decision so the click and auto-test paths both honor it.
+		if (browser && matchMedia('(prefers-reduced-motion: reduce)').matches) {
+			go();
+			return;
+		}
+		window.setTimeout(go, LEAVE_MS);
 	}
 }
 

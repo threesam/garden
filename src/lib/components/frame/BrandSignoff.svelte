@@ -66,12 +66,11 @@
   // (game-screen style) — while the diver holds his spot on the bare
   // coin field, THEN we navigate — pyredivers.com opens on marigold with
   // only the stick figure, standing exactly where this one stands.
-  // Modified clicks (new tab, etc.) and reduced-motion users get the
-  // plain navigation.
+  // Modified clicks (new tab, etc.) keep the plain anchor navigation;
+  // reduced motion is handled inside diveMode.start (immediate hand-off).
   const divingOut = $derived(diveMode.leaving);
   const diveOut = (e: MouseEvent) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     e.preventDefault();
     diveMode.start();
   };
