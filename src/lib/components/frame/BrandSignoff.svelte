@@ -59,6 +59,23 @@
     messageMode.revealing = !messageMode.revealing;
   };
   const mLabel = $derived(messageMode.revealing ? 'hide message me?' : 'show message me?');
+
+  // Clicking the tagline runs the send-off: the words fade for 1s while the
+  // diver holds his spot, THEN we navigate — pyredivers.com opens on
+  // marigold with only the stick figure, standing exactly where this one
+  // stands. Modified clicks (new tab, etc.) and reduced-motion users get
+  // the plain navigation.
+  let divingOut = $state(false);
+  const diveOut = (e: MouseEvent) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    e.preventDefault();
+    if (divingOut) return;
+    divingOut = true;
+    setTimeout(() => {
+      location.href = 'https://pyredivers.com/?dive';
+    }, 1000);
+  };
 </script>
 
 <svelte:element
@@ -165,8 +182,10 @@
   class:tagline-hidden={active || messageMode.active || (messageClickable && messageMode.revealing)}
 ><a
     class="tagline-link"
+    class:diving-out={divingOut}
     href="https://pyredivers.com/?dive"
     aria-label="certainly uncertain — dive into pyre divers"
+    onclick={diveOut}
   ><span class="block md:inline">certainly</span><span class="diver"
       ><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
       <g stroke="currentColor" stroke-width="2.6" stroke-linecap="round" fill="none">
@@ -274,6 +293,21 @@
     color: inherit;
     text-decoration: none;
     cursor: pointer;
+  }
+  /* the send-off: words fade for 1s before navigation; the diver holds
+     open (even if the cursor drifts) so the hand-off is stick-to-stick */
+  .tagline-link > span:not(.diver) {
+    transition: opacity 1s ease;
+  }
+  .tagline-link.diving-out {
+    pointer-events: none;
+  }
+  .tagline-link.diving-out > span:not(.diver) {
+    opacity: 0;
+  }
+  .tagline-link.diving-out .diver {
+    width: 1.6em;
+    opacity: 1;
   }
   .diver {
     display: none;
