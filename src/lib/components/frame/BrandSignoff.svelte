@@ -148,7 +148,16 @@
       />
       <ellipse cx="12" cy="15" rx="2.4" ry="4.2" transform="rotate(-18 12 15)" fill="#e8a317" />
       <ellipse cx="20" cy="15" rx="2.4" ry="4.2" transform="rotate(18 20 15)" fill="#e8a317" />
-    </svg></span><span class="block md:ml-[0.4em] md:inline">uncertain</span>
+    </svg></span><a
+      class="diver"
+      href="https://pyredivers.com/?dive"
+      aria-label="dive into pyre divers"
+    ><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+      <g stroke="currentColor" stroke-width="2.6" stroke-linecap="round" fill="none">
+        <circle cx="16" cy="7" r="3.4" />
+        <path d="M16 10.5 L16 20 M16 13 L9 17 M16 13 L23 17 M16 20 L11 27 M16 20 L21 27" />
+      </g>
+    </svg></a><span class="block md:ml-[0.4em] md:inline">uncertain</span>
 </p>
 
 <style>
@@ -238,8 +247,11 @@
     opacity: 1;
     transition-delay: var(--msg-delay, 0ms);
   }
-  /* Alien hover gag preserved from #215 */
-  .alien {
+  /* Alien hover gag preserved from #215; the diver beside it is the door
+     to pyredivers.com — ?dive tells the far side to open on our marigold
+     and run the arrival sequence, so the hop reads as one scene. */
+  .alien,
+  .diver {
     display: none;
     vertical-align: middle;
     width: 0;
@@ -250,17 +262,24 @@
       width 450ms cubic-bezier(0.4, 0, 0.2, 1),
       opacity 450ms ease-out;
   }
-  .alien :global(svg) {
+  .diver {
+    color: inherit;
+  }
+  .alien :global(svg),
+  .diver :global(svg) {
     width: 1.4em;
     height: 1.4em;
     display: block;
   }
   @media (min-width: 768px) {
-    .alien {
+    .alien,
+    .diver {
       display: inline-block;
     }
     .tagline:hover .alien,
-    .tagline:focus-within .alien {
+    .tagline:focus-within .alien,
+    .tagline:hover .diver,
+    .tagline:focus-within .diver {
       width: 1.6em;
       opacity: 1;
     }
@@ -269,7 +288,8 @@
     .letter,
     .tail,
     .msg-tail,
-    .alien {
+    .alien,
+    .diver {
       transition: none;
     }
   }
