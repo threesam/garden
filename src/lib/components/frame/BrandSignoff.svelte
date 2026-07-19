@@ -33,7 +33,8 @@
   // so the "s" slides to the start, then the n/a/k/e tail expands.
   // Hover/click on the "m" runs the same trick with the message tail.
   const PRE_LETTERS = ['t', 'h', 'r', 'e', 'e'];
-  const MID_LETTERS = ['a']; // sits between s and m
+  // the "a" between s and m is its own span: hovering it morphs the glyph
+  // into the alien, and a click starts space invaders (homepage only)
   const SNAKE_TAIL = ['n', 'a', 'k', 'e'];
   const MESSAGE_TAIL = ['e', 's', 's', 'a', 'g', 'e', ' ', 'm', 'e', '?'];
   const active = $derived(gameMode.active);
@@ -81,9 +82,37 @@
         }
       : undefined}
   >s</span>
-  {#each MID_LETTERS as l, i (`mid-${i}`)}
-    <span class="letter">{l}</span>
-  {/each}
+  <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+  <span
+    class="letter a-letter"
+    class:clickable={gameClickable && !active}
+    role={gameClickable ? 'button' : undefined}
+    tabindex={gameClickable ? 0 : undefined}
+    aria-label={gameClickable ? 'play space invaders' : undefined}
+    onclick={gameClickable
+      ? () => {
+          if (!gameMode.active) gameMode.start('invaders');
+        }
+      : undefined}
+    onkeydown={gameClickable
+      ? (e: KeyboardEvent) => {
+          if ((e.key === 'Enter' || e.key === ' ') && !gameMode.active) {
+            e.preventDefault();
+            gameMode.start('invaders');
+          }
+        }
+      : undefined}
+  ><span class="a-glyph">a</span><span class="a-alien" aria-hidden="true"
+      ><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+        <path
+          fill="currentColor"
+          d="M16 3c5.7 0 9.5 3.6 9.5 9 0 5.6-4 16-9.5 16S6.5 17.6 6.5 12c0-5.4 3.8-9 9.5-9z"
+        />
+        <ellipse cx="12" cy="15" rx="2.4" ry="4.2" transform="rotate(-18 12 15)" fill="#e8a317" />
+        <ellipse cx="20" cy="15" rx="2.4" ry="4.2" transform="rotate(18 20 15)" fill="#e8a317" />
+      </svg></span
+    ></span
+  >
   <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
   <span
     class="letter m-letter"
@@ -127,28 +156,7 @@
 <p
   class="tagline absolute right-6 bottom-6 z-10 text-right font-mono text-sm leading-tight tracking-hero {color} md:right-8 md:bottom-8 md:text-base"
   class:tagline-hidden={active || messageMode.active || (messageClickable && messageMode.revealing)}
-><span class="block md:inline">certainly</span><span
-      class="alien"
-      role="button"
-      tabindex="0"
-      aria-label="play space invaders"
-      onclick={() => {
-        if (!gameMode.active) gameMode.start('invaders');
-      }}
-      onkeydown={(e: KeyboardEvent) => {
-        if ((e.key === 'Enter' || e.key === ' ') && !gameMode.active) {
-          e.preventDefault();
-          gameMode.start('invaders');
-        }
-      }}
-    ><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-      <path
-        fill="currentColor"
-        d="M16 3c5.7 0 9.5 3.6 9.5 9 0 5.6-4 16-9.5 16S6.5 17.6 6.5 12c0-5.4 3.8-9 9.5-9z"
-      />
-      <ellipse cx="12" cy="15" rx="2.4" ry="4.2" transform="rotate(-18 12 15)" fill="#e8a317" />
-      <ellipse cx="20" cy="15" rx="2.4" ry="4.2" transform="rotate(18 20 15)" fill="#e8a317" />
-    </svg></span><a
+><span class="block md:inline">certainly</span><a
       class="diver"
       href="https://pyredivers.com/?dive"
       aria-label="dive into pyre divers"
@@ -247,10 +255,10 @@
     opacity: 1;
     transition-delay: var(--msg-delay, 0ms);
   }
-  /* Alien hover gag preserved from #215; the diver beside it is the door
-     to pyredivers.com — ?dive tells the far side to open on our marigold
-     and run the arrival sequence, so the hop reads as one scene. */
-  .alien,
+  /* The diver in the tagline is the door to pyredivers.com — ?dive tells
+     the far side to open on our marigold and run the arrival sequence, so
+     the hop reads as one scene. Reveal mechanics inherited from the old
+     alien gag (#215); the alien itself now lives in the wordmark's "a". */
   .diver {
     display: none;
     vertical-align: middle;
@@ -258,29 +266,62 @@
     opacity: 0;
     overflow: hidden;
     cursor: pointer;
+    color: inherit;
     transition:
       width 450ms cubic-bezier(0.4, 0, 0.2, 1),
       opacity 450ms ease-out;
   }
-  .diver {
-    color: inherit;
-  }
-  .alien :global(svg),
   .diver :global(svg) {
     width: 1.4em;
     height: 1.4em;
     display: block;
   }
   @media (min-width: 768px) {
-    .alien,
     .diver {
       display: inline-block;
     }
-    .tagline:hover .alien,
-    .tagline:focus-within .alien,
     .tagline:hover .diver,
     .tagline:focus-within .diver {
       width: 1.6em;
+      opacity: 1;
+    }
+  }
+  /* The "a" that is sometimes an alien: hover/focus crossfades the glyph
+     to the invader (homepage only — gameClickable gates the handlers). */
+  .a-letter {
+    position: relative;
+  }
+  .a-letter.clickable {
+    cursor: pointer;
+  }
+  .a-glyph {
+    transition: opacity 200ms ease-out;
+  }
+  .a-alien {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 200ms ease-out;
+  }
+  .a-alien :global(svg) {
+    width: 0.85em;
+    height: 0.85em;
+    display: block;
+  }
+  .a-letter.clickable:focus-visible .a-glyph {
+    opacity: 0;
+  }
+  .a-letter.clickable:focus-visible .a-alien {
+    opacity: 1;
+  }
+  @media (hover: hover) {
+    .a-letter.clickable:hover .a-glyph {
+      opacity: 0;
+    }
+    .a-letter.clickable:hover .a-alien {
       opacity: 1;
     }
   }
@@ -288,8 +329,9 @@
     .letter,
     .tail,
     .msg-tail,
-    .alien,
-    .diver {
+    .diver,
+    .a-glyph,
+    .a-alien {
       transition: none;
     }
   }
