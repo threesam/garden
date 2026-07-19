@@ -34,13 +34,19 @@
   // Hover/click on the "m" runs the same trick with the message tail.
   const PRE_LETTERS = ['t', 'h', 'r', 'e', 'e'];
   // the "a" between s and m is its own span: hovering it morphs the glyph
-  // into the alien, and a click starts space invaders (homepage only)
+  // into the alien, and a click starts space invaders (homepage only).
+  // Ready only while the letter is actually visible — during game/message
+  // modes it collapses, and a collapsed control must be neither tabbable
+  // nor able to start invaders over the active state.
   const SNAKE_TAIL = ['n', 'a', 'k', 'e'];
   const MESSAGE_TAIL = ['e', 's', 's', 'a', 'g', 'e', ' ', 'm', 'e', '?'];
   const active = $derived(gameMode.active);
   // The "threesam → snake" wordmark animation is snake-only; the alien's
   // invaders game has no title sequence.
   const isSnake = $derived(gameMode.active && gameMode.game === 'snake');
+  const aAlienReady = $derived(
+    gameClickable && !gameMode.active && !messageMode.active && !messageMode.revealing,
+  );
 
   // Click-toggled reveal of the message tail (click only — a hover preview
   // would slide the "m" out from under the cursor and flicker). State lives on
@@ -85,18 +91,18 @@
   <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
   <span
     class="letter a-letter"
-    class:clickable={gameClickable && !active}
+    class:clickable={aAlienReady}
     role={gameClickable ? 'button' : undefined}
-    tabindex={gameClickable ? 0 : undefined}
+    tabindex={aAlienReady ? 0 : undefined}
     aria-label={gameClickable ? 'play space invaders' : undefined}
     onclick={gameClickable
       ? () => {
-          if (!gameMode.active) gameMode.start('invaders');
+          if (aAlienReady) gameMode.start('invaders');
         }
       : undefined}
     onkeydown={gameClickable
       ? (e: KeyboardEvent) => {
-          if ((e.key === 'Enter' || e.key === ' ') && !gameMode.active) {
+          if ((e.key === 'Enter' || e.key === ' ') && aAlienReady) {
             e.preventDefault();
             gameMode.start('invaders');
           }
