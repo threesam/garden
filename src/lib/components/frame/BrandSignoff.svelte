@@ -10,9 +10,10 @@
   // The parent must be positioned (relative) — the corners anchor to it.
   // `gameClickable` exposes the snake-game easter egg: clicking the "s"
   // toggles gameMode and triggers the letter-collapse → "snake" sequence.
+  import { page } from '$app/state';
   import { gameMode } from '$lib/game-mode.svelte';
   import { messageMode } from '$lib/message-mode.svelte';
-  import { diveMode } from '$lib/dive-mode.svelte';
+  import { diveMode, diveUrl } from '$lib/dive-mode.svelte';
 
   let {
     heading = false,
@@ -69,6 +70,9 @@
   // Modified clicks (new tab, etc.) keep the plain anchor navigation;
   // reduced motion is handled inside diveMode.start (immediate hand-off).
   const divingOut = $derived(diveMode.leaving);
+  // one href for every path — carries ?test so open-in-new-tab and the
+  // no-JS fallback reach pyre analytics-clean too, not just the JS dive
+  const diveHref = $derived(diveUrl(page.url.searchParams.get('test')));
   const diveOut = (e: MouseEvent) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
     e.preventDefault();
@@ -182,7 +186,7 @@
 ><a
     class="tagline-link"
     class:diving-out={divingOut}
-    href="https://pyredivers.com/?dive"
+    href={diveHref}
     aria-label="certainly uncertain — dive into pyre divers"
     onclick={diveOut}
   ><span class="block md:inline">certainly</span><span class="diver"

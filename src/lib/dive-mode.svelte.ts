@@ -10,6 +10,14 @@ import { browser } from '$app/environment';
 const DIVE_URL = 'https://pyredivers.com/?dive';
 const LEAVE_MS = 1000;
 
+// The one hand-off URL, carrying ?test through to pyre so a test session
+// ejects analytics on both sides (pyre reads has('test') independent of
+// ?dive). Used by both start() and the tagline anchor's href, so every
+// path — auto, click, open-in-new-tab, no-JS — is consistent.
+export function diveUrl(test: string | null): string {
+	return test === null ? DIVE_URL : `${DIVE_URL}&test=${encodeURIComponent(test)}`;
+}
+
 class DiveMode {
 	leaving = $state(false);
 
@@ -27,13 +35,9 @@ class DiveMode {
 	start() {
 		if (this.leaving) return;
 		this.leaving = true;
-		// carry ?test through so the pyre side ejects analytics too — a
-		// test session dives clean end to end (pyre reads has('test')
-		// independent of ?dive). DIVE_URL already ends in `?dive`.
 		const test = browser ? new URLSearchParams(location.search).get('test') : null;
-		const url = test === null ? DIVE_URL : `${DIVE_URL}&test=${encodeURIComponent(test)}`;
 		const go = () => {
-			window.location.href = url;
+			window.location.href = diveUrl(test);
 		};
 		// reduced motion: skip the fade, hand off immediately. Single home
 		// for this decision so the click and auto-test paths both honor it.
