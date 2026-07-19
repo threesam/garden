@@ -9,6 +9,7 @@
   import { fade } from 'svelte/transition';
   import { gameMode } from '$lib/game-mode.svelte';
   import { messageMode } from '$lib/message-mode.svelte';
+  import { diveMode } from '$lib/dive-mode.svelte';
   import { SITE_PAGES, SITE_URL, homePageNode, itemListNode } from '$lib/seo';
 
   // Structured site index for search + answer engines. Mirrors the
@@ -44,8 +45,12 @@
   <div class="h-[25dvh] w-full"></div>
   <div
     class="relative h-[50dvh] w-full transition-opacity duration-500 ease-out"
-    class:opacity-0={gameMode.active || messageMode.active || messageMode.revealing}
-    class:pointer-events-none={gameMode.active || messageMode.active || messageMode.revealing}
+    class:duration-1000={diveMode.leaving}
+    class:opacity-0={gameMode.active || messageMode.active || messageMode.revealing || diveMode.leaving}
+    class:pointer-events-none={gameMode.active ||
+      messageMode.active ||
+      messageMode.revealing ||
+      diveMode.leaving}
   >
     <Gallery />
   </div>

@@ -12,6 +12,7 @@
   // toggles gameMode and triggers the letter-collapse → "snake" sequence.
   import { gameMode } from '$lib/game-mode.svelte';
   import { messageMode } from '$lib/message-mode.svelte';
+  import { diveMode } from '$lib/dive-mode.svelte';
 
   let {
     heading = false,
@@ -60,21 +61,19 @@
   };
   const mLabel = $derived(messageMode.revealing ? 'hide message me?' : 'show message me?');
 
-  // Clicking the tagline runs the send-off: the words fade for 1s while the
-  // diver holds his spot, THEN we navigate — pyredivers.com opens on
-  // marigold with only the stick figure, standing exactly where this one
-  // stands. Modified clicks (new tab, etc.) and reduced-motion users get
-  // the plain navigation.
-  let divingOut = $state(false);
+  // Clicking the tagline runs the send-off: EVERYTHING fades for 1s —
+  // words here, plus the gallery, wordmark, and guide coin via diveMode
+  // (game-screen style) — while the diver holds his spot on the bare
+  // coin field, THEN we navigate — pyredivers.com opens on marigold with
+  // only the stick figure, standing exactly where this one stands.
+  // Modified clicks (new tab, etc.) and reduced-motion users get the
+  // plain navigation.
+  const divingOut = $derived(diveMode.leaving);
   const diveOut = (e: MouseEvent) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     e.preventDefault();
-    if (divingOut) return;
-    divingOut = true;
-    setTimeout(() => {
-      location.href = 'https://pyredivers.com/?dive';
-    }, 1000);
+    diveMode.start();
   };
 </script>
 
@@ -84,6 +83,7 @@
   class:is-game={isSnake}
   class:show-message={messageClickable && messageMode.revealing && !active}
   class:wordmark-hidden={gameMode.wordmarkSlotOccupied || messageMode.active}
+  class:diving-away={divingOut}
 >
   {#each PRE_LETTERS as l, i (`pre-${i}`)}
     <span class="letter">{l}</span>
@@ -295,7 +295,14 @@
     cursor: pointer;
   }
   /* the send-off: words fade for 1s before navigation; the diver holds
-     open (even if the cursor drifts) so the hand-off is stick-to-stick */
+     open (even if the cursor drifts) so the hand-off is stick-to-stick.
+     The wordmark leaves on the same clock (gallery + guide fade via
+     diveMode in the page/layout) — everything but him and the coin. */
+  .wordmark.diving-away {
+    opacity: 0;
+    transition: opacity 1s ease;
+    pointer-events: none;
+  }
   .tagline-link > span:not(.diver) {
     transition: opacity 1s ease;
   }

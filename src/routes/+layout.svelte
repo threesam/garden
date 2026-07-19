@@ -13,6 +13,7 @@
   import Guide from '$lib/components/frame/Guide.svelte';
   import OutboundTracker from '$lib/components/OutboundTracker.svelte';
   import Anchor from '$lib/components/frame/Anchor.svelte';
+  import { diveMode } from '$lib/dive-mode.svelte';
 
   let { children }: { children: import('svelte').Snippet } = $props();
 
@@ -39,8 +40,20 @@
 </script>
 
 <OutboundTracker />
-<Guide />
+<!-- the guide coin leaves with everything else during the dive send-off;
+     wrapper (not Guide itself) so the fade composes with its own state -->
+<div class="guide-slot" class:diving-away={diveMode.leaving}>
+  <Guide />
+</div>
 <div class="bg-white">
   {@render children()}
 </div>
 <Anchor />
+
+<style>
+  .guide-slot.diving-away {
+    opacity: 0;
+    transition: opacity 1s ease;
+    pointer-events: none;
+  }
+</style>
