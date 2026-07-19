@@ -92,9 +92,9 @@
   <span
     class="letter a-letter"
     class:clickable={aAlienReady}
-    role={gameClickable ? 'button' : undefined}
+    role={aAlienReady ? 'button' : undefined}
     tabindex={aAlienReady ? 0 : undefined}
-    aria-label={gameClickable ? 'play space invaders' : undefined}
+    aria-label={aAlienReady ? 'play space invaders' : undefined}
     onclick={gameClickable
       ? () => {
           if (aAlienReady) gameMode.start('invaders');
