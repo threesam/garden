@@ -17,6 +17,7 @@
   "bake:deana": "node scripts/generate-deana-ascii.mjs",
   "bake:deana-matrix": "node scripts/generate-deana-ascii-matrix.mjs",
   "bake:thoughts": "node scripts/generate-thoughts-pixel.mjs",
+  "bake:banana": "node scripts/generate-banana-hero.mjs",
   "sounds:ingest": "node scripts/sounds/ingest.mjs",
   "sounds:deploy": "node scripts/sounds/deploy-r2.mjs",
   "lh": "node scripts/lighthouse.mjs",

@@ -47,10 +47,18 @@ export function createMarkdownRenderer(): Marked {
         return '<hr class="my-12 border-t border-current/10" />';
       },
       blockquote({ tokens }) {
-        // No global blockquote styling exists, so render a minimal
-        // coin-bar pull-quote: just a left border in the coin accent.
-        // The inner paragraph keeps its own font/size/color.
-        const body = this.parser.parse(tokens);
+        // Pull-quote with a coin left-bar. A trailing paragraph that
+        // begins with an em-dash is the attribution: render it as a
+        // right-aligned, italic <cite> on its own line.
+        const body = tokens
+          .map((tok) => {
+            if (tok.type === "paragraph" && /^\s*—/.test(tok.text)) {
+              const inner = this.parser.parseInline(tok.tokens ?? []);
+              return `<cite class="mt-3 block text-right font-sans text-sm italic opacity-60 md:text-base">${inner}</cite>`;
+            }
+            return this.parser.parse([tok]);
+          })
+          .join("");
         return `<blockquote class="my-12 border-l-2 border-coin pl-6 md:pl-9">${body}</blockquote>`;
       },
       link({ href, text }) {
