@@ -179,7 +179,7 @@
 <!-- Tagline (anchored bottom-right). Fades out alongside the gallery
      during snake game or "message me?" letter mode so the active
      experience reads as the only content. The whole line is the door to
-     pyredivers.com — hover pops the diver open between the words. -->
+     pyredivers.com — the diver stands between the words, always. -->
 <p
   class="tagline absolute right-6 bottom-6 z-10 text-right font-mono text-sm leading-tight tracking-hero {color} md:right-8 md:bottom-8 md:text-base"
   class:tagline-hidden={active || messageMode.active || (messageClickable && messageMode.revealing)}
@@ -315,21 +315,17 @@
   .tagline-link.diving-out > span:not(.diver) {
     opacity: 0;
   }
-  .tagline-link.diving-out .diver {
+  /* the diver stands between the words at all times — no hover reveal.
+     touch made :hover sticky (it got stuck open anyway), and always-on
+     reads cleaner. He just holds his spot; the send-off fades the words
+     around him. */
+  .diver {
+    display: inline-block;
+    vertical-align: middle;
     width: 1.6em;
     opacity: 1;
-  }
-  .diver {
-    display: none;
-    vertical-align: middle;
-    width: 0;
-    opacity: 0;
-    overflow: hidden;
     cursor: pointer;
     color: inherit;
-    transition:
-      width 450ms cubic-bezier(0.4, 0, 0.2, 1),
-      opacity 450ms ease-out;
   }
   .diver :global(svg) {
     width: 1.4em;
@@ -339,16 +335,6 @@
        letter-space on the left, "uncertain" a 0.4em margin on the right —
        shifting the figure 0.2em right makes both visual gaps 0.4em */
     margin-left: 0.2em;
-  }
-  @media (min-width: 768px) {
-    .diver {
-      display: inline-block;
-    }
-    .tagline:hover .diver,
-    .tagline:focus-within .diver {
-      width: 1.6em;
-      opacity: 1;
-    }
   }
   /* The "a" that is sometimes an alien: hover/focus crossfades the glyph
      to the invader (homepage only — gameClickable gates the handlers). */
