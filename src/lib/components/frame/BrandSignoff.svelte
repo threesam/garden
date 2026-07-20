@@ -327,6 +327,17 @@
     cursor: pointer;
     color: inherit;
   }
+  /* mobile: the diver stands alone in the corner, so his FEET should sit
+     on the same baseline as the "threesam" wordmark opposite. The SVG has
+     empty space below the feet (drawn to viewBox y=27 of 32), so nudge him
+     down by that gap — 5/32 of the 1.4em svg = 0.219em — to land the feet,
+     not the box, on the line. Desktop keeps vertical-align:middle between
+     the words. */
+  @media (max-width: 767px) {
+    .diver {
+      transform: translateY(0.219em);
+    }
+  }
   .diver :global(svg) {
     width: 1.4em;
     height: 1.4em;
