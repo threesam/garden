@@ -189,14 +189,14 @@
     href={diveHref}
     aria-label="certainly uncertain — dive into pyre divers"
     onclick={diveOut}
-  ><span class="block md:inline">certainly</span><span class="diver"
+  ><span class="hidden md:inline">certainly</span><span class="diver"
       ><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
       <g stroke="currentColor" stroke-width="2.6" stroke-linecap="round" fill="none">
         <circle cx="16" cy="7" r="3.4" />
         <path d="M16 10.5 L16 20 M16 13 L9 17 M16 13 L23 17 M16 20 L11 27 M16 20 L21 27" />
       </g>
     </svg></span
-  ><span class="block md:ml-[0.4em] md:inline">uncertain</span></a
+  ><span class="hidden md:ml-[0.4em] md:inline">uncertain</span></a
   >
 </p>
 
