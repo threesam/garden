@@ -189,14 +189,14 @@
     href={diveHref}
     aria-label="certainly uncertain — dive into pyre divers"
     onclick={diveOut}
-  ><span class="block md:inline">certainly</span><span class="diver"
+  ><span class="hidden md:inline">certainly</span><span class="diver"
       ><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
       <g stroke="currentColor" stroke-width="2.6" stroke-linecap="round" fill="none">
         <circle cx="16" cy="7" r="3.4" />
         <path d="M16 10.5 L16 20 M16 13 L9 17 M16 13 L23 17 M16 20 L11 27 M16 20 L21 27" />
       </g>
     </svg></span
-  ><span class="block md:ml-[0.4em] md:inline">uncertain</span></a
+  ><span class="hidden md:ml-[0.4em] md:inline">uncertain</span></a
   >
 </p>
 
@@ -326,6 +326,17 @@
     opacity: 1;
     cursor: pointer;
     color: inherit;
+  }
+  /* mobile: the diver stands alone in the corner, so his FEET should sit
+     on the same baseline as the "threesam" wordmark opposite. The SVG has
+     empty space below the feet (drawn to viewBox y=27 of 32), so nudge him
+     down by that gap — 5/32 of the 1.4em svg = 0.219em — to land the feet,
+     not the box, on the line. Desktop keeps vertical-align:middle between
+     the words. */
+  @media (max-width: 767px) {
+    .diver {
+      transform: translateY(0.219em);
+    }
   }
   .diver :global(svg) {
     width: 1.4em;
