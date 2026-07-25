@@ -333,14 +333,18 @@
      wordmark's box bottom instead put him ~12px under the letters, since
      that box sits 8px below the actual text baseline.
      With no words beside him there's no strut to fight, so the svg's
-     bottom edge is simply the tagline's own bottom, and his ink centre
-     rides 0.73em (10.2px) above that edge — the figure is drawn to viewBox
-     y=27 of 32 at 1.4em. Hence 42 − 10.2 = 31.8px. Moving the box rather
-     than transforming him keeps the tap target under the figure.
-     Desktop keeps vertical-align:middle between the words. */
+     bottom edge is simply the tagline's own bottom, so the three terms
+     below are the whole story: the wordmark's own bottom anchor (bottom-6),
+     half its 36px line box (which lands us on its midline), and how far his
+     ink centre rides above the svg's bottom edge — the figure is drawn to
+     viewBox y=3.6→27 of 32, putting its centre 0.522 of a 1.4em box up.
+     Kept in rem/em rather than the measured 31.8px so a root- or
+     tagline-font change carries the alignment along with it.
+     Moving the box rather than transforming him keeps the tap target under
+     the figure. Desktop keeps vertical-align:middle between the words. */
   @media (max-width: 767px) {
     .tagline {
-      bottom: 31.8px;
+      bottom: calc(1.5rem + 1.125rem - 0.73em);
     }
   }
   .diver :global(svg) {
