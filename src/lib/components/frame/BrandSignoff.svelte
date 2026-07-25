@@ -327,15 +327,24 @@
     cursor: pointer;
     color: inherit;
   }
-  /* mobile: the diver stands alone in the corner, so his FEET should sit
-     on the same baseline as the "threesam" wordmark opposite. The SVG has
-     empty space below the feet (drawn to viewBox y=27 of 32), so nudge him
-     down by that gap — 5/32 of the 1.4em svg = 0.219em — to land the feet,
-     not the box, on the line. Desktop keeps vertical-align:middle between
-     the words. */
+  /* mobile: the words are hidden, so he stands alone in the corner — he
+     centres on the "threesam" wordmark's MIDLINE opposite (its bottom-6
+     anchor + half its 36px line box = 42px up). Aiming his feet at the
+     wordmark's box bottom instead put him ~12px under the letters, since
+     that box sits 8px below the actual text baseline.
+     With no words beside him there's no strut to fight, so the svg's
+     bottom edge is simply the tagline's own bottom, so the three terms
+     below are the whole story: the wordmark's own bottom anchor (bottom-6),
+     half its 36px line box (which lands us on its midline), and how far his
+     ink centre rides above the svg's bottom edge — the figure is drawn to
+     viewBox y=3.6→27 of 32, putting its centre 0.522 of a 1.4em box up.
+     Kept in rem/em rather than the measured 31.8px so a root- or
+     tagline-font change carries the alignment along with it.
+     Moving the box rather than transforming him keeps the tap target under
+     the figure. Desktop keeps vertical-align:middle between the words. */
   @media (max-width: 767px) {
-    .diver {
-      transform: translateY(0.219em);
+    .tagline {
+      bottom: calc(1.5rem + 1.125rem - 0.73em);
     }
   }
   .diver :global(svg) {
