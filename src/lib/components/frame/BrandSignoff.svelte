@@ -11,6 +11,7 @@
   // `gameClickable` exposes the snake-game easter egg: clicking the "s"
   // toggles gameMode and triggers the letter-collapse → "snake" sequence.
   import { page } from '$app/state';
+  import { building } from '$app/environment';
   import { gameMode } from '$lib/game-mode.svelte';
   import { messageMode } from '$lib/message-mode.svelte';
   import { diveMode, diveUrl } from '$lib/dive-mode.svelte';
@@ -72,7 +73,7 @@
   const divingOut = $derived(diveMode.leaving);
   // one href for every path — carries ?test so open-in-new-tab and the
   // no-JS fallback reach pyre analytics-clean too, not just the JS dive
-  const diveHref = $derived(diveUrl(page.url.searchParams.get('test')));
+  const diveHref = $derived(diveUrl(building ? null : page.url.searchParams.get('test')));
   const diveOut = (e: MouseEvent) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
     e.preventDefault();
