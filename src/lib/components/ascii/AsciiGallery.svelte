@@ -31,30 +31,39 @@
 		const startCycle = () => {
 			if (cancelled) return;
 			timer = setInterval(() => {
-				active = (active + 1) % srcs.length;
+				const next = (active + 1) % srcs.length;
+				// Hold the current frame if the next isn't bitmap-ready yet —
+				// a longer dwell beats a blank layer.
+				if (!mounted.has(next)) return;
+				active = next;
 				onIndexChange?.(active);
+				void decodeFrame((next + 1) % srcs.length);
 			}, CYCLE_MS);
 		};
 
 		// decode() resolves on bitmap-ready, not bytes-on-the-wire. On rejection
 		// we leave the index unmounted — a broken-image icon in the cycle is
 		// worse than a single blank frame.
+		//
+		// One frame ahead, not all upfront: only the lead frame ships with the
+		// page; each 2s dwell decodes just the next frame (~50 KB), so the
+		// crossfade never flashes blank and off-screen frames never load early.
+		const decodeFrame = (i: number): Promise<void> => {
+			if (mounted.has(i)) return Promise.resolve();
+			const img = new Image();
+			img.srcset = asciiSrcset(srcs[i]!);
+			img.sizes = sizes;
+			img.src = srcs[i]!.lg;
+			return img.decode().then(
+				() => {
+					if (!cancelled) mounted.add(i);
+				},
+				() => undefined, // a failed decode just skips that crossfade
+			);
+		};
 		const preload = () => {
 			if (cancelled) return;
-			void Promise.all(
-				srcs.slice(1).map((s, i) => {
-					const img = new Image();
-					img.srcset = asciiSrcset(s);
-					img.sizes = sizes;
-					img.src = s.lg;
-					return img.decode().then(
-						() => {
-							if (!cancelled) mounted.add(i + 1);
-						},
-						() => undefined, // resolve regardless — a failed preload just skips the crossfade
-					);
-				}),
-			).then(startCycle);
+			void decodeFrame(1).then(startCycle);
 		};
 
 		// Wait until first paint is done before kicking off the rest — keeps
