@@ -4,11 +4,8 @@
   import BrandSignoff from '$lib/components/frame/BrandSignoff.svelte';
   import SnakeGame from '$lib/components/snake/SnakeGame.svelte';
   import InvadersGame from '$lib/components/invaders/InvadersGame.svelte';
-  import MessageLetter from '$lib/components/message/MessageLetter.svelte';
-  import SendAction from '$lib/components/message/SendAction.svelte';
   import { fade } from 'svelte/transition';
   import { gameMode } from '$lib/game-mode.svelte';
-  import { messageMode } from '$lib/message-mode.svelte';
   import { diveMode } from '$lib/dive-mode.svelte';
   import { SITE_PAGES, SITE_URL, homePageNode, itemListNode } from '$lib/seo';
 
@@ -34,29 +31,19 @@
   the gallery, transforms "threesam" → "snake", and flips the menu coin into
   an x glyph for quit. State lives in $lib/game-mode.
 -->
-<!-- `inert` while messageMode owns the screen — removes the gallery,
-     wordmark, etc. from tab order + the a11y tree so keyboard users
-     can't reach behind-the-modal content. The Guide coin (top-right)
-     lives outside <main>, so it stays interactive as the close path. -->
-<main
-  class="relative flex h-dvh w-full flex-col overflow-hidden bg-coin"
-  inert={messageMode.active}
->
+<main class="relative flex h-dvh w-full flex-col overflow-hidden bg-coin">
   <div class="h-[25dvh] w-full"></div>
   <div
     class="relative h-[50dvh] w-full transition-opacity duration-500 ease-out"
     class:duration-1000={diveMode.leaving}
-    class:opacity-0={gameMode.active || messageMode.active || messageMode.revealing || diveMode.leaving}
-    class:pointer-events-none={gameMode.active ||
-      messageMode.active ||
-      messageMode.revealing ||
-      diveMode.leaving}
+    class:opacity-0={gameMode.active || diveMode.leaving}
+    class:pointer-events-none={gameMode.active || diveMode.leaving}
   >
     <Gallery />
   </div>
   <div class="h-[25dvh] w-full"></div>
 
-  <BrandSignoff heading gameClickable messageClickable />
+  <BrandSignoff heading gameClickable />
 
   <!-- Countdown sits in the same bottom-left slot as the wordmark — the
        wordmark fades out for the duration so this is the only thing in
@@ -119,18 +106,6 @@
   {/if}
 
 </main>
-
-<!-- "message me?" letter mode. Sits OUTSIDE main so it stays interactive
-     while main is `inert` — Gallery + wordmark + tagline have already
-     faded out (handled by the active checks above and inside
-     BrandSignoff). The cream letter card animates in
-     centered/fullscreen, and the bottom-right SendAction morphs from
-     "message me?" to "send it?" when both fields are filled. The menu
-     coin top-right flips to "x" (see Guide) so the user can quit. -->
-{#if messageMode.active}
-  <MessageLetter />
-  <SendAction />
-{/if}
 
 <style>
   /* Each digit pops in fast, scales out as the next one (or the game)
