@@ -37,6 +37,7 @@ const HEIGHT_RATIO = 1.8; // glyph cell is taller than wide
 // glyph density). Halving from 900 → 700 is the single biggest bytes win
 // on this content — pixel count drops ~40%.
 const LG_W = 700;
+const MD_W = 480;
 const SM_W = 320;
 
 // RAMP + lumToTone copied verbatim from src/lib/ascii/ascii-utils.ts so
@@ -126,16 +127,20 @@ async function bake(src) {
   // each glyph readable while still ~3× smaller than lossless.
   const WEBP_OPTS = { quality: 69, effort: 6, smartSubsample: true };
   const lg = await sharp(svg).webp(WEBP_OPTS).toFile(join(OUT_DIR, `${base}-lg.webp`));
+  const md = await sharp(svg)
+    .resize(MD_W)
+    .webp(WEBP_OPTS)
+    .toFile(join(OUT_DIR, `${base}-md.webp`));
   const sm = await sharp(svg)
     .resize(SM_W)
     .webp(WEBP_OPTS)
     .toFile(join(OUT_DIR, `${base}-sm.webp`));
-  return { base, glyphs: parts.length - 3, lg: lg.size, sm: sm.size };
+  return { base, glyphs: parts.length - 3, lg: lg.size, md: md.size, sm: sm.size };
 }
 
 // sharp releases the event loop between I/O hops, so all 6 bakes run in
 // parallel — wall-clock drops roughly proportional to core count.
 const results = await Promise.all(SRC_FILES.map((f) => bake(join(SRC_DIR, f))));
 for (const r of results) {
-  console.log(`${r.base}: ${r.glyphs} glyphs → -lg ${Math.round(r.lg / 1024)}KB, -sm ${Math.round(r.sm / 1024)}KB`);
+  console.log(`${r.base}: ${r.glyphs} glyphs → -lg ${Math.round(r.lg / 1024)}KB, -md ${Math.round(r.md / 1024)}KB, -sm ${Math.round(r.sm / 1024)}KB`);
 }
