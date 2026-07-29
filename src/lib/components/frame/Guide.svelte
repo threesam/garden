@@ -2,30 +2,18 @@
   import { preloadCode } from '$app/navigation';
   import { NAV_ROUTES } from '$lib/nav';
   import { gameMode } from '$lib/game-mode.svelte';
-  import { messageMode } from '$lib/message-mode.svelte';
 
   let open = $state(false);
   let hovered = $state(false);
   let locked = $state(false);
-  // The back-face "+" already renders as an "x" once rotated, so any
-  // homepage easter-egg mode (snake game, "message me?" letter) borrows
-  // it: the coin flips to the x glyph and a click quits that mode
-  // instead of opening the nav menu.
-  const inMode = $derived(gameMode.active || messageMode.active || messageMode.revealing);
+  // The back-face "+" already renders as an "x" once rotated, so the snake
+  // game borrows it: the coin flips to the x glyph and a click quits the
+  // game instead of opening the nav menu.
+  const inMode = $derived(gameMode.active);
 
   function handleCoinClick() {
     if (gameMode.active) {
       gameMode.stop();
-      return;
-    }
-    if (messageMode.active) {
-      messageMode.stop();
-      return;
-    }
-    if (messageMode.revealing) {
-      // "message me?" is revealed but the letter isn't open yet — the x
-      // cancels the reveal (restores the gallery) instead of opening the menu.
-      messageMode.revealing = false;
       return;
     }
     open = !open;
