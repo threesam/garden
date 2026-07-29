@@ -63,7 +63,7 @@
   })());
   const coinTransition = $derived(
     hovered && !(open || inMode)
-      ? 'transform 300ms ease-in-out, box-shadow 300ms ease-in-out, rotate 1s ease-out 300ms'
+      ? 'transform 300ms ease-in-out, box-shadow 300ms ease-in-out, rotate 600ms ease-out 300ms'
       : 'transform 300ms ease-in-out, box-shadow 300ms ease-in-out, rotate 150ms ease-in-out',
   );
 
