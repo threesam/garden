@@ -14,28 +14,24 @@
   import { page } from '$app/state';
   import { building } from '$app/environment';
   import { gameMode } from '$lib/game-mode.svelte';
-  import { messageMode } from '$lib/message-mode.svelte';
   import { diveMode, diveUrl } from '$lib/dive-mode.svelte';
 
   let {
     heading = false,
     tone = 'dark',
     gameClickable = false,
-    messageClickable = false,
   }: {
     heading?: boolean;
     tone?: 'dark' | 'light';
     gameClickable?: boolean;
-    messageClickable?: boolean;
   } = $props();
   const tag = $derived(heading ? 'h1' : 'div');
   const color = $derived(tone === 'light' ? 'text-white' : 'text-black');
 
-  // "threesam" + two inert tails — "n a k e" after the m, and "e s s a g e
-  // _ m e ?" after the m. Each letter is a flex item; when game mode is
-  // active the original t/h/r/e/e/a/m collapse (opacity 0, max-width 0)
-  // so the "s" slides to the start, then the n/a/k/e tail expands.
-  // Hover/click on the "m" runs the same trick with the message tail.
+  // "threesam" + one inert tail — "n a k e" after the m. Each letter is a
+  // flex item; when game mode is active the original t/h/r/e/e/a/m collapse
+  // (opacity 0, max-width 0) so the "s" slides to the start, then the
+  // n/a/k/e tail expands.
   const PRE_LETTERS = ['t', 'h', 'r', 'e', 'e'];
   // the "a" between s and m is its own span: hovering it morphs the glyph
   // into the alien, and a click starts space invaders (homepage only).
@@ -43,7 +39,6 @@
   // modes it collapses, and a collapsed control must be neither tabbable
   // nor able to start invaders over the active state.
   const SNAKE_TAIL = ['n', 'a', 'k', 'e'];
-  const MESSAGE_TAIL = ['e', 's', 's', 'a', 'g', 'e', ' ', 'm', 'e', '?'];
   const active = $derived(gameMode.active);
   // The "threesam → snake" wordmark animation is snake-only; the alien's
   // invaders game has no title sequence.
@@ -57,22 +52,7 @@
     finePointer = window.matchMedia('(pointer: fine)').matches;
   });
   const egGame = $derived(gameClickable && finePointer);
-  const egMessage = $derived(messageClickable && finePointer);
-  const aAlienReady = $derived(
-    egGame && !gameMode.active && !messageMode.active && !messageMode.revealing,
-  );
-
-  // Click-toggled reveal of the message tail (click only — a hover preview
-  // would slide the "m" out from under the cursor and flicker). State lives on
-  // messageMode so the homepage can fade the gallery + tagline as the letters
-  // fade in, same as the snake game. messageMode.stop() clears it on close, so
-  // the wordmark returns to "threesam". No-op while the game is running so the
-  // two tails can't both expand at once.
-  const toggleMessage = () => {
-    if (active) return;
-    messageMode.revealing = !messageMode.revealing;
-  };
-  const mLabel = $derived(messageMode.revealing ? 'hide message me?' : 'show message me?');
+  const aAlienReady = $derived(egGame && !gameMode.active);
 
   // Clicking the tagline runs the send-off: EVERYTHING fades for 1s —
   // words here, plus the gallery, wordmark, and guide coin via diveMode
@@ -96,8 +76,7 @@
   this={tag}
   class="wordmark absolute bottom-6 left-6 z-50 flex font-mono text-3xl font-bold tracking-meta {color} md:bottom-8 md:left-8 md:text-4xl"
   class:is-game={isSnake}
-  class:show-message={messageClickable && messageMode.revealing && !active}
-  class:wordmark-hidden={gameMode.wordmarkSlotOccupied || messageMode.active}
+  class:wordmark-hidden={gameMode.wordmarkSlotOccupied}
   class:diving-away={divingOut}
 >
   {#each PRE_LETTERS as l, i (`pre-${i}`)}
@@ -151,50 +130,18 @@
       </svg></span
     ></span
   >
-  <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-  <span
-    class="letter m-letter"
-    class:clickable={egMessage}
-    onclick={egMessage ? toggleMessage : undefined}
-    role={egMessage ? 'button' : undefined}
-    tabindex={egMessage ? 0 : undefined}
-    aria-label={egMessage ? mLabel : undefined}
-    onkeydown={egMessage
-      ? (e: KeyboardEvent) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            toggleMessage();
-          }
-        }
-      : undefined}
-  >m</span>
+  <span class="letter m-letter">m</span>
   {#each SNAKE_TAIL as l, i (`tail-${i}`)}
     <span class="tail" style:--tail-delay="{200 + i * 130}ms">{l}</span>
   {/each}
-  <!-- svelte-ignore a11y_click_events_have_key_events -->
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <!-- Single delegated handler for the whole message tail. `display:
-       contents` keeps the inner spans as direct flex children of the
-       wordmark; clicks on any letter bubble here. Letters are
-       individually unclickable when collapsed (max-width: 0 → no
-       hitbox), so the wrapper only fires when something is visible. -->
-  <span
-    class="msg-tail-group"
-    class:clickable={egMessage}
-    onclick={egMessage ? () => { messageMode.start(); } : undefined}
-  >
-    {#each MESSAGE_TAIL as l, i (`msg-${i}`)}
-      <span class="msg-tail" style:--msg-delay="{100 + i * 80}ms">{l}</span>
-    {/each}
-  </span>
 </svelte:element>
-<!-- Tagline (anchored bottom-right). Fades out alongside the gallery
-     during snake game or "message me?" letter mode so the active
-     experience reads as the only content. The whole line is the door to
-     pyredivers.com — the diver stands between the words, always. -->
+<!-- Tagline (anchored bottom-right). Fades out alongside the gallery during
+     the snake game so the active experience reads as the only content. The
+     whole line is the door to pyredivers.com — the diver stands between the
+     words, always. -->
 <p
   class="tagline absolute right-6 bottom-6 z-10 text-right font-mono text-sm leading-tight tracking-hero {color} md:right-8 md:bottom-8 md:text-base"
-  class:tagline-hidden={active || messageMode.active || (messageClickable && messageMode.revealing)}
+  class:tagline-hidden={active}
 ><a
     class="tagline-link"
     class:diving-out={divingOut}
@@ -217,8 +164,7 @@
     align-items: baseline;
   }
   .letter,
-  .tail,
-  .msg-tail {
+  .tail {
     display: inline-block;
     overflow: hidden;
     white-space: pre;
@@ -228,19 +174,13 @@
     max-width: 1em;
     opacity: 1;
   }
-  /* Trailing snake + message letters start collapsed and silent. */
-  .tail,
-  .msg-tail {
+  /* Trailing snake letters start collapsed and silent. */
+  .tail {
     max-width: 0;
     opacity: 0;
     transition-delay: 0ms;
   }
-  .msg-tail-group {
-    display: contents;
-  }
-  .s-letter.clickable,
-  .m-letter.clickable,
-  .msg-tail-group.clickable .msg-tail {
+  .s-letter.clickable {
     cursor: pointer;
   }
   .tagline {
@@ -287,17 +227,6 @@
     .wordmark:has(.s-letter.clickable:focus-visible) .letter:not(.s-letter) {
       opacity: 0;
     }
-  }
-  /* PERSISTENT MESSAGE REVEAL — click-toggled (primary path on touch where
-     :hover never fires, and a stickier alternative on desktop). */
-  .show-message .letter:not(.m-letter) {
-    max-width: 0;
-    opacity: 0;
-  }
-  .show-message .msg-tail {
-    max-width: 1em;
-    opacity: 1;
-    transition-delay: var(--msg-delay, 0ms);
   }
   /* The whole tagline is the door to pyredivers.com — ?dive tells the far
      side to open on our marigold and run the arrival sequence, so the hop
@@ -410,7 +339,6 @@
   @media (prefers-reduced-motion: reduce) {
     .letter,
     .tail,
-    .msg-tail,
     .diver,
     .a-glyph,
     .a-alien {

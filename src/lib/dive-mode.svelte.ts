@@ -4,7 +4,7 @@
 // the diver standing on the bare coin field before navigation.
 //
 // LEAVE_MS matches the 1s word-fade already shipped in #263. Same
-// class-singleton shape as gameMode / messageMode.
+// class-singleton shape as gameMode.
 import { browser } from '$app/environment';
 
 const DIVE_URL = 'https://pyredivers.com/?dive';
