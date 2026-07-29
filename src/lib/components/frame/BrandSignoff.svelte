@@ -276,12 +276,18 @@
      re-firing it in a flicker loop. Only a click runs the full collapse-to-
      "snake" sequence (.is-game), where the layout shift is intended.
 
+     The "a" runs the same sibling fade while its glyph morphs into the
+     alien, so both hover eggs present the same way: one letter left alone
+     on the field.
+
      The "m" intentionally has NO hover preview at all: revealing "message me?"
      always collapses the letters before it, sliding the m out from under the
      cursor, so it stays click-only. */
   @media (hover: hover) {
     .wordmark:has(.s-letter.clickable:hover) .letter:not(.s-letter),
-    .wordmark:has(.s-letter.clickable:focus-visible) .letter:not(.s-letter) {
+    .wordmark:has(.s-letter.clickable:focus-visible) .letter:not(.s-letter),
+    .wordmark:has(.a-letter.clickable:hover) .letter:not(.a-letter),
+    .wordmark:has(.a-letter.clickable:focus-visible) .letter:not(.a-letter) {
       opacity: 0;
     }
   }
