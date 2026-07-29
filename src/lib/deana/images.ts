@@ -12,6 +12,7 @@ const ASCII_BASES = [
 
 export interface AsciiSrc {
 	sm: string;
+	md: string;
 	lg: string;
 }
 
@@ -19,12 +20,13 @@ export interface AsciiSrc {
 // prints. Bump every time scripts/generate-deana-ascii.mjs changes the look
 // (CELL, ramp, lumToTone) so browsers fetch the new bake instead of serving
 // the stale cached webp from the same URL.
-const DEANA_V = 10;
+const DEANA_V = 11;
 
 export const DEANA_ASCII: AsciiSrc[] = ASCII_BASES.map((base) => ({
 	sm: `/assets/deana-ascii/${base}-sm.webp?v=${DEANA_V}`,
+	md: `/assets/deana-ascii/${base}-md.webp?v=${DEANA_V}`,
 	lg: `/assets/deana-ascii/${base}-lg.webp?v=${DEANA_V}`,
 }));
 
-// Widths match SM_W / LG_W in scripts/generate-deana-ascii.mjs.
-export const asciiSrcset = (s: AsciiSrc): string => `${s.sm} 320w, ${s.lg} 700w`;
+// Widths match SM_W / MD_W / LG_W in scripts/generate-deana-ascii.mjs.
+export const asciiSrcset = (s: AsciiSrc): string => `${s.sm} 320w, ${s.md} 480w, ${s.lg} 700w`;
