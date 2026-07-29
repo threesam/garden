@@ -49,12 +49,23 @@
     locked = false;
   }
 
-  // Derived coin transform — no nested ternary.
+  // Derived coin pose, split so the tilt can lag the flip: `rotate` is the
+  // independent property (outer, screen-space — the mirror flips handedness,
+  // so outer 7deg == the old inner -7deg, outer -45deg == inner 45deg).
   const coinTransform = $derived((() => {
-    if (inMode || open) return 'rotateY(180deg) rotate(45deg)';
-    if (hovered) return 'rotateY(180deg) rotate(-13deg)';
+    if (inMode || open || hovered) return 'rotateY(180deg)';
     return 'rotateY(0deg)';
   })());
+  const coinRotate = $derived((() => {
+    if (inMode || open) return '-45deg';
+    if (hovered) return '7deg';
+    return '0deg';
+  })());
+  const coinTransition = $derived(
+    hovered
+      ? 'transform 300ms ease-in-out, box-shadow 300ms ease-in-out, rotate 150ms ease-in-out 300ms'
+      : 'transform 300ms ease-in-out, box-shadow 300ms ease-in-out, rotate 150ms ease-in-out',
+  );
 
   const coinBoxShadow = $derived(
     hovered
@@ -80,9 +91,10 @@
     class="relative size-10 rounded-full"
     style:background-color="var(--coin)"
     style:box-shadow={coinBoxShadow}
-    style:transition="transform 300ms ease-in-out, box-shadow 300ms ease-in-out"
+    style:transition={coinTransition}
     style:transform-style="preserve-3d"
     style:transform={coinTransform}
+    style:rotate={coinRotate}
   >
     <!-- Front face — hamburger -->
     <span
