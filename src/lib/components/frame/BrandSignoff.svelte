@@ -28,10 +28,14 @@
   const tag = $derived(heading ? 'h1' : 'div');
   const color = $derived(tone === 'light' ? 'text-white' : 'text-black');
 
-  // "threesam" + one inert tail — "n a k e" after the m. Each letter is a
-  // flex item; when game mode is active the original t/h/r/e/e/a/m collapse
-  // (opacity 0, max-width 0) so the "s" slides to the start, then the
-  // n/a/k/e tail expands.
+  // "threesam" + one inert tail — "n a k e" after the m. Letters are
+  // inline-blocks in normal inline flow, NOT flex items: flex blockifies its
+  // items' computed display, which makes axe-core's target-size rule refuse
+  // the WCAG 2.5.8 inline-text exemption (isInTextBlock sees blocks, not a
+  // word) and flag the sub-24px egg letters. As inline text the letters are
+  // exempt at any size. When game mode is active the original t/h/r/e/e/a/m
+  // collapse (opacity 0, max-width 0) so the "s" slides to the start, then
+  // the n/a/k/e tail expands.
   const PRE_LETTERS = ['t', 'h', 'r', 'e', 'e'];
   // the "a" between s and m is its own span: hovering it morphs the glyph
   // into the alien, and a click starts space invaders (homepage only).
@@ -74,16 +78,14 @@
 
 <svelte:element
   this={tag}
-  class="wordmark absolute bottom-6 left-6 z-50 flex font-mono text-3xl font-bold tracking-meta {color} md:bottom-8 md:left-8 md:text-4xl"
+  class="wordmark absolute bottom-6 left-6 z-50 font-mono text-3xl font-bold tracking-meta {color} md:bottom-8 md:left-8 md:text-4xl"
   class:is-game={isSnake}
   class:wordmark-hidden={gameMode.wordmarkSlotOccupied}
   class:diving-away={divingOut}
 >
   {#each PRE_LETTERS as l, i (`pre-${i}`)}
     <span class="letter">{l}</span>
-  {/each}
-  <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-  <span
+  {/each}<!-- svelte-ignore a11y_no_noninteractive_tabindex --><span
     class="letter s-letter"
     class:clickable={egGame && !active}
     onclick={egGame ? () => { if (active) { gameMode.stop(); } else { gameMode.start('snake'); } } : undefined}
@@ -98,9 +100,8 @@
           }
         }
       : undefined}
-  >s</span>
-  <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-  <span
+  >s</span
+  ><!-- svelte-ignore a11y_no_noninteractive_tabindex --><span
     class="letter a-letter"
     class:clickable={aAlienReady}
     role={aAlienReady ? 'button' : undefined}
@@ -129,11 +130,12 @@
         <ellipse cx="20" cy="15" rx="2.4" ry="4.2" transform="rotate(18 20 15)" fill="#e8a317" />
       </svg></span
     ></span
-  >
-  <span class="letter m-letter">m</span>
-  {#each SNAKE_TAIL as l, i (`tail-${i}`)}
+  ><span class="letter m-letter">m</span
+  >{#each SNAKE_TAIL as l, i (`tail-${i}`)}
     <span class="tail" style:--tail-delay="{200 + i * 130}ms">{l}</span>
   {/each}
+  <!-- The butted-tag formatting around every wordmark sibling above is
+       load-bearing: inter-element whitespace renders in inline flow. -->
 </svelte:element>
 <!-- Tagline (anchored bottom-right). Fades out alongside the gallery during
      the snake game so the active experience reads as the only content. The
@@ -161,11 +163,17 @@
 
 <style>
   .wordmark {
-    align-items: baseline;
+    /* one line, always — inline flow would soft-wrap between the
+       inline-block letters if the corner ever got that tight. */
+    white-space: nowrap;
   }
   .letter,
   .tail {
     display: inline-block;
+    /* overflow: hidden moves an inline-block's baseline to its bottom edge;
+       top-aligning the equal-height boxes keeps the glyphs where flex put
+       them and stops the line box growing under the strut. */
+    vertical-align: top;
     overflow: hidden;
     white-space: pre;
     transition:
@@ -219,12 +227,14 @@
      re-firing it in a flicker loop. Only a click runs the full collapse-to-
      "snake" sequence (.is-game), where the layout shift is intended.
 
-     The "m" intentionally has NO hover preview at all: revealing "message me?"
-     always collapses the letters before it, sliding the m out from under the
-     cursor, so it stays click-only. */
+     The "a" runs the same sibling fade while its glyph morphs into the
+     alien, so both hover eggs present the same way: one letter left alone
+     on the field. The "m" is plain text since the message form left (#279). */
   @media (hover: hover) {
     .wordmark:has(.s-letter.clickable:hover) .letter:not(.s-letter),
-    .wordmark:has(.s-letter.clickable:focus-visible) .letter:not(.s-letter) {
+    .wordmark:has(.s-letter.clickable:focus-visible) .letter:not(.s-letter),
+    .wordmark:has(.a-letter.clickable:hover) .letter:not(.a-letter),
+    .wordmark:has(.a-letter.clickable:focus-visible) .letter:not(.a-letter) {
       opacity: 0;
     }
   }
