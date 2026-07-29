@@ -10,6 +10,7 @@
   // The parent must be positioned (relative) — the corners anchor to it.
   // `gameClickable` exposes the snake-game easter egg: clicking the "s"
   // toggles gameMode and triggers the letter-collapse → "snake" sequence.
+  import { onMount } from 'svelte';
   import { page } from '$app/state';
   import { building } from '$app/environment';
   import { gameMode } from '$lib/game-mode.svelte';
@@ -47,8 +48,18 @@
   // The "threesam → snake" wordmark animation is snake-only; the alien's
   // invaders game has no title sequence.
   const isSnake = $derived(gameMode.active && gameMode.game === 'snake');
+  // The letter easter eggs are precision targets — on coarse pointers they're
+  // both undiscoverable and sub-24px tap targets (WCAG 2.5.8), so they stay
+  // plain text there. SSR renders non-interactive; fine pointers upgrade on
+  // hydration (the eggs need JS anyway).
+  let finePointer = $state(false);
+  onMount(() => {
+    finePointer = window.matchMedia('(pointer: fine)').matches;
+  });
+  const egGame = $derived(gameClickable && finePointer);
+  const egMessage = $derived(messageClickable && finePointer);
   const aAlienReady = $derived(
-    gameClickable && !gameMode.active && !messageMode.active && !messageMode.revealing,
+    egGame && !gameMode.active && !messageMode.active && !messageMode.revealing,
   );
 
   // Click-toggled reveal of the message tail (click only — a hover preview
@@ -95,11 +106,11 @@
   <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
   <span
     class="letter s-letter"
-    class:clickable={gameClickable && !active}
-    onclick={gameClickable ? () => { if (active) { gameMode.stop(); } else { gameMode.start('snake'); } } : undefined}
-    role={gameClickable ? 'button' : undefined}
-    tabindex={gameClickable ? 0 : undefined}
-    onkeydown={gameClickable
+    class:clickable={egGame && !active}
+    onclick={egGame ? () => { if (active) { gameMode.stop(); } else { gameMode.start('snake'); } } : undefined}
+    role={egGame ? 'button' : undefined}
+    tabindex={egGame ? 0 : undefined}
+    onkeydown={egGame
       ? (e: KeyboardEvent) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
@@ -116,12 +127,12 @@
     role={aAlienReady ? 'button' : undefined}
     tabindex={aAlienReady ? 0 : undefined}
     aria-label={aAlienReady ? 'play space invaders' : undefined}
-    onclick={gameClickable
+    onclick={egGame
       ? () => {
           if (aAlienReady) gameMode.start('invaders');
         }
       : undefined}
-    onkeydown={gameClickable
+    onkeydown={egGame
       ? (e: KeyboardEvent) => {
           if ((e.key === 'Enter' || e.key === ' ') && aAlienReady) {
             e.preventDefault();
@@ -143,12 +154,12 @@
   <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
   <span
     class="letter m-letter"
-    class:clickable={messageClickable}
-    onclick={messageClickable ? toggleMessage : undefined}
-    role={messageClickable ? 'button' : undefined}
-    tabindex={messageClickable ? 0 : undefined}
-    aria-label={messageClickable ? mLabel : undefined}
-    onkeydown={messageClickable
+    class:clickable={egMessage}
+    onclick={egMessage ? toggleMessage : undefined}
+    role={egMessage ? 'button' : undefined}
+    tabindex={egMessage ? 0 : undefined}
+    aria-label={egMessage ? mLabel : undefined}
+    onkeydown={egMessage
       ? (e: KeyboardEvent) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
@@ -169,8 +180,8 @@
        hitbox), so the wrapper only fires when something is visible. -->
   <span
     class="msg-tail-group"
-    class:clickable={messageClickable}
-    onclick={messageClickable ? () => { messageMode.start(); } : undefined}
+    class:clickable={egMessage}
+    onclick={egMessage ? () => { messageMode.start(); } : undefined}
   >
     {#each MESSAGE_TAIL as l, i (`msg-${i}`)}
       <span class="msg-tail" style:--msg-delay="{100 + i * 80}ms">{l}</span>
