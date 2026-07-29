@@ -32,9 +32,13 @@
   const color = $derived(tone === 'light' ? 'text-white' : 'text-black');
 
   // "threesam" + two inert tails — "n a k e" after the m, and "e s s a g e
-  // _ m e ?" after the m. Each letter is a flex item; when game mode is
-  // active the original t/h/r/e/e/a/m collapse (opacity 0, max-width 0)
-  // so the "s" slides to the start, then the n/a/k/e tail expands.
+  // _ m e ?" after the m. Letters are inline-blocks in normal inline flow,
+  // NOT flex items: flex blockifies its items' computed display, which makes
+  // axe-core's target-size rule refuse the WCAG 2.5.8 inline-text exemption
+  // (isInTextBlock sees blocks, not a word) and flag the sub-24px egg
+  // letters. As inline text the letters are exempt at any size. When game
+  // mode is active the original t/h/r/e/e/a/m collapse (opacity 0, max-width
+  // 0) so the "s" slides to the start, then the n/a/k/e tail expands.
   // Hover/click on the "m" runs the same trick with the message tail.
   const PRE_LETTERS = ['t', 'h', 'r', 'e', 'e'];
   // the "a" between s and m is its own span: hovering it morphs the glyph
@@ -94,7 +98,7 @@
 
 <svelte:element
   this={tag}
-  class="wordmark absolute bottom-6 left-6 z-50 flex font-mono text-3xl font-bold tracking-meta {color} md:bottom-8 md:left-8 md:text-4xl"
+  class="wordmark absolute bottom-6 left-6 z-50 font-mono text-3xl font-bold tracking-meta {color} md:bottom-8 md:left-8 md:text-4xl"
   class:is-game={isSnake}
   class:show-message={messageClickable && messageMode.revealing && !active}
   class:wordmark-hidden={gameMode.wordmarkSlotOccupied || messageMode.active}
@@ -102,9 +106,7 @@
 >
   {#each PRE_LETTERS as l, i (`pre-${i}`)}
     <span class="letter">{l}</span>
-  {/each}
-  <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-  <span
+  {/each}<!-- svelte-ignore a11y_no_noninteractive_tabindex --><span
     class="letter s-letter"
     class:clickable={egGame && !active}
     onclick={egGame ? () => { if (active) { gameMode.stop(); } else { gameMode.start('snake'); } } : undefined}
@@ -119,9 +121,8 @@
           }
         }
       : undefined}
-  >s</span>
-  <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-  <span
+  >s</span
+  ><!-- svelte-ignore a11y_no_noninteractive_tabindex --><span
     class="letter a-letter"
     class:clickable={aAlienReady}
     role={aAlienReady ? 'button' : undefined}
@@ -150,9 +151,7 @@
         <ellipse cx="20" cy="15" rx="2.4" ry="4.2" transform="rotate(18 20 15)" fill="#e8a317" />
       </svg></span
     ></span
-  >
-  <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-  <span
+  ><!-- svelte-ignore a11y_no_noninteractive_tabindex --><span
     class="letter m-letter"
     class:clickable={egMessage}
     onclick={egMessage ? toggleMessage : undefined}
@@ -167,26 +166,23 @@
           }
         }
       : undefined}
-  >m</span>
-  {#each SNAKE_TAIL as l, i (`tail-${i}`)}
+  >m</span
+  >{#each SNAKE_TAIL as l, i (`tail-${i}`)}
     <span class="tail" style:--tail-delay="{200 + i * 130}ms">{l}</span>
-  {/each}
-  <!-- svelte-ignore a11y_click_events_have_key_events -->
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <!-- Single delegated handler for the whole message tail. `display:
-       contents` keeps the inner spans as direct flex children of the
-       wordmark; clicks on any letter bubble here. Letters are
+  {/each}<!-- svelte-ignore a11y_click_events_have_key_events --><!-- svelte-ignore a11y_no_static_element_interactions --><!-- Single delegated handler for the whole message tail. `display:
+       contents` keeps the inner spans direct children of the wordmark's
+       inline flow; clicks on any letter bubble here. Letters are
        individually unclickable when collapsed (max-width: 0 → no
-       hitbox), so the wrapper only fires when something is visible. -->
-  <span
+       hitbox), so the wrapper only fires when something is visible.
+       The butted-tag formatting here (and around every wordmark sibling)
+       is load-bearing: inter-element whitespace renders in inline flow. --><span
     class="msg-tail-group"
     class:clickable={egMessage}
     onclick={egMessage ? () => { messageMode.start(); } : undefined}
-  >
-    {#each MESSAGE_TAIL as l, i (`msg-${i}`)}
-      <span class="msg-tail" style:--msg-delay="{100 + i * 80}ms">{l}</span>
-    {/each}
-  </span>
+  >{#each MESSAGE_TAIL as l, i (`msg-${i}`)}<span
+      class="msg-tail"
+      style:--msg-delay="{100 + i * 80}ms">{l}</span
+    >{/each}</span>
 </svelte:element>
 <!-- Tagline (anchored bottom-right). Fades out alongside the gallery
      during snake game or "message me?" letter mode so the active
@@ -213,13 +209,14 @@
 </p>
 
 <style>
-  .wordmark {
-    align-items: baseline;
-  }
   .letter,
   .tail,
   .msg-tail {
     display: inline-block;
+    /* overflow: hidden moves an inline-block's baseline to its bottom edge;
+       top-aligning the equal-height boxes keeps the glyphs where flex put
+       them and stops the line box growing under the strut. */
+    vertical-align: top;
     overflow: hidden;
     white-space: pre;
     transition:
