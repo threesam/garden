@@ -58,12 +58,12 @@
   })());
   const coinRotate = $derived((() => {
     if (inMode || open) return '-45deg';
-    if (hovered) return '7deg';
+    if (hovered) return '13deg';
     return '0deg';
   })());
   const coinTransition = $derived(
-    hovered
-      ? 'transform 300ms ease-in-out, box-shadow 300ms ease-in-out, rotate 150ms ease-in-out 300ms'
+    hovered && !(open || inMode)
+      ? 'transform 300ms ease-in-out, box-shadow 300ms ease-in-out, rotate 1s ease-in-out 300ms'
       : 'transform 300ms ease-in-out, box-shadow 300ms ease-in-out, rotate 150ms ease-in-out',
   );
 
