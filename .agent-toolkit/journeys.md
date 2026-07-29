@@ -1,5 +1,6 @@
 ## browse-thoughts
 - go to /
+- expect text "threesamnake"
 - expect link "thoughts"
 - click "thoughts"
 - expect heading "thoughts"
