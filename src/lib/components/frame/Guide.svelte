@@ -52,7 +52,7 @@
   // Derived coin transform — no nested ternary.
   const coinTransform = $derived((() => {
     if (inMode || open) return 'rotateY(180deg) rotate(45deg)';
-    if (hovered) return 'rotateY(180deg)';
+    if (hovered) return 'rotateY(180deg) rotate(-13deg)';
     return 'rotateY(0deg)';
   })());
 
