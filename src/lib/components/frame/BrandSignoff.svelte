@@ -15,7 +15,8 @@
   import { building } from '$app/environment';
   import { gameMode } from '$lib/game-mode.svelte';
   import { diveMode, diveUrl } from '$lib/dive-mode.svelte';
-  import WordmarkT from './WordmarkT.svelte';
+  import WordmarkGlyph from './WordmarkGlyph.svelte';
+  import { LETTERS } from '$lib/wordmark';
 
   let {
     heading = false,
@@ -37,11 +38,15 @@
   // exempt at any size. When game mode is active the original t/h/r/e/e/a/m
   // collapse (opacity 0, max-width 0) so the "s" slides to the start, then
   // the n/a/k/e tail expands.
-  // The "t" is not in this list — it renders as WordmarkT, the dot-matrix
-  // glyph lifted from the full wordmark, with an sr-only "t" beside it so the
-  // <h1> still reads "threesam". It keeps the .letter class, so it collapses
-  // with the others when the snake sequence runs.
-  const PRE_LETTERS = ['h', 'r', 'e', 'e'];
+  // Every letter of "threesam" is a dot glyph — LETTERS is the hand-edited
+  // grid, one entry per letter, in order. They stay eight separate spans (not
+  // one image) because the snake sequence collapses them individually, and
+  // because the s and a carry the two easter eggs.
+  //
+  // The visible letters are decorative canvases; a single sr-only "threesam"
+  // supplies the <h1>'s accessible name for the whole mark.
+  const [L_T, L_H, L_R, L_E1, L_E2, L_S, L_A, L_M] = LETTERS;
+  const PRE_LETTERS = [L_H, L_R, L_E1, L_E2];
   // the "a" between s and m is its own span: hovering it morphs the glyph
   // into the alien, and a click starts space invaders (homepage only).
   // Ready only while the letter is actually visible — during game/message
@@ -88,11 +93,13 @@
   class:wordmark-hidden={gameMode.wordmarkSlotOccupied}
   class:diving-away={divingOut}
 >
-  <span class="letter t-letter"
-    ><span class="sr-only">t</span><WordmarkT /></span
-  >{#each PRE_LETTERS as l, i (`pre-${i}`)}<span class="letter">{l}</span
+  <span class="sr-only">threesam</span
+  ><span class="letter"><WordmarkGlyph letter={L_T} /></span
+  >{#each PRE_LETTERS as l, i (`pre-${i}`)}<span class="letter"
+      ><WordmarkGlyph letter={l} /></span
     >{/each}<!-- svelte-ignore a11y_no_noninteractive_tabindex --><span
     class="letter s-letter"
+    aria-label={egGame ? 'play snake' : undefined}
     class:clickable={egGame && !active}
     onclick={egGame ? () => { if (active) { gameMode.stop(); } else { gameMode.start('snake'); } } : undefined}
     role={egGame ? 'button' : undefined}
@@ -106,7 +113,7 @@
           }
         }
       : undefined}
-  >s</span
+  ><WordmarkGlyph letter={L_S} /></span
   ><!-- svelte-ignore a11y_no_noninteractive_tabindex --><span
     class="letter a-letter"
     class:clickable={aAlienReady}
@@ -126,7 +133,7 @@
           }
         }
       : undefined}
-  ><span class="a-glyph">a</span><span class="a-alien" aria-hidden="true"
+  ><span class="a-glyph"><WordmarkGlyph letter={L_A} /></span><span class="a-alien" aria-hidden="true"
       ><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
         <path
           fill="currentColor"
@@ -136,7 +143,7 @@
         <ellipse cx="20" cy="15" rx="2.4" ry="4.2" transform="rotate(18 20 15)" fill="#e8a317" />
       </svg></span
     ></span
-  ><span class="letter m-letter">m</span
+  ><span class="letter m-letter"><WordmarkGlyph letter={L_M} /></span
   >{#each SNAKE_TAIL as l, i (`tail-${i}`)}
     <span class="tail" style:--tail-delay="{200 + i * 130}ms">{l}</span>
   {/each}
