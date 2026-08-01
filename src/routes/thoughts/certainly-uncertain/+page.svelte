@@ -38,7 +38,7 @@
         // thought
       </p>
       <h1
-        class="font-mono text-4xl font-bold uppercase tracking-base text-white md:text-6xl"
+        class="font-display text-4xl uppercase tracking-base text-white md:text-6xl"
       >
         certainly uncertain
       </h1>

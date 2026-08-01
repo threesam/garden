@@ -23,6 +23,12 @@
   --font-sans: "Recursive Variable", Arial, Helvetica, sans-serif;
   --font-mono: "Recursive Variable", monospace;
   --font-essay: "Epilogue", Georgia, serif;
+  /* Heading face. Michroma is wide and single-weight, so it earns its keep on
+     h1/h2 and nothing smaller — body and UI stay on Recursive. The fallback
+     stack is monospace, not sans: Michroma's proportions are closer to the
+     mono cut already in use, so a load failure degrades to the old look
+     rather than a jarring reflow. */
+  --font-display: "Michroma", ui-monospace, monospace;
   /* Letter-spacing scale used across uppercase labels/heroes/pills. These
      are the values that recurred as `tracking-[0.NNem]` literals; named
      here so the call sites read intent, not magic numbers. */
@@ -89,6 +95,14 @@ body {
   color: var(--foreground);
   font-family: "Recursive Variable", Arial, Helvetica, sans-serif;
   font-variation-settings: "MONO" 0, "CASL" 0, "slnt" 0;
+}
+
+/* Michroma is a single 400 weight. Any inherited font-weight would make the
+   browser synthesise a bold, which smears its wide geometric strokes into
+   mud at heading sizes — suppress synthesis rather than relying on every
+   call site remembering not to ask for bold. */
+.font-display {
+  font-synthesis-weight: none;
 }
 
 /* Tailwind's font-mono utility points at Recursive too — flipping the
