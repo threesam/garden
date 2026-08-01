@@ -15,6 +15,7 @@
   import { building } from '$app/environment';
   import { gameMode } from '$lib/game-mode.svelte';
   import { diveMode, diveUrl } from '$lib/dive-mode.svelte';
+  import WordmarkT from './WordmarkT.svelte';
 
   let {
     heading = false,
@@ -36,7 +37,11 @@
   // exempt at any size. When game mode is active the original t/h/r/e/e/a/m
   // collapse (opacity 0, max-width 0) so the "s" slides to the start, then
   // the n/a/k/e tail expands.
-  const PRE_LETTERS = ['t', 'h', 'r', 'e', 'e'];
+  // The "t" is not in this list — it renders as WordmarkT, the dot-matrix
+  // glyph lifted from the full wordmark, with an sr-only "t" beside it so the
+  // <h1> still reads "threesam". It keeps the .letter class, so it collapses
+  // with the others when the snake sequence runs.
+  const PRE_LETTERS = ['h', 'r', 'e', 'e'];
   // the "a" between s and m is its own span: hovering it morphs the glyph
   // into the alien, and a click starts space invaders (homepage only).
   // Ready only while the letter is actually visible — during game/message
@@ -78,14 +83,15 @@
 
 <svelte:element
   this={tag}
-  class="wordmark absolute bottom-6 left-6 z-50 font-mono text-3xl font-bold tracking-meta {color} md:bottom-8 md:left-8 md:text-4xl"
+  class="wordmark absolute bottom-6 left-6 z-50 font-display text-3xl tracking-meta {color} md:bottom-8 md:left-8 md:text-4xl"
   class:is-game={isSnake}
   class:wordmark-hidden={gameMode.wordmarkSlotOccupied}
   class:diving-away={divingOut}
 >
-  {#each PRE_LETTERS as l, i (`pre-${i}`)}
-    <span class="letter">{l}</span>
-  {/each}<!-- svelte-ignore a11y_no_noninteractive_tabindex --><span
+  <span class="letter t-letter"
+    ><span class="sr-only">t</span><WordmarkT /></span
+  >{#each PRE_LETTERS as l, i (`pre-${i}`)}<span class="letter">{l}</span
+    >{/each}<!-- svelte-ignore a11y_no_noninteractive_tabindex --><span
     class="letter s-letter"
     class:clickable={egGame && !active}
     onclick={egGame ? () => { if (active) { gameMode.stop(); } else { gameMode.start('snake'); } } : undefined}

@@ -49,7 +49,7 @@
         remembering
       </h2>
       <h1
-        class="mt-3 font-mono text-3xl font-bold uppercase tracking-base text-white md:text-6xl"
+        class="mt-3 font-display text-3xl uppercase tracking-base text-white md:text-6xl"
       >
         102 Jackson Street
       </h1>

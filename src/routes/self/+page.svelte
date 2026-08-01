@@ -146,7 +146,7 @@
     />
   {/if}
   <h1
-    class="pointer-events-none absolute bottom-6 left-6 z-10 font-mono text-3xl font-bold uppercase tracking-base text-white md:bottom-20 md:left-20 md:text-8xl"
+    class="pointer-events-none absolute bottom-6 left-6 z-10 font-display text-3xl uppercase tracking-base text-white md:bottom-20 md:left-20 md:text-8xl"
   >
     self
   </h1>

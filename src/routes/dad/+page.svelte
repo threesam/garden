@@ -32,7 +32,7 @@
       <AsciiImage srcs={["/assets/dad-1.webp"]} class="h-full w-full" inverted />
     </LazyMount>
     <h1
-      class="pointer-events-none absolute bottom-6 left-6 z-10 font-mono text-3xl font-bold uppercase tracking-base text-white md:bottom-18 md:left-18 md:text-8xl"
+      class="pointer-events-none absolute bottom-6 left-6 z-10 font-display text-3xl uppercase tracking-base text-white md:bottom-18 md:left-18 md:text-8xl"
     >
       dad
     </h1>

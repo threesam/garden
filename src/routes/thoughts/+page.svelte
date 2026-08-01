@@ -114,7 +114,7 @@
 
   <header class="relative z-10 mx-auto mb-12 max-w-7xl md:mb-18">
     <h1
-      class="font-mono text-4xl font-bold uppercase tracking-hero text-white md:text-7xl"
+      class="font-display text-4xl uppercase tracking-hero text-white md:text-7xl"
     >
       thoughts
     </h1>

@@ -7,6 +7,9 @@
   import '@fontsource-variable/recursive/wght.css';
   import '@fontsource-variable/recursive/mono.css';
   import '@fontsource-variable/recursive/casl.css';
+  // Michroma — the heading face (--font-display). Single weight, latin only,
+  // so it's one small file for every h1/h2 on the site.
+  import '@fontsource/michroma/latin-400.css';
   // Epilogue (used inside .tier-essay on /self and /dad) is imported by
   // those routes directly so the other 7 pages don't ship 3 unused
   // weight files. See src/lib/fonts/epilogue.ts.
