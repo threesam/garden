@@ -115,11 +115,15 @@
   class:opacity-0={!open}
   style="background-color:var(--coin);transform:translateZ(0)"
 >
+  <!-- The only thing on a full-screen coin field, so it is sized as a
+       statement rather than a link. tracking-pill (0.3em) was tuned for small
+       uppercase labels; at display size it opened the word into loose
+       lettering, so this steps down to tracking-base. -->
   <a
     href="/"
     onclick={() => (open = false)}
     data-sveltekit-preload-code="hover"
-    class="font-display text-xl tracking-pill transition-transform duration-300 hover:scale-110 hover:duration-[4000ms] hover:ease-out"
+    class="font-display text-[clamp(2.25rem,9vw,5rem)] leading-none tracking-base transition-transform duration-300 hover:scale-110 hover:duration-[4000ms] hover:ease-out"
     style="color:var(--black)"
   >
     go home
