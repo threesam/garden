@@ -129,7 +129,12 @@
 			lastRef = now;
 			if (stripW < 2) measure();
 
-			const lerpRate = targetSpeedRef === 0 ? 0.1 : 0.02;
+			// Stopping is a response to intent (the pointer arrived), so it settles
+			// decisively; starting again is ambient, so it eases back slowly. At the
+			// old 0.1 the strip took ~55 frames (~900ms) to actually come to rest,
+			// which is a long time to wait with the cursor already on a card you
+			// mean to click. 0.25 lands it in ~330ms and still glides.
+			const lerpRate = targetSpeedRef === 0 ? 0.25 : 0.02;
 			speedRef += (targetSpeedRef - speedRef) * lerpRate;
 			if (Math.abs(speedRef) < 0.1) speedRef = 0;
 
