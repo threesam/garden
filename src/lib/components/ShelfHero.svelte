@@ -117,17 +117,32 @@
 				onmouseleave={clearTarget}
 			>
 				{#if featured.coverUrl}
-					<img
-						bind:this={coverEl}
-						src={proxyImg(featured.coverUrl, 400)}
-						alt={featured.cleanTitle}
-						width={featured.coverW ?? 400}
-						height={featured.coverH ?? 600}
-						fetchpriority="high"
-						loading="eager"
-						style="--shadow-rgb: {shadowRgb};"
-						class="block w-full max-w-[18rem] shadow-[0_20px_50px_-15px_rgb(var(--shadow-rgb)/0.45)] transition duration-700 group-hover/cover:-translate-y-1 group-hover/cover:-rotate-[1.3deg] group-hover/cover:shadow-[0_50px_120px_-20px_rgb(var(--shadow-rgb)/0.8)] md:max-h-[60dvh] md:w-[clamp(18rem,32vw,26rem)] md:max-w-none"
-					/>
+					<!-- Wrapper shrinks to the image (inline-block) so the badge can
+					     anchor to the cover's real corner rather than the flex cell,
+					     and it carries the hover transform so the stamp travels with
+					     the cover instead of detaching from it. Sizing stays on the
+					     img — md:max-h-[60dvh] can shorten it, and the wrapper has
+					     to follow that, not dictate it. -->
+					<span
+						class="relative inline-block transition-transform duration-700 group-hover/cover:-translate-y-1 group-hover/cover:-rotate-[1.3deg]"
+					>
+						<img
+							bind:this={coverEl}
+							src={proxyImg(featured.coverUrl, 400)}
+							alt={featured.cleanTitle}
+							width={featured.coverW ?? 400}
+							height={featured.coverH ?? 600}
+							fetchpriority="high"
+							loading="eager"
+							style="--shadow-rgb: {shadowRgb};"
+							class="block w-full max-w-[18rem] shadow-[0_20px_50px_-15px_rgb(var(--shadow-rgb)/0.45)] transition-shadow duration-700 group-hover/cover:shadow-[0_50px_120px_-20px_rgb(var(--shadow-rgb)/0.8)] md:max-h-[60dvh] md:w-[clamp(18rem,32vw,26rem)] md:max-w-none"
+						/>
+						<span
+							class="pointer-events-none absolute top-3 right-3 bg-coin px-2 py-1 font-display text-[0.625rem] leading-none uppercase tracking-base text-black"
+						>
+							{featuredLabel}
+						</span>
+					</span>
 				{/if}
 			</a>
 
@@ -138,11 +153,21 @@
 					rel="noopener noreferrer"
 					class="flex flex-col gap-3"
 				>
-					<div class="font-mono text-xs uppercase tracking-pill text-coin">
-						{featuredLabel}
-					</div>
-					<h2 class="text-3xl font-bold leading-tight md:text-4xl">{featured.cleanTitle}</h2>
-					<div class="text-base opacity-70">
+					<!-- Display face on the title. Michroma is much wider than the
+					     sans, so the size steps down to keep a long title (these are
+					     real book titles — the current one runs to "...the trust,
+					     lust, and devotion of a strong woman") from swallowing the
+					     column. font-bold is dropped: Michroma ships a single 400
+					     weight and would otherwise be faux-bolded. -->
+					<h2 class="font-display text-lg leading-snug text-balance md:text-xl">
+						{featured.cleanTitle}
+					</h2>
+					<!-- The byline was text-base/opacity-70 against body copy at
+					     text-base/opacity-75 — same size, same weight, near-identical
+					     contrast, so it read as another paragraph. Small, tracked and
+					     uppercase separates it from both the title above and the blurb
+					     below without needing another size step. -->
+					<div class="font-mono text-xs uppercase tracking-meta opacity-55">
 						{featured.author}{#if featured.series}
 							 · 
 							{featured.series} #{featured.seriesNumber}
@@ -156,7 +181,7 @@
 							bind:this={descEl}
 							style={expanded && contentHeight > 0 ? `max-height: ${contentHeight}px;` : undefined}
 							class={[
-								'overflow-hidden whitespace-pre-line text-sm leading-relaxed opacity-75 transition-[max-height] duration-500 ease-out md:!max-h-none md:text-base',
+								'overflow-hidden whitespace-pre-line text-sm leading-relaxed opacity-65 transition-[max-height] duration-500 ease-out md:!max-h-none md:text-base',
 								expanded ? '' : 'max-md:max-h-18',
 							].join(' ')}
 						>

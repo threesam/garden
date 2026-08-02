@@ -77,7 +77,8 @@ export const load: PageServerLoad = async () => {
     null;
 
   const featured = currentBook ?? lastRead;
-  const featuredLabel = currentBook ? "currently reading" : "last read";
+  // Short enough to sit as a corner badge on the cover without crowding it.
+  const featuredLabel = currentBook ? "reading now" : "last read";
 
   // Probe real cover dimensions at build time so the client can declare the
   // correct intrinsic aspect ratio (fixes CLS + Lighthouse image audits).
