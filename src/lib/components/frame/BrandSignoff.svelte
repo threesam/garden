@@ -43,8 +43,10 @@
   // one image) because the snake sequence collapses them individually, and
   // because the s and a carry the two easter eggs.
   //
-  // The visible letters are decorative canvases; a single sr-only "threesam"
-  // supplies the <h1>'s accessible name for the whole mark.
+  // The visible letters are decorative; a single sr-only "threesam" supplies
+  // the <h1>'s accessible name. The snake and invaders letters are aria-hidden
+  // for the same reason — they are always in the DOM, just collapsed, so
+  // without it the heading reads "threesamspce invadersnake".
   const [L_T, L_H, L_R, L_E1, L_E2, L_S, L_A, L_M] = LETTERS;
   const PRE_LETTERS = [L_H, L_R, L_E1, L_E2];
   // the "a" between s and m is its own span: clicking it starts space
@@ -123,7 +125,7 @@
         }
       : undefined}
   ><WordmarkGlyph letter={L_S} /></span
-  >{#each INV_LEAD as l, i (`lead-${i}`)}<span class="inv" style:--inv-delay="{120 + i * 110}ms"
+  >{#each INV_LEAD as l, i (`lead-${i}`)}<span class="inv" aria-hidden="true" style:--inv-delay="{120 + i * 110}ms"
     >{l}</span
   >{/each}<!-- svelte-ignore a11y_no_noninteractive_tabindex --><span
     class="letter a-letter"
@@ -146,11 +148,11 @@
         }
       : undefined}
   ><WordmarkGlyph letter={L_A} /></span
-  >{#each INV_TAIL as l, i (`inv-${i}`)}<span class="inv" style:--inv-delay="{340 + i * 70}ms"
+  >{#each INV_TAIL as l, i (`inv-${i}`)}<span class="inv" aria-hidden="true" style:--inv-delay="{340 + i * 70}ms"
     >{l}</span
   >{/each}<span class="letter m-letter" style:--letter-w="{letterAdvanceEm(L_M)}em"><WordmarkGlyph letter={L_M} /></span
   >{#each SNAKE_TAIL as l, i (`tail-${i}`)}
-    <span class="tail" style:--tail-delay="{200 + i * 130}ms">{l}</span>
+    <span class="tail" aria-hidden="true" style:--tail-delay="{200 + i * 130}ms">{l}</span>
   {/each}
   <!-- The butted-tag formatting around every wordmark sibling above is
        load-bearing: inter-element whitespace renders in inline flow. -->
