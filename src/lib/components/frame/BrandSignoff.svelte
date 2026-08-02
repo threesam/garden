@@ -16,7 +16,7 @@
   import { gameMode } from '$lib/game-mode.svelte';
   import { diveMode, diveUrl } from '$lib/dive-mode.svelte';
   import WordmarkGlyph from './WordmarkGlyph.svelte';
-  import { LETTERS } from '$lib/wordmark';
+  import { LETTERS, letterWidthEm } from '$lib/wordmark';
 
   let {
     heading = false,
@@ -94,11 +94,12 @@
   class:diving-away={divingOut}
 >
   <span class="sr-only">threesam</span
-  ><span class="letter"><WordmarkGlyph letter={L_T} /></span
-  >{#each PRE_LETTERS as l, i (`pre-${i}`)}<span class="letter"
+  ><span class="letter" style:--letter-w="{letterWidthEm(L_T)}em"><WordmarkGlyph letter={L_T} /></span
+  >{#each PRE_LETTERS as l, i (`pre-${i}`)}<span class="letter" style:--letter-w="{letterWidthEm(l)}em"
       ><WordmarkGlyph letter={l} /></span
     >{/each}<!-- svelte-ignore a11y_no_noninteractive_tabindex --><span
     class="letter s-letter"
+    style:--letter-w="{letterWidthEm(L_S)}em"
     aria-label={egGame ? 'play snake' : undefined}
     class:clickable={egGame && !active}
     onclick={egGame ? () => { if (active) { gameMode.stop(); } else { gameMode.start('snake'); } } : undefined}
@@ -116,6 +117,7 @@
   ><WordmarkGlyph letter={L_S} /></span
   ><!-- svelte-ignore a11y_no_noninteractive_tabindex --><span
     class="letter a-letter"
+    style:--letter-w="{letterWidthEm(L_A)}em"
     class:clickable={aAlienReady}
     role={aAlienReady ? 'button' : undefined}
     tabindex={aAlienReady ? 0 : undefined}
@@ -134,7 +136,7 @@
         }
       : undefined}
   ><WordmarkGlyph letter={L_A} /></span
-  ><span class="letter m-letter"><WordmarkGlyph letter={L_M} /></span
+  ><span class="letter m-letter" style:--letter-w="{letterWidthEm(L_M)}em"><WordmarkGlyph letter={L_M} /></span
   >{#each SNAKE_TAIL as l, i (`tail-${i}`)}
     <span class="tail" style:--tail-delay="{200 + i * 130}ms">{l}</span>
   {/each}
@@ -187,7 +189,10 @@
     transition:
       max-width 450ms cubic-bezier(0.4, 0, 0.2, 1),
       opacity 350ms ease-out;
-    max-width: 1em;
+    /* Per-glyph, not a flat 1em: the dot letters differ in width (m is 1.16em,
+       r is 0.4em) and a fixed 1em silently clipped the wide ones under
+       overflow: hidden. Text tails have no --letter-w and keep the 1em. */
+    max-width: var(--letter-w, 1em);
     opacity: 1;
   }
   /* Trailing snake letters start collapsed and silent. */

@@ -7,18 +7,13 @@
   // resolution it was sized at.
   //
   // Decorative: BrandSignoff carries the accessible name for the whole mark.
-  import { INK_ROWS, INK_TOP, FILL, letterCells, type WordmarkLetter } from '$lib/wordmark';
+  import { INK_ROWS, INK_TOP, INK_EM, PITCH_EM, FILL, letterCells, type WordmarkLetter } from '$lib/wordmark';
 
   let { letter }: { letter: WordmarkLetter } = $props();
 
   const cols = $derived(letter.rows[0]?.length ?? 0);
   const cells = $derived(letterCells(letter));
   const r = FILL / 2;
-
-  /** Michroma reports the word's ink height as this fraction of font-size. */
-  const INK_EM = 0.761;
-  /** One grid column/row, in em. */
-  const PITCH_EM = INK_EM / INK_ROWS;
 </script>
 
 <!-- The viewBox is cropped to the inked rows, not the full padded grid, so the
