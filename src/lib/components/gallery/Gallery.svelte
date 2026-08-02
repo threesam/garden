@@ -356,7 +356,7 @@
 				     per card and stays put on hover — only the ring changes. -->
 				<div
 					data-card-label
-					class="flex flex-1 items-center justify-center px-3 text-center font-display text-lg uppercase tracking-pill lg:text-xl {cream
+					class="flex flex-1 items-center justify-center px-3 text-center font-display text-sm uppercase tracking-meta sm:text-base lg:text-lg {cream
 						? 'bg-white text-black'
 						: 'bg-black text-white'}"
 				>
