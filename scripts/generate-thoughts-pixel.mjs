@@ -1,8 +1,7 @@
 // Bakes the /thoughts card hero images into tiny grayscale webps at build time.
 // At display, the <img> uses `image-rendering: pixelated` so the browser
-// nearest-neighbor scales each baked pixel into a ~3px square — the
-// "averaging color in B+W with 3px squares" look — without spending any
-// runtime CPU on canvas sampling.
+// nearest-neighbor scales each baked pixel into a square block, without
+// spending any runtime CPU on canvas sampling.
 //
 // Each output pixel is sharp's Lanczos-weighted average of the source
 // neighborhood, then grayscale via standard luminance. Output width is sized
@@ -19,9 +18,9 @@ const OUT_DIR = "static/assets/thoughts-pixel";
 
 // Mirrors the cards in src/routes/thoughts/+page.svelte.
 // self-hero.webp (landscape, contrasty mid-frame subject) beats
-// self-hero-mobile.webp here — the mobile crop is so soft + low-
-// variance that 29 grayscale pixels blur into a smooth gradient
-// instead of reading as discrete 13px blocks like the other cards.
+// self-hero-mobile.webp here — the mobile crop is soft and low-variance
+// enough that its grayscale blocks blur into a smooth gradient instead of
+// reading as discrete squares like the other cards.
 const TARGETS = [
   { src: "the-peach-src.jpg", out: "the-peach.webp" },
   { src: "certainly-uncertain.webp", out: "certainly-uncertain.webp" },
@@ -31,8 +30,9 @@ const TARGETS = [
 ];
 
 // Cards display ~375 CSS px wide at typical desktop (max-w-7xl, gap-9, 3-up),
-// so 29 source pixels nearest-neighbor-scale into ~13 CSS px per square.
-const OUT_W = 29;
+// so 58 source pixels nearest-neighbor-scale into ~6.5 CSS px per square —
+// half the block size of the original 29-pixel bake.
+const OUT_W = 58;
 const OUT_H = Math.round((OUT_W * 5) / 4); // cards are aspect 4/5
 
 mkdirSync(OUT_DIR, { recursive: true });
