@@ -47,8 +47,8 @@
   // supplies the <h1>'s accessible name for the whole mark.
   const [L_T, L_H, L_R, L_E1, L_E2, L_S, L_A, L_M] = LETTERS;
   const PRE_LETTERS = [L_H, L_R, L_E1, L_E2];
-  // the "a" between s and m is its own span: hovering it morphs the glyph
-  // into the alien, and a click starts space invaders (homepage only).
+  // the "a" between s and m is its own span: clicking it starts space
+  // invaders (homepage only) and collapses the wordmark around it.
   // Ready only while the letter is actually visible — during game/message
   // modes it collapses, and a collapsed control must be neither tabbable
   // nor able to start invaders over the active state.
@@ -60,8 +60,8 @@
   const INV_LEAD = ['s', 'p'];
   const INV_TAIL = ['c', 'e', ' ', 'i', 'n', 'v', 'a', 'd', 'e', 'r', 's'];
   const active = $derived(gameMode.active);
-  // The "threesam → snake" wordmark animation is snake-only; the alien's
-  // invaders game has no title sequence.
+  // Each game claims a different letter and spells a different word: snake
+  // keeps the "s", invaders keeps the "a".
   const isSnake = $derived(gameMode.active && gameMode.game === 'snake');
   const isInvaders = $derived(gameMode.active && gameMode.game === 'invaders');
   // The letter easter eggs are precision targets — on coarse pointers they're
@@ -73,7 +73,7 @@
     finePointer = window.matchMedia('(pointer: fine)').matches;
   });
   const egGame = $derived(gameClickable && finePointer);
-  const aAlienReady = $derived(egGame && !gameMode.active);
+  const invadersReady = $derived(egGame && !gameMode.active);
 
   // Clicking the tagline runs the send-off: EVERYTHING fades for 1s —
   // words here, plus the gallery, wordmark, and guide coin via diveMode
@@ -128,18 +128,18 @@
   >{/each}<!-- svelte-ignore a11y_no_noninteractive_tabindex --><span
     class="letter a-letter"
     style:--letter-w="{letterAdvanceEm(L_A)}em"
-    class:clickable={aAlienReady}
-    role={aAlienReady ? 'button' : undefined}
-    tabindex={aAlienReady ? 0 : undefined}
-    aria-label={aAlienReady ? 'play space invaders' : undefined}
+    class:clickable={invadersReady}
+    role={invadersReady ? 'button' : undefined}
+    tabindex={invadersReady ? 0 : undefined}
+    aria-label={invadersReady ? 'play space invaders' : undefined}
     onclick={egGame
       ? () => {
-          if (aAlienReady) gameMode.start('invaders');
+          if (invadersReady) gameMode.start('invaders');
         }
       : undefined}
     onkeydown={egGame
       ? (e: KeyboardEvent) => {
-          if ((e.key === 'Enter' || e.key === ' ') && aAlienReady) {
+          if ((e.key === 'Enter' || e.key === ' ') && invadersReady) {
             e.preventDefault();
             gameMode.start('invaders');
           }
@@ -190,7 +190,8 @@
     white-space: nowrap;
   }
   .letter,
-  .tail {
+  .tail,
+  .inv {
     display: inline-block;
     /* overflow: hidden moves an inline-block's baseline to its bottom edge;
        top-aligning the equal-height boxes keeps the glyphs where flex put
@@ -207,18 +208,6 @@
     max-width: var(--letter-w, 1em);
     opacity: 1;
   }
-  /* Invaders letters, like the snake tail, start collapsed and silent. */
-  .inv {
-    display: inline-block;
-    vertical-align: top;
-    overflow: hidden;
-    white-space: pre;
-    transition:
-      max-width 450ms cubic-bezier(0.4, 0, 0.2, 1),
-      opacity 350ms ease-out;
-    max-width: 0;
-    opacity: 0;
-  }
   /* INVADERS ACTIVE — every letter but the dot "a" collapses, and the lead and
      tail grow in around it, so the mark reads "space invaders". */
   .is-invaders .letter:not(.a-letter) {
@@ -230,8 +219,9 @@
     opacity: 1;
     transition-delay: var(--inv-delay, 0ms);
   }
-  /* Trailing snake letters start collapsed and silent. */
-  .tail {
+  /* Snake and invaders letters both start collapsed and silent. */
+  .tail,
+  .inv {
     max-width: 0;
     opacity: 0;
     transition-delay: 0ms;
