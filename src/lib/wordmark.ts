@@ -276,14 +276,16 @@ export const INK_EM = 0.761;
 export const PITCH_EM = INK_EM / INK_ROWS;
 
 /**
- * A letter's rendered width in em.
+ * A letter's full advance in em — its ink columns PLUS the gutter that follows.
  *
- * The glyphs are not all one em wide — "m" is 32 columns (1.16em) where "r" is
- * 11 (0.4em) — so any box sized at a flat 1em clips the wide ones. Call sites
- * that constrain a letter's width must use this, not a constant.
+ * Two things depend on this. The glyphs are not all one em wide ("m" is 32
+ * columns / 1.16em where "r" is 11 / 0.4em), so a box at a flat 1em clips the
+ * wide ones. And the gutter rides as a trailing margin on the glyph, so a box
+ * sized to the ink alone clips the spacing off instead, leaving the letters
+ * touching. The advance covers both.
  */
-export function letterWidthEm(letter: WordmarkLetter): number {
-  return (letter.rows[0]?.length ?? 0) * PITCH_EM;
+export function letterAdvanceEm(letter: WordmarkLetter): number {
+  return ((letter.rows[0]?.length ?? 0) + letter.gap) * PITCH_EM;
 }
 
 /** Grid coordinates of every dot in a letter, as [x, y] pairs. */
