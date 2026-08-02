@@ -168,7 +168,7 @@
 							bind:this={descEl}
 							style={expanded && contentHeight > 0 ? `max-height: ${contentHeight}px;` : undefined}
 							class={[
-								'max-w-prose overflow-hidden whitespace-pre-line text-sm leading-relaxed opacity-65 transition-[max-height] duration-500 ease-out md:!max-h-none md:text-base',
+								'overflow-hidden whitespace-pre-line text-sm leading-relaxed opacity-65 transition-[max-height] duration-500 ease-out md:!max-h-none md:text-base',
 								expanded ? '' : 'max-md:max-h-18',
 							].join(' ')}
 						>
