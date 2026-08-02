@@ -296,7 +296,7 @@
 				draggable="false"
 				data-sveltekit-preload-data="off"
 				onclick={(e) => { handleClick(e, item); }}
-				class="gallery-card group relative flex h-full shrink-0 flex-col overflow-hidden rounded-2xl shadow-sm transition-[transform,box-shadow] duration-700 hover:shadow-none hover:[transform:rotate(-1.3deg)_translateZ(0)]"
+				class="gallery-card group relative flex h-full shrink-0 flex-col overflow-hidden rounded-2xl shadow-sm transition-[transform,box-shadow] duration-700 hover:shadow-none hover:[transform:rotate(-1.3deg)]"
 				style="aspect-ratio: 20 / 29;"
 			>
 				<!-- Image area: locked to 4:5 so canvases that bake at that aspect
@@ -387,12 +387,14 @@
 	   Chrome and Safari let the child bleed a hairline past the corner there —
 	   and flicker the clip entirely as the layer is promoted on transition
 	   start and demoted on end.
-	   Holding the card on its own layer at all times (translateZ(0) at rest,
-	   and carried through the hover transform so it is never dropped) bakes the
-	   radius into that layer, so there is no promote/demote edge to glitch on.
+	   will-change, NOT transform: translateZ(0). A base transform here has the
+	   same specificity as Tailwind's hover:[transform:...] rule and loads from a
+	   later stylesheet, so it silently won and the hover rotate stopped applying
+	   entirely. will-change promotes the layer without occupying the transform
+	   property, so hover still animates.
 	   backface-visibility pins the rasterisation on the Safari path. */
 	.gallery-card {
-		transform: translateZ(0);
+		will-change: transform;
 		backface-visibility: hidden;
 	}
 
