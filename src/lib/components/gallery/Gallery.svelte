@@ -296,7 +296,7 @@
 				draggable="false"
 				data-sveltekit-preload-data="off"
 				onclick={(e) => { handleClick(e, item); }}
-				class="gallery-card group relative flex h-full shrink-0 flex-col overflow-hidden rounded-2xl shadow-sm transition-[transform,box-shadow] duration-700 hover:shadow-none hover:[transform:rotate(-1.3deg)]"
+				class="gallery-card group relative flex h-full shrink-0 flex-col overflow-hidden rounded-2xl shadow-sm transition-[transform,box-shadow] duration-700 hover:shadow-none hover:[transform:rotate(-1.3deg)_translateZ(0)]"
 				style="aspect-ratio: 20 / 29;"
 			>
 				<!-- Image area: locked to 4:5 so canvases that bake at that aspect
@@ -381,6 +381,21 @@
 </section>
 
 <style>
+	/* The card clips its square-cornered canvas into a rounded shape with
+	   overflow: hidden, but it also takes a transform on hover. A rounded clip
+	   on a TRANSFORMED ancestor is applied at the compositing layer, and both
+	   Chrome and Safari let the child bleed a hairline past the corner there —
+	   and flicker the clip entirely as the layer is promoted on transition
+	   start and demoted on end.
+	   Holding the card on its own layer at all times (translateZ(0) at rest,
+	   and carried through the hover transform so it is never dropped) bakes the
+	   radius into that layer, so there is no promote/demote edge to glitch on.
+	   backface-visibility pins the rasterisation on the Safari path. */
+	.gallery-card {
+		transform: translateZ(0);
+		backface-visibility: hidden;
+	}
+
 	/* 200 ms delay gives the canvas time to land its first paint so the
 	   fade reveals real content, not a blank backdrop. 500 ms is short
 	   enough that a card scrolling past doesn't feel like it lingers. */
