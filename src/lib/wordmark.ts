@@ -14,6 +14,12 @@ export interface WordmarkLetter {
   readonly ch: string;
   /** Column of this letter's left edge within the full `COLS`-wide grid. */
   readonly x0: number;
+  /**
+   * Empty grid columns between this letter's right edge and the next letter's
+   * left edge. Cropping each glyph to its ink box discards the wordmark's own
+   * letter-spacing, so it is carried here and re-applied as a trailing margin.
+   */
+  readonly gap: number;
   /** One string per row, '1' where a dot sits. */
   readonly rows: readonly string[];
 }
@@ -40,7 +46,7 @@ export type WordmarkLetters = readonly [
 ];
 
 export const LETTERS: WordmarkLetters = [
-  { ch: "t", x0: 1, rows: [
+  { ch: "t", x0: 1, gap: 3, rows: [
       "00000000000000",
       "00000000000000",
       "00000000000000",
@@ -66,7 +72,7 @@ export const LETTERS: WordmarkLetters = [
       "00111111111100",
       "00000000000000",
     ] },
-  { ch: "h", x0: 18, rows: [
+  { ch: "h", x0: 18, gap: 3, rows: [
       "0000000000000000000",
       "0000000000000000000",
       "1111000000000000000",
@@ -92,7 +98,7 @@ export const LETTERS: WordmarkLetters = [
       "1111000000000001111",
       "0000000000000000000",
     ] },
-  { ch: "r", x0: 40, rows: [
+  { ch: "r", x0: 40, gap: 2, rows: [
       "00000000000",
       "00000000000",
       "00000000000",
@@ -118,7 +124,7 @@ export const LETTERS: WordmarkLetters = [
       "11110000000",
       "00000000000",
     ] },
-  { ch: "e", x0: 53, rows: [
+  { ch: "e", x0: 53, gap: 2, rows: [
       "0000000000000000000",
       "0000000000000000000",
       "0000000000000000000",
@@ -144,7 +150,7 @@ export const LETTERS: WordmarkLetters = [
       "0001111111111111100",
       "0000000000000000000",
     ] },
-  { ch: "e", x0: 74, rows: [
+  { ch: "e", x0: 74, gap: 2, rows: [
       "0000000000000000000",
       "0000000000000000000",
       "0000000000000000000",
@@ -170,7 +176,7 @@ export const LETTERS: WordmarkLetters = [
       "0001111111111111100",
       "0000000000000000000",
     ] },
-  { ch: "s", x0: 95, rows: [
+  { ch: "s", x0: 95, gap: 2, rows: [
       "00000000000000000000",
       "00000000000000000000",
       "00000000000000000000",
@@ -196,7 +202,7 @@ export const LETTERS: WordmarkLetters = [
       "00111111111111111100",
       "00000000000000000000",
     ] },
-  { ch: "a", x0: 117, rows: [
+  { ch: "a", x0: 117, gap: 2, rows: [
       "0000000000000000000",
       "0000000000000000000",
       "0000000000000000000",
@@ -222,7 +228,7 @@ export const LETTERS: WordmarkLetters = [
       "0011111111111111100",
       "0000000000000000000",
     ] },
-  { ch: "m", x0: 138, rows: [
+  { ch: "m", x0: 138, gap: 0, rows: [
       "00000000000000000000000000000000",
       "00000000000000000000000000000000",
       "00000000000000000000000000000000",
@@ -249,6 +255,20 @@ export const LETTERS: WordmarkLetters = [
       "00000000000000000000000000000000",
     ] },
 ];
+
+// The grid was rasterised with padding around the word so the dilated stems
+// wouldn't clip, which leaves empty rows top and bottom. Rendering the full
+// ROWS box would therefore hang invisible space below every glyph and read as
+// too much bottom padding. Derived, not hard-coded, so regenerating the data
+// can't silently desync these.
+const inkRows = LETTERS.flatMap((l) => l.rows.map((row, y) => (row.includes('1') ? y : -1))).filter(
+  (y) => y >= 0,
+);
+
+/** First grid row containing ink. */
+export const INK_TOP = Math.min(...inkRows);
+/** Number of grid rows the letterforms actually occupy. */
+export const INK_ROWS = Math.max(...inkRows) - INK_TOP + 1;
 
 /** Grid coordinates of every dot in a letter, as [x, y] pairs. */
 export function letterCells(letter: WordmarkLetter): [number, number][] {

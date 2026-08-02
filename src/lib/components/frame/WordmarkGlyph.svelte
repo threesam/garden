@@ -1,107 +1,50 @@
 <script lang="ts">
-  // One letter of the wordmark, drawn as dots on a canvas.
+  // One letter of the wordmark, as dots.
   //
-  // Canvas rather than SVG because the field animates every dot's radius and
-  // alpha each frame — 1543 live <circle> elements would be 1543 style
-  // recalcs per tick. One canvas per letter (not one for the word) so each
-  // letter keeps its own box and the snake sequence can still collapse them
-  // individually.
+  // Static SVG, not canvas: with nothing animating, vector circles are the
+  // sharper choice — the browser antialiases them against the real device
+  // pixel grid at any zoom, where a canvas is locked to whatever backing
+  // resolution it was sized at.
   //
   // Decorative: BrandSignoff carries the accessible name for the whole mark.
-  import { onMount } from 'svelte';
-  import { ROWS, FILL, letterCells, type WordmarkLetter } from '$lib/wordmark';
-  import { clock, fieldAt, lerp, subscribe, FIELD } from '$lib/wordmark-motion.svelte';
+  import { INK_ROWS, INK_TOP, FILL, letterCells, type WordmarkLetter } from '$lib/wordmark';
 
-  let { letter, inkEm = 0.761 }: { letter: WordmarkLetter; inkEm?: number } = $props();
+  let { letter }: { letter: WordmarkLetter } = $props();
 
-  /** Alpha quantisation — 20 steps is below the eye's threshold at these sizes. */
-  const ALPHA_STEPS = 20;
-
-  const cells = $derived(letterCells(letter));
   const cols = $derived(letter.rows[0]?.length ?? 0);
+  const cells = $derived(letterCells(letter));
+  const r = FILL / 2;
 
-  let canvas = $state<HTMLCanvasElement | null>(null);
-  let fontPx = $state(0);
-
-  // The canvas is sized off the parent's font-size so the dots scale with the
-  // wordmark's responsive type instead of being pinned to a pixel size.
-  onMount(() => {
-    const measure = () => {
-      if (canvas?.parentElement) fontPx = parseFloat(getComputedStyle(canvas.parentElement).fontSize);
-    };
-    measure();
-    const ro = new ResizeObserver(measure);
-    if (canvas?.parentElement) ro.observe(canvas.parentElement);
-    // Ref-counted: the shared clock runs while any letter is mounted, and the
-    // last one to unmount stops it.
-    const unsubscribe = subscribe();
-    return () => {
-      ro.disconnect();
-      unsubscribe();
-    };
-  });
-
-  $effect(() => {
-    const el = canvas;
-    if (!el || !fontPx || !cols) return;
-
-    const dpr = Math.min(window.devicePixelRatio || 1, 3);
-    const inkPx = inkEm * fontPx;
-    const pitch = inkPx / ROWS;
-    const w = cols * pitch;
-
-    el.width = Math.max(1, Math.round(w * dpr));
-    el.height = Math.max(1, Math.round(inkPx * dpr));
-    el.style.width = `${w}px`;
-    el.style.height = `${inkPx}px`;
-
-    const ctx = el.getContext('2d');
-    if (!ctx) return;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, w, inkPx);
-    // Canvas has no `currentColor`, so the inherited text colour is read off
-    // the element — that's what keeps the mark flipping with `tone`.
-    ctx.fillStyle = getComputedStyle(el).color;
-
-    const base = (FILL * pitch) / 2;
-    const t = clock.elapsed;
-
-    // Alpha is quantised into ALPHA_STEPS buckets so a letter costs a handful
-    // of fills per frame instead of one per dot; the radius still varies
-    // continuously. A fixed array indexed by bucket, not a Map — the key is
-    // already a small integer.
-    const buckets: [number, number, number][][] = Array.from({ length: ALPHA_STEPS + 1 }, () => []);
-    for (const [x, y] of cells) {
-      // Sampled in FULL-grid coordinates — letter.x0 offsets this letter into
-      // the word — so the wave crosses letter boundaries without a seam.
-      const n = fieldAt(letter.x0 + x, y, t);
-      const r = base * lerp(n, FIELD.radius[0], FIELD.radius[1]);
-      const step = Math.round(lerp(n, FIELD.alpha[0], FIELD.alpha[1]) * ALPHA_STEPS);
-      buckets[step]?.push([(x + 0.5) * pitch, (y + 0.5) * pitch, r]);
-    }
-    buckets.forEach((list, step) => {
-      if (list.length === 0) return;
-      ctx.globalAlpha = step / ALPHA_STEPS;
-      ctx.beginPath();
-      for (const [cx, cy, r] of list) {
-        ctx.moveTo(cx + r, cy);
-        ctx.arc(cx, cy, r, 0, Math.PI * 2);
-      }
-      ctx.fill();
-    });
-    ctx.globalAlpha = 1;
-  });
+  /** Michroma reports the word's ink height as this fraction of font-size. */
+  const INK_EM = 0.761;
+  /** One grid column/row, in em. */
+  const PITCH_EM = INK_EM / INK_ROWS;
 </script>
 
-<canvas bind:this={canvas} class="glyph" aria-hidden="true"></canvas>
+<!-- The viewBox is cropped to the inked rows, not the full padded grid, so the
+     box height IS the letterform height and nothing hangs below the baseline.
+     The trailing margin restores the wordmark's own letter-spacing, which
+     cropping each glyph to its ink box would otherwise throw away. -->
+<svg
+  class="glyph"
+  style:height="{INK_EM}em"
+  style:margin-right="{letter.gap * PITCH_EM}em"
+  viewBox="0 {INK_TOP} {cols} {INK_ROWS}"
+  fill="currentColor"
+  aria-hidden="true"
+  focusable="false"
+>
+  {#each cells as [x, y] (`${x}-${y}`)}
+    <circle cx={x + 0.5} cy={y + 0.5} {r} />
+  {/each}
+</svg>
 
 <style>
   .glyph {
-    /* An inline-block's baseline is its bottom margin edge, so pulling the box
-       down by the word's descent lands the dots on the same baseline as any
-       text beside them. */
+    /* An inline-block's baseline is its bottom margin edge, so with the box
+       cropped to the ink the glyph sits directly on the baseline. */
     display: inline-block;
     vertical-align: baseline;
-    margin-bottom: -0.011em;
+    width: auto;
   }
 </style>
