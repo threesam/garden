@@ -43,20 +43,29 @@
   // one image) because the snake sequence collapses them individually, and
   // because the s and a carry the two easter eggs.
   //
-  // The visible letters are decorative canvases; a single sr-only "threesam"
-  // supplies the <h1>'s accessible name for the whole mark.
+  // The visible letters are decorative; a single sr-only "threesam" supplies
+  // the <h1>'s accessible name. The snake and invaders letters are aria-hidden
+  // for the same reason — they are always in the DOM, just collapsed, so
+  // without it the heading reads "threesamspce invadersnake".
   const [L_T, L_H, L_R, L_E1, L_E2, L_S, L_A, L_M] = LETTERS;
   const PRE_LETTERS = [L_H, L_R, L_E1, L_E2];
-  // the "a" between s and m is its own span: hovering it morphs the glyph
-  // into the alien, and a click starts space invaders (homepage only).
+  // the "a" between s and m is its own span: clicking it starts space
+  // invaders (homepage only) and collapses the wordmark around it.
   // Ready only while the letter is actually visible — during game/message
   // modes it collapses, and a collapsed control must be neither tabbable
   // nor able to start invaders over the active state.
   const SNAKE_TAIL = ['n', 'a', 'k', 'e'];
+  // Invaders spells out AROUND the "a", not after it — the a is the third
+  // letter of "space", so unlike snake it needs a lead as well as a tail. The
+  // dot-glyph "a" is the letter that stays put; everything else collapses and
+  // these text letters grow in on either side of it.
+  const INV_LEAD = ['s', 'p'];
+  const INV_TAIL = ['c', 'e', ' ', 'i', 'n', 'v', 'a', 'd', 'e', 'r', 's'];
   const active = $derived(gameMode.active);
-  // The "threesam → snake" wordmark animation is snake-only; the alien's
-  // invaders game has no title sequence.
+  // Each game claims a different letter and spells a different word: snake
+  // keeps the "s", invaders keeps the "a".
   const isSnake = $derived(gameMode.active && gameMode.game === 'snake');
+  const isInvaders = $derived(gameMode.active && gameMode.game === 'invaders');
   // The letter easter eggs are precision targets — on coarse pointers they're
   // both undiscoverable and sub-24px tap targets (WCAG 2.5.8), so they stay
   // plain text there. SSR renders non-interactive; fine pointers upgrade on
@@ -66,7 +75,7 @@
     finePointer = window.matchMedia('(pointer: fine)').matches;
   });
   const egGame = $derived(gameClickable && finePointer);
-  const aAlienReady = $derived(egGame && !gameMode.active);
+  const invadersReady = $derived(egGame && !gameMode.active);
 
   // Clicking the tagline runs the send-off: EVERYTHING fades for 1s —
   // words here, plus the gallery, wordmark, and guide coin via diveMode
@@ -90,6 +99,7 @@
   this={tag}
   class="wordmark absolute bottom-6 left-6 z-50 font-display {color} md:bottom-8 md:left-8"
   class:is-game={isSnake}
+  class:is-invaders={isInvaders}
   class:wordmark-hidden={gameMode.wordmarkSlotOccupied}
   class:diving-away={divingOut}
 >
@@ -115,30 +125,34 @@
         }
       : undefined}
   ><WordmarkGlyph letter={L_S} /></span
-  ><!-- svelte-ignore a11y_no_noninteractive_tabindex --><span
+  >{#each INV_LEAD as l, i (`lead-${i}`)}<span class="inv" aria-hidden="true" style:--inv-delay="{120 + i * 110}ms"
+    >{l}</span
+  >{/each}<!-- svelte-ignore a11y_no_noninteractive_tabindex --><span
     class="letter a-letter"
     style:--letter-w="{letterAdvanceEm(L_A)}em"
-    class:clickable={aAlienReady}
-    role={aAlienReady ? 'button' : undefined}
-    tabindex={aAlienReady ? 0 : undefined}
-    aria-label={aAlienReady ? 'play space invaders' : undefined}
+    class:clickable={invadersReady}
+    role={invadersReady ? 'button' : undefined}
+    tabindex={invadersReady ? 0 : undefined}
+    aria-label={invadersReady ? 'play space invaders' : undefined}
     onclick={egGame
       ? () => {
-          if (aAlienReady) gameMode.start('invaders');
+          if (invadersReady) gameMode.start('invaders');
         }
       : undefined}
     onkeydown={egGame
       ? (e: KeyboardEvent) => {
-          if ((e.key === 'Enter' || e.key === ' ') && aAlienReady) {
+          if ((e.key === 'Enter' || e.key === ' ') && invadersReady) {
             e.preventDefault();
             gameMode.start('invaders');
           }
         }
       : undefined}
   ><WordmarkGlyph letter={L_A} /></span
-  ><span class="letter m-letter" style:--letter-w="{letterAdvanceEm(L_M)}em"><WordmarkGlyph letter={L_M} /></span
+  >{#each INV_TAIL as l, i (`inv-${i}`)}<span class="inv" aria-hidden="true" style:--inv-delay="{340 + i * 70}ms"
+    >{l}</span
+  >{/each}<span class="letter m-letter" style:--letter-w="{letterAdvanceEm(L_M)}em"><WordmarkGlyph letter={L_M} /></span
   >{#each SNAKE_TAIL as l, i (`tail-${i}`)}
-    <span class="tail" style:--tail-delay="{200 + i * 130}ms">{l}</span>
+    <span class="tail" aria-hidden="true" style:--tail-delay="{200 + i * 130}ms">{l}</span>
   {/each}
   <!-- The butted-tag formatting around every wordmark sibling above is
        load-bearing: inter-element whitespace renders in inline flow. -->
@@ -178,7 +192,8 @@
     white-space: nowrap;
   }
   .letter,
-  .tail {
+  .tail,
+  .inv {
     display: inline-block;
     /* overflow: hidden moves an inline-block's baseline to its bottom edge;
        top-aligning the equal-height boxes keeps the glyphs where flex put
@@ -195,8 +210,20 @@
     max-width: var(--letter-w, 1em);
     opacity: 1;
   }
-  /* Trailing snake letters start collapsed and silent. */
-  .tail {
+  /* INVADERS ACTIVE — every letter but the dot "a" collapses, and the lead and
+     tail grow in around it, so the mark reads "space invaders". */
+  .is-invaders .letter:not(.a-letter) {
+    max-width: 0;
+    opacity: 0;
+  }
+  .is-invaders .inv {
+    max-width: 1em;
+    opacity: 1;
+    transition-delay: var(--inv-delay, 0ms);
+  }
+  /* Snake and invaders letters both start collapsed and silent. */
+  .tail,
+  .inv {
     max-width: 0;
     opacity: 0;
     transition-delay: 0ms;
@@ -327,6 +354,7 @@
   @media (prefers-reduced-motion: reduce) {
     .letter,
     .tail,
+    .inv,
     .diver {
       transition: none;
     }

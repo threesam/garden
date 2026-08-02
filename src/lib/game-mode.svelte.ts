@@ -4,7 +4,7 @@
 // wordmark slot, which hosts everything non-canvas:
 //
 //   snake:    "snake" → "3" → "2" → "1" → (game) → "game over" → "again?" → …
-//   invaders: (no title sequence) "3" → "2" → "1" → (game) → "game over" → …
+//   invaders: "space invaders" → "3" → "2" → "1" → (game) → "game over" → …
 //
 // Anchoring every beat to the same corner makes the camera follow the action.
 //
@@ -12,7 +12,7 @@
 //
 //   active          — arcade mode is on; gallery + tagline fade out. For
 //                     snake the wordmark also runs its "threesam → snake"
-//                     letter animation (gated on game === 'snake').
+//                     letter animation (both games run one).
 //   game            — which game owns the session ('snake' | 'invaders'),
 //                     so the homepage mounts the right canvas component.
 //   countdownText   — "" | "3" | "2" | "1"; when non-empty, the wordmark
@@ -25,6 +25,10 @@
 export type ArcadeGame = 'snake' | 'invaders';
 
 const LETTER_ANIM_MS = 1200;
+// "space invaders" is 14 letters to snake's 5, and its tail staggers longer,
+// so it needs a wider window before the countdown claims the slot — otherwise
+// the last letters are still growing in when the wordmark hides.
+const INVADERS_ANIM_MS = 1600;
 const COUNT_STEP_MS = 500;
 const CLOSE_DELAY_MS = 500;
 const GAME_OVER_HOLD_MS = 2000;
@@ -73,17 +77,13 @@ class GameMode {
 		this.gameOver = false;
 		this.replayReady = false;
 
-		if (game === 'snake') {
-			// "threesam → snake" wordmark animation plays first, then "3".
-			this.countdownText = '';
-			this.sched(LETTER_ANIM_MS, () => (this.countdownText = '3'));
-			this.scheduleCountdownTail(LETTER_ANIM_MS);
-		} else {
-			// Invaders has no title sequence — claim the slot with "3" now so
-			// the wordmark hides immediately (no one-frame "threesam" flash).
-			this.countdownText = '3';
-			this.scheduleCountdownTail(0);
-		}
+		// Both games open with a wordmark title sequence — snake collapses to
+		// "snake", invaders to "space invaders" — so the countdown waits on the
+		// letters either way before claiming the slot.
+		const anim = game === 'invaders' ? INVADERS_ANIM_MS : LETTER_ANIM_MS;
+		this.countdownText = '';
+		this.sched(anim, () => (this.countdownText = '3'));
+		this.scheduleCountdownTail(anim);
 	}
 
 	// The game calls this once at the edge where its local gameOver flips
