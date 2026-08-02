@@ -141,12 +141,13 @@
 					<div class="font-display text-xs uppercase tracking-pill text-coin">
 						{featuredLabel}
 					</div>
-					<!-- Title stays on the sans, deliberately: these are real book
-					     titles and run long ("...the trust, lust, and devotion of a
-					     strong woman"), and Michroma is wide enough that setting one
-					     costs several extra lines. The display face carries the short
-					     uppercase eyebrow instead, where its width is an asset. -->
-					<h2 class="text-2xl font-bold leading-tight text-balance md:text-3xl">
+					<!-- Display face on the title. Michroma is much wider than the
+					     sans, so the size steps down to keep a long title (these are
+					     real book titles — the current one runs to "...the trust,
+					     lust, and devotion of a strong woman") from swallowing the
+					     column. font-bold is dropped: Michroma ships a single 400
+					     weight and would otherwise be faux-bolded. -->
+					<h2 class="font-display text-lg leading-snug text-balance md:text-xl">
 						{featured.cleanTitle}
 					</h2>
 					<!-- The byline was text-base/opacity-70 against body copy at
