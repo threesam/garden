@@ -138,11 +138,23 @@
 					rel="noopener noreferrer"
 					class="flex flex-col gap-3"
 				>
-					<div class="font-mono text-xs uppercase tracking-pill text-coin">
+					<div class="font-display text-[0.625rem] uppercase tracking-pill text-coin">
 						{featuredLabel}
 					</div>
-					<h2 class="text-3xl font-bold leading-tight md:text-4xl">{featured.cleanTitle}</h2>
-					<div class="text-base opacity-70">
+					<!-- Title stays on the sans, deliberately: these are real book
+					     titles and run long ("...the trust, lust, and devotion of a
+					     strong woman"), and Michroma is wide enough that setting one
+					     costs several extra lines. The display face carries the short
+					     uppercase eyebrow instead, where its width is an asset. -->
+					<h2 class="text-2xl font-bold leading-tight text-balance md:text-3xl">
+						{featured.cleanTitle}
+					</h2>
+					<!-- The byline was text-base/opacity-70 against body copy at
+					     text-base/opacity-75 — same size, same weight, near-identical
+					     contrast, so it read as another paragraph. Small, tracked and
+					     uppercase separates it from both the title above and the blurb
+					     below without needing another size step. -->
+					<div class="font-mono text-xs uppercase tracking-meta opacity-55">
 						{featured.author}{#if featured.series}
 							 · 
 							{featured.series} #{featured.seriesNumber}
@@ -156,7 +168,7 @@
 							bind:this={descEl}
 							style={expanded && contentHeight > 0 ? `max-height: ${contentHeight}px;` : undefined}
 							class={[
-								'overflow-hidden whitespace-pre-line text-sm leading-relaxed opacity-75 transition-[max-height] duration-500 ease-out md:!max-h-none md:text-base',
+								'max-w-prose overflow-hidden whitespace-pre-line text-sm leading-relaxed opacity-65 transition-[max-height] duration-500 ease-out md:!max-h-none md:text-[0.9375rem]',
 								expanded ? '' : 'max-md:max-h-18',
 							].join(' ')}
 						>
