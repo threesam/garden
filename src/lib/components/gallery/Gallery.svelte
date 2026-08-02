@@ -381,6 +381,23 @@
 </section>
 
 <style>
+	/* The card clips its square-cornered canvas into a rounded shape with
+	   overflow: hidden, but it also takes a transform on hover. A rounded clip
+	   on a TRANSFORMED ancestor is applied at the compositing layer, and both
+	   Chrome and Safari let the child bleed a hairline past the corner there —
+	   and flicker the clip entirely as the layer is promoted on transition
+	   start and demoted on end.
+	   will-change, NOT transform: translateZ(0). A base transform here has the
+	   same specificity as Tailwind's hover:[transform:...] rule and loads from a
+	   later stylesheet, so it silently won and the hover rotate stopped applying
+	   entirely. will-change promotes the layer without occupying the transform
+	   property, so hover still animates.
+	   backface-visibility pins the rasterisation on the Safari path. */
+	.gallery-card {
+		will-change: transform;
+		backface-visibility: hidden;
+	}
+
 	/* 200 ms delay gives the canvas time to land its first paint so the
 	   fade reveals real content, not a blank backdrop. 500 ms is short
 	   enough that a card scrolling past doesn't feel like it lingers. */
