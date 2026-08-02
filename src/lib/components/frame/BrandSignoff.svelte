@@ -53,10 +53,17 @@
   // modes it collapses, and a collapsed control must be neither tabbable
   // nor able to start invaders over the active state.
   const SNAKE_TAIL = ['n', 'a', 'k', 'e'];
+  // Invaders spells out AROUND the "a", not after it — the a is the third
+  // letter of "space", so unlike snake it needs a lead as well as a tail. The
+  // dot-glyph "a" is the letter that stays put; everything else collapses and
+  // these text letters grow in on either side of it.
+  const INV_LEAD = ['s', 'p'];
+  const INV_TAIL = ['c', 'e', ' ', 'i', 'n', 'v', 'a', 'd', 'e', 'r', 's'];
   const active = $derived(gameMode.active);
   // The "threesam → snake" wordmark animation is snake-only; the alien's
   // invaders game has no title sequence.
   const isSnake = $derived(gameMode.active && gameMode.game === 'snake');
+  const isInvaders = $derived(gameMode.active && gameMode.game === 'invaders');
   // The letter easter eggs are precision targets — on coarse pointers they're
   // both undiscoverable and sub-24px tap targets (WCAG 2.5.8), so they stay
   // plain text there. SSR renders non-interactive; fine pointers upgrade on
@@ -90,6 +97,7 @@
   this={tag}
   class="wordmark absolute bottom-6 left-6 z-50 font-display {color} md:bottom-8 md:left-8"
   class:is-game={isSnake}
+  class:is-invaders={isInvaders}
   class:wordmark-hidden={gameMode.wordmarkSlotOccupied}
   class:diving-away={divingOut}
 >
@@ -115,7 +123,9 @@
         }
       : undefined}
   ><WordmarkGlyph letter={L_S} /></span
-  ><!-- svelte-ignore a11y_no_noninteractive_tabindex --><span
+  >{#each INV_LEAD as l, i (`lead-${i}`)}<span class="inv" style:--inv-delay="{120 + i * 110}ms"
+    >{l}</span
+  >{/each}<!-- svelte-ignore a11y_no_noninteractive_tabindex --><span
     class="letter a-letter"
     style:--letter-w="{letterAdvanceEm(L_A)}em"
     class:clickable={aAlienReady}
@@ -136,7 +146,9 @@
         }
       : undefined}
   ><WordmarkGlyph letter={L_A} /></span
-  ><span class="letter m-letter" style:--letter-w="{letterAdvanceEm(L_M)}em"><WordmarkGlyph letter={L_M} /></span
+  >{#each INV_TAIL as l, i (`inv-${i}`)}<span class="inv" style:--inv-delay="{340 + i * 70}ms"
+    >{l}</span
+  >{/each}<span class="letter m-letter" style:--letter-w="{letterAdvanceEm(L_M)}em"><WordmarkGlyph letter={L_M} /></span
   >{#each SNAKE_TAIL as l, i (`tail-${i}`)}
     <span class="tail" style:--tail-delay="{200 + i * 130}ms">{l}</span>
   {/each}
@@ -194,6 +206,29 @@
        overflow: hidden. Text tails have no --letter-w and keep the 1em. */
     max-width: var(--letter-w, 1em);
     opacity: 1;
+  }
+  /* Invaders letters, like the snake tail, start collapsed and silent. */
+  .inv {
+    display: inline-block;
+    vertical-align: top;
+    overflow: hidden;
+    white-space: pre;
+    transition:
+      max-width 450ms cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 350ms ease-out;
+    max-width: 0;
+    opacity: 0;
+  }
+  /* INVADERS ACTIVE — every letter but the dot "a" collapses, and the lead and
+     tail grow in around it, so the mark reads "space invaders". */
+  .is-invaders .letter:not(.a-letter) {
+    max-width: 0;
+    opacity: 0;
+  }
+  .is-invaders .inv {
+    max-width: 1em;
+    opacity: 1;
+    transition-delay: var(--inv-delay, 0ms);
   }
   /* Trailing snake letters start collapsed and silent. */
   .tail {
@@ -327,6 +362,7 @@
   @media (prefers-reduced-motion: reduce) {
     .letter,
     .tail,
+    .inv,
     .diver {
       transition: none;
     }
