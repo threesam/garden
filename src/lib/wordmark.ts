@@ -270,6 +270,22 @@ export const INK_TOP = Math.min(...inkRows);
 /** Number of grid rows the letterforms actually occupy. */
 export const INK_ROWS = Math.max(...inkRows) - INK_TOP + 1;
 
+/** Michroma reports the word's ink height as this fraction of its font-size. */
+export const INK_EM = 0.761;
+/** One grid cell, in em. */
+export const PITCH_EM = INK_EM / INK_ROWS;
+
+/**
+ * A letter's rendered width in em.
+ *
+ * The glyphs are not all one em wide — "m" is 32 columns (1.16em) where "r" is
+ * 11 (0.4em) — so any box sized at a flat 1em clips the wide ones. Call sites
+ * that constrain a letter's width must use this, not a constant.
+ */
+export function letterWidthEm(letter: WordmarkLetter): number {
+  return (letter.rows[0]?.length ?? 0) * PITCH_EM;
+}
+
 /** Grid coordinates of every dot in a letter, as [x, y] pairs. */
 export function letterCells(letter: WordmarkLetter): [number, number][] {
   const cells: [number, number][] = [];
