@@ -77,6 +77,12 @@ test.describe('visual parity', () => {
         ...await page.locator('.voronoi-banner').all(),
         ...await page.locator('[data-gallery-strip]').all(),
         ...await page.locator('iframe').all(),
+        // /sounds renders ~40 remotely-hosted cover images. They decode with
+        // slight sub-pixel variance run to run, which put the page at ~8% diff
+        // while being pixel-for-pixel indistinguishable by eye — so it failed
+        // even immediately after being re-baselined. Same class of problem as
+        // the iframes above: async remote content, not a rendering signal.
+        ...(label === 'sounds' ? await page.locator('.card img, .grid img').all() : []),
       ];
 
       const fullPage = !VIEWPORT_ONLY_LABELS.has(label);
