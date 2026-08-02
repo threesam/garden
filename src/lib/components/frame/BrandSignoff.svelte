@@ -16,7 +16,7 @@
   import { gameMode } from '$lib/game-mode.svelte';
   import { diveMode, diveUrl } from '$lib/dive-mode.svelte';
   import WordmarkGlyph from './WordmarkGlyph.svelte';
-  import { LETTERS, letterWidthEm } from '$lib/wordmark';
+  import { LETTERS, letterAdvanceEm } from '$lib/wordmark';
 
   let {
     heading = false,
@@ -94,12 +94,12 @@
   class:diving-away={divingOut}
 >
   <span class="sr-only">threesam</span
-  ><span class="letter" style:--letter-w="{letterWidthEm(L_T)}em"><WordmarkGlyph letter={L_T} /></span
-  >{#each PRE_LETTERS as l, i (`pre-${i}`)}<span class="letter" style:--letter-w="{letterWidthEm(l)}em"
+  ><span class="letter" style:--letter-w="{letterAdvanceEm(L_T)}em"><WordmarkGlyph letter={L_T} /></span
+  >{#each PRE_LETTERS as l, i (`pre-${i}`)}<span class="letter" style:--letter-w="{letterAdvanceEm(l)}em"
       ><WordmarkGlyph letter={l} /></span
     >{/each}<!-- svelte-ignore a11y_no_noninteractive_tabindex --><span
     class="letter s-letter"
-    style:--letter-w="{letterWidthEm(L_S)}em"
+    style:--letter-w="{letterAdvanceEm(L_S)}em"
     aria-label={egGame ? 'play snake' : undefined}
     class:clickable={egGame && !active}
     onclick={egGame ? () => { if (active) { gameMode.stop(); } else { gameMode.start('snake'); } } : undefined}
@@ -117,7 +117,7 @@
   ><WordmarkGlyph letter={L_S} /></span
   ><!-- svelte-ignore a11y_no_noninteractive_tabindex --><span
     class="letter a-letter"
-    style:--letter-w="{letterWidthEm(L_A)}em"
+    style:--letter-w="{letterAdvanceEm(L_A)}em"
     class:clickable={aAlienReady}
     role={aAlienReady ? 'button' : undefined}
     tabindex={aAlienReady ? 0 : undefined}
@@ -136,7 +136,7 @@
         }
       : undefined}
   ><WordmarkGlyph letter={L_A} /></span
-  ><span class="letter m-letter" style:--letter-w="{letterWidthEm(L_M)}em"><WordmarkGlyph letter={L_M} /></span
+  ><span class="letter m-letter" style:--letter-w="{letterAdvanceEm(L_M)}em"><WordmarkGlyph letter={L_M} /></span
   >{#each SNAKE_TAIL as l, i (`tail-${i}`)}
     <span class="tail" style:--tail-delay="{200 + i * 130}ms">{l}</span>
   {/each}
