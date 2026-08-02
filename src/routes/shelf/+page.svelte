@@ -36,7 +36,7 @@
 >
   <ShelfHero {featured} {featuredLabel} />
 
-  <section class="columns-4 gap-0 overflow-hidden py-1.5 sm:columns-6 md:columns-8 lg:columns-10 xl:columns-12">
+  <section class="columns-4 gap-0 overflow-hidden p-1.5 sm:columns-6 md:columns-8 lg:columns-10 xl:columns-12">
     {#each sorted as book (book.id)}
       <a
         href={`https://www.goodreads.com/book/show/${book.id}`}
