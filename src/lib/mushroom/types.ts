@@ -75,7 +75,7 @@ export interface Specimen {
 }
 
 /** Which structure a run of vertices belongs to. */
-export type PartName = 'cap' | 'stipe' | 'gills';
+export type PartName = 'cap' | 'stipe' | 'gills' | 'wood' | 'bark';
 
 /** Half-open vertex range [start, end) for one part. */
 export type PartRange = readonly [number, number];

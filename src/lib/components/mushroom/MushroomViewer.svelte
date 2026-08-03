@@ -7,6 +7,7 @@
   // the specimen, which is what makes the shape iterable.
   import { onMount } from 'svelte';
   import { buildFruitingBody } from '$lib/mushroom/generator';
+  import { buildSubstrate } from '$lib/mushroom/substrate';
   import { pleurotusOstreatus } from '$lib/mushroom/species';
 
   const STAGES = [
@@ -107,8 +108,16 @@
       mesh.receiveShadow = true;
       // The mesh is recentred inside a pivot so spinning turns the cluster
       // about its own centre rather than swinging it around the world origin.
+      // The wood is its own mesh so the cluster's bounding box — which drives
+      // the camera fit — is not swollen by a log that is meant to run off the
+      // bottom of frame.
+      let woodGeom = new THREE.BufferGeometry();
+      const wood = new THREE.Mesh(woodGeom, material);
+      wood.castShadow = true;
+      wood.receiveShadow = true;
       const pivot = new THREE.Group();
       pivot.add(mesh);
+      pivot.add(wood);
       scene.add(pivot);
 
       // Three-quarter view from ~25° up: high enough to read the shingled
@@ -163,6 +172,25 @@
           const sx = bb.max.x - bb.min.x;
           const sy = bb.max.y - bb.min.y;
           const sz = bb.max.z - bb.min.z;
+
+          // Log sized from the cluster and topped just under its lowest point,
+          // so the caps read as emerging from the wood rather than resting on
+          // a plinth. Built after the cluster because it needs those bounds.
+          const spanXZ = Math.max(sx, sz);
+          const sub = buildSubstrate({
+            radius: spanXZ * 0.62,
+            depth: spanXZ * 1.5,
+            topY: bb.min.y + sy * 0.06,
+            seed,
+          });
+          woodGeom.dispose();
+          woodGeom = new THREE.BufferGeometry();
+          woodGeom.setAttribute('position', new THREE.BufferAttribute(sub.positions, 3));
+          woodGeom.setAttribute('color', new THREE.BufferAttribute(sub.colors, 3));
+          woodGeom.setIndex(new THREE.BufferAttribute(sub.indices, 1));
+          woodGeom.computeVertexNormals();
+          wood.geometry = woodGeom;
+          wood.position.copy(mesh.position);
           // Worst-case horizontal extent across a full turn is the X/Z
           // diagonal, so the framing holds at every angle of the spin.
           fit = { half: Math.max(1, Math.hypot(sx, sz) / 2), halfY: Math.max(1, sy / 2) };
@@ -241,6 +269,7 @@
         document.removeEventListener('visibilitychange', onVisibility);
         ro.disconnect();
         geometry.dispose();
+        woodGeom.dispose();
         material.dispose();
         renderer.dispose();
       };
