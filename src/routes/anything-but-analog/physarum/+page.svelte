@@ -35,7 +35,6 @@
   let sim = $state<SimName>('physarum');
   /** Fresh each load, so the same page is never the same run twice. */
   const seed = Math.floor(Math.random() * 0xffff) + 1;
-  let food = $state(0);
   const agents = $derived(SIMS[sim].agents);
 
   let canvasEl = $state<HTMLCanvasElement | null>(null);
@@ -54,7 +53,6 @@
     sim = next;
     fps = 0;
     // The worker keeps the canvas; only the simulation behind it swaps.
-    food = 0;
     worker?.postMessage({ type: 'switch', sim: next, agents: SIMS[next].agents, seed });
   }
 
@@ -66,7 +64,6 @@
     const x = ((event.clientX - r.left) / r.width) * 512;
     const y = ((event.clientY - r.top) / r.height) * 512;
     worker?.postMessage({ type: 'food', x, y });
-    food += 1;
   }
 
   /** Keyboard-reachable equivalent of clicking — a canvas cannot be tabbed into. */
@@ -78,13 +75,11 @@
         x: 60 + Math.random() * 392,
         y: 60 + Math.random() * 392,
       });
-      food += 1;
     }
   }
 
   function clearFood(): void {
     worker?.postMessage({ type: 'clearFood' });
-    food = 0;
   }
 
   const statusLine = $derived(
@@ -193,7 +188,7 @@
           >
             scatter
           </button>
-          {#if food > 0}
+          {#if flakes > 0}
             <button
               type="button"
               onclick={clearFood}

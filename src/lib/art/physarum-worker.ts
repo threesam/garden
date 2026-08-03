@@ -50,6 +50,8 @@ let raf = 0;
 let resumeLoop: (() => void) | null = null;
 /** Set by start(); swaps which simulation the loop is stepping. */
 let switchSim: ((sim: SimName, agents: number, seed: number) => void) | null = null;
+/** A switch that arrived before the worker finished booting. */
+let pendingSwitch: { sim: SimName; agents: number; seed: number } | null = null;
 let addFood: ((x: number, y: number) => void) | null = null;
 let clearFood: (() => void) | null = null;
 
@@ -109,6 +111,13 @@ async function start(msg: StartMessage): Promise<void> {
 
   load(msg.sim, msg.agents, msg.seed);
   switchSim = load;
+  // Clicking the picker during the wasm fetch used to be swallowed: the page
+  // had already switched its label, so the canvas ran one simulation while the
+  // UI named the other, and nothing corrected it until the next click.
+  if (pendingSwitch) {
+    load(pendingSwitch.sim, pendingSwitch.agents, pendingSwitch.seed);
+    pendingSwitch = null;
+  }
   addFood = (x, y) => { exports.physarum_add_food(x, y); };
   clearFood = () => { exports.physarum_clear_food(); };
 
@@ -161,7 +170,11 @@ self.onmessage = (event: MessageEvent<InboundMessage>) => {
   if (msg.type === 'start') {
     void start(msg);
   } else if (msg.type === 'switch') {
-    switchSim?.(msg.sim, msg.agents, msg.seed);
+    if (switchSim) {
+      switchSim(msg.sim, msg.agents, msg.seed);
+    } else {
+      pendingSwitch = { sim: msg.sim, agents: msg.agents, seed: msg.seed };
+    }
   } else if (msg.type === 'food') {
     addFood?.(msg.x, msg.y);
   } else if (msg.type === 'clearFood') {
