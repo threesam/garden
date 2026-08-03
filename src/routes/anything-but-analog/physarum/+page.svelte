@@ -16,6 +16,9 @@
   } as const satisfies Record<SimName, { label: string; agents: number }>;
 
   let sim = $state<SimName>('physarum');
+  /** Fresh each load, so the same page is never the same run twice. */
+  const seed = Math.floor(Math.random() * 0xffff) + 1;
+  let food = $state(0);
   const agents = $derived(SIMS[sim].agents);
 
   let canvasEl = $state<HTMLCanvasElement | null>(null);
@@ -30,7 +33,37 @@
     sim = next;
     fps = 0;
     // The worker keeps the canvas; only the simulation behind it swaps.
-    worker?.postMessage({ type: 'switch', sim: next, agents: SIMS[next].agents, seed: 12345 });
+    food = 0;
+    worker?.postMessage({ type: 'switch', sim: next, agents: SIMS[next].agents, seed });
+  }
+
+  /** Canvas is 512 internally and CSS-scaled, so clicks need mapping back. */
+  function drop(event: PointerEvent): void {
+    if (sim !== 'physarum' || !canvasEl) return;
+    const r = canvasEl.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+    const x = ((event.clientX - r.left) / r.width) * 512;
+    const y = ((event.clientY - r.top) / r.height) * 512;
+    worker?.postMessage({ type: 'food', x, y });
+    food += 1;
+  }
+
+  /** Keyboard-reachable equivalent of clicking — a canvas cannot be tabbed into. */
+  function scatter(): void {
+    if (sim !== 'physarum') return;
+    for (let i = 0; i < 5; i++) {
+      worker?.postMessage({
+        type: 'food',
+        x: 60 + Math.random() * 392,
+        y: 60 + Math.random() * 392,
+      });
+      food += 1;
+    }
+  }
+
+  function clearFood(): void {
+    worker?.postMessage({ type: 'clearFood' });
+    food = 0;
   }
 
   const statusLine = $derived(
@@ -63,7 +96,7 @@
       canvas: offscreen,
       sim,
       agents,
-      seed: 12345,
+      seed,
       wasmUrl: '/wasm/garden_math.wasm',
     };
     w.postMessage(start, [offscreen]);
@@ -107,9 +140,34 @@
     >
       <canvas
         bind:this={canvasEl}
+        onpointerdown={drop}
         class="aspect-square w-full max-w-[min(82vh,900px)]"
+        class:feedable={sim === 'physarum'}
       ></canvas>
-      <p class="mt-3 font-mono text-xs text-white/40">
+      {#if sim === 'physarum'}
+        <div class="mt-3 flex flex-wrap items-center justify-center gap-2">
+          <span class="font-mono text-xs text-white/40">
+            {food > 0 ? `${String(food)} food` : 'click the plate to feed it'}
+          </span>
+          <button
+            type="button"
+            onclick={scatter}
+            class="rounded-sm border px-3 py-1 font-mono text-xs lowercase"
+          >
+            scatter
+          </button>
+          {#if food > 0}
+            <button
+              type="button"
+              onclick={clearFood}
+              class="rounded-sm border px-3 py-1 font-mono text-xs lowercase"
+            >
+              clear
+            </button>
+          {/if}
+        </div>
+      {/if}
+      <p class="mt-2 font-mono text-xs text-white/40">
         {statusLine}
       </p>
     </div>
@@ -195,11 +253,15 @@
               streaming that actually moves material is missing.
             </p>
             <p class="text-sm leading-relaxed text-white/60">
-              there is no food, so the network has nothing to solve toward.
-            </p>
-            <p class="text-sm leading-relaxed text-white/60">
               and the tubes have no thickness. brightness is trail concentration,
               not the veins that real reinforcement acts on.
+            </p>
+            <p class="text-sm leading-relaxed text-white/60">
+              the food is real though. drop some on the plate and it emits, the
+              agents smell it, and the routes that connect one source to the next
+              get walked often enough to stay lit while everything else fades.
+              nobody computes the route. it is just the paths that keep earning
+              traffic.
             </p>
             <p class="text-sm leading-relaxed text-white/60">
               a decent picture of what physarum does. no account of how.
@@ -271,6 +333,9 @@
 </main>
 
 <style>
+  .feedable {
+    cursor: crosshair;
+  }
   .on {
     background: #e8a317;
     border-color: #e8a317;

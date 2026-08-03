@@ -13,6 +13,8 @@ export type SimName = 'physarum' | 'dicty';
 interface WasmExports {
   memory: WebAssembly.Memory;
   physarum_init: (count: number, seed: number) => number;
+  physarum_add_food: (x: number, y: number) => number;
+  physarum_clear_food: () => void;
   dicty_init: (count: number, seed: number) => number;
   dicty_step: () => void;
   dicty_pixels: () => number;
@@ -42,6 +44,8 @@ export interface StartMessage {
 export type InboundMessage =
   | StartMessage
   | { type: 'switch'; sim: SimName; agents: number; seed: number }
+  | { type: 'food'; x: number; y: number }
+  | { type: 'clearFood' }
   | { type: 'pause' }
   | { type: 'resume' };
 
@@ -51,6 +55,8 @@ let raf = 0;
 let resumeLoop: (() => void) | null = null;
 /** Set by start(); swaps which simulation the loop is stepping. */
 let switchSim: ((sim: SimName, agents: number, seed: number) => void) | null = null;
+let addFood: ((x: number, y: number) => void) | null = null;
+let clearFood: (() => void) | null = null;
 
 async function start(msg: StartMessage): Promise<void> {
   const ctx = msg.canvas.getContext('2d');
@@ -108,6 +114,8 @@ async function start(msg: StartMessage): Promise<void> {
 
   load(msg.sim, msg.agents, msg.seed);
   switchSim = load;
+  addFood = (x, y) => { exports.physarum_add_food(x, y); };
+  clearFood = () => { exports.physarum_clear_food(); };
 
   let frames = 0;
   let lastReport = performance.now();
@@ -141,6 +149,10 @@ self.onmessage = (event: MessageEvent<InboundMessage>) => {
     void start(msg);
   } else if (msg.type === 'switch') {
     switchSim?.(msg.sim, msg.agents, msg.seed);
+  } else if (msg.type === 'food') {
+    addFood?.(msg.x, msg.y);
+  } else if (msg.type === 'clearFood') {
+    clearFood?.();
   } else if (msg.type === 'pause') {
     running = false;
     cancelAnimationFrame(raf);

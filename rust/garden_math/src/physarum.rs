@@ -47,6 +47,8 @@ struct State {
     deposit: f32,
     decay: f32,
     diffuse: f32,
+    /// Interleaved x, y per food source. Attractants, not obstacles.
+    food: Vec<f32>,
 }
 
 static STATE: Global<Option<State>> = Global::new(None);
@@ -97,11 +99,56 @@ pub extern "C" fn physarum_init(count: u32, seed: u32) -> *const u8 {
         deposit: 1.0,
         decay: 0.96,
         diffuse: 0.10,
+        food: Vec::with_capacity(64),
     };
 
     let slot = STATE.get();
     *slot = Some(state);
     slot.as_ref().map_or(core::ptr::null(), |s| s.pixels.as_ptr())
+}
+
+/// Strength a food source emits per step, and the radius it emits over.
+///
+/// Emitted CONTINUOUSLY rather than once. A single deposit decays away within a
+/// few dozen steps and the network forgets the source; a standing emission is
+/// what makes food a persistent attractor, which is what an oat flake is to a
+/// real plasmodium.
+///
+/// The radius is wide on purpose. Trail diffusion here is deliberately weak, to
+/// keep the filaments thin, so a small source produces a hill only a few cells
+/// across — an agent has to be nearly standing on it to sense anything, and the
+/// network just walks past. A chemoattractant in a dish spreads far further than
+/// the food does; the source needs to lay down a gradient with real reach or it
+/// is not an attractor at all, only a decoration.
+const FOOD_STRENGTH: f32 = 9.0;
+const FOOD_RADIUS: i32 = 34;
+
+/// Place a food source, in grid coordinates. Returns the new source count.
+#[no_mangle]
+pub extern "C" fn physarum_add_food(x: f32, y: f32) -> u32 {
+    let Some(s) = STATE.get().as_mut() else { return 0 };
+    if !x.is_finite() || !y.is_finite() {
+        // One NaN in here poisons every sensor reading that ever samples near it.
+        return (s.food.len() / 2) as u32;
+    }
+    if s.food.len() >= 128 {
+        return (s.food.len() / 2) as u32;
+    }
+    s.food.push(x.clamp(0.0, GRID as f32 - 1.0));
+    s.food.push(y.clamp(0.0, GRID as f32 - 1.0));
+    (s.food.len() / 2) as u32
+}
+
+#[no_mangle]
+pub extern "C" fn physarum_clear_food() {
+    if let Some(s) = STATE.get().as_mut() {
+        s.food.clear();
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn physarum_food_count() -> u32 {
+    STATE.get().as_ref().map_or(0, |s| (s.food.len() / 2) as u32)
 }
 
 /// Override the defaults. Every value is a feel knob, not a physical constant.
@@ -147,6 +194,30 @@ pub extern "C" fn physarum_step() {
     let (tc, ts) = (s.turn_angle.cos(), s.turn_angle.sin());
     let decay = s.decay;
     let diffuse = s.diffuse;
+
+    {
+        // Food emits before the agents sense, so the gradient they read this
+        // frame already includes it.
+        let State { food, trail, .. } = s;
+        let trail = grid(trail);
+        for f in food.chunks_exact(2) {
+            let fx = f[0] as i32;
+            let fy = f[1] as i32;
+            for dy in -FOOD_RADIUS..=FOOD_RADIUS {
+                for dx in -FOOD_RADIUS..=FOOD_RADIUS {
+                    let d2 = (dx * dx + dy * dy) as f32;
+                    let r2 = (FOOD_RADIUS * FOOD_RADIUS) as f32;
+                    if d2 > r2 {
+                        continue;
+                    }
+                    // Falls off toward the rim so the source reads as a blob
+                    // with a gradient, not a square of uniform value.
+                    let falloff = 1.0 - (d2 / r2);
+                    trail[wrap(fy + dy) * GRID + wrap(fx + dx)] += FOOD_STRENGTH * falloff;
+                }
+            }
+        }
+    }
 
     {
         // Split borrows so the agent walk and the trail writes are independent,
@@ -231,6 +302,26 @@ pub extern "C" fn physarum_step() {
     {
         let State { trail, pixels, .. } = s;
         shade(grid(trail), pixels);
+    }
+    {
+        // Marked after shading, so a source stays visible even where the trail
+        // around it has saturated the ramp.
+        let State { food, pixels, .. } = s;
+        for f in food.chunks_exact(2) {
+            let fx = f[0] as i32;
+            let fy = f[1] as i32;
+            for dy in -2..=2_i32 {
+                for dx in -2..=2_i32 {
+                    if dx * dx + dy * dy > 4 {
+                        continue;
+                    }
+                    let o = (wrap(fy + dy) * GRID + wrap(fx + dx)) * 4;
+                    pixels[o] = 255;
+                    pixels[o + 1] = 250;
+                    pixels[o + 2] = 235;
+                }
+            }
+        }
     }
 }
 
