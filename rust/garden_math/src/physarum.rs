@@ -233,7 +233,10 @@ const FOOD_STORE: f32 = 12_000.0;
 /// seconds and dead a few seconds later. Sized now for a source to last a
 /// minute or so of steady grazing, and the footprint shrinks as it goes, so the
 /// last of it takes longer than the first.
-const BITE: f32 = 0.006;
+// Lower than it looks like it should be, because agents now HALT on food and
+// pile up: a flake carries thousands of grazers rather than whatever happens to
+// be passing, so the same rate stripped three sources in about fifteen seconds.
+const BITE: f32 = 0.0013;
 /// Fraction of the living population lost per step while starved, and regained
 /// per step while well fed. Dying is faster than breeding, so a plate left alone
 /// empties in well under a minute but takes longer to come back.
@@ -261,6 +264,16 @@ const DORMANT_SHARE: usize = 60;
 const ERODE: f32 = 0.00022;
 /// Below this a cell is passable.
 const WALL_OPEN: f32 = 0.06;
+/// Ceiling on trail concentration.
+///
+/// Without one, an established artery runs away: it is self-reinforcing, so the
+/// brighter it gets the more agents it holds. On a mature artery the difference
+/// between an agent's three sensors is in the hundreds, while a scent hill
+/// broad enough to be findable differs by about ten across the same span — so
+/// food can never out-steer a trail, whatever its peak. Measured: raising scent
+/// tenfold moved a clustered plate from 51% eaten to 60%. Capacity is the fix,
+/// not volume, and a real tube saturates too.
+const TRAIL_MAX: f32 = 90.0;
 
 /// Standing cost of being alive, per step, against what eating returns. Balanced
 /// so a couple of sources sustain the colony and an empty plate starves it.
@@ -277,7 +290,7 @@ const WALL_OPEN: f32 = 0.06;
 /// agents graze, intake dips further. One flake now roughly breaks even, two
 /// thrive, none starves the plate over about half a minute.
 const UPKEEP: f32 = 0.0006;
-const GAIN: f32 = 0.00022;
+const GAIN: f32 = 0.00025;
 
 /// Place a food source, in grid coordinates. Returns the new source count.
 #[no_mangle]
@@ -533,10 +546,14 @@ pub extern "C" fn physarum_step() {
                         continue;
                     }
                     let cell = row + wrap(fx + dx);
-                    let hill = FOOD_STRENGTH * (1.0 - d2 / r2);
-                    if hill > scent[cell] {
-                        scent[cell] = hill;
-                    }
+                    // Overlapping sources ADD. Taking the max instead made a
+                    // dense patch a mesa — flat on top, steep at the rim — so
+                    // agents inside it read the same value in every direction
+                    // and had nothing to climb. They collected on the edge and
+                    // circled it, and every flake in the middle went untouched.
+                    // Summing makes a cluster a peak, and a peak can be walked
+                    // up. The total is never drawn, so it is free to be large.
+                    scent[cell] += FOOD_STRENGTH * (1.0 - d2 / r2);
                     // Only the flake itself can be eaten, and it shrinks as it
                     // goes — so the last of a source takes longer than the first.
                     if d2 <= bite2 {
@@ -608,8 +625,16 @@ pub extern "C" fn physarum_step() {
             // agent whose per-frame movement is under one cell never moves at
             // all. With speed 1.0 that is almost all of them, and the swarm sat
             // frozen on its starting ring depositing into the same cells.
-            let mut nx = x + dx * speed;
-            let mut ny = y + dy * speed;
+            // Standing on food? Crawl. An agent senses five cells AHEAD, so on a
+            // peak all three of its sensors read downhill and it can never
+            // settle — it overshoots and circles, and the colony renders as a
+            // ring orbiting the food instead of covering it. Amoebae stop and
+            // feed when they find something; slowing to a crawl is what lets
+            // them accumulate on a flake and actually strip it.
+            let on_food = food_map[wrap(y as i32) * GRID + wrap(x as i32)] != 0;
+            let step = if on_food { speed * 0.12 } else { speed };
+            let mut nx = x + dx * step;
+            let mut ny = y + dy * step;
             let g = GRID as f32;
             if nx < 0.0 {
                 nx += g;
@@ -640,7 +665,7 @@ pub extern "C" fn physarum_step() {
             a[1] = fy_;
             a[2] = dx;
             a[3] = dy;
-            trail[cell] += dep;
+            trail[cell] = (trail[cell] + dep).min(TRAIL_MAX);
 
             // Consumption is driven by agents actually standing on a source.
             // The previous proxy read the trail at the source's centre, which
