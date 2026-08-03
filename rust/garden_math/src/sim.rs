@@ -55,6 +55,37 @@ pub fn grid(v: &mut [f32]) -> &mut [f32; CELLS] {
     v.try_into().expect("grid buffer is CELLS long")
 }
 
+/// 3x3 box blur, blended and decayed, written into `out`.
+///
+/// Shared because physarum and dictyostelium had byte-identical copies of it
+/// under different parameter names. Blends TOWARD the blur rather than
+/// replacing with it: a full box blur every frame smears every filament into a
+/// handful of thick channels within a few hundred steps, and the fine structure
+/// only survives if most of each cell's own value carries forward.
+pub fn diffuse_field(src: &[f32; CELLS], out: &mut [f32; CELLS], decay: f32, diffuse: f32) {
+    let k = 1.0 / 9.0;
+    for y in 0..GRID {
+        let up = ((y + GRID - 1) & (GRID - 1)) * GRID;
+        let mid = y * GRID;
+        let down = ((y + 1) & (GRID - 1)) * GRID;
+        for x in 0..GRID {
+            let xl = (x + GRID - 1) & (GRID - 1);
+            let xr = (x + 1) & (GRID - 1);
+            let sum = src[up + xl]
+                + src[up + x]
+                + src[up + xr]
+                + src[mid + xl]
+                + src[mid + x]
+                + src[mid + xr]
+                + src[down + xl]
+                + src[down + x]
+                + src[down + xr];
+            let here = src[mid + x];
+            out[mid + x] = (here + (sum * k - here) * diffuse) * decay;
+        }
+    }
+}
+
 pub fn xorshift(s: &mut u32) -> u32 {
     let mut x = *s;
     x ^= x << 13;

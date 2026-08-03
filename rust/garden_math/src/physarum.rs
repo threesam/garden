@@ -20,7 +20,7 @@
 //!
 //! Agents never cross the JS boundary. JS reads one thing: the pixel buffer.
 
-use crate::sim::{grid, rand01, wrap, xorshift, Global, CELLS, GRID};
+use crate::sim::{diffuse_field, grid, rand01, wrap, xorshift, Global, CELLS, GRID};
 
 struct State {
     /// Interleaved x, y, dx, dy — one contiguous allocation, not four.
@@ -327,11 +327,6 @@ pub extern "C" fn physarum_clear_food() {
     }
 }
 
-#[no_mangle]
-pub extern "C" fn physarum_food_count() -> u32 {
-    STATE.get().as_ref().map_or(0, |s| (s.food.len() / 3) as u32)
-}
-
 /// 0 = starved and resorbing, 1 = thriving.
 #[no_mangle]
 pub extern "C" fn physarum_vitality() -> f32 {
@@ -381,30 +376,6 @@ pub extern "C" fn physarum_state() -> u32 {
             2
         }
     })
-}
-
-/// Override the defaults. Every value is a feel knob, not a physical constant.
-#[no_mangle]
-pub extern "C" fn physarum_tune(
-    sensor_dist: f32,
-    sensor_angle: f32,
-    turn_angle: f32,
-    speed: f32,
-    deposit: f32,
-    decay: f32,
-    diffuse: f32,
-) {
-    if let Some(s) = STATE.get().as_mut() {
-        s.sensor_dist = sensor_dist;
-        s.sensor_angle = sensor_angle;
-        s.turn_angle = turn_angle;
-        s.speed = speed;
-        s.deposit = deposit;
-        // Clamped: a decay of 1.0 never forgets, so the map saturates to solid
-        // white within seconds and every sensor reading ties.
-        s.decay = decay.clamp(0.5, 0.999);
-        s.diffuse = diffuse.clamp(0.0, 1.0);
-    }
 }
 
 #[inline(always)]
@@ -682,7 +653,7 @@ pub extern "C" fn physarum_step() {
 
     {
         let State { trail, scratch, .. } = s;
-        diffuse_and_decay(grid(trail), grid(scratch), decay, diffuse);
+        diffuse_field(grid(trail), grid(scratch), decay, diffuse);
     }
     core::mem::swap(&mut s.trail, &mut s.scratch);
     {
@@ -718,47 +689,11 @@ pub extern "C" fn physarum_step() {
     }
 }
 
-/// 3x3 box blur plus exponential decay, written into scratch.
-///
-/// Deliberately a separate traversal from `shade`, despite both walking all
-/// CELLS. Merging them — one pass, blurred value already in a register — was
-/// tried and measured 60% SLOWER: mixing the float-heavy blur with byte-wide
-/// pixel writes in one loop defeats the vectorisation each simple loop gets on
-/// its own. The redundant traversal is cheaper than the lost vectorisation.
-fn diffuse_and_decay(
-    trail: &[f32; CELLS],
-    scratch: &mut [f32; CELLS],
-    decay: f32,
-    diffuse: f32,
-) {
-    let k = 1.0 / 9.0;
-    for y in 0..GRID {
-        let up = ((y + GRID - 1) & (GRID - 1)) * GRID;
-        let mid = y * GRID;
-        let down = ((y + 1) & (GRID - 1)) * GRID;
-        for x in 0..GRID {
-            let xl = (x + GRID - 1) & (GRID - 1);
-            let xr = (x + 1) & (GRID - 1);
-            let sum = trail[up + xl]
-                + trail[up + x]
-                + trail[up + xr]
-                + trail[mid + xl]
-                + trail[mid + x]
-                + trail[mid + xr]
-                + trail[down + xl]
-                + trail[down + x]
-                + trail[down + xr];
-            // Blend TOWARD the blur rather than replacing with it. Replacing
-            // outright — a full box blur every frame — diffuses so hard that
-            // every filament smears into a handful of thick channels within a
-            // few hundred steps. The fine branching structure only survives if
-            // most of each cell's own value carries forward.
-            let here = trail[mid + x];
-            scratch[mid + x] = (here + (sum * k - here) * diffuse) * decay;
-        }
-    }
-}
-
+/// Blur and shade stay SEPARATE traversals, despite both walking all CELLS.
+/// Merging them — one pass, blurred value already in a register — was tried and
+/// measured 60% SLOWER: mixing the float-heavy blur with byte-wide pixel writes
+/// in one loop defeats the vectorisation each simple loop gets on its own. The
+/// redundant traversal is cheaper than the lost vectorisation.
 /// Trail -> RGBA. Written straight into the buffer JS views; no intermediate copy.
 fn shade(trail: &[f32; CELLS], pixels: &mut [u8]) {
     for (i, px) in pixels.chunks_exact_mut(4).enumerate() {
@@ -800,7 +735,3 @@ pub extern "C" fn physarum_grid() -> u32 {
     GRID as u32
 }
 
-#[no_mangle]
-pub extern "C" fn physarum_count() -> u32 {
-    STATE.get().as_ref().map_or(0, |s| s.count as u32)
-}

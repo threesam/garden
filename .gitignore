@@ -77,3 +77,6 @@ next-env.d.ts
 package/
 public/
 .worktrees/
+
+# Rust build output — the compiled wasm is copied to static/wasm by `pnpm wasm:build`.
+rust/*/target/

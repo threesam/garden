@@ -61,7 +61,7 @@
 //! than the phenomenon, and the entire reason to model Dictyostelium instead of
 //! more Physarum is that here the agents correspond to something real.
 
-use crate::sim::{grid, rand01, wrap, Global, CELLS, GRID};
+use crate::sim::{diffuse_field, grid, rand01, wrap, Global, CELLS, GRID};
 
 struct State {
     /// Interleaved x, y, refractory-timer.
@@ -205,7 +205,7 @@ pub extern "C" fn dicty_step() {
 
     {
         let State { camp, scratch, .. } = s;
-        diffuse_camp(grid(camp), grid(scratch), decay, diffuse);
+        diffuse_field(grid(camp), grid(scratch), decay, diffuse);
     }
     core::mem::swap(&mut s.camp, &mut s.scratch);
 
@@ -316,33 +316,6 @@ pub extern "C" fn dicty_step() {
     }
 }
 
-/// Diffusion and degradation. Blends toward the blur rather than replacing with
-/// it — replacing outright smears the wavefronts flat within a few hundred
-/// steps, and the fronts are the whole phenomenon.
-fn diffuse_camp(camp: &[f32; CELLS], scratch: &mut [f32; CELLS], decay: f32, diffuse: f32) {
-    let k = 1.0 / 9.0;
-    for y in 0..GRID {
-        let up = ((y + GRID - 1) & (GRID - 1)) * GRID;
-        let mid = y * GRID;
-        let down = ((y + 1) & (GRID - 1)) * GRID;
-        for x in 0..GRID {
-            let xl = (x + GRID - 1) & (GRID - 1);
-            let xr = (x + 1) & (GRID - 1);
-            let sum = camp[up + xl]
-                + camp[up + x]
-                + camp[up + xr]
-                + camp[mid + xl]
-                + camp[mid + x]
-                + camp[mid + xr]
-                + camp[down + xl]
-                + camp[down + x]
-                + camp[down + xr];
-            let here = camp[mid + x];
-            scratch[mid + x] = (here + (sum * k - here) * diffuse) * decay;
-        }
-    }
-}
-
 /// Cold cAMP waves, warm cell bodies on top.
 ///
 /// Two channels deliberately: the signal and the tissue are different things,
@@ -386,7 +359,3 @@ pub extern "C" fn dicty_pixels() -> *const u8 {
         .map_or(core::ptr::null(), |s| s.pixels.as_ptr())
 }
 
-#[no_mangle]
-pub extern "C" fn dicty_count() -> u32 {
-    STATE.get().as_ref().map_or(0, |s| s.count as u32)
-}

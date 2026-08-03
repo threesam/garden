@@ -22,15 +22,6 @@ interface WasmExports {
   dicty_init: (count: number, seed: number) => number;
   dicty_step: () => void;
   dicty_pixels: () => number;
-  physarum_tune: (
-    dist: number,
-    sensorAngle: number,
-    turnAngle: number,
-    speed: number,
-    deposit: number,
-    decay: number,
-    diffuse: number,
-  ) => void;
   physarum_step: () => void;
   physarum_pixels: () => number;
   physarum_grid: () => number;
