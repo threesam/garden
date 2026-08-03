@@ -32,14 +32,18 @@ use core::cell::UnsafeCell;
 /// | agents | 1024 grid | 512 grid |
 /// |--------|-----------|----------|
 /// | 0      | 25.9      | 6.5      |
-/// | 200k   | 36.1      | 15.2     |
-/// | 400k   | 45.3      | 23.3     |
-/// | 1M     | 74.0      | 49.1     |
+/// | 100k   | —         | 14.6     |
+/// | 150k   | —         | 16.9     |
+/// | 200k   | 36.1      | 19.4     |
+/// | 1M     | 74.0      | 55.3     |
 ///
 /// The fixed grid pass is the wall, not the agents: at 1024 it costs 26ms
 /// before a single agent moves, so 60fps is unreachable there at ANY agent
-/// count. At 512 the same pass is 6.5ms and ~200k agents lands on 60fps.
-/// Raise this to 1024 if detail matters more than framerate — expect ~28fps.
+/// count, including zero. At 512 the same pass is 6.5ms and ~150k agents lands
+/// on 60fps in 7MB. Raise this to 1024 if detail matters more than framerate.
+///
+/// So the issue's estimate of 1M agents at 60fps is out by roughly 7x on this
+/// hardware. 1M runs, at about 18fps.
 const GRID: usize = 512;
 const MASK: i32 = (GRID as i32) - 1;
 const CELLS: usize = GRID * GRID;
@@ -87,6 +91,7 @@ struct State {
     speed: f32,
     deposit: f32,
     decay: f32,
+    diffuse: f32,
 }
 
 static STATE: Global<Option<State>> = Global::new(None);
@@ -106,9 +111,14 @@ fn rand01(s: &mut u32) -> f32 {
 
 /// Allocate and scatter. Safe to call again; it reallocates rather than growing.
 ///
-/// Agents start on a ring rather than uniformly: from a uniform scatter the
-/// network condenses out of noise, which looks like static resolving. From a
-/// ring it grows inward as a front, which reads as something alive.
+/// Uniform scatter with random headings. A ring was tried first, on the theory
+/// that a growing front reads as more alive than a network condensing out of
+/// noise. It does not work: a symmetric ring is a stable attractor. Every
+/// agent's forward sensor points into empty space while both flanks read the
+/// dense ring it is standing in, so the whole swarm turns to follow the ring
+/// and orbits there indefinitely. It renders as a perfect glowing donut and
+/// never branches. Symmetry has to be broken at init or the feedback loop
+/// preserves it.
 #[no_mangle]
 pub extern "C" fn physarum_init(count: u32, seed: u32) -> *const u8 {
     let count = (count as usize).min(4_000_000);
@@ -117,11 +127,11 @@ pub extern "C" fn physarum_init(count: u32, seed: u32) -> *const u8 {
     let mut agents = vec![0.0_f32; count * 4];
     let centre = GRID as f32 * 0.5;
     for i in 0..count {
+        // Scattered inside a disc, so the field has an edge to grow toward
+        // rather than filling a square corner to corner.
         let angle = rand01(&mut rng) * core::f32::consts::TAU;
-        let radius = centre * (0.55 + rand01(&mut rng) * 0.4);
-        // Facing roughly inward, with spread — a perfectly inward-facing ring
-        // collapses to a point before it can branch.
-        let facing = angle + core::f32::consts::PI + (rand01(&mut rng) - 0.5) * 1.4;
+        let radius = centre * 0.92 * rand01(&mut rng).sqrt();
+        let facing = rand01(&mut rng) * core::f32::consts::TAU;
         agents[i * 4] = centre + angle.cos() * radius;
         agents[i * 4 + 1] = centre + angle.sin() * radius;
         agents[i * 4 + 2] = facing.cos();
@@ -135,12 +145,16 @@ pub extern "C" fn physarum_init(count: u32, seed: u32) -> *const u8 {
         pixels: vec![0_u8; CELLS * 4],
         count,
         rng,
-        sensor_dist: 9.0,
-        sensor_angle: 0.42,
-        turn_angle: 0.38,
+        // Defaults picked by rendering a parameter sweep, not by taste alone.
+        // A short sensor reach with weak diffusion gives the fine branching
+        // network; longer reach merges filaments into a few fat channels.
+        sensor_dist: 5.0,
+        sensor_angle: 0.40,
+        turn_angle: 0.32,
         speed: 1.0,
-        deposit: 5.0,
-        decay: 0.94,
+        deposit: 1.0,
+        decay: 0.96,
+        diffuse: 0.10,
     };
 
     let slot = STATE.get();
@@ -157,6 +171,7 @@ pub extern "C" fn physarum_tune(
     speed: f32,
     deposit: f32,
     decay: f32,
+    diffuse: f32,
 ) {
     if let Some(s) = STATE.get().as_mut() {
         s.sensor_dist = sensor_dist;
@@ -167,6 +182,7 @@ pub extern "C" fn physarum_tune(
         // Clamped: a decay of 1.0 never forgets, so the map saturates to solid
         // white within seconds and every sensor reading ties.
         s.decay = decay.clamp(0.5, 0.999);
+        s.diffuse = diffuse.clamp(0.0, 1.0);
     }
 }
 
@@ -205,6 +221,7 @@ pub extern "C" fn physarum_step() {
     let (sc, ss) = (s.sensor_angle.cos(), s.sensor_angle.sin());
     let (tc, ts) = (s.turn_angle.cos(), s.turn_angle.sin());
     let decay = s.decay;
+    let diffuse = s.diffuse;
 
     {
         // Split borrows so the agent walk and the trail writes are independent,
@@ -254,20 +271,36 @@ pub extern "C" fn physarum_step() {
             dx *= inv;
             dy *= inv;
 
-            let ix = wrap((x + dx * speed) as i32);
-            let iy = wrap((y + dy * speed) as i32);
+            // Position stays in FLOAT. Snapping it to the sampled cell — which
+            // is what this did — quantises every step to whole cells, so any
+            // agent whose per-frame movement is under one cell never moves at
+            // all. With speed 1.0 that is almost all of them, and the swarm sat
+            // frozen on its starting ring depositing into the same cells.
+            let mut nx = x + dx * speed;
+            let mut ny = y + dy * speed;
+            let g = GRID as f32;
+            if nx < 0.0 {
+                nx += g;
+            } else if nx >= g {
+                nx -= g;
+            }
+            if ny < 0.0 {
+                ny += g;
+            } else if ny >= g {
+                ny -= g;
+            }
 
-            a[0] = ix as f32;
-            a[1] = iy as f32;
+            a[0] = nx;
+            a[1] = ny;
             a[2] = dx;
             a[3] = dy;
-            trail[iy * GRID + ix] += dep;
+            trail[wrap(ny as i32) * GRID + wrap(nx as i32)] += dep;
         }
     }
 
     {
         let State { trail, scratch, .. } = s;
-        diffuse_and_decay(grid(trail), grid(scratch), decay);
+        diffuse_and_decay(grid(trail), grid(scratch), decay, diffuse);
     }
     core::mem::swap(&mut s.trail, &mut s.scratch);
     {
@@ -283,8 +316,13 @@ pub extern "C" fn physarum_step() {
 /// tried and measured 60% SLOWER: mixing the float-heavy blur with byte-wide
 /// pixel writes in one loop defeats the vectorisation each simple loop gets on
 /// its own. The redundant traversal is cheaper than the lost vectorisation.
-fn diffuse_and_decay(trail: &[f32; CELLS], scratch: &mut [f32; CELLS], decay: f32) {
-    let k = decay * (1.0 / 9.0);
+fn diffuse_and_decay(
+    trail: &[f32; CELLS],
+    scratch: &mut [f32; CELLS],
+    decay: f32,
+    diffuse: f32,
+) {
+    let k = 1.0 / 9.0;
     for y in 0..GRID {
         let up = ((y + GRID - 1) & (GRID - 1)) * GRID;
         let mid = y * GRID;
@@ -301,7 +339,13 @@ fn diffuse_and_decay(trail: &[f32; CELLS], scratch: &mut [f32; CELLS], decay: f3
                 + trail[down + xl]
                 + trail[down + x]
                 + trail[down + xr];
-            scratch[mid + x] = sum * k;
+            // Blend TOWARD the blur rather than replacing with it. Replacing
+            // outright — a full box blur every frame — diffuses so hard that
+            // every filament smears into a handful of thick channels within a
+            // few hundred steps. The fine branching structure only survives if
+            // most of each cell's own value carries forward.
+            let here = trail[mid + x];
+            scratch[mid + x] = (here + (sum * k - here) * diffuse) * decay;
         }
     }
 }
@@ -312,7 +356,12 @@ fn shade(trail: &[f32; CELLS], pixels: &mut [u8]) {
         // Two-stop ramp: warm coin-yellow into bone, on near-black. A single
         // linear ramp renders the faint exploratory trails as flat grey and
         // loses most of the structure.
-        let t = (trail[i] * 0.11).min(1.0).sqrt();
+        // Soft-saturating tone curve, not a hard clamp. Trail equilibrium is
+        // deposit/(1-decay), which is tens of units — a `min(1.0)` clipped
+        // essentially the whole map to the top of the ramp and rendered the
+        // network as one solid blob.
+        let v = trail[i] * 0.022;
+        let t = (v / (1.0 + v)).sqrt();
         let (r, g, b) = if t < 0.55 {
             let c = t / 0.55;
             (18.0 + c * 214.0, 16.0 + c * 147.0, 14.0 + c * 23.0)
