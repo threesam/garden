@@ -93,6 +93,24 @@ test.describe('visual parity', () => {
         // Allow small pixel variance for remaining dynamic content
         maxDiffPixelRatio: 0.02,
       });
+
+      // /thoughts' backdrop canvas is full-bleed and stays non-deterministic
+      // even with rAF frozen, so it has to be masked — and Playwright masks by
+      // bounding box, not z-order, which blanks the entire page. The full-page
+      // shot above is therefore 100% magenta and only ever asserted the page's
+      // height.
+      //
+      // Snapshot each card individually to give the route real coverage. Per
+      // CARD, not the grid: the grid's gaps let the non-deterministic backdrop
+      // show through, which put it at 0.03 diff against a 0.02 tolerance. A
+      // card's own box is fully covered by its image, so nothing bleeds in.
+      const cards = page.locator('[data-thought-cards] > a');
+      const cardCount = await cards.count();
+      for (let i = 0; i < cardCount; i++) {
+        await expect(cards.nth(i)).toHaveScreenshot(`${label}-card-${i}.png`, {
+          maxDiffPixelRatio: 0.02,
+        });
+      }
     });
   }
 
