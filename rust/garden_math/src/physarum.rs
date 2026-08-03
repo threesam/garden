@@ -47,8 +47,10 @@ struct State {
     deposit: f32,
     decay: f32,
     diffuse: f32,
-    /// Interleaved x, y per food source. Attractants, not obstacles.
+    /// Interleaved x, y, remaining per food source.
     food: Vec<f32>,
+    /// 0 = starved, 1 = well fed. Scales how much trail the agents lay down.
+    vitality: f32,
 }
 
 static STATE: Global<Option<State>> = Global::new(None);
@@ -99,7 +101,8 @@ pub extern "C" fn physarum_init(count: u32, seed: u32) -> *const u8 {
         deposit: 1.0,
         decay: 0.96,
         diffuse: 0.10,
-        food: Vec::with_capacity(64),
+        food: Vec::with_capacity(96),
+        vitality: 1.0,
     };
 
     let slot = STATE.get();
@@ -122,6 +125,18 @@ pub extern "C" fn physarum_init(count: u32, seed: u32) -> *const u8 {
 /// is not an attractor at all, only a decoration.
 const FOOD_STRENGTH: f32 = 9.0;
 const FOOD_RADIUS: i32 = 34;
+/// How much a source holds when dropped.
+const FOOD_STORE: f32 = 5_200.0;
+/// Consumption is proportional to the trail sitting on the source, which is a
+/// good enough proxy for how much of the organism has actually arrived. It costs
+/// one lookup per source per step instead of testing every agent against every
+/// source, and it has the right behaviour for free: food nobody has reached is
+/// food nobody is eating.
+const EAT_RATE: f32 = 0.0075;
+/// Standing cost of being alive, per step. Balanced against EAT_RATE so a couple
+/// of sources sustain the colony and an empty plate starves it in ~30 seconds.
+const UPKEEP: f32 = 0.0016;
+const GAIN: f32 = 0.00035;
 
 /// Place a food source, in grid coordinates. Returns the new source count.
 #[no_mangle]
@@ -129,14 +144,15 @@ pub extern "C" fn physarum_add_food(x: f32, y: f32) -> u32 {
     let Some(s) = STATE.get().as_mut() else { return 0 };
     if !x.is_finite() || !y.is_finite() {
         // One NaN in here poisons every sensor reading that ever samples near it.
-        return (s.food.len() / 2) as u32;
+        return (s.food.len() / 3) as u32;
     }
-    if s.food.len() >= 128 {
-        return (s.food.len() / 2) as u32;
+    if s.food.len() >= 96 * 3 {
+        return (s.food.len() / 3) as u32;
     }
     s.food.push(x.clamp(0.0, GRID as f32 - 1.0));
     s.food.push(y.clamp(0.0, GRID as f32 - 1.0));
-    (s.food.len() / 2) as u32
+    s.food.push(FOOD_STORE);
+    (s.food.len() / 3) as u32
 }
 
 #[no_mangle]
@@ -148,7 +164,26 @@ pub extern "C" fn physarum_clear_food() {
 
 #[no_mangle]
 pub extern "C" fn physarum_food_count() -> u32 {
-    STATE.get().as_ref().map_or(0, |s| (s.food.len() / 2) as u32)
+    STATE.get().as_ref().map_or(0, |s| (s.food.len() / 3) as u32)
+}
+
+/// 0 = starved and resorbing, 1 = thriving.
+#[no_mangle]
+pub extern "C" fn physarum_vitality() -> f32 {
+    STATE.get().as_ref().map_or(0.0, |s| s.vitality)
+}
+
+/// Food left across all sources, as a fraction of what has been dropped.
+#[no_mangle]
+pub extern "C" fn physarum_food_left() -> f32 {
+    STATE.get().as_ref().map_or(0.0, |s| {
+        let n = s.food.len() / 3;
+        if n == 0 {
+            return 0.0;
+        }
+        let left: f32 = s.food.chunks_exact(3).map(|f| f[2]).sum();
+        left / (n as f32 * FOOD_STORE)
+    })
 }
 
 /// Override the defaults. Every value is a feel knob, not a physical constant.
@@ -187,7 +222,11 @@ fn sense(trail: &[f32; CELLS], x: f32, y: f32, dx: f32, dy: f32, dist: f32) -> f
 pub extern "C" fn physarum_step() {
     let Some(s) = STATE.get().as_mut() else { return };
 
-    let (dist, speed, dep) = (s.sensor_dist, s.speed, s.deposit);
+    // Deposit scales with vitality. A starving colony lays down almost nothing,
+    // decay outruns it, and the network resorbs — which is roughly what a
+    // plasmodium does when the plate runs out.
+    let (dist, speed) = (s.sensor_dist, s.speed);
+    let dep = s.deposit * (0.04 + 0.96 * s.vitality);
     // Rotation constants for this frame. Fixed for every agent, so the sensor
     // offsets and the turn are matrix multiplies rather than trig calls.
     let (sc, ss) = (s.sensor_angle.cos(), s.sensor_angle.sin());
@@ -196,13 +235,31 @@ pub extern "C" fn physarum_step() {
     let diffuse = s.diffuse;
 
     {
-        // Food emits before the agents sense, so the gradient they read this
-        // frame already includes it.
-        let State { food, trail, .. } = s;
+        // Eat, then emit. A source that has been consumed stops calling, which
+        // is what lets the network abandon a patch it has finished and go
+        // looking elsewhere.
+        let State { food, trail, vitality, .. } = s;
         let trail = grid(trail);
-        for f in food.chunks_exact(2) {
+        let mut eaten_total = 0.0_f32;
+
+        for f in food.chunks_exact_mut(3) {
+            if f[2] <= 0.0 {
+                continue;
+            }
             let fx = f[0] as i32;
             let fy = f[1] as i32;
+
+            // How much organism is sitting on the source right now.
+            let present = trail[wrap(fy) * GRID + wrap(fx)];
+            let eaten = (present * EAT_RATE).min(f[2]);
+            f[2] -= eaten;
+            eaten_total += eaten;
+
+            // Emission fades as the source is consumed, so a nearly-spent flake
+            // pulls weakly and the network drifts off it rather than sitting on
+            // an empty plate forever.
+            let share = (f[2] / FOOD_STORE).clamp(0.0, 1.0);
+            let strength = FOOD_STRENGTH * (0.25 + 0.75 * share);
             for dy in -FOOD_RADIUS..=FOOD_RADIUS {
                 for dx in -FOOD_RADIUS..=FOOD_RADIUS {
                     let d2 = (dx * dx + dy * dy) as f32;
@@ -210,13 +267,15 @@ pub extern "C" fn physarum_step() {
                     if d2 > r2 {
                         continue;
                     }
-                    // Falls off toward the rim so the source reads as a blob
-                    // with a gradient, not a square of uniform value.
                     let falloff = 1.0 - (d2 / r2);
-                    trail[wrap(fy + dy) * GRID + wrap(fx + dx)] += FOOD_STRENGTH * falloff;
+                    trail[wrap(fy + dy) * GRID + wrap(fx + dx)] += strength * falloff;
                 }
             }
         }
+
+        // Starvation. Upkeep is paid every step whether or not anything was
+        // eaten, so an unfed plate winds down instead of holding its shape.
+        *vitality = (*vitality + eaten_total * GAIN - UPKEEP).clamp(0.0, 1.0);
     }
 
     {
@@ -307,18 +366,22 @@ pub extern "C" fn physarum_step() {
         // Marked after shading, so a source stays visible even where the trail
         // around it has saturated the ramp.
         let State { food, pixels, .. } = s;
-        for f in food.chunks_exact(2) {
+        for f in food.chunks_exact(3) {
             let fx = f[0] as i32;
             let fy = f[1] as i32;
-            for dy in -2..=2_i32 {
-                for dx in -2..=2_i32 {
-                    if dx * dx + dy * dy > 4 {
+            let share = (f[2] / FOOD_STORE).clamp(0.0, 1.0);
+            // Shrinks as it is eaten, so consumption is visible rather than
+            // something you have to infer from the network moving on.
+            let r = (1.0 + share * 3.0) as i32;
+            for dy in -r..=r {
+                for dx in -r..=r {
+                    if dx * dx + dy * dy > r * r {
                         continue;
                     }
                     let o = (wrap(fy + dy) * GRID + wrap(fx + dx)) * 4;
                     pixels[o] = 255;
-                    pixels[o + 1] = 250;
-                    pixels[o + 2] = 235;
+                    pixels[o + 1] = (170.0 + 80.0 * share) as u8;
+                    pixels[o + 2] = (90.0 + 145.0 * share) as u8;
                 }
             }
         }

@@ -24,6 +24,8 @@
   let canvasEl = $state<HTMLCanvasElement | null>(null);
   let worker: Worker | null = null;
   let fps = $state(0);
+  let vitality = $state(1);
+  let foodLeft = $state(0);
   let status = $state('booting');
 
   // Composed here rather than in markup: Svelte trims the whitespace at the
@@ -66,6 +68,14 @@
     food = 0;
   }
 
+  function describe(v: number): string {
+    if (v > 0.75) return 'thriving';
+    if (v > 0.4) return 'feeding';
+    if (v > 0.1) return 'hungry';
+    return 'starving';
+  }
+  const condition = $derived(describe(vitality));
+
   const statusLine = $derived(
     fps > 0 ? `${status} · ${String(fps)} fps in the worker · main thread idle` : status,
   );
@@ -81,8 +91,20 @@
 
     const w: Worker = new PhysarumWorker();
     worker = w;
-    w.onmessage = (e: MessageEvent<{ type: string; fps?: number; message?: string }>) => {
-      if (e.data.type === 'fps') fps = e.data.fps ?? 0;
+    w.onmessage = (
+      e: MessageEvent<{
+        type: string;
+        fps?: number;
+        message?: string;
+        vitality?: number;
+        foodLeft?: number;
+      }>,
+    ) => {
+      if (e.data.type === 'fps') {
+        fps = e.data.fps ?? 0;
+        vitality = e.data.vitality ?? 1;
+        foodLeft = e.data.foodLeft ?? 0;
+      }
       else if (e.data.type === 'ready') status = 'running';
       else if (e.data.type === 'error') status = e.data.message ?? 'failed';
     };
@@ -146,8 +168,12 @@
       ></canvas>
       {#if sim === 'physarum'}
         <div class="mt-3 flex flex-wrap items-center justify-center gap-2">
-          <span class="font-mono text-xs text-white/40">
-            {food > 0 ? `${String(food)} food` : 'click the plate to feed it'}
+          <span class="font-mono text-xs" class:starving={vitality < 0.25}>
+            {#if food === 0}
+              click the plate to feed it
+            {:else}
+              {Math.round(foodLeft * 100)}% food left · {condition}
+            {/if}
           </span>
           <button
             type="button"
@@ -258,10 +284,16 @@
             </p>
             <p class="text-sm leading-relaxed text-white/60">
               the food is real though. drop some on the plate and it emits, the
-              agents smell it, and the routes that connect one source to the next
-              get walked often enough to stay lit while everything else fades.
-              nobody computes the route. it is just the paths that keep earning
-              traffic.
+              agents smell it, and the routes between sources get walked often
+              enough to stay lit while everything else fades. nobody computes the
+              route. it is just the paths that keep earning traffic.
+            </p>
+            <p class="text-sm leading-relaxed text-white/60">
+              and it gets eaten. a flake shrinks as the network sits on it, calls
+              more weakly as it empties, and goes quiet when it is gone. feed it
+              and it thickens. stop, and upkeep outruns what it can find — the
+              trails stop being reinforced, decay wins, and it resorbs itself down
+              to almost nothing.
             </p>
             <p class="text-sm leading-relaxed text-white/60">
               a decent picture of what physarum does. no account of how.
@@ -333,6 +365,12 @@
 </main>
 
 <style>
+  .starving {
+    color: #e8734a;
+  }
+  span.font-mono:not(.starving) {
+    color: rgb(255 255 255 / 0.4);
+  }
   .feedable {
     cursor: crosshair;
   }

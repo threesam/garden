@@ -15,6 +15,8 @@ interface WasmExports {
   physarum_init: (count: number, seed: number) => number;
   physarum_add_food: (x: number, y: number) => number;
   physarum_clear_food: () => void;
+  physarum_vitality: () => number;
+  physarum_food_left: () => number;
   dicty_init: (count: number, seed: number) => number;
   dicty_step: () => void;
   dicty_pixels: () => number;
@@ -129,7 +131,12 @@ async function start(msg: StartMessage): Promise<void> {
     frames++;
     const now = performance.now();
     if (now - lastReport >= 1000) {
-      self.postMessage({ type: 'fps', fps: Math.round((frames * 1000) / (now - lastReport)) });
+      self.postMessage({
+        type: 'fps',
+        fps: Math.round((frames * 1000) / (now - lastReport)),
+        vitality: exports.physarum_vitality(),
+        foodLeft: exports.physarum_food_left(),
+      });
       frames = 0;
       lastReport = now;
     }
