@@ -40,7 +40,6 @@
   let canvasEl = $state<HTMLCanvasElement | null>(null);
   let worker: Worker | null = null;
   let fps = $state(0);
-  let vitality = $state(1);
   let flakes = $state(0);
   let condition = $state('stable');
   let population = $state(0);
@@ -107,7 +106,6 @@
         fps?: number;
         message?: string;
         grid?: number;
-        vitality?: number;
         flakes?: number;
         state?: number;
         agents?: number;
@@ -115,7 +113,6 @@
     ) => {
       if (e.data.type === 'fps') {
         fps = e.data.fps ?? 0;
-        vitality = e.data.vitality ?? 1;
         flakes = e.data.flakes ?? 0;
         condition = CONDITION[e.data.state ?? 2] ?? 'stable';
         population = e.data.agents ?? 0;
@@ -186,7 +183,7 @@
       ></canvas>
       {#if sim === 'physarum'}
         <div class="mt-3 flex flex-wrap items-center justify-center gap-2">
-          <span class="font-mono text-xs" class:starving={vitality < 0.25}>
+          <span class="font-mono text-xs" class:starving={condition === 'starving' || condition === 'dead'}>
             {flakes.toFixed(1)} food · {condition} · {compact(population)} agents
           </span>
           <button

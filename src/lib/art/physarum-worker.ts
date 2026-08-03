@@ -15,7 +15,6 @@ interface WasmExports {
   physarum_init: (count: number, seed: number) => number;
   physarum_add_food: (x: number, y: number) => number;
   physarum_clear_food: () => void;
-  physarum_vitality: () => number;
   physarum_food_total: () => number;
   physarum_state: () => number;
   physarum_active: () => number;
@@ -157,7 +156,6 @@ async function start(msg: StartMessage): Promise<void> {
       self.postMessage({
         type: 'fps',
         fps: Math.round((frames * 1000) / (now - lastReport)),
-        vitality: exports.physarum_vitality(),
         flakes: exports.physarum_food_total(),
         state: exports.physarum_state(),
         agents: exports.physarum_active(),

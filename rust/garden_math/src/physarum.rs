@@ -327,12 +327,6 @@ pub extern "C" fn physarum_clear_food() {
     }
 }
 
-/// 0 = starved and resorbing, 1 = thriving.
-#[no_mangle]
-pub extern "C" fn physarum_vitality() -> f32 {
-    STATE.get().as_ref().map_or(0.0, |s| s.vitality)
-}
-
 /// Living agents, counted.
 ///
 /// A raw number rather than a share. A percentage needs a denominator, and every
