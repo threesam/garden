@@ -1,131 +1,81 @@
-// A species as data. Every field is something a field guide already publishes,
-// so adding a species is transcription rather than invention.
+// A species as data.
 //
-// Body plan comes first, because fungi do not share one. An agaric has a cap,
-// gills and a stipe; a toothed fungus has none of those. Modelling everything
-// as cap-and-gills would produce specimens a mycologist would immediately
-// reject, which defeats the whole correctness bar.
+// Deliberately narrow. An earlier version of this file carried four body
+// plans, a discriminated hymenophore union and optional cap/stipe/cushion —
+// a schema guessed before anything had been rendered, and the guess produced
+// specimens that were structurally defensible and visually wrong.
 //
-// See docs/superpowers/specs/2026-08-02-mushroom-generator-design.md
+// So: one species, modelled until it looks right, and the schema generalised
+// afterwards from species that actually work. What survives contact with the
+// second and third species is the real abstraction.
 
-/** The four gross morphologies this generator builds. */
-export type BodyPlan =
-  | 'agaricoid' // cap + gills + stipe — the mushroom shape people picture
-  | 'polyporoid' // bracket/shelf with pores beneath
-  | 'hydnoid' // cushion hung with downward spines, no cap
-  | 'clavarioid'; // a club; the fruiting body is essentially all stipe
-
-/** Cap outline in profile, using the standard mycological descriptors. */
-export type CapProfile =
-  | 'convex' // dome; widest at the margin
-  | 'campanulate' // bell; widest below a raised apex
-  | 'plane' // flat
-  | 'infundibuliform' // funnel; centre lower than the margin
-  | 'umbonate' // convex with a central boss
-  | 'bracket'; // kidney/fan shelf, attached at one edge
-
-/** Where the gills meet the stipe — the most diagnostic feature of an agaric. */
-export type GillAttachment = 'free' | 'adnexed' | 'adnate' | 'decurrent';
-
-export type CapMargin = 'entire' | 'striate' | 'inrolled';
-export type GillSpacing = 'crowded' | 'close' | 'distant';
-export type StipeBase = 'equal' | 'bulbous' | 'rooting';
-/** Lateral/eccentric stipes are why bracket-formers look nothing like an Amanita. */
-export type StipePosition = 'central' | 'eccentric' | 'lateral';
-
-/** Inclusive [min, max] in millimetres. Real species vary; specimens sample this. */
+/** Inclusive [min, max] in millimetres, as a field guide publishes them. */
 export type RangeMm = readonly [number, number];
 
 /**
- * The spore-bearing surface. This is the feature that actually separates the
- * body plans, so it is a discriminated union rather than a set of optional
- * fields — a species has exactly one, and the geometry builder switches on it.
+ * A cluster of fruiting bodies, which for a wood-rotting fungus is the unit
+ * that matters. A lone oyster mushroom is the least oyster-like thing an
+ * oyster does — they shelf in overlapping tiers off the same mycelium, and
+ * that shingled arrangement is most of what makes one recognisable.
  */
-export type Hymenophore =
-  | {
-      readonly kind: 'gills';
-      readonly attachment: GillAttachment;
-      /** Primary lamellae reaching the cap margin. */
-      readonly count: number;
-      /** Tiers of shorter gills interleaved between the primaries. */
-      readonly lamellulae: number;
-      readonly spacing: GillSpacing;
-      readonly colour: string;
-    }
-  | {
-      readonly kind: 'pores';
-      readonly poresPerMm: number;
-      readonly depthMm: number;
-      readonly colour: string;
-    }
-  | {
-      readonly kind: 'teeth';
-      readonly lengthMm: RangeMm;
-      readonly densityPerCm2: number;
-      readonly colour: string;
-    }
-  | {
-      readonly kind: 'smooth';
-      readonly colour: string;
-    };
+export interface Cluster {
+  /** How many caps in a mature flush. */
+  readonly caps: readonly [number, number];
+  /** Arc the flush spreads through, in degrees, as it grows off a face. */
+  readonly spreadDeg: number;
+  /** Vertical stagger between tiers, as a fraction of cap diameter. */
+  readonly tierRise: number;
+}
 
 export interface Cap {
-  readonly profile: CapProfile;
   readonly diameterMm: RangeMm;
   /** Cap height ÷ cap diameter. */
   readonly heightRatio: number;
-  readonly margin: CapMargin;
+  /** Flesh thickness at the attachment ÷ cap diameter. */
+  readonly thicknessRatio: number;
+  /** Arc the fan sweeps through, in degrees. 360 would be a disc. */
+  readonly fanDeg: number;
+  /** How far the margin waves, 0..1. Oyster flesh is soft and very wavy. */
+  readonly waviness: number;
   readonly colour: string;
+  /** Oysters carry a paler, warmer band right at the rim. */
+  readonly marginColour: string;
 }
 
 export interface Stipe {
   readonly lengthMm: RangeMm;
   readonly diameterMm: RangeMm;
-  /** Apex Ø ÷ base Ø. <1 tapers upward, >1 tapers downward. */
-  readonly taper: number;
-  readonly base: StipeBase;
-  readonly position: StipePosition;
-  readonly ring: boolean;
-  readonly volva: boolean;
   readonly colour: string;
 }
 
-/** The branching mass a hydnoid fungus hangs its spines from. */
-export interface Cushion {
-  readonly diameterMm: RangeMm;
-  /** Number of lobes the mass divides into. */
-  readonly lobes: number;
+export interface Gills {
+  /** Blades in a mature cap. */
+  readonly count: number;
+  /** Blade depth ÷ cap diameter. */
+  readonly depthRatio: number;
   readonly colour: string;
 }
 
 export interface Blueprint {
   readonly species: string;
   readonly common: string;
-  readonly bodyPlan: BodyPlan;
-  /** Absent for hydnoid and clavarioid — those have no cap at all. */
-  readonly cap?: Cap;
-  /** Absent for hydnoid. For clavarioid this IS the fruiting body. */
-  readonly stipe?: Stipe;
-  /** Present only for hydnoid. */
-  readonly cushion?: Cushion;
-  readonly hymenophore: Hymenophore;
-  readonly ornament?: {
-    readonly warts?: { readonly count: number; readonly radiusMm: number };
-  };
+  readonly cap: Cap;
+  readonly stipe: Stipe;
+  readonly gills: Gills;
+  readonly cluster: Cluster;
   readonly sporePrint: string;
 }
 
 /** Concrete dimensions for one specimen, sampled from a blueprint's ranges. */
 export interface Specimen {
   readonly capDiameter: number;
-  readonly capHeight: number;
   readonly stipeLength: number;
   readonly stipeDiameter: number;
-  readonly cushionDiameter: number;
+  readonly capCount: number;
 }
 
 /** Which structure a run of vertices belongs to. */
-export type PartName = 'cap' | 'stipe' | 'hymenophore' | 'cushion';
+export type PartName = 'cap' | 'stipe' | 'gills';
 
 /** Half-open vertex range [start, end) for one part. */
 export type PartRange = readonly [number, number];
@@ -135,12 +85,17 @@ export interface Mesh {
   readonly positions: Float32Array;
   readonly normals: Float32Array;
   readonly indices: Uint32Array;
-  /** Per-vertex colour, so cap/hymenophore/stipe can differ within one mesh. */
+  /** Per-vertex colour, so cap/gills/margin can differ within one mesh. */
   readonly colors: Float32Array;
   /**
-   * Vertex ranges per structure. Lets a viewer give the pore surface a
-   * different material to the cap, and lets the tests assert on the gills
-   * alone rather than inferring from a bounding box that the stipe dominates.
+   * Vertex ranges per structure. Lets a viewer give the gills their own
+   * material, and lets tests assert on one part rather than inferring from a
+   * bounding box that a different part dominates.
+   *
+   * A LIST of ranges, not one range: a cluster emits cap, gills and stipe per
+   * cap, so each structure's vertices land in several disjoint runs. Collapsing
+   * them to a single span would make every part's range cover almost the whole
+   * mesh and quietly overlap all the others.
    */
-  readonly parts: Partial<Record<PartName, PartRange>>;
+  readonly parts: Partial<Record<PartName, readonly PartRange[]>>;
 }

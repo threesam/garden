@@ -1,40 +1,42 @@
 import type { Blueprint } from '../types';
 
 /**
- * Oyster mushroom. The only agaric in the set — cap, gills, stipe — but an
- * atypical one: the gills run decurrent down a stipe set off to one side,
- * which is why it grows in shelved tiers off wood rather than standing in soil.
+ * Oyster mushroom. Shelves in overlapping tiers off dead hardwood, each cap a
+ * fan attached at one edge by a stub of a stipe, gills running down onto it.
  *
- * Measurements from Phillips, *Mushrooms of Britain and Europe*.
+ * Measurements from Phillips, *Mushrooms of Britain and Europe*. The
+ * appearance fields (waviness, fan arc, margin colour) are read off
+ * photographs rather than published — a field guide describes a margin as
+ * "wavy" and leaves the amount to the eye.
  */
 export const pleurotusOstreatus: Blueprint = {
   species: 'Pleurotus ostreatus',
   common: 'oyster mushroom',
-  bodyPlan: 'agaricoid',
   cap: {
-    profile: 'infundibuliform',
-    diameterMm: [50, 200],
-    heightRatio: 0.22,
-    margin: 'inrolled',
-    colour: '#8d8378',
+    diameterMm: [60, 140],
+    heightRatio: 0.14,
+    thicknessRatio: 0.055,
+    // Not a full disc: the fan opens away from its attachment.
+    fanDeg: 250,
+    waviness: 0.85,
+    colour: '#9d968a',
+    // The rim catches the light warmer and paler than the rest of the cap.
+    marginColour: '#cbb083',
   },
   stipe: {
-    lengthMm: [10, 30],
-    diameterMm: [10, 20],
-    taper: 1.0,
-    base: 'equal',
-    position: 'lateral',
-    ring: false,
-    volva: false,
+    lengthMm: [8, 16],
+    diameterMm: [9, 15],
     colour: '#efe9dc',
   },
-  hymenophore: {
-    kind: 'gills',
-    attachment: 'decurrent',
-    count: 60,
-    lamellulae: 1,
-    spacing: 'close',
-    colour: '#efe9dc',
+  gills: {
+    count: 96,
+    depthRatio: 0.062,
+    colour: '#f2ece0',
+  },
+  cluster: {
+    caps: [6, 9],
+    spreadDeg: 190,
+    tierRise: 0.48,
   },
   sporePrint: 'lilac-grey',
 };

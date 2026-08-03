@@ -68,10 +68,15 @@ export const sketches: Sketch[] = [
 
 /**
  * Slugs hidden from the gallery scroll (because they're slow, broken, or
- * otherwise not ready for a curated tour). Still accessible via
- * `/anything-but-analog/raw/<n>` for direct viewing.
+ * otherwise not ready for a curated tour).
  *
- * Visible tour: 21, 23, 25, 30.
+ * Currently ALL of them: /anything-but-analog is down to its hero while the
+ * mushroom project takes over the page. Every sketch keeps its own prerendered
+ * page at /anything-but-analog/<n>, and this list drives the sitemap, so
+ * hiding here also stops advertising sections that no longer render.
+ *
+ * To bring the tour back, drop slugs from this set — 21, 23, 25 and 30 were
+ * the curated four.
  */
 export const HIDDEN_SLUGS = new Set<string>([
   "1",
@@ -100,6 +105,11 @@ export const HIDDEN_SLUGS = new Set<string>([
   "29",
   "32",
   "33",
+  // The former curated tour, hidden so the page is hero-only.
+  "21",
+  "23",
+  "25",
+  "30",
 ]);
 
 export const visibleSketches: Sketch[] = sketches.filter((s) => !HIDDEN_SLUGS.has(s.slug));

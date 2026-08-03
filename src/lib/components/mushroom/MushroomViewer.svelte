@@ -1,76 +1,33 @@
 <script lang="ts">
-  // Renders a fruiting body and grows it. three.js is dynamically imported so
-  // it only ships to whoever opens this — it is ~150KB and nothing else in the
-  // site uses it.
+  // Renders an oyster cluster. three.js is dynamically imported so it only
+  // ships to whoever opens this page — nothing else on the site uses it.
   //
-  // The geometry is rebuilt every frame while growing. That is deliberately the
-  // expensive path: it is what a timelapse actually requires, and the
-  // rebuild timing recorded here is the baseline the eventual Rust/wasm port
-  // gets measured against. Sub-project 2 does that port.
+  // No timelapse yet, on purpose. Growth is only worth animating once both
+  // ends of it look right, so this shows a chosen stage and lets you reroll
+  // the specimen, which is what makes the shape iterable.
   import { onMount } from 'svelte';
   import { buildFruitingBody } from '$lib/mushroom/generator';
-  import { SPECIES, pleurotusOstreatus } from '$lib/mushroom/species';
-  import type { Blueprint } from '$lib/mushroom/types';
+  import { pleurotusOstreatus } from '$lib/mushroom/species';
 
-  let { seconds = 8 }: { seconds?: number } = $props();
-
-  /**
-   * Fixed so the specimen on screen is reproducible.
-   *
-   * Chosen, not arbitrary: a seed drives every dimension through one shared
-   * stream, so an unlucky one lands each species at the same extreme of its
-   * published range. Seed 7 gave every species its smallest cap AND its
-   * thickest stipe — all legal, all unrepresentative. 14 sits mid-range
-   * across the set.
-   */
-  const SEED = 14;
+  const STAGES = [
+    { label: 'mature', t: 1 },
+    { label: 'young', t: 0.55 },
+    { label: 'pins', t: 0.12 },
+  ] as const;
 
   let host = $state<HTMLDivElement | null>(null);
   let canvasEl = $state<HTMLCanvasElement | null>(null);
-  let current = $state(0);
-  let growth = $state(0);
+  let stage = $state(0);
+  let seed = $state(14);
+  let spin = $state(true);
   let rebuildMs = $state(0);
   let failed = $state(false);
 
-  // SPECIES is readonly Blueprint[], so indexing is Blueprint | undefined under
-  // noUncheckedIndexedAccess. Falling back to a concrete species keeps the type
-  // honest without an assertion.
-  const species = $derived<Blueprint>(SPECIES[current] ?? pleurotusOstreatus);
-
-  /**
-   * Bounding sphere of the MATURE specimen, centred on the Y axis.
-   *
-   * Centred on the axis rather than on the true bounding-box centre because the
-   * mesh spins about Y: an axis-centred sphere has the same silhouette at every
-   * angle, so the specimen cannot rotate out of frame. Y is a real min/max —
-   * taking only the maximum would miss everything hanging below the origin,
-   * which is exactly where a hydnoid's spines live.
-   */
-  function matureFit(bp: Blueprint): { cx: number; cy: number; cz: number; radius: number } {
-    const { positions } = buildFruitingBody(bp, 1, SEED);
-    const lo = [Infinity, Infinity, Infinity];
-    const hi = [-Infinity, -Infinity, -Infinity];
-    for (let i = 0; i < positions.length; i += 3) {
-      for (let a = 0; a < 3; a++) {
-        const v = positions[i + a]!;
-        if (v < lo[a]!) lo[a] = v;
-        if (v > hi[a]!) hi[a] = v;
-      }
-    }
-    const cx = (lo[0]! + hi[0]!) / 2;
-    const cy = (lo[1]! + hi[1]!) / 2;
-    const cz = (lo[2]! + hi[2]!) / 2;
-    let radius = 1;
-    for (let i = 0; i < positions.length; i += 3) {
-      const d = Math.hypot(positions[i]! - cx, positions[i + 1]! - cy, positions[i + 2]! - cz);
-      if (d > radius) radius = d;
-    }
-    return { cx, cy, cz, radius };
-  }
+  const growth = $derived(STAGES[stage]?.t ?? 1);
 
   onMount(() => {
-    // Object rather than a bare boolean: the async body below reads this after
-    // an await, and a plain `let` narrows to its initialiser there.
+    // Object rather than a bare boolean: the async body reads this after an
+    // await, where a plain `let` narrows to its initialiser.
     const mounted = { yes: true };
     let cleanup: (() => void) | undefined;
 
@@ -82,65 +39,88 @@
         failed = true;
         return;
       }
-      // Captured once as consts so the narrowing holds inside every closure
-      // below instead of needing a repeated null check in each one.
+      // Captured as consts so the narrowing holds inside every closure below.
       const el = host;
       const canvas = canvasEl;
       if (!mounted.yes || !el || !canvas) return;
 
       const scene = new THREE.Scene();
-      scene.background = new THREE.Color('#0b0b08');
+      scene.background = new THREE.Color('#0d0e0b');
 
-      const camera = new THREE.PerspectiveCamera(38, 1, 1, 4000);
-      // Svelte owns the canvas element; three just draws into it.
+      const camera = new THREE.PerspectiveCamera(36, 1, 1, 6000);
       const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
       renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+      // Shadows are load-bearing here, not polish. A shelved cluster is a stack
+      // of similarly-coloured caps; with flat lighting they merge into one
+      // dough-like mass, and the tiers only separate once each cap casts onto
+      // the one beneath it.
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-      // Key from above, plus a bounce from BELOW. The bounce is not decorative:
-      // gills, pores and teeth all face downward, so with only overhead lights
-      // the one feature that distinguishes these species renders as a black
-      // void. Warm, dim, and low — a substrate bouncing the key back up.
-      scene.add(new THREE.AmbientLight('#6b6a5f', 1.0));
-      const key = new THREE.DirectionalLight('#fff6e0', 2.2);
-      key.position.set(1, 1.6, 0.8);
+      // Ambient kept low for the same reason — it is what was washing the
+      // forms flat.
+      scene.add(new THREE.AmbientLight('#7f8378', 0.55));
+      const key = new THREE.DirectionalLight('#fff4e2', 2.7);
+      key.position.set(0.75, 1.6, 0.55);
+      key.castShadow = true;
+      key.shadow.mapSize.set(2048, 2048);
+      // DoubleSide geometry self-shadows badly without a normal bias.
+      key.shadow.normalBias = 0.6;
       scene.add(key);
-      const bounce = new THREE.DirectionalLight('#e8a317', 1.15);
-      bounce.position.set(-0.5, -1, 0.6);
+      // Bounce from BELOW. Not decorative: the gills face downward, and under
+      // overhead-only light the feature that most identifies an oyster renders
+      // as a black void.
+      const bounce = new THREE.DirectionalLight('#e0c49c', 1.7);
+      bounce.position.set(-0.6, -1, 0.5);
       scene.add(bounce);
+      // Cool fill from behind, to keep the shadowed sides from going muddy.
+      const fill = new THREE.DirectionalLight('#9fb6c4', 0.32);
+      fill.position.set(-0.9, 0.5, -0.8);
+      scene.add(fill);
+      // Sky/ground wrap, which is what actually lifts a shaded underside.
+      scene.add(new THREE.HemisphereLight('#dfe6ea', '#6b5a3e', 0.7));
+      // Headlight, tracked to the camera in the render loop. Gill blades are
+      // vertical, so their normals point sideways and BOTH the overhead key and
+      // the upward bounce graze them at almost zero incidence — the gills, the
+      // one feature that identifies the species, rendered as a black void until
+      // something lit them from where the viewer stands.
+      const headlight = new THREE.DirectionalLight('#fff2df', 0.85);
+      scene.add(headlight);
 
       const material = new THREE.MeshStandardMaterial({
         vertexColors: true,
-        roughness: 0.86,
-        metalness: 0.0,
-        side: THREE.DoubleSide, // gills and spines are single-sided blades
-        flatShading: false,
+        roughness: 0.92,
+        metalness: 0,
+        // Gills are single-sided blades, so both faces must light.
+        side: THREE.DoubleSide,
       });
 
       let geometry = new THREE.BufferGeometry();
       const mesh = new THREE.Mesh(geometry, material);
-      // The mesh is shifted inside a pivot so that spinning the pivot turns the
-      // specimen about its own centre. Rotating the mesh directly would turn it
-      // about the model origin — fine for a centred stipe, but a lateral one
-      // sits off-axis and would swing around the scene like a fairground ride.
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      // The mesh is recentred inside a pivot so spinning turns the cluster
+      // about its own centre rather than swinging it around the world origin.
       const pivot = new THREE.Group();
       pivot.add(mesh);
       scene.add(pivot);
-      let lastHud = 0;
 
-      // Three-quarter view from slightly above: shows the cap's profile and
-      // enough of the underside to read the hymenophore, which is the whole
-      // point of modelling gills vs pores vs teeth.
-      const DIR = [0.42, 0.34, 0.84];
+      // Three-quarter view from ~25° up: high enough to read the shingled
+      // tiers, low enough that the gills under the front caps stay visible.
+      const DIR = [0.34, 0.17, 0.92];
       const DIR_LEN = Math.hypot(DIR[0]!, DIR[1]!, DIR[2]!);
-      let fit = { cx: 0, cy: 0, cz: 0, radius: 1 };
+      /** Half-extents of the cluster: horizontal (worst case while spinning) and vertical. */
+      let fit = { half: 1, halfY: 1 };
 
-      // The pivot sits at the world origin with the specimen recentred onto it,
-      // so the camera always aims at 0 and only the distance changes.
+      // Fits the BOX, not a bounding sphere. A cluster is a flat wide slab, and
+      // a sphere around it is dominated by the diagonal — fitting that left the
+      // subject at about half the size the frame could hold.
       const frameCamera = (): void => {
         const vFov = (camera.fov * Math.PI) / 180;
-        // A wide viewport is limited by vertical fov, a tall one by horizontal.
         const hFov = 2 * Math.atan(Math.tan(vFov / 2) * camera.aspect);
-        const d = (fit.radius * 1.12) / Math.sin(Math.min(vFov, hFov) / 2);
+        const dv = fit.halfY / Math.tan(vFov / 2);
+        const dh = fit.half / Math.tan(hFov / 2);
+        const d = Math.max(dv, dh) * 1.18;
         camera.position.set(
           (DIR[0]! / DIR_LEN) * d,
           (DIR[1]! / DIR_LEN) * d,
@@ -149,29 +129,52 @@
         camera.lookAt(0, 0, 0);
       };
 
-      // Rebuild is the hot path: once per frame while growing. The builder
-      // already supplies normals, so we do NOT call computeVertexNormals here —
-      // that would redo per-frame what the generator did once.
-      const show = (bp: Blueprint, t: number): void => {
+      /** Rebuild geometry and refit. Normals are recomputed from the displaced
+       * triangles — the builder cannot know them, since the surface is noised
+       * after the fact, and shading lumps with un-displaced normals renders
+       * them perfectly flat. */
+      const rebuild = (): void => {
         const started = performance.now();
-        const m = buildFruitingBody(bp, t, SEED);
-        const took = performance.now() - started;
+        const m = buildFruitingBody(pleurotusOstreatus, growth, seed);
+        rebuildMs = performance.now() - started;
 
         geometry.dispose();
         geometry = new THREE.BufferGeometry();
         geometry.setAttribute('position', new THREE.BufferAttribute(m.positions, 3));
-        geometry.setAttribute('normal', new THREE.BufferAttribute(m.normals, 3));
         geometry.setAttribute('color', new THREE.BufferAttribute(m.colors, 3));
         geometry.setIndex(new THREE.BufferAttribute(m.indices, 1));
+        geometry.computeVertexNormals();
         mesh.geometry = geometry;
 
-        // Throttled: writing $state every frame would re-render the HUD at 60Hz
-        // to show a number the eye cannot read that fast.
-        if (started - lastHud > 200) {
-          lastHud = started;
-          rebuildMs = took;
-          growth = t;
+        geometry.computeBoundingBox();
+        const bb = geometry.boundingBox;
+        if (bb) {
+          mesh.position.set(
+            -(bb.min.x + bb.max.x) / 2,
+            -(bb.min.y + bb.max.y) / 2,
+            -(bb.min.z + bb.max.z) / 2,
+          );
+          const sx = bb.max.x - bb.min.x;
+          const sy = bb.max.y - bb.min.y;
+          const sz = bb.max.z - bb.min.z;
+          // Worst-case horizontal extent across a full turn is the X/Z
+          // diagonal, so the framing holds at every angle of the spin.
+          fit = { half: Math.max(1, Math.hypot(sx, sz) / 2), halfY: Math.max(1, sy / 2) };
+          // A directional light's shadow camera is orthographic and has no
+          // idea how big the subject is; left at its default it either misses
+          // the cluster entirely or wastes the whole depth map around it.
+          const sc = key.shadow.camera;
+          const pad = fit.half * 1.3;
+          sc.left = -pad;
+          sc.right = pad;
+          sc.top = pad;
+          sc.bottom = -pad;
+          sc.near = 1;
+          sc.far = pad * 8;
+          sc.updateProjectionMatrix();
+          key.position.set(0.75, 1.6, 0.55).normalize().multiplyScalar(pad * 3);
         }
+        frameCamera();
       };
 
       const resize = (): void => {
@@ -180,43 +183,36 @@
         renderer.setSize(w, h, false);
         camera.aspect = w / h;
         camera.updateProjectionMatrix();
-        frameCamera(); // aspect feeds the fit, so re-frame whenever it changes
+        frameCamera(); // aspect feeds the fit, so re-frame when it changes
       };
       const ro = new ResizeObserver(resize);
       ro.observe(el);
       resize();
 
       const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      let start = performance.now();
       let raf = 0;
       let running = true;
-      let framedFor = '';
+      let lastKey = '';
+      let angle = 0.35;
+      let prev = performance.now();
 
       const tick = (now: number): void => {
         if (!running) return;
-        const bp = species;
+        const dt = Math.min(0.05, (now - prev) / 1000);
+        prev = now;
 
-        // Switching species restarts the timelapse and re-frames the camera on
-        // the MATURE size, so the specimen grows into shot rather than the
-        // camera chasing it. Driven off the rendered species rather than the
-        // click handler, so there is one path instead of two.
-        if (bp.species !== framedFor) {
-          framedFor = bp.species;
-          start = now;
-          fit = matureFit(bp);
-          // Recentre on the MATURE centroid and leave it there for the whole
-          // timelapse: recentring per frame would slide the specimen around as
-          // it grows, which reads as drift rather than growth.
-          mesh.position.set(-fit.cx, -fit.cy, -fit.cz);
-          frameCamera();
+        // Rebuild only when an input actually changed — the geometry is static
+        // within a stage, so rebuilding per frame would burn CPU for nothing.
+        const key = `${String(seed)}:${String(growth)}`;
+        if (key !== lastKey) {
+          lastKey = key;
+          rebuild();
         }
 
-        const t = reduced ? 1 : Math.min(1, (now - start) / (seconds * 1000));
-        show(bp, t);
-        pivot.rotation.y = reduced ? 0.6 : ((now - start) / 1000) * 0.25;
+        if (spin && !reduced) angle += dt * 0.22;
+        pivot.rotation.y = angle;
+        headlight.position.copy(camera.position);
         renderer.render(scene, camera);
-        // Hold the mature specimen for a beat, then grow it again.
-        if (!reduced && now - start > seconds * 1000 + 2500) start = now;
         raf = requestAnimationFrame(tick);
       };
       raf = requestAnimationFrame(tick);
@@ -227,6 +223,7 @@
           cancelAnimationFrame(raf);
         } else if (!running) {
           running = true;
+          prev = performance.now();
           raf = requestAnimationFrame(tick);
         }
       };
@@ -260,19 +257,18 @@
   {/if}
 
   <div class="hud">
-    <div class="picker">
-      {#each SPECIES as s, i (s.species)}
-        <button type="button" class:on={i === current} onclick={() => { current = i; }}>
-          {s.common}
+    <div class="controls">
+      {#each STAGES as s, i (s.label)}
+        <button type="button" class:on={i === stage} onclick={() => { stage = i; }}>
+          {s.label}
         </button>
       {/each}
+      <button type="button" onclick={() => { seed = (seed + 1) % 9973; }}>reroll</button>
+      <button type="button" class:on={spin} onclick={() => { spin = !spin; }}>spin</button>
     </div>
     <p class="meta">
-      <em>{species.species}</em>
-      <span>{species.bodyPlan} · {species.hymenophore.kind}</span>
-      {#if rebuildMs > 0}
-        <span class="nums">growth {Math.round(growth * 100)}% · rebuild {rebuildMs.toFixed(1)}ms</span>
-      {/if}
+      <em>Pleurotus ostreatus</em>
+      <span class="nums">seed {seed} · {rebuildMs.toFixed(1)}ms</span>
     </p>
   </div>
 </div>
@@ -288,10 +284,10 @@
   }
   .stage {
     flex: 1;
-    min-height: 22rem;
+    min-height: 24rem;
     border-radius: 2px;
     overflow: hidden;
-    background: #0b0b08;
+    background: #0d0e0b;
   }
   .stage canvas {
     display: block;
@@ -307,12 +303,12 @@
     font-family: ui-monospace, Menlo, monospace;
     font-size: 0.75rem;
   }
-  .picker {
+  .controls {
     display: flex;
     flex-wrap: wrap;
     gap: 0.375rem;
   }
-  .picker button {
+  .controls button {
     font: inherit;
     background: transparent;
     color: #928c7c;
@@ -321,16 +317,16 @@
     padding: 0.3rem 0.6rem;
     cursor: pointer;
   }
-  .picker button:hover {
+  .controls button:hover {
     color: #ece9e0;
   }
-  .picker button.on {
+  .controls button.on {
     background: #e8a317;
     border-color: #e8a317;
     color: #1a1a14;
     font-weight: 700;
   }
-  .picker button:focus-visible {
+  .controls button:focus-visible {
     outline: 2px solid #e8a317;
     outline-offset: 1px;
   }
