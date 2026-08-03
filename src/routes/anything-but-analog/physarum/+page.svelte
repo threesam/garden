@@ -135,13 +135,13 @@
 
         <p class="font-mono text-xs text-white/50">
           {#if sim === 'physarum'}
-            {agents.toLocaleString()} agents, each sensing three points ahead on a
-            shared trail map and turning toward the strongest. Nothing tells them
-            to build a network.
+            {agents.toLocaleString()} agents, each sampling the trail map at three
+            points ahead and turning toward the strongest. nothing tells them to
+            build a network.
           {:else}
-            {agents.toLocaleString()} amoebae relaying pulses of cyclic AMP. A cell
-            that hears one fires its own, then goes deaf while it recovers.
-            Nothing tells them to make waves.
+            {agents.toLocaleString()} amoebae relaying pulses of cyclic AMP. a cell
+            that hears one fires its own, then goes deaf while it recovers. nothing
+            tells them to make waves.
           {/if}
         </p>
       </header>
@@ -151,130 +151,117 @@
           <div class="flex flex-col gap-2">
             <h2 class="font-display text-sm lowercase">the organism</h2>
             <p class="text-sm leading-relaxed text-white/60">
-              <em>Physarum polycephalum</em> is a slime mould — an amoebozoan
-              protist. Not a fungus, despite the name and the damp-log habitat:
-              no hyphae, no fruiting body, no relation to the mushrooms next door.
+              <em>physarum polycephalum</em> is a slime mould. not a fungus — no
+              hyphae, no fruiting body, no relation to the mushrooms next door.
             </p>
             <p class="text-sm leading-relaxed text-white/60">
-              In its plasmodial stage it is a <strong>single cell</strong>. One
-              multinucleate bag of cytoplasm, millions of nuclei sharing a
-              continuous interior with no membranes between them, spreading across
-              a log at a scale you can see unaided. It hunts by growing tubes
-              toward food and abandoning the routes that stop paying.
+              in its plasmodial stage it is one cell. millions of nuclei sharing a
+              single interior with no walls between them, spread across a log at a
+              size you can see without a microscope.
             </p>
             <p class="text-sm leading-relaxed text-white/60">
-              Transport runs on <strong>shuttle streaming</strong>. Calcium-driven
-              actomyosin contractions squeeze the tube walls in rhythm, sloshing
-              cytoplasm back and forth at up to a millimetre a second and reversing
-              direction roughly every two minutes. Tubes carrying flux thicken;
-              tubes that go quiet are resorbed. That feedback is why it can find
-              the shortest path through a maze, and why it reproduced the Tokyo
-              rail network when researchers laid oat flakes out in the shape of the
-              surrounding towns.
+              it eats by growing tubes toward food and abandoning the ones that
+              stop paying.
+            </p>
+            <p class="text-sm leading-relaxed text-white/60">
+              the tubes move by shuttle streaming. calcium-driven contractions
+              squeeze the walls in rhythm and slosh the cytoplasm back and forth at
+              up to a millimetre a second, reversing direction about every two
+              minutes. tubes carrying traffic thicken. tubes that go quiet get
+              resorbed.
+            </p>
+            <p class="text-sm leading-relaxed text-white/60">
+              that is how it solves mazes. and how it laid out the Tokyo rail
+              network when researchers put oat flakes where the towns are.
             </p>
           </div>
 
           <div class="flex flex-col gap-2">
-            <h2 class="font-display text-sm lowercase">what this simulation is</h2>
+            <h2 class="font-display text-sm lowercase">what this is</h2>
             <p class="text-sm leading-relaxed text-white/60">
-              The Jones (2010) agent model, and it reproduces the
-              <em>phenomenon</em> rather than the <em>mechanism</em>. Jones calls
-              his particles a hypothetical population, and the word is doing real
-              work: the agents correspond to nothing in the organism. Physarum is
-              one cell, so there is no population to discretise — the particles
-              stand in for cytoplasm, not for individuals.
+              agents. each one samples the trail map at three points ahead, turns
+              toward the strongest, steps, and leaves a deposit behind it. the map
+              blurs and fades. nothing in that loop mentions networks.
             </p>
             <p class="text-sm leading-relaxed text-white/60">
-              Three things are missing that matter. There is
-              <strong>no oscillation</strong>: these agents crawl forward and never
-              reverse, so the shuttle streaming that actually moves material is
-              absent. There is <strong>no food</strong>, so the network optimises
-              toward nothing — the maze and rail-network results depend entirely on
-              attractors this does not have. And the tubes have
-              <strong>no thickness</strong>; brightness is trail concentration, not
-              the vein diameter real reinforcement acts on.
+              it gets the pattern right and the mechanism wrong.
             </p>
             <p class="text-sm leading-relaxed text-white/60">
-              A decent portrait of what physarum does, and no account of how.
+              physarum is one cell, so there is no population to split into agents.
+              these particles stand in for cytoplasm.
+            </p>
+            <p class="text-sm leading-relaxed text-white/60">
+              nothing here oscillates. they crawl forward and never reverse, so the
+              streaming that actually moves material is missing.
+            </p>
+            <p class="text-sm leading-relaxed text-white/60">
+              there is no food, so the network has nothing to solve toward.
+            </p>
+            <p class="text-sm leading-relaxed text-white/60">
+              and the tubes have no thickness. brightness is trail concentration,
+              not the veins that real reinforcement acts on.
+            </p>
+            <p class="text-sm leading-relaxed text-white/60">
+              a decent picture of what physarum does. no account of how.
             </p>
           </div>
         {:else}
           <div class="flex flex-col gap-2">
             <h2 class="font-display text-sm lowercase">the organism</h2>
             <p class="text-sm leading-relaxed text-white/60">
-              <em>Dictyostelium discoideum</em> is a <strong>cellular</strong>
-              slime mould, and that word carries the whole difference. Where
-              physarum is one enormous cell, dictyostelium is thousands of separate
-              amoebae, each with its own membrane and its own decisions, living
-              independently in the soil and eating bacteria.
+              <em>dictyostelium discoideum</em> is a cellular slime mould, and
+              cellular is doing the work. physarum is one enormous cell. this is
+              thousands of separate amoebae, each with its own membrane, living
+              alone in the soil and eating bacteria.
             </p>
             <p class="text-sm leading-relaxed text-white/60">
-              When the bacteria run out they start shouting. A starving cell
-              releases a pulse of <strong>cyclic AMP</strong>; neighbours that hear
-              it relay the pulse onward and then go briefly deaf while they
-              recover. Relay plus deafness is all an excitable medium needs, and
-              the plate fills with travelling waves — concentric rings around
-              founding cells, and rotating spirals where a wavefront gets broken.
+              when the bacteria run out they start shouting.
             </p>
             <p class="text-sm leading-relaxed text-white/60">
-              Between pulses each cell crawls a little way up the gradient, so
-              every wave that passes ratchets it toward the source. They stream
-              inward along the wavefronts, pile into a mound, and the mound becomes
-              a migrating slug and then a stalked fruiting body — in which some
-              cells die to lift the others high enough to disperse.
+              a starving cell releases a pulse of cyclic AMP. neighbours that hear
+              it relay the pulse, then go deaf for a while as they recover. relay
+              and deafness is all an excitable medium needs, and the plate fills
+              with travelling waves — rings around the founding cells, spirals
+              wherever a front gets broken.
+            </p>
+            <p class="text-sm leading-relaxed text-white/60">
+              between pulses each cell crawls a little way up the gradient. every
+              wave that passes ratchets it closer to the source.
+            </p>
+            <p class="text-sm leading-relaxed text-white/60">
+              they stream inward and pile into a mound. the mound becomes a slug
+              and crawls off. then it stands up, and the cells that make the stalk
+              die to lift the rest high enough to leave.
             </p>
           </div>
 
           <div class="flex flex-col gap-2">
-            <h2 class="font-display text-sm lowercase">what this simulation is</h2>
+            <h2 class="font-display text-sm lowercase">what this is</h2>
             <p class="text-sm leading-relaxed text-white/60">
-              This is the one modelled <strong>honestly</strong>. Dictyostelium
-              really is a population of individuals signalling neighbours, so here
-              an agent is a cell, the relay rule is the actual mechanism, and the
-              waves are on screen for the same reason they are on a real plate.
-              Nothing stands in for anything.
+              here an agent is a cell. dictyostelium really is a population of
+              individuals signalling each other, so the relay rule is the
+              mechanism, not a stand-in for it.
             </p>
             <p class="text-sm leading-relaxed text-white/60">
-              Both wave patterns show up, and neither is drawn. Founding cells
-              send out concentric <strong>target waves</strong>; a
-              <strong>spiral</strong> forms wherever a front breaks and the loose
-              end winds up. The gold tracery is the amoebae themselves,
-              <strong>streaming</strong> into branching rivers that converge on
-              the wave sources.
+              the waves come out of that on their own. concentric rings from the
+              founding cells, and a spiral wherever a front breaks and the loose
+              end winds up.
             </p>
             <p class="text-sm leading-relaxed text-white/60">
-              The spirals arrived by taking something out. An earlier version
-              manufactured the broken front a spiral needs — a stripe of primed
-              cells backed by a block of refractory ones — and it never produced
-              one; it just meant every straight edge on screen was an edge I had
-              drawn. Replacing it with a few cells that fire on their own clock
-              gave spirals within a thousand steps, because a pacemaker eventually
-              fires into tissue that has not finished recovering, the front breaks
-              there, and the end curls. That is how it happens on a real plate.
-              The arrangement had been standing in for the phenomenon and
-              suppressing it.
+              the gold is the amoebae. they stream into rivers that run toward
+              whatever is calling them.
             </p>
             <p class="text-sm leading-relaxed text-white/60">
-              The streaming depends on <strong>adaptation</strong>: a cell climbs
-              the gradient only while the signal is rising, on the front of an
-              incoming wave, and ignores it as the wave recedes. Without that a
-              travelling wave is symmetric — a cell walks toward the approaching
-              front, the front passes, the gradient reverses, and it walks back
-              for a net displacement of nothing. That asymmetry is the entire
-              reason a population can aggregate at all.
+              streaming only works because of adaptation. a cell climbs the
+              gradient while the signal is rising and ignores it while the wave
+              recedes. without that a wave is symmetric — you walk toward the
+              front, the front passes, the gradient flips, you walk back, and you
+              have gone nowhere.
             </p>
             <p class="text-sm leading-relaxed text-white/60">
-              Still abstracted: real cAMP relay runs through receptor binding,
-              adenylyl cyclase and phosphodiesterase degradation, each with its own
-              kinetics. Here it is a threshold, a pulse and a timer.
-            </p>
-            <p class="text-sm leading-relaxed text-white/60">
-              A separate attempt hit every measurement I set for it by drawing the
-              spirals from a formula centred on fixed coordinates. It looked better
-              than this did at the time. It was a picture of the answer rather than
-              the answer, which for the one organism here whose agents mean
-              something would have been the worst possible trade — and the real
-              ones turned up shortly afterwards anyway.
+              what is abstracted: real cAMP relay runs on receptor binding,
+              adenylyl cyclase and phosphodiesterase, each with its own kinetics.
+              here it is a threshold, a pulse and a timer.
             </p>
           </div>
         {/if}
