@@ -71,11 +71,16 @@ async function start(msg: StartMessage): Promise<void> {
     // drift would take the whole page down. Fall back to buffering the bytes,
     // which has no such requirement.
     const response = await fetch(msg.wasmUrl);
+    // Cloned BEFORE streaming, not after. instantiateStreaming takes the body,
+    // and a Response cannot be cloned once its body has been used — so the
+    // fallback added to survive a MIME mismatch would itself have thrown, and
+    // the module would never have loaded either way.
+    const buffered = response.clone();
     let source: WebAssembly.WebAssemblyInstantiatedSource;
     try {
       source = await WebAssembly.instantiateStreaming(response, {});
     } catch {
-      source = await WebAssembly.instantiate(await response.clone().arrayBuffer(), {});
+      source = await WebAssembly.instantiate(await buffered.arrayBuffer(), {});
     }
     exports = source.instance.exports as unknown as WasmExports;
   } catch (error) {

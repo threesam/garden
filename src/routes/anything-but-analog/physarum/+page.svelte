@@ -47,6 +47,9 @@
   let grid = $state(512);
   let status = $state('booting');
   let paused = $state(false);
+  /** Keyboard placement cursor, in grid coordinates. */
+  let cursor = $state({ x: 256, y: 256 });
+  let aiming = $state(false);
 
   // Composed here rather than in markup: Svelte trims the whitespace at the
   // start of an {#if} block, so an inline separator renders as "running· 59".
@@ -75,7 +78,37 @@
     worker?.postMessage({ type: 'food', x, y });
   }
 
-  /** Keyboard-reachable equivalent of clicking — a canvas cannot be tabbed into. */
+  /**
+   * Keyboard placement.
+   *
+   * `scatter` drops food at random, which is not the same functionality as
+   * choosing where to put it — and choosing where is the entire interaction.
+   * Arrow keys move an aiming cursor, Enter or Space feeds that spot.
+   */
+  function aim(event: KeyboardEvent): void {
+    if (sim !== 'physarum') return;
+    const step = event.shiftKey ? grid * 0.02 : grid * 0.08;
+    const moves: Record<string, [number, number]> = {
+      ArrowLeft: [-step, 0],
+      ArrowRight: [step, 0],
+      ArrowUp: [0, -step],
+      ArrowDown: [0, step],
+    };
+    const move = moves[event.key];
+    if (move) {
+      event.preventDefault();
+      cursor = {
+        x: Math.min(grid - 1, Math.max(0, cursor.x + move[0])),
+        y: Math.min(grid - 1, Math.max(0, cursor.y + move[1])),
+      };
+      return;
+    }
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      worker?.postMessage({ type: 'food', x: cursor.x, y: cursor.y });
+    }
+  }
+
   function scatter(): void {
     if (sim !== 'physarum') return;
     for (let i = 0; i < 5; i++) {
@@ -193,12 +226,29 @@
     <div
       class="order-1 flex flex-col items-center justify-center px-4 pt-6 sm:px-8 lg:order-2 lg:h-full lg:py-8"
     >
-      <canvas
-        bind:this={canvasEl}
-        onpointerdown={drop}
-        class="aspect-square w-full max-w-[min(82vh,900px)]"
-        class:feedable={sim === 'physarum'}
-      ></canvas>
+      <div class="relative w-full max-w-[min(82vh,900px)]">
+        <canvas
+          bind:this={canvasEl}
+          onpointerdown={drop}
+          onkeydown={aim}
+          onfocus={() => { aiming = true; }}
+          onblur={() => { aiming = false; }}
+          tabindex={sim === 'physarum' ? 0 : -1}
+          aria-label={sim === 'physarum'
+            ? 'Physarum plate. Arrow keys aim, Enter drops food.'
+            : 'Dictyostelium plate.'}
+          class="aspect-square w-full"
+          class:feedable={sim === 'physarum'}
+        ></canvas>
+        {#if aiming && sim === 'physarum'}
+          <span
+            class="aim"
+            aria-hidden="true"
+            style:left="{(cursor.x / grid) * 100}%"
+            style:top="{(cursor.y / grid) * 100}%"
+          ></span>
+        {/if}
+      </div>
       {#if sim === 'physarum'}
         <div class="mt-3 flex flex-wrap items-center justify-center gap-2">
           <span class="font-mono text-xs" class:starving={condition === 'starving' || condition === 'dead'}>
@@ -406,6 +456,20 @@
   }
   .feedable {
     cursor: crosshair;
+  }
+  .feedable:focus-visible {
+    outline: 2px solid #e8a317;
+    outline-offset: 2px;
+  }
+  /* Shown only while the plate has keyboard focus, so pointer users never see it. */
+  .aim {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    margin: -7px 0 0 -7px;
+    border: 2px solid #e8a317;
+    border-radius: 50%;
+    pointer-events: none;
   }
   button {
     border-color: rgb(255 255 255 / 0.18);
