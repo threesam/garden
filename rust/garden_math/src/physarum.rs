@@ -338,16 +338,17 @@ pub extern "C" fn physarum_vitality() -> f32 {
     STATE.get().as_ref().map_or(0.0, |s| s.vitality)
 }
 
-/// Living agents as a fraction of the population the plate started with.
+/// Living agents, counted.
+///
+/// A raw number rather than a share. A percentage needs a denominator, and every
+/// candidate lied: against the buffer it reads as a ceiling the colony pins at,
+/// and against a nominal size it implies the render should look proportionally
+/// bigger — which it does not, because the number counts agents while the screen
+/// shows trail, and those come apart whenever agents are parked on food or
+/// vitality thins their deposits. A count claims nothing it cannot back up.
 #[no_mangle]
-pub extern "C" fn physarum_alive() -> f32 {
-    STATE.get().as_ref().map_or(0.0, |s| {
-        if s.nominal == 0 {
-            0.0
-        } else {
-            s.active as f32 / s.nominal as f32
-        }
-    })
+pub extern "C" fn physarum_active() -> u32 {
+    STATE.get().as_ref().map_or(0, |s| s.active as u32)
 }
 
 /// TOTAL food on the plate, in whole flakes. Three untouched sources read 3.0.

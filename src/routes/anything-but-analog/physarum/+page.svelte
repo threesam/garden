@@ -27,6 +27,11 @@
   /** Indexed by physarum_state(): 0 dead, 1 starving, 2 stable, 3 growing. */
   const CONDITION = ['dead', 'starving', 'stable', 'growing'] as const;
 
+  /** 184000 -> "184k". Thousands is the only resolution that reads at a glance. */
+  function compact(n: number): string {
+    return n >= 1000 ? `${String(Math.round(n / 1000))}k` : String(n);
+  }
+
   let sim = $state<SimName>('physarum');
   /** Fresh each load, so the same page is never the same run twice. */
   const seed = Math.floor(Math.random() * 0xffff) + 1;
@@ -39,7 +44,7 @@
   let vitality = $state(1);
   let flakes = $state(0);
   let condition = $state('stable');
-  let alive = $state(1);
+  let population = $state(0);
   let status = $state('booting');
 
   // Composed here rather than in markup: Svelte trims the whitespace at the
@@ -105,7 +110,7 @@
         vitality?: number;
         flakes?: number;
         state?: number;
-        alive?: number;
+        agents?: number;
       }>,
     ) => {
       if (e.data.type === 'fps') {
@@ -113,7 +118,7 @@
         vitality = e.data.vitality ?? 1;
         flakes = e.data.flakes ?? 0;
         condition = CONDITION[e.data.state ?? 2] ?? 'stable';
-        alive = e.data.alive ?? 1;
+        population = e.data.agents ?? 0;
       }
       else if (e.data.type === 'ready') status = 'running';
       else if (e.data.type === 'error') status = e.data.message ?? 'failed';
@@ -179,7 +184,7 @@
       {#if sim === 'physarum'}
         <div class="mt-3 flex flex-wrap items-center justify-center gap-2">
           <span class="font-mono text-xs" class:starving={vitality < 0.25}>
-            {flakes.toFixed(1)} food · {condition} · {Math.round(alive * 100)}% colony
+            {flakes.toFixed(1)} food · {condition} · {compact(population)} agents
           </span>
           <button
             type="button"

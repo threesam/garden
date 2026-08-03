@@ -18,7 +18,7 @@ interface WasmExports {
   physarum_vitality: () => number;
   physarum_food_total: () => number;
   physarum_state: () => number;
-  physarum_alive: () => number;
+  physarum_active: () => number;
   dicty_init: (count: number, seed: number) => number;
   dicty_step: () => void;
   dicty_pixels: () => number;
@@ -150,7 +150,7 @@ async function start(msg: StartMessage): Promise<void> {
         vitality: exports.physarum_vitality(),
         flakes: exports.physarum_food_total(),
         state: exports.physarum_state(),
-        alive: exports.physarum_alive(),
+        agents: exports.physarum_active(),
       });
       frames = 0;
       lastReport = now;
