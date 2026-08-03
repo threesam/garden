@@ -119,7 +119,13 @@
       thoughts
     </h1>
   </header>
+  <!-- data-thought-cards is a test hook: the page's backdrop canvas is
+       full-bleed and non-deterministic even with rAF frozen, so the visual
+       suite has to mask it — and Playwright masks by bounding box, which
+       blanks the whole page. Snapshotting this grid directly is what gives
+       the route any visual coverage at all. -->
   <section
+    data-thought-cards
     class="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 md:gap-9"
   >
     {#each cards as card (card.href)}
