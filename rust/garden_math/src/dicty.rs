@@ -165,7 +165,7 @@ pub extern "C" fn dicty_init(count: u32, seed: u32) -> *const u8 {
         // Slow, so the cell layer stays continuous long enough to carry waves.
         // Fast chemotaxis empties the medium into mounds within a few hundred
         // steps and the signalling dies with it.
-        speed: 0.12,
+        speed: 0.55,
         // Deliberately rare. Each spontaneous firing founds an aggregation
         // centre, and frequent ones give hundreds of small competing patches
         // instead of a few large spirals.
@@ -210,8 +210,12 @@ pub extern "C" fn dicty_step() {
     core::mem::swap(&mut s.camp, &mut s.scratch);
 
     {
-        let State { cells, camp, density, rng, .. } = s;
+        // `scratch` holds the PREVIOUS frame's field, because the swap above put
+        // the new one in `camp`. Comparing the two tells a cell whether the
+        // signal it is standing in is rising or falling, with no per-cell memory.
+        let State { cells, camp, scratch, density, rng, .. } = s;
         let camp = grid(camp);
+        let previous = grid(scratch);
         let density = grid(density);
         density.fill(0.0);
 
@@ -240,20 +244,18 @@ pub extern "C" fn dicty_step() {
                 continue;
             }
 
-            if c[2] > 0.0 {
-                // Refractory: recovering, deaf to the signal and not moving.
-                // This is what stops a wave reversing back into the tissue it
-                // just crossed, and therefore what makes the waves directional.
-                c[2] -= 1.0;
-                continue;
-            }
+            // Relay and crawling are INDEPENDENT. Conflating them was a bug:
+            // firing used to skip the movement code, and since a cell on a
+            // rising front is almost always over threshold, nearly every cell
+            // that had a reason to move fired instead and stayed put. The
+            // population never aggregated at all. A real amoeba relays the pulse
+            // AND crawls; the refractory period silences its voice, not its legs.
 
-            let fires = here > threshold || rand01(rng) < spontaneous;
-            if fires {
-                // Released over a 3x3 footprint, not into a single square.
-                // A point release makes a wavefront a scatter of unconnected
-                // sources, and the front breaks up instead of propagating as a
-                // line — real secretion is not confined to one pixel either.
+            // --- relay ---
+            let recovered = c[2] <= 0.0;
+            if !recovered {
+                c[2] -= 1.0;
+            } else if here > threshold || rand01(rng) < spontaneous {
                 let ninth = pulse * (1.0 / 9.0);
                 for dy in -1_i32..=1 {
                     let row = wrap(iy as i32 + dy) * GRID;
@@ -262,10 +264,22 @@ pub extern "C" fn dicty_step() {
                     }
                 }
                 c[2] = refractory;
+            }
+
+            // --- chemotaxis ---
+            // ADAPTATION: climb only while the signal is RISING, i.e. on the
+            // front of an incoming wave, and ignore it as the wave recedes.
+            //
+            // This is the whole reason aggregation works. A travelling wave is
+            // symmetric, so without adaptation a cell walks toward the
+            // approaching front, the front passes, the gradient reverses, and it
+            // walks back. Net displacement zero. Responding to the rising phase
+            // only rectifies that oscillation into real movement toward the
+            // source, which is why amoebae stream inward rather than jitter.
+            if here <= previous[iy * GRID + ix] {
                 continue;
             }
 
-            // Chemotaxis up the local cAMP gradient, by central difference.
             let l = camp[iy * GRID + wrap(ix as i32 - 2)];
             let r = camp[iy * GRID + wrap(ix as i32 + 2)];
             let d = camp[wrap(iy as i32 - 2) * GRID + ix];
@@ -273,17 +287,11 @@ pub extern "C" fn dicty_step() {
             let gx = r - l;
             let gy = u - d;
             let mag = (gx * gx + gy * gy).sqrt();
-
-            let (mut nx, mut ny) = if mag > 1e-6 {
-                (x + (gx / mag) * speed, y + (gy / mag) * speed)
-            } else {
-                // No gradient to read: drift, so the plate does not freeze
-                // before the first wave arrives.
-                (
-                    x + (rand01(rng) - 0.5) * speed,
-                    y + (rand01(rng) - 0.5) * speed,
-                )
-            };
+            if mag <= 1e-6 {
+                continue;
+            }
+            let mut nx = x + (gx / mag) * speed;
+            let mut ny = y + (gy / mag) * speed;
 
             let g = GRID as f32;
             if nx < 0.0 {
@@ -345,7 +353,7 @@ fn shade(camp: &[f32; CELLS], density: &[f32; CELLS], pixels: &mut [u8], count: 
     // it meant the unaggregated layer cleared at one cell count and flooded the
     // plate with speckle at another, burying the waves whenever the population
     // changed.
-    let baseline = (count as f32 / CELLS as f32) * 1.9;
+    let baseline = (count as f32 / CELLS as f32) * 1.15;
     for (i, px) in pixels.chunks_exact_mut(4).enumerate() {
         let w = camp[i] * 0.55;
         let wave = (w / (1.0 + w)).sqrt();

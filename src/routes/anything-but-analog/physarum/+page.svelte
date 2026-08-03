@@ -12,7 +12,7 @@
   /** Counts measured per sim against a 16.7ms budget on a 512 grid. */
   const SIMS = {
     physarum: { label: 'physarum', agents: 150_000 },
-    dicty: { label: 'dictyostelium', agents: 400_000 },
+    dicty: { label: 'dictyostelium', agents: 250_000 },
   } as const satisfies Record<SimName, { label: string; agents: number }>;
 
   let sim = $state<SimName>('physarum');
@@ -235,10 +235,12 @@
               Nothing stands in for anything.
             </p>
             <p class="text-sm leading-relaxed text-white/60">
-              Both patterns show up, and neither is drawn. Founding cells send out
-              concentric <strong>target waves</strong>; a <strong>spiral</strong>
-              forms wherever a front breaks and the loose end winds up. The tissue
-              brightens where amoebae have clumped.
+              Both wave patterns show up, and neither is drawn. Founding cells
+              send out concentric <strong>target waves</strong>; a
+              <strong>spiral</strong> forms wherever a front breaks and the loose
+              end winds up. The gold tracery is the amoebae themselves,
+              <strong>streaming</strong> into branching rivers that converge on
+              the wave sources.
             </p>
             <p class="text-sm leading-relaxed text-white/60">
               The spirals arrived by taking something out. An earlier version
@@ -251,6 +253,15 @@
               there, and the end curls. That is how it happens on a real plate.
               The arrangement had been standing in for the phenomenon and
               suppressing it.
+            </p>
+            <p class="text-sm leading-relaxed text-white/60">
+              The streaming depends on <strong>adaptation</strong>: a cell climbs
+              the gradient only while the signal is rising, on the front of an
+              incoming wave, and ignores it as the wave recedes. Without that a
+              travelling wave is symmetric — a cell walks toward the approaching
+              front, the front passes, the gradient reverses, and it walks back
+              for a net displacement of nothing. That asymmetry is the entire
+              reason a population can aggregate at all.
             </p>
             <p class="text-sm leading-relaxed text-white/60">
               Still abstracted: real cAMP relay runs through receptor binding,
