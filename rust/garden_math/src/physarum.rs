@@ -274,6 +274,15 @@ const WALL_OPEN: f32 = 0.06;
 /// tenfold moved a clustered plate from 51% eaten to 60%. Capacity is the fix,
 /// not volume, and a real tube saturates too.
 const TRAIL_MAX: f32 = 90.0;
+/// Share of the colony that scouts: breaks off course at random.
+///
+/// Without scouts a settled colony is blind. Trail-followers stay on trails, so
+/// anything further than scent reach from an existing filament is never found —
+/// a plate with food round its edges sat stable and full while the network held
+/// one loop in the middle and starved later beside it. Scouts keep covering
+/// ground, and when one crosses a scent hill it homes in and lays trail the rest
+/// of the colony can follow. That is what an exploratory pseudopod is for.
+const SCOUT_SHARE: usize = 22;
 
 /// Standing cost of being alive, per step, against what eating returns. Balanced
 /// so a couple of sources sustain the colony and an empty plate starves it.
@@ -578,7 +587,15 @@ pub extern "C" fn physarum_step() {
         let confined = *walled;
         let living = *active * 4;
 
-        for a in agents[..living].chunks_exact_mut(4) {
+        let scouts = (*active / SCOUT_SHARE).max(1) * 4;
+        for (idx, a) in agents[..living].chunks_exact_mut(4).enumerate() {
+            // Scouts break off course at random rather than steering by a
+            // separate field. Reading a second grid per agent meant a third
+            // random access into a megabyte every step, and selecting the array
+            // at runtime stopped the sensing being specialised — together that
+            // cost 3x the frame time. A dice roll costs nothing and still peels
+            // them off established trails, which is all exploration needs.
+            let scout = idx * 4 < scouts;
             let x = a[0];
             let y = a[1];
             let mut dx = a[2];
@@ -587,6 +604,7 @@ pub extern "C" fn physarum_step() {
             let f = sense(field, x, y, dx, dy, dist);
             let l = sense(field, x, y, dx * sc + dy * ss, -dx * ss + dy * sc, dist);
             let r = sense(field, x, y, dx * sc - dy * ss, dx * ss + dy * sc, dist);
+            let wander = scout && (xorshift(rng) & 7) == 0;
 
             // Steering. The random branch when both flanks tie is what makes
             // the network branch instead of settling into smooth channels.
@@ -594,7 +612,19 @@ pub extern "C" fn physarum_step() {
             // tidier `Option<bool>` + sign form measured ~65% slower per agent:
             // it trades two predictable branches for extra float work on every
             // single agent, and at a million a frame that is not a wash.
-            if f > l && f > r {
+            if wander {
+                // Off course on purpose.
+                let nx = if xorshift(rng) & 1 == 0 {
+                    let t = dx * tc + dy * ts;
+                    dy = -dx * ts + dy * tc;
+                    t
+                } else {
+                    let t = dx * tc - dy * ts;
+                    dy = dx * ts + dy * tc;
+                    t
+                };
+                dx = nx;
+            } else if f > l && f > r {
                 // hold course
             } else if l > r {
                 let nx = dx * tc + dy * ts;
@@ -665,13 +695,22 @@ pub extern "C" fn physarum_step() {
             a[1] = fy_;
             a[2] = dx;
             a[3] = dy;
-            trail[cell] = (trail[cell] + dep).min(TRAIL_MAX);
+            // A scout crossing empty ground lays almost nothing — at full
+            // strength nine thousand of them cover the plate in grain. It marks
+            // properly only once it is standing in scent, which is the point:
+            // the trail back from a find has to be strong enough for the rest of
+            // the colony to follow, and everything before the find does not.
+            // Scouts crossing empty ground lay almost nothing; at full strength
+            // thousands of them cover the plate in grain. On a flake they mark
+            // properly, so the route back from a find is worth following.
+            let owner = food_map[cell];
+            let lay = if scout && owner == 0 { dep * 0.16 } else { dep };
+            trail[cell] = (trail[cell] + lay).min(TRAIL_MAX);
 
             // Consumption is driven by agents actually standing on a source.
             // The previous proxy read the trail at the source's centre, which
             // includes the source's OWN emission — so a flake ate itself at full
             // rate whether or not the network ever arrived.
-            let owner = food_map[cell];
             if owner != 0 {
                 grazing[(owner - 1) as usize] += 1.0;
             }
