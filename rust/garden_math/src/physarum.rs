@@ -274,6 +274,17 @@ const WALL_OPEN: f32 = 0.06;
 /// tenfold moved a clustered plate from 51% eaten to 60%. Capacity is the fix,
 /// not volume, and a real tube saturates too.
 const TRAIL_MAX: f32 = 90.0;
+/// Ceiling the scent approaches as sources pile up.
+///
+/// Summed scent is unbounded, and with a plate full of food it ran to thousands
+/// against a trail capped at 90 — so trails stopped contributing to steering at
+/// all, nothing self-reinforced, and the network simply failed to form. The
+/// colony parked on the food and drew one thread.
+///
+/// Applied as a soft saturation rather than a clamp: `raw/(raw+MAX)` compresses
+/// without ever going flat, so a dense patch still has a peak to climb. A hard
+/// clamp would bring back the mesa — a plateau with no gradient inside it.
+const SCENT_MAX: f32 = 400.0;
 /// Share of the colony that scouts: breaks off course at random.
 ///
 /// Without scouts a settled colony is blind. Trail-followers stay on trails, so
@@ -572,8 +583,16 @@ pub extern "C" fn physarum_step() {
             }
         }
 
+        // The divide runs only where there is scent to compress. Most of the
+        // plate has none, and paying for it everywhere cost about two thirds of
+        // the frame rate.
         for i in 0..CELLS {
-            field[i] = trail[i] + scent[i];
+            let raw = scent[i];
+            field[i] = if raw > 0.0 {
+                trail[i] + SCENT_MAX * raw / (raw + SCENT_MAX)
+            } else {
+                trail[i]
+            };
         }
     }
 
