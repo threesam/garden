@@ -85,14 +85,6 @@ struct State {
     scent: Vec<f32>,
     /// trail + scent. What agents actually steer by.
     field: Vec<f32>,
-    /// Wall strength per cell, 0 = open, 1 = solid. The colony is confined to
-    /// the open cells; agents pressing against a wall wear it down.
-    wall: Vec<f32>,
-    /// Staging buffer JS writes a rasterised mask into. Separate from `wall`
-    /// because the host writes bytes and the simulation wants floats it can
-    /// erode continuously.
-    wall_in: Vec<u8>,
-    walled: bool,
 }
 
 static STATE: Global<Option<State>> = Global::new(None);
@@ -157,9 +149,6 @@ pub extern "C" fn physarum_init(count: u32, seed: u32) -> *const u8 {
         active: (count / 3).max(1),
         scent: vec![0.0_f32; CELLS],
         field: vec![0.0_f32; CELLS],
-        wall: vec![0.0_f32; CELLS],
-        wall_in: vec![0_u8; CELLS],
-        walled: false,
     };
 
     let slot = STATE.get();
@@ -253,17 +242,6 @@ const BREED_RATE: f32 = 1.0 / 6_000.0;
 /// organism does. Starved physarum forms a sclerotium, sits dormant, and
 /// revives when food returns.
 const DORMANT_SHARE: usize = 60;
-/// How fast a blocked agent wears down the wall in front of it, per unit of
-/// signal on the far side.
-///
-/// Scaled by that signal on purpose. Agents bump into walls constantly just
-/// exploring, and eroding on contact alone dissolves the text within seconds.
-/// Tying it to how loudly something is calling from beyond means a wall with
-/// nothing behind it never wears through, and a wall with food behind it opens
-/// exactly where the food is.
-const ERODE: f32 = 0.00022;
-/// Below this a cell is passable.
-const WALL_OPEN: f32 = 0.06;
 /// Ceiling on trail concentration.
 ///
 /// Without one, an established artery runs away: it is self-reinforcing, so the
@@ -345,92 +323,6 @@ pub extern "C" fn physarum_food_count() -> u32 {
 #[no_mangle]
 pub extern "C" fn physarum_vitality() -> f32 {
     STATE.get().as_ref().map_or(0.0, |s| s.vitality)
-}
-
-/// Pointer to the mask staging buffer, CELLS bytes. The host rasterises text
-/// into it — 255 where the colony is walled out, 0 where it may go — then calls
-/// `physarum_apply_walls`.
-///
-/// Zero-copy, like the pixel buffer, and valid for the same reason: nothing
-/// reallocates after init. Growing wasm memory would silently detach it.
-#[no_mangle]
-pub extern "C" fn physarum_wall_buffer() -> *mut u8 {
-    STATE
-        .get()
-        .as_mut()
-        .map_or(core::ptr::null_mut(), |s| s.wall_in.as_mut_ptr())
-}
-
-/// Adopt whatever is in the staging buffer as the new walls.
-#[no_mangle]
-pub extern "C" fn physarum_apply_walls() {
-    let Some(s) = STATE.get().as_mut() else { return };
-    let mut open = 0_usize;
-    for i in 0..CELLS {
-        s.wall[i] = s.wall_in[i] as f32 / 255.0;
-        if s.wall[i] < WALL_OPEN {
-            open += 1;
-        }
-    }
-    // A mask with nowhere to stand would trap every agent inside solid wall and
-    // freeze the plate; treat it as no mask at all.
-    if open < CELLS / 400 {
-        s.wall.fill(0.0);
-        s.walled = false;
-        return;
-    }
-    s.walled = true;
-
-    // Rehome anyone caught inside the new walls. Walking the open cells in a
-    // fixed order keeps this deterministic for a given mask.
-    let mut cursor = 0_usize;
-    for i in 0..s.count {
-        let x = s.agents[i * 4];
-        let y = s.agents[i * 4 + 1];
-        if s.wall[wrap(y as i32) * GRID + wrap(x as i32)] < WALL_OPEN {
-            continue;
-        }
-        let mut steps = 0;
-        while steps < CELLS {
-            cursor = (cursor + 7919) % CELLS; // coprime stride, spreads them out
-            if s.wall[cursor] < WALL_OPEN {
-                s.agents[i * 4] = (cursor % GRID) as f32 + 0.5;
-                s.agents[i * 4 + 1] = (cursor / GRID) as f32 + 0.5;
-                break;
-            }
-            steps += 1;
-        }
-    }
-}
-
-#[no_mangle]
-pub extern "C" fn physarum_clear_walls() {
-    if let Some(s) = STATE.get().as_mut() {
-        s.wall.fill(0.0);
-        s.wall_in.fill(0);
-        s.walled = false;
-    }
-}
-
-/// How much of the original wall is still standing, 0..1.
-#[no_mangle]
-pub extern "C" fn physarum_walls_intact() -> f32 {
-    STATE.get().as_ref().map_or(0.0, |s| {
-        if !s.walled {
-            return 0.0;
-        }
-        let mut solid = 0.0_f32;
-        let mut original = 0.0_f32;
-        for i in 0..CELLS {
-            solid += s.wall[i];
-            original += s.wall_in[i] as f32 / 255.0;
-        }
-        if original <= 0.0 {
-            0.0
-        } else {
-            solid / original
-        }
-    })
 }
 
 /// Living agents as a fraction of the population the plate started with.
@@ -599,11 +491,9 @@ pub extern "C" fn physarum_step() {
     {
         // Split borrows so the agent walk and the trail writes are independent,
         // and walk fixed-size chunks so field access needs no bounds check.
-        let State { agents, trail, field, rng, food_map, grazing, active, wall, walled, .. } = s;
+        let State { agents, trail, field, rng, food_map, grazing, active, .. } = s;
         let trail = grid(trail);
         let field = grid(field);
-        let wall = grid(wall);
-        let confined = *walled;
         let living = *active * 4;
 
         let scouts = (*active / SCOUT_SHARE).max(1) * 4;
@@ -696,24 +586,11 @@ pub extern "C" fn physarum_step() {
                 ny -= g;
             }
 
-            let target = wrap(ny as i32) * GRID + wrap(nx as i32);
-
-            // Walls. A blocked agent stays where it is and wears at what is in
-            // front of it, at a rate set by how strong the signal is on the far
-            // side. With nothing calling from beyond, a wall never wears
-            // through; with food out there, it opens exactly where the food is.
-            let (fx_, fy_, cell) = if confined && wall[target] >= WALL_OPEN {
-                wall[target] = (wall[target] - ERODE * field[target]).max(0.0);
-                let here = wrap(y as i32) * GRID + wrap(x as i32);
-                (x, y, here)
-            } else {
-                (nx, ny, target)
-            };
-
-            a[0] = fx_;
-            a[1] = fy_;
+            a[0] = nx;
+            a[1] = ny;
             a[2] = dx;
             a[3] = dy;
+            let cell = wrap(ny as i32) * GRID + wrap(nx as i32);
             // A scout crossing empty ground lays almost nothing — at full
             // strength nine thousand of them cover the plate in grain. It marks
             // properly only once it is standing in scent, which is the point:
@@ -798,31 +675,6 @@ pub extern "C" fn physarum_step() {
         let State { trail, pixels, .. } = s;
         shade(grid(trail), pixels);
     }
-    {
-        // Walls under the food markers: the words should read, but sit behind
-        // the organism rather than competing with it. Alpha follows how much of
-        // each cell is still standing, so a breach shows as the letterform
-        // thinning and opening rather than a wall vanishing all at once.
-        let State { wall, pixels, walled, .. } = s;
-        if *walled {
-            for i in 0..CELLS {
-                let w = wall[i];
-                if w < 0.02 {
-                    continue;
-                }
-                let o = i * 4;
-                // Barely above black. The wall covers most of the plate, so any
-                // real brightness here turns the background into the subject and
-                // the letterforms read as holes in a grey field. Keep it a hair
-                // off black: the word should be legible because the colony fills
-                // it, not because the wall is lit.
-                pixels[o] = (pixels[o] as f32 + 15.0 * w).min(255.0) as u8;
-                pixels[o + 1] = (pixels[o + 1] as f32 + 17.0 * w).min(255.0) as u8;
-                pixels[o + 2] = (pixels[o + 2] as f32 + 23.0 * w).min(255.0) as u8;
-            }
-        }
-    }
-
     {
         // Marked after shading, so a source stays visible even where the trail
         // around it has saturated the ramp.

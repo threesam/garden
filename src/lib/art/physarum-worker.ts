@@ -10,14 +10,6 @@
 
 export type SimName = 'physarum' | 'dicty';
 
-/** A region in GRID coordinates, not pixels. */
-export interface Rect {
-  x0: number;
-  y0: number;
-  x1: number;
-  y1: number;
-}
-
 interface WasmExports {
   memory: WebAssembly.Memory;
   physarum_init: (count: number, seed: number) => number;
@@ -27,10 +19,6 @@ interface WasmExports {
   physarum_food_total: () => number;
   physarum_state: () => number;
   physarum_alive: () => number;
-  physarum_wall_buffer: () => number;
-  physarum_apply_walls: () => void;
-  physarum_clear_walls: () => void;
-  physarum_walls_intact: () => number;
   dicty_init: (count: number, seed: number) => number;
   dicty_step: () => void;
   dicty_pixels: () => number;
@@ -62,9 +50,6 @@ export type InboundMessage =
   | { type: 'switch'; sim: SimName; agents: number; seed: number }
   | { type: 'food'; x: number; y: number }
   | { type: 'clearFood' }
-  | { type: 'contain'; text: string; rect: Rect }
-  | { type: 'containRect'; rect: Rect }
-  | { type: 'release' }
   | { type: 'pause' }
   | { type: 'resume' };
 
@@ -76,9 +61,6 @@ let resumeLoop: (() => void) | null = null;
 let switchSim: ((sim: SimName, agents: number, seed: number) => void) | null = null;
 let addFood: ((x: number, y: number) => void) | null = null;
 let clearFood: (() => void) | null = null;
-let contain: ((text: string, rect: Rect) => void) | null = null;
-let containRect: ((rect: Rect) => void) | null = null;
-let release: (() => void) | null = null;
 
 async function start(msg: StartMessage): Promise<void> {
   const ctx = msg.canvas.getContext('2d');
@@ -138,7 +120,6 @@ async function start(msg: StartMessage): Promise<void> {
   switchSim = load;
   addFood = (x, y) => { exports.physarum_add_food(x, y); };
   clearFood = () => { exports.physarum_clear_food(); };
-  release = () => { exports.physarum_clear_walls(); };
 
   /**
    * Rasterise text into the wall mask.
@@ -151,60 +132,6 @@ async function start(msg: StartMessage): Promise<void> {
    * The colony is confined INSIDE the glyphs, so the mask is inverted: solid
    * everywhere the letters are not.
    */
-  /** Everything outside `rect` becomes wall. */
-  containRect = (rect: Rect) => {
-    const walls = new Uint8Array(exports.memory.buffer, exports.physarum_wall_buffer(), grid * grid);
-    walls.fill(255);
-    const x0 = Math.max(0, Math.round(rect.x0));
-    const x1 = Math.min(grid, Math.round(rect.x1));
-    const y0 = Math.max(0, Math.round(rect.y0));
-    const y1 = Math.min(grid, Math.round(rect.y1));
-    for (let y = y0; y < y1; y++) {
-      walls.fill(0, y * grid + x0, y * grid + x1);
-    }
-    exports.physarum_apply_walls();
-  };
-
-  contain = (text: string, rect: Rect) => {
-    const mask = new OffscreenCanvas(grid, grid);
-    const m = mask.getContext('2d', { willReadFrequently: true });
-    if (!m) return;
-    m.fillStyle = '#000';
-    m.fillRect(0, 0, grid, grid);
-
-    const words = text.trim().split(/\s+/).filter(Boolean).slice(0, 4);
-    if (!words.length) return;
-    const bx = Math.max(0, rect.x0);
-    const by = Math.max(0, rect.y0);
-    const bw = Math.max(8, Math.min(grid, rect.x1) - bx);
-    const bh = Math.max(8, Math.min(grid, rect.y1) - by);
-    const lineHeight = bh / (words.length + 0.6);
-
-    m.fillStyle = '#fff';
-    m.textAlign = 'center';
-    m.textBaseline = 'middle';
-    words.forEach((word, i) => {
-      // Fit each line to the plate, then back off so glyphs are fat enough to
-      // hold a colony — thin strokes leave no interior to live in.
-      let size = lineHeight * 0.95;
-      m.font = `900 ${String(size)}px ui-sans-serif, system-ui, sans-serif`;
-      const w = m.measureText(word).width;
-      if (w > bw * 0.92) size *= (bw * 0.92) / w;
-      m.font = `900 ${String(size)}px ui-sans-serif, system-ui, sans-serif`;
-      m.fillText(word, bx + bw / 2, by + lineHeight * (i + 0.8));
-    });
-
-    const px = m.getImageData(0, 0, grid, grid).data;
-    const walls = new Uint8Array(exports.memory.buffer, exports.physarum_wall_buffer(), grid * grid);
-    for (let i = 0; i < grid * grid; i++) {
-      // Inverted: white glyph = open, everything else = wall.
-      // noUncheckedIndexedAccess: the read is in range by construction, but the
-      // compiler cannot see that through a DataView-backed array.
-      walls[i] = (px[i * 4] ?? 0) > 127 ? 0 : 255;
-    }
-    exports.physarum_apply_walls();
-  };
-
   let frames = 0;
   let lastReport = performance.now();
   running = true;
@@ -224,7 +151,6 @@ async function start(msg: StartMessage): Promise<void> {
         flakes: exports.physarum_food_total(),
         state: exports.physarum_state(),
         alive: exports.physarum_alive(),
-        walls: exports.physarum_walls_intact(),
       });
       frames = 0;
       lastReport = now;
@@ -249,12 +175,6 @@ self.onmessage = (event: MessageEvent<InboundMessage>) => {
     addFood?.(msg.x, msg.y);
   } else if (msg.type === 'clearFood') {
     clearFood?.();
-  } else if (msg.type === 'contain') {
-    contain?.(msg.text, msg.rect);
-  } else if (msg.type === 'containRect') {
-    containRect?.(msg.rect);
-  } else if (msg.type === 'release') {
-    release?.();
   } else if (msg.type === 'pause') {
     running = false;
     cancelAnimationFrame(raf);

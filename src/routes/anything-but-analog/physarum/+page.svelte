@@ -8,6 +8,7 @@
   import { collectionPageNode } from '$lib/seo';
   import PhysarumWorker from '$lib/art/physarum-worker?worker';
   import type { InboundMessage, SimName } from '$lib/art/physarum-worker';
+  import Segmented from '$lib/components/Segmented.svelte';
 
   /** Counts measured per sim against a 16.7ms budget on a 512 grid. */
   const SIMS = {
@@ -16,6 +17,12 @@
     physarum: { label: 'physarum', agents: 200_000 },
     dicty: { label: 'dictyostelium', agents: 250_000 },
   } as const satisfies Record<SimName, { label: string; agents: number }>;
+
+  /** Ordered for the segmented control, which indexes by position. */
+  const SIM_LIST = [
+    { key: 'physarum', label: SIMS.physarum.label },
+    { key: 'dicty', label: SIMS.dicty.label },
+  ] as const satisfies readonly { key: SimName; label: string }[];
 
   /** Indexed by physarum_state(): 0 dead, 1 starving, 2 stable, 3 growing. */
   const CONDITION = ['dead', 'starving', 'stable', 'growing'] as const;
@@ -33,9 +40,6 @@
   let flakes = $state(0);
   let condition = $state('stable');
   let alive = $state(1);
-  let walls = $state(0);
-  let phrase = $state('slime');
-  let contained = $state(false);
   let status = $state('booting');
 
   // Composed here rather than in markup: Svelte trims the whitespace at the
@@ -46,7 +50,6 @@
     fps = 0;
     // The worker keeps the canvas; only the simulation behind it swaps.
     food = 0;
-    contained = false;
     worker?.postMessage({ type: 'switch', sim: next, agents: SIMS[next].agents, seed });
   }
 
@@ -72,17 +75,6 @@
       });
       food += 1;
     }
-  }
-
-  function contain(): void {
-    if (sim !== 'physarum' || !phrase.trim()) return;
-    worker?.postMessage({ type: 'contain', text: phrase });
-    contained = true;
-  }
-
-  function release(): void {
-    worker?.postMessage({ type: 'release' });
-    contained = false;
   }
 
   function clearFood(): void {
@@ -114,7 +106,6 @@
         flakes?: number;
         state?: number;
         alive?: number;
-        walls?: number;
       }>,
     ) => {
       if (e.data.type === 'fps') {
@@ -123,7 +114,6 @@
         flakes = e.data.flakes ?? 0;
         condition = CONDITION[e.data.state ?? 2] ?? 'stable';
         alive = e.data.alive ?? 1;
-        walls = e.data.walls ?? 0;
       }
       else if (e.data.type === 'ready') status = 'running';
       else if (e.data.type === 'error') status = e.data.message ?? 'failed';
@@ -190,7 +180,6 @@
         <div class="mt-3 flex flex-wrap items-center justify-center gap-2">
           <span class="font-mono text-xs" class:starving={vitality < 0.25}>
             {flakes.toFixed(1)} food · {condition} · {Math.round(alive * 100)}% colony
-            {#if contained}· {Math.round(walls * 100)}% walls{/if}
           </span>
           <button
             type="button"
@@ -208,29 +197,6 @@
               clear
             </button>
           {/if}
-          <input
-            bind:value={phrase}
-            maxlength="24"
-            aria-label="word to trap the colony inside"
-            class="w-28 rounded-sm border border-white/20 bg-transparent px-2 py-1 font-mono text-xs lowercase"
-          />
-          {#if contained}
-            <button
-              type="button"
-              onclick={release}
-              class="rounded-sm border px-3 py-1 font-mono text-xs lowercase"
-            >
-              release
-            </button>
-          {:else}
-            <button
-              type="button"
-              onclick={contain}
-              class="rounded-sm border px-3 py-1 font-mono text-xs lowercase"
-            >
-              trap it
-            </button>
-          {/if}
         </div>
       {/if}
       <p class="mt-2 font-mono text-xs text-white/40">
@@ -244,17 +210,13 @@
       <header class="flex flex-col gap-3">
         <h1 class="font-display text-2xl lowercase sm:text-3xl">slime moulds</h1>
 
-        <div class="flex flex-wrap gap-2">
-          {#each Object.entries(SIMS) as [key, meta] (key)}
-            <button
-              type="button"
-              class="rounded-sm border px-3 py-1 font-mono text-xs lowercase transition-colors"
-              class:on={sim === key}
-              onclick={() => { pick(key as SimName); }}
-            >
-              {meta.label}
-            </button>
-          {/each}
+        <div class="max-w-xs">
+          <Segmented
+            items={SIM_LIST}
+            active={SIM_LIST.findIndex((m) => m.key === sim)}
+            onselect={(i: number) => { pick(SIM_LIST.at(i)?.key ?? 'physarum'); }}
+            ariaLabel="which slime mould"
+          />
         </div>
 
         <p class="font-mono text-xs text-white/50">
@@ -336,12 +298,6 @@
               dormant remnant. leave that remnant food and it comes back.
             </p>
             <p class="text-sm leading-relaxed text-white/60">
-              trap it in a word and it lives inside the letters. it can chew out,
-              but only toward something worth reaching — a wall with nothing
-              behind it never wears through. put food outside and it will take the
-              word apart to get there.
-            </p>
-            <p class="text-sm leading-relaxed text-white/60">
               a decent picture of what physarum does. no account of how.
             </p>
           </div>
@@ -420,17 +376,11 @@
   .feedable {
     cursor: crosshair;
   }
-  .on {
-    background: #e8a317;
-    border-color: #e8a317;
-    color: #14140f;
-    font-weight: 700;
-  }
-  button:not(.on) {
+  button {
     border-color: rgb(255 255 255 / 0.18);
     color: rgb(255 255 255 / 0.55);
   }
-  button:not(.on):hover {
+  button:hover {
     color: rgb(255 255 255 / 0.9);
   }
   button:focus-visible {
