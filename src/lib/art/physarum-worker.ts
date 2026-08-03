@@ -8,9 +8,14 @@
 // zero; wasm is what makes the worker fast enough to be worth moving. Fast wasm
 // on the main thread would still block.
 
+export type SimName = 'physarum' | 'dicty';
+
 interface WasmExports {
   memory: WebAssembly.Memory;
   physarum_init: (count: number, seed: number) => number;
+  dicty_init: (count: number, seed: number) => number;
+  dicty_step: () => void;
+  dicty_pixels: () => number;
   physarum_tune: (
     dist: number,
     sensorAngle: number,
@@ -28,17 +33,24 @@ interface WasmExports {
 export interface StartMessage {
   type: 'start';
   canvas: OffscreenCanvas;
+  sim: SimName;
   agents: number;
   seed: number;
   wasmUrl: string;
 }
 
-export type InboundMessage = StartMessage | { type: 'pause' } | { type: 'resume' };
+export type InboundMessage =
+  | StartMessage
+  | { type: 'switch'; sim: SimName; agents: number; seed: number }
+  | { type: 'pause' }
+  | { type: 'resume' };
 
 let running = false;
 let raf = 0;
 /** Set by start(); the loop cannot be restarted from outside its own closure. */
 let resumeLoop: (() => void) | null = null;
+/** Set by start(); swaps which simulation the loop is stepping. */
+let switchSim: ((sim: SimName, agents: number, seed: number) => void) | null = null;
 
 async function start(msg: StartMessage): Promise<void> {
   const ctx = msg.canvas.getContext('2d');
@@ -57,21 +69,45 @@ async function start(msg: StartMessage): Promise<void> {
     return;
   }
 
-  exports.physarum_init(msg.agents, msg.seed);
   const grid = exports.physarum_grid();
-
-  // Zero-copy view straight into wasm linear memory. Valid only because the
-  // module allocates once and never grows — growing detaches every view
-  // silently, and a detached view reads zero rather than throwing.
-  const pixels = new Uint8ClampedArray(
-    exports.memory.buffer,
-    exports.physarum_pixels(),
-    grid * grid * 4,
-  );
-  const image = new ImageData(pixels, grid, grid);
-
   msg.canvas.width = grid;
   msg.canvas.height = grid;
+
+  let step: () => void = exports.physarum_step;
+  let image: ImageData;
+
+  /**
+   * (Re)initialise a simulation and REBUILD the pixel view.
+   *
+   * The rebuild is mandatory, not tidiness. Each sim owns its own buffers, so
+   * initialising the second one allocates and wasm memory grows — and growing
+   * detaches every TypedArray view the host is holding. Detached views do not
+   * throw; they read zero, so a stale view renders a black canvas forever and
+   * looks exactly like a broken simulation. The view is therefore derived fresh
+   * from memory.buffer after every init call, never cached across one.
+   */
+  const load = (sim: SimName, agents: number, seed: number): void => {
+    if (sim === 'dicty') {
+      exports.dicty_init(agents, seed);
+      step = exports.dicty_step;
+      image = new ImageData(
+        new Uint8ClampedArray(exports.memory.buffer, exports.dicty_pixels(), grid * grid * 4),
+        grid,
+        grid,
+      );
+    } else {
+      exports.physarum_init(agents, seed);
+      step = exports.physarum_step;
+      image = new ImageData(
+        new Uint8ClampedArray(exports.memory.buffer, exports.physarum_pixels(), grid * grid * 4),
+        grid,
+        grid,
+      );
+    }
+  };
+
+  load(msg.sim, msg.agents, msg.seed);
+  switchSim = load;
 
   let frames = 0;
   let lastReport = performance.now();
@@ -79,7 +115,7 @@ async function start(msg: StartMessage): Promise<void> {
 
   const tick = (): void => {
     if (!running) return;
-    exports.physarum_step();
+    step();
     ctx.putImageData(image, 0, 0);
 
     frames++;
@@ -103,6 +139,8 @@ self.onmessage = (event: MessageEvent<InboundMessage>) => {
   const msg = event.data;
   if (msg.type === 'start') {
     void start(msg);
+  } else if (msg.type === 'switch') {
+    switchSim?.(msg.sim, msg.agents, msg.seed);
   } else if (msg.type === 'pause') {
     running = false;
     cancelAnimationFrame(raf);

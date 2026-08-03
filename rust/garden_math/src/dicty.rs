@@ -270,8 +270,9 @@ pub extern "C" fn dicty_step() {
     }
 
     {
+        let count = s.count;
         let State { camp, density, pixels, .. } = s;
-        shade(grid(camp), grid(density), pixels);
+        shade(grid(camp), grid(density), pixels, count);
     }
 }
 
@@ -307,15 +308,17 @@ fn diffuse_camp(camp: &[f32; CELLS], scratch: &mut [f32; CELLS], decay: f32, dif
 /// Two channels deliberately: the signal and the tissue are different things,
 /// and rendering both in one ramp hides which is which. The waves are the
 /// conversation; the bright streams are the cells answering it.
-fn shade(camp: &[f32; CELLS], density: &[f32; CELLS], pixels: &mut [u8]) {
+fn shade(camp: &[f32; CELLS], density: &[f32; CELLS], pixels: &mut [u8], count: usize) {
+    // Baseline scales with the MEAN density, not a fixed constant. Hard-coding
+    // it meant the unaggregated layer cleared at one cell count and flooded the
+    // plate with speckle at another, burying the waves whenever the population
+    // changed.
+    let baseline = (count as f32 / CELLS as f32) * 1.9;
     for (i, px) in pixels.chunks_exact_mut(4).enumerate() {
         let w = camp[i] * 0.55;
         let wave = (w / (1.0 + w)).sqrt();
-        // Baseline subtracted before the knee. At roughly one cell per grid
-        // square the unaggregated layer is everywhere, and rendering it
-        // linearly floods the whole plate warm and buries the waves entirely.
-        // Only genuine clumping should light up.
-        let d = (density[i] - 1.5).max(0.0) * 0.5;
+        // Only genuine clumping should light up, never the resting layer.
+        let d = (density[i] - baseline).max(0.0) * 0.55;
         let cells = d / (1.0 + d);
 
         // Teal wavefronts.
