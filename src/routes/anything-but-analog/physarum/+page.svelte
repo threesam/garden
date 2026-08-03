@@ -12,9 +12,9 @@
 
   /** Counts measured per sim against a 16.7ms budget on a 512 grid. */
   const SIMS = {
-    // Capacity, not starting size — the colony hatches at a third of this and
-    // grows into the rest when it is well fed.
-    physarum: { label: 'physarum', agents: 200_000 },
+    // Buffer size. 100% on the readout is 40% of this, so a well-fed colony
+    // grows past 100 rather than pinning there; the rest is headroom.
+    physarum: { label: 'physarum', agents: 300_000 },
     dicty: { label: 'dictyostelium', agents: 250_000 },
   } as const satisfies Record<SimName, { label: string; agents: number }>;
 

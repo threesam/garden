@@ -76,6 +76,11 @@ struct State {
     /// nothing at all, because there was nowhere for it to grow to. Room to
     /// expand is what makes feeding it feel like feeding something.
     active: usize,
+    /// The size reported as 100%. Deliberately well below the buffer, so a
+    /// well-fed colony reads over 100% rather than pinning at it — a ceiling
+    /// that is also the label makes thriving indistinguishable from merely
+    /// full.
+    nominal: usize,
     /// Food scent, rebuilt from scratch each step. SEPARATE from the trail on
     /// purpose: agents sense trail+scent, but only the trail is drawn. While
     /// food emitted into the trail, anything with enough reach to be findable
@@ -146,7 +151,8 @@ pub extern "C" fn physarum_init(count: u32, seed: u32) -> *const u8 {
         // few hundred steps to climb, and starting it at nothing reported a
         // freshly-seeded plate as "starving" for its first seconds.
         intake: UPKEEP,
-        active: (count / 3).max(1),
+        active: (count / 8).max(1),
+        nominal: (count * 2 / 5).max(1),
         scent: vec![0.0_f32; CELLS],
         field: vec![0.0_f32; CELLS],
     };
@@ -193,7 +199,7 @@ pub extern "C" fn physarum_init(count: u32, seed: u32) -> *const u8 {
 /// it and 0.08 of one eaten across 2,500 steps. Raising it is free now that
 /// scent is a separate field from the one that gets drawn — this is the whole
 /// reason for the split.
-const FOOD_STRENGTH: f32 = 150.0;
+const FOOD_STRENGTH: f32 = 480.0;
 /// Reach of the scent, in cells.
 ///
 /// Wide because DISCOVERY turned out to be the binding constraint. At 34 on a
@@ -262,7 +268,14 @@ const TRAIL_MAX: f32 = 90.0;
 /// Applied as a soft saturation rather than a clamp: `raw/(raw+MAX)` compresses
 /// without ever going flat, so a dense patch still has a peak to climb. A hard
 /// clamp would bring back the mesa — a plateau with no gradient inside it.
-const SCENT_MAX: f32 = 400.0;
+///
+/// Sized RELATIVE to TRAIL_MAX, which is the part that matters. At 400 against a
+/// trail capped at 90 the scent was over four times the trail, so with a plate
+/// full of food the trail stopped shaping anything: agents steered by scent
+/// alone, the network dissolved, and the colony could triple while the visible
+/// network shrank to a third. One source now reads ~120 and sixteen read ~158,
+/// so food always outweighs a trail without ever erasing it.
+const SCENT_MAX: f32 = 160.0;
 /// Share of the colony that scouts: breaks off course at random.
 ///
 /// Without scouts a settled colony is blind. Trail-followers stay on trails, so
@@ -329,10 +342,10 @@ pub extern "C" fn physarum_vitality() -> f32 {
 #[no_mangle]
 pub extern "C" fn physarum_alive() -> f32 {
     STATE.get().as_ref().map_or(0.0, |s| {
-        if s.count == 0 {
+        if s.nominal == 0 {
             0.0
         } else {
-            s.active as f32 / s.count as f32
+            s.active as f32 / s.nominal as f32
         }
     })
 }
@@ -356,7 +369,7 @@ pub extern "C" fn physarum_state() -> u32 {
     STATE.get().as_ref().map_or(0, |s| {
         // Read off the energy balance, with a dead band so the label does not
         // flicker while the colony is merely breaking even.
-        let floor = (s.count / DORMANT_SHARE).max(1);
+        let floor = (s.nominal / DORMANT_SHARE).max(1);
         if s.vitality <= 0.02 && s.active <= floor {
             0
         } else if s.intake < UPKEEP * 0.85 {
@@ -571,7 +584,7 @@ pub extern "C" fn physarum_step() {
             // feed when they find something; slowing to a crawl is what lets
             // them accumulate on a flake and actually strip it.
             let on_food = food_map[wrap(y as i32) * GRID + wrap(x as i32)] != 0;
-            let step = if on_food { speed * 0.12 } else { speed };
+            let step = if on_food { speed * 0.25 } else { speed };
             let mut nx = x + dx * step;
             let mut ny = y + dy * step;
             let g = GRID as f32;
@@ -637,7 +650,7 @@ pub extern "C" fn physarum_step() {
         // either way — `active` just moves.
         let vit = s.vitality;
         if vit <= 0.02 {
-            let floor = (s.count / DORMANT_SHARE).max(1);
+            let floor = (s.nominal / DORMANT_SHARE).max(1);
             let loss = ((s.active as f32) * DIE_RATE).ceil() as usize;
             s.active = s.active.saturating_sub(loss.max(1)).max(floor);
         } else if vit >= 0.995 && s.intake > UPKEEP && s.active < s.count {
