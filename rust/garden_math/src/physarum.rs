@@ -151,8 +151,11 @@ pub extern "C" fn physarum_init(count: u32, seed: u32) -> *const u8 {
         // few hundred steps to climb, and starting it at nothing reported a
         // freshly-seeded plate as "starving" for its first seconds.
         intake: UPKEEP,
-        active: (count / 8).max(1),
-        nominal: (count * 2 / 5).max(1),
+        // Clamped to count: `.max(1)` on its own gave a live agent against an
+        // empty buffer when count was 0, and the step then sliced past the end
+        // and trapped.
+        active: (count / 8).max(1).min(count),
+        nominal: (count * 2 / 5).max(1).min(count.max(1)),
         scent: vec![0.0_f32; CELLS],
         field: vec![0.0_f32; CELLS],
     };

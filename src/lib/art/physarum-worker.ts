@@ -94,6 +94,7 @@ async function start(msg: StartMessage): Promise<void> {
 
   let step: () => void = exports.physarum_step;
   let image: ImageData;
+  let current: SimName = msg.sim;
 
   /**
    * (Re)initialise a simulation and REBUILD the pixel view.
@@ -106,6 +107,7 @@ async function start(msg: StartMessage): Promise<void> {
    * from memory.buffer after every init call, never cached across one.
    */
   const load = (sim: SimName, agents: number, seed: number): void => {
+    current = sim;
     if (sim === 'dicty') {
       exports.dicty_init(agents, seed);
       step = exports.dicty_step;
@@ -149,13 +151,20 @@ async function start(msg: StartMessage): Promise<void> {
     frames++;
     const now = performance.now();
     if (now - lastReport >= 1000) {
-      self.postMessage({
-        type: 'fps',
-        fps: Math.round((frames * 1000) / (now - lastReport)),
-        flakes: exports.physarum_food_total(),
-        state: exports.physarum_state(),
-        agents: exports.physarum_active(),
-      });
+      // Only physarum has food, a colony state or an agent count worth
+      // reporting. Reading them while dictyostelium runs shipped stale numbers
+      // that flashed on screen for a frame when switching back.
+      self.postMessage(
+        current === 'physarum'
+          ? {
+              type: 'fps',
+              fps: Math.round((frames * 1000) / (now - lastReport)),
+              flakes: exports.physarum_food_total(),
+              state: exports.physarum_state(),
+              agents: exports.physarum_active(),
+            }
+          : { type: 'fps', fps: Math.round((frames * 1000) / (now - lastReport)) },
+      );
       frames = 0;
       lastReport = now;
     }
