@@ -47,9 +47,15 @@
       const scene = new THREE.Scene();
       scene.background = new THREE.Color('#0d0e0b');
 
-      const camera = new THREE.PerspectiveCamera(36, 1, 1, 6000);
+      const camera = new THREE.PerspectiveCamera(32, 1, 1, 6000);
       const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
       renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      // ACES with the previous light rig clipped everything to white and threw
+      // away the grey-cap / tan-rim / cream-gill separation that the vertex
+      // colours exist to carry. Lower exposure buys that separation back.
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 0.95;
       // Shadows are load-bearing here, not polish. A shelved cluster is a stack
       // of similarly-coloured caps; with flat lighting they merge into one
       // dough-like mass, and the tiers only separate once each cap casts onto
@@ -59,9 +65,9 @@
 
       // Ambient kept low for the same reason — it is what was washing the
       // forms flat.
-      scene.add(new THREE.AmbientLight('#7f8378', 0.55));
-      const key = new THREE.DirectionalLight('#fff4e2', 2.7);
-      key.position.set(0.75, 1.6, 0.55);
+      scene.add(new THREE.AmbientLight('#7f8378', 0.18));
+      const key = new THREE.DirectionalLight('#fff1db', 1.5);
+      key.position.set(0.65, 1.35, 0.45);
       key.castShadow = true;
       key.shadow.mapSize.set(2048, 2048);
       // DoubleSide geometry self-shadows badly without a normal bias.
@@ -70,26 +76,26 @@
       // Bounce from BELOW. Not decorative: the gills face downward, and under
       // overhead-only light the feature that most identifies an oyster renders
       // as a black void.
-      const bounce = new THREE.DirectionalLight('#e0c49c', 1.7);
-      bounce.position.set(-0.6, -1, 0.5);
+      const bounce = new THREE.DirectionalLight('#e8cfa6', 0.5);
+      bounce.position.set(-0.45, -1, 0.75);
       scene.add(bounce);
       // Cool fill from behind, to keep the shadowed sides from going muddy.
-      const fill = new THREE.DirectionalLight('#9fb6c4', 0.32);
+      const fill = new THREE.DirectionalLight('#a8bdc7', 0.22);
       fill.position.set(-0.9, 0.5, -0.8);
       scene.add(fill);
       // Sky/ground wrap, which is what actually lifts a shaded underside.
-      scene.add(new THREE.HemisphereLight('#dfe6ea', '#6b5a3e', 0.7));
+      scene.add(new THREE.HemisphereLight('#dfe6ea', '#806f51', 0.3));
       // Headlight, tracked to the camera in the render loop. Gill blades are
       // vertical, so their normals point sideways and BOTH the overhead key and
       // the upward bounce graze them at almost zero incidence — the gills, the
       // one feature that identifies the species, rendered as a black void until
       // something lit them from where the viewer stands.
-      const headlight = new THREE.DirectionalLight('#fff2df', 0.85);
+      const headlight = new THREE.DirectionalLight('#fff6e8', 0.35);
       scene.add(headlight);
 
       const material = new THREE.MeshStandardMaterial({
         vertexColors: true,
-        roughness: 0.92,
+        roughness: 0.96,
         metalness: 0,
         // Gills are single-sided blades, so both faces must light.
         side: THREE.DoubleSide,
@@ -107,7 +113,7 @@
 
       // Three-quarter view from ~25° up: high enough to read the shingled
       // tiers, low enough that the gills under the front caps stay visible.
-      const DIR = [0.34, 0.17, 0.92];
+      const DIR = [0.34, 0.19, 0.9];
       const DIR_LEN = Math.hypot(DIR[0]!, DIR[1]!, DIR[2]!);
       /** Half-extents of the cluster: horizontal (worst case while spinning) and vertical. */
       let fit = { half: 1, halfY: 1 };
@@ -120,7 +126,7 @@
         const hFov = 2 * Math.atan(Math.tan(vFov / 2) * camera.aspect);
         const dv = fit.halfY / Math.tan(vFov / 2);
         const dh = fit.half / Math.tan(hFov / 2);
-        const d = Math.max(dv, dh) * 1.18;
+        const d = Math.max(dv, dh) * 1.2;
         camera.position.set(
           (DIR[0]! / DIR_LEN) * d,
           (DIR[1]! / DIR_LEN) * d,

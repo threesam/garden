@@ -27,6 +27,10 @@ const RADIAL_STEPS = 22;
 
 const clamp01 = (v: number): number => (v < 0 ? 0 : v > 1 ? 1 : v);
 const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
+const smoothstep = (edge0: number, edge1: number, x: number): number => {
+  const t = clamp01((x - edge0) / (edge1 - edge0));
+  return t * t * (3 - 2 * t);
+};
 
 type Rgb = [number, number, number];
 
@@ -136,23 +140,30 @@ function surface(fan: Fan, a: number, u: number): { r: number; y: number } {
   const nz = u * Math.sin(a);
   const lobes = noise(nx * 2.1 + 3, nz * 2.1 + 3, 3) - 0.5;
   const ripple = noise(nx * 6.5 + 11, nz * 6.5 + 11, 11) - 0.5;
+  const margin = smoothstep(0.68, 1, u);
+  const roll = smoothstep(0.78, 1, u);
+  const torn = Math.sin(a * 8.5 + noise(31, 0, 0) * TAU) * 0.055;
 
-  // Margin waves, attachment does not — scaled by u².
-  // Amplitude stays modest: a wavy oyster margin undulates, it does not lobe
-  // like an amoeba, and past about a fifth of the radius the caps stop reading
-  // as caps and merge into one mass.
-  const r = u * radius * (1 + (lobes * 0.2 + ripple * 0.08) * waviness * u * u);
+  // Margin waves, attachment does not. Real oyster caps are fan shells with
+  // lobed, sometimes torn edges; most of that movement belongs at the last
+  // third of the radius, not through the whole cap.
+  const edgeLobing = (lobes * 0.26 + ripple * 0.12 + torn) * waviness * margin;
+  const r = u * radius * (1 + edgeLobing);
 
-  // Rises from the attachment, domes, then the margin droops below it. That
-  // droop is why an oyster reads as a shelf rather than as a plate.
-  const base = Math.sin(u * Math.PI * 0.62) - 0.78 * u ** 2.7;
-  const y = height * base + (noise(nx * 3.2 + 29, nz * 3.2 + 29, 29) - 0.5) * height * 0.25 * waviness * u;
+  // A domed shell, not a plate: it swells after the attachment, then the
+  // margin rolls under. The rolled edge is deliberately stronger than the
+  // broad dome because the silhouette is what sells an oyster cap.
+  const dome = Math.sin(u * Math.PI) ** 0.72;
+  const base = dome * 0.95 - u * 0.18 - roll * 0.4;
+  const verticalWave = (noise(nx * 3.2 + 29, nz * 3.2 + 29, 29) - 0.5) * height * 0.42 * waviness * margin;
+  const y = height * base + verticalWave;
   return { r, y };
 }
 
 /** Flesh thickness, tapering to a thin rolled rim. */
 function thicknessAt(fan: Fan, u: number): number {
-  return fan.thickness * (0.18 + 0.82 * (1 - u) ** 1.4);
+  const roll = smoothstep(0.82, 1, u);
+  return fan.thickness * (0.2 + 0.8 * (1 - u) ** 1.2 + 0.42 * roll);
 }
 
 /**
@@ -171,6 +182,8 @@ function buildFan(
   const capCol = hexToRgb(bp.cap.colour);
   const rimCol = hexToRgb(bp.cap.marginColour);
   const gillCol = hexToRgb(bp.gills.colour);
+  const capShadowCol = mixRgb(capCol, [0.58, 0.57, 0.52], 0.45);
+  const gillShadowCol = mixRgb(gillCol, [0.72, 0.68, 0.59], 0.34);
 
   // Upper surface and underside share the same grid, so the rim can be
   // stitched between them and the cap is a solid, not a sheet of paper.
@@ -187,10 +200,21 @@ function buildFan(
         const { r, y } = surface(fan, a, u);
         const x = Math.cos(a) * r;
         const z = Math.sin(a) * r;
-        // The pale warm band is the last few percent of the radius only.
-        const col = mixRgb(capCol, rimCol, clamp01((u - 0.86) / 0.14));
-        topRing.push(mb.vertex(x, y, z, col));
-        botRing.push(mb.vertex(x, y - thicknessAt(fan, u), z, col));
+        const undersideTuck = 1 - smoothstep(0.78, 1, u) * 0.075;
+        const bottomX = Math.cos(a) * r * undersideTuck;
+        const bottomZ = Math.sin(a) * r * undersideTuck;
+        const mottle = fan.noise(Math.cos(a) * u * 7 + 61, Math.sin(a) * u * 7 + 61, 61);
+        const shade = fan.noise(Math.cos(a) * u * 2.6 + 73, Math.sin(a) * u * 2.6 + 73, 73);
+        const rimMix = smoothstep(0.78, 1, u);
+        let topCol = mixRgb(capCol, rimCol, rimMix);
+        topCol = mixRgb(topCol, capShadowCol, clamp01((mottle - 0.42) * 0.28 + (shade - 0.5) * 0.18));
+        // The underside is shaded, not striped. A sine indexed by segment
+        // number paints fake gill lines whose spacing tracks mesh resolution
+        // rather than the actual blades — and real blades are already modelled
+        // hanging beneath this surface, so it double-draws them out of register.
+        const undersideCol = mixRgb(gillCol, gillShadowCol, smoothstep(0.08, 0.92, u) * 0.35);
+        topRing.push(mb.vertex(x, y, z, topCol));
+        botRing.push(mb.vertex(bottomX, y - thicknessAt(fan, u), bottomZ, undersideCol));
       }
       top.push(topRing);
       bottom.push(botRing);
@@ -236,9 +260,15 @@ function buildFan(
         const yRoot = y - thicknessAt(fan, u);
         // Deepest around mid-radius, pinching out at both ends the way a real
         // blade does — a constant-depth blade reads as a comb.
-        const depth = gillDepth * Math.sin(clamp01(u) * Math.PI) ** 0.65;
-        root.push(mb.vertex(Math.cos(a) * r, yRoot, Math.sin(a) * r, gillCol));
-        edge.push(mb.vertex(Math.cos(a) * r + nx * 0.01, yRoot - depth, Math.sin(a) * r + nz * 0.01, gillCol));
+        const depthProfile = Math.sin(clamp01(u) * Math.PI) ** 0.52;
+        const decurrent = 0.28 * (1 - u) ** 1.7;
+        const depth = gillDepth * (depthProfile + decurrent);
+        const tuck = 1 - smoothstep(0.78, 1, u) * 0.06;
+        const px = Math.cos(a) * r * tuck;
+        const pz = Math.sin(a) * r * tuck;
+        const bladeCol = mixRgb(gillCol, gillShadowCol, clamp01((fan.noise(g * 0.12, u * 4.5, 91) - 0.42) * 0.35));
+        root.push(mb.vertex(px, yRoot, pz, bladeCol));
+        edge.push(mb.vertex(px + nx * 0.018, yRoot - depth, pz + nz * 0.018, bladeCol));
       }
       for (let i = 0; i < RADIAL_STEPS; i++) {
         mb.quad(root[i]!, root[i + 1]!, edge[i + 1]!, edge[i]!);
@@ -256,11 +286,11 @@ function buildFan(
     const rings: number[][] = [];
     for (let i = 0; i <= STACKS; i++) {
       const v = i / STACKS;
-      const r = stipeR * (1 - 0.35 * v);
+      const r = stipeR * (1 - 0.22 * v);
       const ring: number[] = [];
       for (let s = 0; s <= 20; s++) {
         const a = ((s % 20) / 20) * TAU;
-        ring.push(mb.vertex(Math.cos(a) * r - stipeLen * v * 0.7, -v * stipeLen * 0.4, Math.sin(a) * r, stipeCol));
+        ring.push(mb.vertex(Math.cos(a) * r - stipeLen * v * 0.28, -v * stipeLen * 0.18, Math.sin(a) * r, stipeCol));
       }
       rings.push(ring);
     }
@@ -299,23 +329,25 @@ export function buildFruitingBody(bp: Blueprint, t = 1, seed = 1): Mesh {
     const jOut = rand();
 
     const frac = spec.capCount === 1 ? 0.5 : i / (spec.capCount - 1);
+    const tier = Math.floor(i / 3);
+    const tierCount = Math.max(1, Math.ceil(spec.capCount / 3) - 1);
+    const tierFrac = tier / tierCount;
     // Fan the flush across an arc, with jitter so it is not a rosette.
     const heading = (frac - 0.5) * spread + (jHeading - 0.5) * spread * 0.16;
     // Caps behind and above are smaller — they emerged later and are shaded.
-    const size = lerp(1, 0.52, frac * 0.85) * (0.82 + jSize * 0.36);
+    const size = lerp(1.08, 0.54, tierFrac * 0.92) * (0.86 + jSize * 0.26);
     const radius = (baseD / 2) * size * g;
-    // Tiers rise as they go back, which is what makes the shingling read. The
-    // stagger has to exceed the flesh thickness by a clear margin or adjacent
-    // caps interpenetrate and the cluster renders as one lump.
-    const rise = frac * baseD * bp.cluster.tierRise + (jRise - 0.5) * baseD * 0.09;
-    // Attachment points sit close together — one patch of mycelium — but not
-    // coincident, or every cap radiates from the same point.
-    const out = (0.08 + jOut * 0.3) * baseD;
+    // Tiers rise as they go back, but oyster clusters overlap like shingles;
+    // too much air between tiers makes them look like stacked plates.
+    const rise = tierFrac * baseD * bp.cluster.tierRise + (jRise - 0.5) * baseD * 0.045;
+    // Attachment points share one mycelial base. Keep them close enough that
+    // the caps appear to emerge together instead of on visible stalks.
+    const out = (0.02 + jOut * 0.12) * baseD;
     // Front caps tip further over; the whole flush droops away from the wood.
     // Near-horizontal. Oyster caps shelf out sideways; pitching them steeply
     // down turns the gills — the feature that most identifies the species —
     // away from any viewpoint that can see them.
-    const pitch = -(0.04 + (1 - frac) * 0.2 + (jPitch - 0.5) * 0.16);
+    const pitch = -(0.02 + (1 - tierFrac) * 0.14 + (jPitch - 0.5) * 0.1);
 
     mb.setPlacement(heading, pitch, Math.cos(heading) * out, rise, Math.sin(heading) * out);
 

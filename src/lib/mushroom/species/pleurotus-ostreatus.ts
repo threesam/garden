@@ -14,28 +14,30 @@ export const pleurotusOstreatus: Blueprint = {
   common: 'oyster mushroom',
   cap: {
     diameterMm: [60, 140],
-    heightRatio: 0.14,
-    thicknessRatio: 0.055,
+    heightRatio: 0.13,
+    thicknessRatio: 0.06,
     // Not a full disc: the fan opens away from its attachment.
-    fanDeg: 250,
-    waviness: 0.85,
-    colour: '#9d968a',
+    fanDeg: 238,
+    waviness: 1,
+    colour: '#8d8d83',
     // The rim catches the light warmer and paler than the rest of the cap.
-    marginColour: '#cbb083',
+    marginColour: '#d0b984',
   },
   stipe: {
-    lengthMm: [8, 16],
-    diameterMm: [9, 15],
+    lengthMm: [3, 8],
+    diameterMm: [13, 22],
     colour: '#efe9dc',
   },
   gills: {
     count: 96,
-    depthRatio: 0.062,
-    colour: '#f2ece0',
+    depthRatio: 0.078,
+    colour: '#f5f0e6',
   },
   cluster: {
-    caps: [6, 9],
+    caps: [7, 9],
     spreadDeg: 190,
+    // 0.48, not lower: at 0.28 the tiers interpenetrate and the whole flush
+    // renders as one dough-like mass. Verified by screenshot, twice.
     tierRise: 0.48,
   },
   sporePrint: 'lilac-grey',
