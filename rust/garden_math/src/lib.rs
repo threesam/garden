@@ -1,3 +1,5 @@
+pub mod physarum;
+
 #[no_mangle]
 pub extern "C" fn wave(x: f32, y: f32, time: f32, audio_level: f32) -> f32 {
     let a = (x * 1.7 + time * 0.7).sin();
