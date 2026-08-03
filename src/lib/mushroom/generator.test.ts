@@ -23,6 +23,33 @@ function bounds(m: Mesh) {
   return { lo, hi, size: [hi[0]! - lo[0]!, hi[1]! - lo[1]!, hi[2]! - lo[2]!] };
 }
 
+/**
+ * Bounds of one named part only. Necessary because whole-mesh bounds are
+ * dominated by whichever structure is largest — the stipe base sits at y=0 and
+ * the cap centre at radius 0, so box assertions silently measure the wrong
+ * thing.
+ */
+function partBounds(m: Mesh, part: 'cap' | 'stipe' | 'hymenophore' | 'cushion') {
+  const range = m.parts[part];
+  if (!range) throw new Error(`mesh has no ${part}`);
+  const [from, to] = range;
+  const lo = [Infinity, Infinity, Infinity];
+  const hi = [-Infinity, -Infinity, -Infinity];
+  let minR = Infinity;
+  for (let v = from; v < to; v++) {
+    const x = m.positions[v * 3]!;
+    const y = m.positions[v * 3 + 1]!;
+    const z = m.positions[v * 3 + 2]!;
+    minR = Math.min(minR, Math.hypot(x, z));
+    const p = [x, y, z];
+    for (let a = 0; a < 3; a++) {
+      if (p[a]! < lo[a]!) lo[a] = p[a]!;
+      if (p[a]! > hi[a]!) hi[a] = p[a]!;
+    }
+  }
+  return { lo, hi, minR, size: [hi[0]! - lo[0]!, hi[1]! - lo[1]!, hi[2]! - lo[2]!] };
+}
+
 describe('generator', () => {
   describe('structural integrity — every species', () => {
     it.each(SPECIES.map((s) => [s.species, s] as const))('%s produces a sane mesh', (_n, bp) => {
@@ -54,28 +81,6 @@ describe('generator', () => {
   });
 
   describe('morphology — the correctness bar', () => {
-    /** Bounds of one named part only — the stipe otherwise dominates the box. */
-    const partBounds = (m: Mesh, part: 'cap' | 'stipe' | 'hymenophore' | 'cushion') => {
-      const range = m.parts[part];
-      if (!range) throw new Error(`mesh has no ${part}`);
-      const [from, to] = range;
-      const lo = [Infinity, Infinity, Infinity];
-      const hi = [-Infinity, -Infinity, -Infinity];
-      let minR = Infinity;
-      for (let v = from; v < to; v++) {
-        const x = m.positions[v * 3]!;
-        const y = m.positions[v * 3 + 1]!;
-        const z = m.positions[v * 3 + 2]!;
-        minR = Math.min(minR, Math.hypot(x, z));
-        const p = [x, y, z];
-        for (let a = 0; a < 3; a++) {
-          if (p[a]! < lo[a]!) lo[a] = p[a]!;
-          if (p[a]! > hi[a]!) hi[a] = p[a]!;
-        }
-      }
-      return { lo, hi, minR };
-    };
-
     const oysterWith = (attachment: 'free' | 'decurrent') =>
       buildFruitingBody(
         {
@@ -100,6 +105,29 @@ describe('generator', () => {
       expect(partBounds(oysterWith('free'), 'hymenophore').minR).toBeGreaterThan(
         partBounds(oysterWith('decurrent'), 'hymenophore').minR,
       );
+    });
+
+    it('oyster: a lateral stipe sits off-axis, at the cap edge', () => {
+      // Oysters shelf off the side of wood — the stipe joins near the cap's
+      // edge, not its centre. A central stipe would make every species with
+      // this trait render as a textbook toadstool.
+      const m = buildFruitingBody(pleurotusOstreatus, 1, 3);
+      const stipe = partBounds(m, 'stipe');
+      const cap = partBounds(m, 'cap');
+      const stipeCentreX = (stipe.lo[0]! + stipe.hi[0]!) / 2;
+      const capRadius = (cap.hi[0]! - cap.lo[0]!) / 2;
+      expect(Math.abs(stipeCentreX)).toBeGreaterThan(capRadius * 0.5);
+    });
+
+    it('reishi: a central stipe stays on the axis', () => {
+      // The other half of the feature — 'central' must not drift.
+      const central = buildFruitingBody(
+        { ...pleurotusOstreatus, stipe: { ...pleurotusOstreatus.stipe!, position: 'central' } },
+        1,
+        3,
+      );
+      const s = partBounds(central, 'stipe');
+      expect(Math.abs((s.lo[0]! + s.hi[0]!) / 2)).toBeLessThan(1);
     });
 
     it("lion's mane: no cap, no stipe — spines hang BELOW the cushion", () => {
@@ -164,10 +192,14 @@ describe('generator', () => {
     it('stipe elongation leads cap expansion — that is what reads as growth', () => {
       // At t=0.35 the stipe is well underway while the cap has barely started;
       // a uniform scale would move them together and read as a zoom.
-      const early = buildFruitingBody(pleurotusOstreatus, 0.35, 3);
-      const mature = buildFruitingBody(pleurotusOstreatus, 1, 3);
-      const capFraction = (m: Mesh) => bounds(m).size[0]! / Math.max(bounds(m).size[1]!, 0.001);
-      expect(capFraction(early)).toBeLessThan(capFraction(mature));
+      // Measured per-part: whole-mesh width also moves when a lateral stipe
+      // slides off-axis, which would make this pass or fail for the wrong
+      // reason.
+      const capPerStipe = (t: number) => {
+        const m = buildFruitingBody(pleurotusOstreatus, t, 3);
+        return partBounds(m, 'cap').size[0]! / Math.max(partBounds(m, 'stipe').size[1]!, 0.001);
+      };
+      expect(capPerStipe(0.35)).toBeLessThan(capPerStipe(1));
     });
   });
 });

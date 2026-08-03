@@ -119,7 +119,11 @@ function capProfile(profile: CapProfile, openness: number): [number, number][] {
   return pts;
 }
 
-/** Revolve a profile around Y. `half` sweeps 180° only, for brackets. */
+/**
+ * Revolve a profile around Y. A partial `span` makes a shelf or a fan rather
+ * than a full cone of revolution — the difference between a toadstool and a
+ * bracket, and between a toadstool and an oyster.
+ */
 function lathe(
   mb: MeshBuilder,
   pts: readonly [number, number][],
@@ -127,14 +131,14 @@ function lathe(
   height: number,
   colour: [number, number, number],
   yOffset: number,
-  half = false,
+  span = TAU,
+  start = 0,
 ): void {
-  const arc = half ? Math.PI : TAU;
   const rings: number[][] = [];
   for (const [u, v] of pts) {
     const ring: number[] = [];
     for (let s = 0; s <= RADIAL; s++) {
-      const a = (s / RADIAL) * arc;
+      const a = start + (s / RADIAL) * span;
       const r = u * radius;
       const x = Math.cos(a) * r;
       const z = Math.sin(a) * r;
@@ -154,7 +158,11 @@ function lathe(
   }
 }
 
-/** Tapered tube along Y. Used for stipes and for clavarioid clubs. */
+/**
+ * Tapered tube along Y. Used for stipes and for clavarioid clubs.
+ * `xOffset` slides it off the axis, which is how a lateral stipe attaches at
+ * the cap's edge rather than its centre.
+ */
 function tube(
   mb: MeshBuilder,
   baseR: number,
@@ -163,6 +171,7 @@ function tube(
   colour: [number, number, number],
   yOffset: number,
   bulbous: boolean,
+  xOffset = 0,
 ): void {
   const STACKS = 14;
   const rings: number[][] = [];
@@ -174,7 +183,7 @@ function tube(
     const ring: number[] = [];
     for (let s = 0; s <= RADIAL; s++) {
       const a = (s / RADIAL) * TAU;
-      const x = Math.cos(a) * r;
+      const x = Math.cos(a) * r + xOffset;
       const z = Math.sin(a) * r;
       ring.push(mb.vertex(x, v * height + yOffset, z, Math.cos(a), 0, Math.sin(a), colour));
     }
@@ -202,6 +211,8 @@ function gills(
   colour: [number, number, number],
   yOffset: number,
   runDown: number,
+  span = TAU,
+  start = 0,
 ): void {
   const heightAt = (r: number): number => {
     const u = clamp01(r / outerR);
@@ -209,7 +220,9 @@ function gills(
     return capPts[i]![1] * capHeight;
   };
   for (let g = 0; g < count; g++) {
-    const a = (g / count) * TAU;
+    // Blades follow the cap's own sweep, so a fan-shaped cap does not get a
+    // full circle of gills radiating out past its edge into empty space.
+    const a = start + (g / count) * span;
     const cx = Math.cos(a);
     const cz = Math.sin(a);
     const nx = -Math.sin(a);
@@ -241,6 +254,7 @@ function pores(
   const rings = 10;
   const prev: number[] = [];
   const cur: number[] = [];
+  let outer: number[] = [];
   for (let i = 0; i <= rings; i++) {
     const r = (i / rings) * radius;
     for (let s = 0; s <= RADIAL; s++) {
@@ -267,6 +281,21 @@ function pores(
       prev.push(...cur);
       cur.length = 0;
     }
+    if (i === rings) outer = [...prev];
+  }
+
+  // Rim: closes the gap between the pore surface and the cap above it. Without
+  // it the pore layer renders as a plate floating under the shelf, because a
+  // bracket's thickness has no side wall of its own.
+  const lip: number[] = [];
+  for (let s = 0; s <= RADIAL; s++) {
+    const a = (s / RADIAL) * Math.PI;
+    const x = Math.cos(a) * radius;
+    const z = Math.sin(a) * radius;
+    lip.push(mb.vertex(x, yOffset, z, Math.cos(a), 0, Math.sin(a), colour));
+  }
+  for (let s = 0; s < RADIAL; s++) {
+    mb.quad(lip[s]!, lip[s + 1]!, outer[s + 1]!, outer[s]!);
   }
 }
 
@@ -380,6 +409,20 @@ export function buildFruitingBody(bp: Blueprint, t = 1, seed = 1): Mesh {
 
 type Factors = ReturnType<typeof growthFactors>;
 
+/** Profile height (0..1) at a given radius fraction, linearly interpolated. */
+function profileHeightAt(pts: readonly [number, number][], u: number): number {
+  const clamped = clamp01(u);
+  for (let i = 1; i < pts.length; i++) {
+    const [u1, v1] = pts[i]!;
+    if (u1 >= clamped) {
+      const [u0, v0] = pts[i - 1]!;
+      const span = u1 - u0;
+      return span === 0 ? v1 : v0 + ((v1 - v0) * (clamped - u0)) / span;
+    }
+  }
+  return pts[pts.length - 1]?.[1] ?? 0;
+}
+
 function buildAgaric(mb: MeshBuilder, bp: Blueprint, spec: Specimen, f: Factors): void {
   const stipe = bp.stipe!;
   const cap = bp.cap!;
@@ -387,15 +430,35 @@ function buildAgaric(mb: MeshBuilder, bp: Blueprint, spec: Specimen, f: Factors)
   const stipeLen = spec.stipeLength * f.stipe;
   const baseR = (spec.stipeDiameter / 2) * f.stipe;
   const topR = baseR * stipe.taper;
-  // A lateral stipe sits at the cap's edge, which is why oysters shelf off wood.
-  const offset = stipe.position === 'central' ? 0 : (spec.capDiameter / 2) * (stipe.position === 'lateral' ? 0.85 : 0.4);
-
-  mb.part('stipe', () => { tube(mb, baseR, topR, stipeLen, hexToRgb(stipe.colour), 0, stipe.base === 'bulbous'); });
-
   const capR = (spec.capDiameter / 2) * f.cap;
   const capH = spec.capHeight * f.cap;
   const pts = capProfile(cap.profile, f.openness);
-  mb.part('cap', () => { lathe(mb, pts, capR, capH, hexToRgb(cap.colour), stipeLen); });
+
+  // A lateral stipe sits at the cap's edge, which is why oysters shelf off
+  // wood rather than standing under a centred cap.
+  const edgeFrac = stipe.position === 'central' ? 0 : stipe.position === 'lateral' ? 0.85 : 0.4;
+  const offset = capR * edgeFrac;
+  // ...and it has to REACH the cap there. A funnel-shaped cap is higher at its
+  // margin than at its centre, so an offset stipe of unchanged length stops
+  // short and renders as a detached post floating beside the cap.
+  // 0.9, not 1.0: the tube ends in a flat disc while the cap above it is
+  // sloped, so meeting the underside exactly pokes the rim through the top.
+  const reach = f.cap > 0.05 ? profileHeightAt(pts, edgeFrac) * capH * 0.9 : 0;
+
+  // A laterally-stiped agaric is a FAN, not a disc: the cap spreads away from
+  // its attachment instead of encircling it. Without this an oyster renders as
+  // a textbook toadstool with the stem stuck on sideways.
+  // Centred ON the attachment, not opposite it: the stipe sits at angle 0, so
+  // the arc has to contain angle 0 or the cap sweeps away and leaves the stipe
+  // standing in the missing wedge.
+  const span = stipe.position === 'lateral' ? Math.PI * 1.25 : TAU;
+  const start = -span / 2;
+
+  mb.part('stipe', () =>
+    { tube(mb, baseR, topR, stipeLen + reach, hexToRgb(stipe.colour), 0, stipe.base === 'bulbous', offset); },
+  );
+
+  mb.part('cap', () => { lathe(mb, pts, capR, capH, hexToRgb(cap.colour), stipeLen, span, start); });
 
   if (h.kind === 'gills' && f.cap > 0.05) {
     // Attachment decides where a blade starts — the diagnostic feature.
@@ -408,10 +471,9 @@ function buildAgaric(mb: MeshBuilder, bp: Blueprint, spec: Specimen, f: Factors)
     const runDown = h.attachment === 'decurrent' ? stipeLen * 0.25 : 0;
     const total = h.count * (1 + h.lamellulae * 0.5);
     mb.part('hymenophore', () =>
-      { gills(mb, Math.round(total), inner, capR * 0.97, pts, capH, capH * 0.16, hexToRgb(h.colour), stipeLen, runDown); },
+      { gills(mb, Math.round(total), inner, capR * 0.97, pts, capH, capH * 0.16, hexToRgb(h.colour), stipeLen, runDown, span, start); },
     );
   }
-  void offset;
 }
 
 function buildPolypore(mb: MeshBuilder, bp: Blueprint, spec: Specimen, f: Factors): void {
@@ -421,7 +483,7 @@ function buildPolypore(mb: MeshBuilder, bp: Blueprint, spec: Specimen, f: Factor
   const capH = Math.max(spec.capHeight, 1) * f.cap;
   const pts = capProfile(cap.profile, f.openness);
   // Half sweep: a bracket is a shelf, attached along one edge.
-  mb.part('cap', () => { lathe(mb, pts, capR, capH, hexToRgb(cap.colour), 0, true); });
+  mb.part('cap', () => { lathe(mb, pts, capR, capH, hexToRgb(cap.colour), 0, Math.PI); });
   if (h.kind === 'pores' && f.cap > 0.05) {
     mb.part('hymenophore', () => { pores(mb, capR * 0.98, h.depthMm * f.cap, hexToRgb(h.colour), 0, h.poresPerMm); });
   }
