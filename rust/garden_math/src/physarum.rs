@@ -59,9 +59,32 @@ struct State {
     grazing: Vec<f32>,
     /// 0 = starved, 1 = well fed. Scales trail deposit, speed and population.
     vitality: f32,
+    /// Vitality earned per step, smoothed. Compared against upkeep, this is
+    /// what separates growing from merely holding on.
+    ///
+    /// Smoothed because the raw per-step figure swings with which sources the
+    /// network happens to be sitting on, and reading it directly made the
+    /// reported state flap between "starving" and "stable" several times a
+    /// second while nothing meaningful was changing.
+    intake: f32,
     /// Living agents. The loop walks only this many; the rest of the buffer is
-    /// dead stock waiting to be repopulated, so nothing is ever reallocated.
+    /// unhatched stock, so growth and death both just move this number and
+    /// nothing is ever reallocated.
+    ///
+    /// Starts at a FRACTION of the buffer, not all of it. Filling the buffer at
+    /// init made the starting size the ceiling: feeding a healthy colony did
+    /// nothing at all, because there was nowhere for it to grow to. Room to
+    /// expand is what makes feeding it feel like feeding something.
     active: usize,
+    /// Food scent, rebuilt from scratch each step. SEPARATE from the trail on
+    /// purpose: agents sense trail+scent, but only the trail is drawn. While
+    /// food emitted into the trail, anything with enough reach to be findable
+    /// was also a giant glowing disc on screen, and a handful of sources washed
+    /// the plate out completely. Splitting them lets the scent be as wide as
+    /// discovery needs while the food shows as nothing but its marker.
+    scent: Vec<f32>,
+    /// trail + scent. What agents actually steer by.
+    field: Vec<f32>,
     /// Wall strength per cell, 0 = open, 1 = solid. The colony is confined to
     /// the open cells; agents pressing against a wall wear it down.
     wall: Vec<f32>,
@@ -127,7 +150,13 @@ pub extern "C" fn physarum_init(count: u32, seed: u32) -> *const u8 {
         food_map: vec![0_u8; CELLS],
         grazing: vec![0.0_f32; MAX_FOOD],
         vitality: 1.0,
-        active: count,
+        // Opens at break-even rather than zero: the smoothed figure takes a
+        // few hundred steps to climb, and starting it at nothing reported a
+        // freshly-seeded plate as "starving" for its first seconds.
+        intake: UPKEEP,
+        active: (count / 3).max(1),
+        scent: vec![0.0_f32; CELLS],
+        field: vec![0.0_f32; CELLS],
         wall: vec![0.0_f32; CELLS],
         wall_in: vec![0_u8; CELLS],
         walled: false,
@@ -165,12 +194,37 @@ pub extern "C" fn physarum_init(count: u32, seed: u32) -> *const u8 {
 /// near 225 against agent trails of 20-60 — the food outshone the organism by an
 /// order of magnitude, saturated the gradient flat inside its own radius so
 /// agents arriving had nothing to steer by, and rendered as a wall of discs.
-/// Sized now to sit in the same range as a strong trail: attractive, not blinding.
-const FOOD_STRENGTH: f32 = 1.6;
-const FOOD_RADIUS: i32 = 34;
+/// Peak scent at a source. A direct value, not something that accumulates — the
+/// scent field is rebuilt each step rather than deposited into, so this is
+/// simply how tall the hill is.
+///
+/// It has to overtop an established trail or the colony ignores food entirely.
+/// Self-reinforced filaments run far brighter than a modest hill, so agents
+/// never left them: measured at 46, the plate starved with six flakes sitting on
+/// it and 0.08 of one eaten across 2,500 steps. Raising it is free now that
+/// scent is a separate field from the one that gets drawn — this is the whole
+/// reason for the split.
+const FOOD_STRENGTH: f32 = 150.0;
+/// Reach of the scent, in cells.
+///
+/// Wide because DISCOVERY turned out to be the binding constraint. At 34 on a
+/// 512 plate a source could only be found by an agent blundering within a few
+/// dozen cells of it, and an established network stops wandering — so roughly a
+/// fifth of every plate was never eaten at all, sources sat stranded forever,
+/// and the colony starved beside food it could not smell. Measured: reach 34
+/// leaves 21% uneaten indefinitely, reach 70 consumes the plate to zero. The
+/// peak is unchanged by this; only how far the gradient carries.
+const FOOD_RADIUS: i32 = 70;
+/// The physical flake, as opposed to how far it can be smelled.
+///
+/// Grazing is limited to this, not to scent reach. Letting agents eat anywhere
+/// they could smell food meant a source was being consumed by every agent
+/// within 70 cells — roughly 12,000 of them — and ten flakes disappeared in
+/// twenty seconds. You eat what you are standing on.
+const BITE_RADIUS: f32 = 15.0;
 const MAX_FOOD: usize = 96;
 /// How much a source holds when dropped.
-const FOOD_STORE: f32 = 9_000.0;
+const FOOD_STORE: f32 = 12_000.0;
 /// Eaten per agent standing on a source, per step.
 ///
 /// A full-size source covers ~3,600 cells and the plate runs ~0.57 agents per
@@ -179,12 +233,15 @@ const FOOD_STORE: f32 = 9_000.0;
 /// seconds and dead a few seconds later. Sized now for a source to last a
 /// minute or so of steady grazing, and the footprint shrinks as it goes, so the
 /// last of it takes longer than the first.
-const BITE: f32 = 0.0011;
+const BITE: f32 = 0.006;
 /// Fraction of the living population lost per step while starved, and regained
 /// per step while well fed. Dying is faster than breeding, so a plate left alone
 /// empties in well under a minute but takes longer to come back.
 const DIE_RATE: f32 = 1.0 / 1_400.0;
-const BREED_RATE: f32 = 1.0 / 700.0;
+/// Growth only runs on genuine surplus — vitality already full and still
+/// climbing — so a colony that is merely getting by holds its size and one with
+/// more food than it needs spreads into it.
+const BREED_RATE: f32 = 1.0 / 6_000.0;
 /// Fraction of the population that survives starvation as a dormant remnant.
 ///
 /// Without a floor the colony is a one-way trip: at zero agents nothing grazes,
@@ -212,8 +269,15 @@ const WALL_OPEN: f32 = 0.06;
 /// or three can. A single flake means a slow decline rather than a stable
 /// equilibrium, which is what makes tending it a live decision instead of a
 /// thing you set up once.
-const UPKEEP: f32 = 0.0016;
-const GAIN: f32 = 0.0006;
+///
+/// Sized against what one source actually returns. A full-size flake is grazed
+/// by ~2,000 agents a step, which at BITE earns ~0.0013 of vitality — so upkeep
+/// has to sit under that or a single source cannot pay for the colony and every
+/// run ends in the same death spiral: intake dips, population falls, fewer
+/// agents graze, intake dips further. One flake now roughly breaks even, two
+/// thrive, none starves the plate over about half a minute.
+const UPKEEP: f32 = 0.0006;
+const GAIN: f32 = 0.00022;
 
 /// Place a food source, in grid coordinates. Returns the new source count.
 #[no_mangle]
@@ -348,16 +412,35 @@ pub extern "C" fn physarum_alive() -> f32 {
     })
 }
 
-/// Food left across all sources, as a fraction of what has been dropped.
+/// TOTAL food on the plate, in whole flakes. Three untouched sources read 3.0.
+///
+/// An absolute amount, not a mean share. The share jumped around uselessly —
+/// dropping ten fresh flakes next to one nearly-spent source made the number go
+/// UP, because the average got healthier while the plate got busier.
 #[no_mangle]
-pub extern "C" fn physarum_food_left() -> f32 {
+pub extern "C" fn physarum_food_total() -> f32 {
     STATE.get().as_ref().map_or(0.0, |s| {
-        let n = s.food.len() / 3;
-        if n == 0 {
-            return 0.0;
-        }
         let left: f32 = s.food.chunks_exact(3).map(|f| f[2]).sum();
-        left / (n as f32 * FOOD_STORE)
+        left / FOOD_STORE
+    })
+}
+
+/// 0 dead, 1 starving, 2 stable, 3 growing.
+#[no_mangle]
+pub extern "C" fn physarum_state() -> u32 {
+    STATE.get().as_ref().map_or(0, |s| {
+        // Read off the energy balance, with a dead band so the label does not
+        // flicker while the colony is merely breaking even.
+        let floor = (s.count / DORMANT_SHARE).max(1);
+        if s.vitality <= 0.02 && s.active <= floor {
+            0
+        } else if s.intake < UPKEEP * 0.85 {
+            1
+        } else if s.intake > UPKEEP * 1.15 && s.active < s.count {
+            3
+        } else {
+            2
+        }
     })
 }
 
@@ -414,11 +497,13 @@ pub extern "C" fn physarum_step() {
     let diffuse = s.diffuse;
 
     {
-        // Emit, and stamp which source owns each cell as we go. The map tracks
-        // the shrinking footprint exactly because it is rebuilt from the same
-        // radius the emission uses.
-        let State { food, trail, food_map, grazing, .. } = s;
+        // Rebuild the scent hills and the combined sensing field, and stamp
+        // which source owns each cell as we go.
+        let State { food, trail, scent, field, food_map, grazing, .. } = s;
         let trail = grid(trail);
+        let scent = grid(scent);
+        let field = grid(field);
+        scent.fill(0.0);
         food_map.fill(0);
         grazing.fill(0.0);
 
@@ -430,15 +515,16 @@ pub extern "C" fn physarum_step() {
             let fy = f[1] as i32;
             let share = (f[2] / FOOD_STORE).clamp(0.0, 1.0);
 
-            // Radius follows sqrt(share), so AREA is proportional to what is
-            // left: a half-eaten flake covers half the ground it started with
-            // and visibly shrinks toward nothing. Strength per cell stays put,
-            // so what remains is small and bright rather than wide and faint.
-            let radius = ((FOOD_RADIUS as f32) * share.sqrt()).round() as i32;
-            if radius < 1 {
-                continue;
-            }
+            // Reach narrows only slightly as a source is consumed and never
+            // drops below sensing range. Tying reach to remaining mass stranded
+            // a fifth of every plate: a half-eaten flake stopped calling far
+            // enough to hold the network, the network left, and with nobody
+            // standing on it the rest could never be grazed. Measured — reach
+            // that shrank with mass left 21% uneaten indefinitely.
+            let radius = ((FOOD_RADIUS as f32) * (0.58 + 0.42 * share.sqrt())).round() as i32;
             let r2 = (radius * radius) as f32;
+            let bite_r = BITE_RADIUS * share.sqrt();
+            let bite2 = bite_r * bite_r;
             for dy in -radius..=radius {
                 let row = wrap(fy + dy) * GRID;
                 for dx in -radius..=radius {
@@ -447,18 +533,30 @@ pub extern "C" fn physarum_step() {
                         continue;
                     }
                     let cell = row + wrap(fx + dx);
-                    trail[cell] += FOOD_STRENGTH * (1.0 - d2 / r2);
-                    food_map[cell] = (i + 1) as u8;
+                    let hill = FOOD_STRENGTH * (1.0 - d2 / r2);
+                    if hill > scent[cell] {
+                        scent[cell] = hill;
+                    }
+                    // Only the flake itself can be eaten, and it shrinks as it
+                    // goes — so the last of a source takes longer than the first.
+                    if d2 <= bite2 {
+                        food_map[cell] = (i + 1) as u8;
+                    }
                 }
             }
+        }
+
+        for i in 0..CELLS {
+            field[i] = trail[i] + scent[i];
         }
     }
 
     {
         // Split borrows so the agent walk and the trail writes are independent,
         // and walk fixed-size chunks so field access needs no bounds check.
-        let State { agents, trail, rng, food_map, grazing, active, wall, walled, .. } = s;
+        let State { agents, trail, field, rng, food_map, grazing, active, wall, walled, .. } = s;
         let trail = grid(trail);
+        let field = grid(field);
         let wall = grid(wall);
         let confined = *walled;
         let living = *active * 4;
@@ -469,9 +567,9 @@ pub extern "C" fn physarum_step() {
             let mut dx = a[2];
             let mut dy = a[3];
 
-            let f = sense(trail, x, y, dx, dy, dist);
-            let l = sense(trail, x, y, dx * sc + dy * ss, -dx * ss + dy * sc, dist);
-            let r = sense(trail, x, y, dx * sc - dy * ss, dx * ss + dy * sc, dist);
+            let f = sense(field, x, y, dx, dy, dist);
+            let l = sense(field, x, y, dx * sc + dy * ss, -dx * ss + dy * sc, dist);
+            let r = sense(field, x, y, dx * sc - dy * ss, dx * ss + dy * sc, dist);
 
             // Steering. The random branch when both flanks tie is what makes
             // the network branch instead of settling into smooth channels.
@@ -531,7 +629,7 @@ pub extern "C" fn physarum_step() {
             // side. With nothing calling from beyond, a wall never wears
             // through; with food out there, it opens exactly where the food is.
             let (fx_, fy_, cell) = if confined && wall[target] >= WALL_OPEN {
-                wall[target] = (wall[target] - ERODE * trail[target]).max(0.0);
+                wall[target] = (wall[target] - ERODE * field[target]).max(0.0);
                 let here = wrap(y as i32) * GRID + wrap(x as i32);
                 (x, y, here)
             } else {
@@ -557,7 +655,7 @@ pub extern "C" fn physarum_step() {
 
     {
         // Consume what was grazed, then settle the colony's books.
-        let State { food, grazing, vitality, .. } = s;
+        let State { food, grazing, vitality, intake, .. } = s;
         let mut eaten = 0.0_f32;
         for (i, f) in food.chunks_exact_mut(3).enumerate() {
             if f[2] <= 0.0 {
@@ -569,7 +667,8 @@ pub extern "C" fn physarum_step() {
         }
         // Upkeep is paid every step whether or not anything was eaten, so an
         // unfed plate winds down instead of holding its shape indefinitely.
-        *vitality = (*vitality + eaten * GAIN - UPKEEP).clamp(0.0, 1.0);
+        *intake += (eaten * GAIN - *intake) * 0.02;
+        *vitality = (*vitality + *intake - UPKEEP).clamp(0.0, 1.0);
     }
 
     {
@@ -581,7 +680,9 @@ pub extern "C" fn physarum_step() {
             let floor = (s.count / DORMANT_SHARE).max(1);
             let loss = ((s.active as f32) * DIE_RATE).ceil() as usize;
             s.active = s.active.saturating_sub(loss.max(1)).max(floor);
-        } else if vit > 0.45 && s.active < s.count {
+        } else if vit >= 0.995 && s.intake > UPKEEP && s.active < s.count {
+            // Health is full and intake still exceeds upkeep, so the surplus
+            // has nowhere to go but more of it.
             let gain = ((s.count as f32) * BREED_RATE).ceil() as usize;
             s.active = (s.active + gain.max(1)).min(s.count);
         }
@@ -647,9 +748,9 @@ pub extern "C" fn physarum_step() {
             let fx = f[0] as i32;
             let fy = f[1] as i32;
             let share = (f[2] / FOOD_STORE).clamp(0.0, 1.0);
-            // Marker tracks the same sqrt(share) as the emission, so the bright
-            // core and the halo shrink together and vanish at the same moment.
-            let r = ((FOOD_RADIUS as f32) * share.sqrt() * 0.16).round() as i32;
+            // The marker IS the flake: same radius grazing uses, so what you
+            // see is exactly what can be eaten.
+            let r = (BITE_RADIUS * share.sqrt()).round() as i32;
             if r < 1 {
                 continue;
             }

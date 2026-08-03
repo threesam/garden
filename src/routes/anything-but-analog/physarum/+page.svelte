@@ -11,9 +11,14 @@
 
   /** Counts measured per sim against a 16.7ms budget on a 512 grid. */
   const SIMS = {
-    physarum: { label: 'physarum', agents: 150_000 },
+    // Capacity, not starting size — the colony hatches at a third of this and
+    // grows into the rest when it is well fed.
+    physarum: { label: 'physarum', agents: 200_000 },
     dicty: { label: 'dictyostelium', agents: 250_000 },
   } as const satisfies Record<SimName, { label: string; agents: number }>;
+
+  /** Indexed by physarum_state(): 0 dead, 1 starving, 2 stable, 3 growing. */
+  const CONDITION = ['dead', 'starving', 'stable', 'growing'] as const;
 
   let sim = $state<SimName>('physarum');
   /** Fresh each load, so the same page is never the same run twice. */
@@ -25,7 +30,8 @@
   let worker: Worker | null = null;
   let fps = $state(0);
   let vitality = $state(1);
-  let foodLeft = $state(0);
+  let flakes = $state(0);
+  let condition = $state('stable');
   let alive = $state(1);
   let walls = $state(0);
   let phrase = $state('slime');
@@ -84,14 +90,6 @@
     food = 0;
   }
 
-  function describe(v: number): string {
-    if (v > 0.75) return 'thriving';
-    if (v > 0.4) return 'feeding';
-    if (v > 0.1) return 'hungry';
-    return 'starving';
-  }
-  const condition = $derived(describe(vitality));
-
   const statusLine = $derived(
     fps > 0 ? `${status} · ${String(fps)} fps in the worker · main thread idle` : status,
   );
@@ -113,7 +111,8 @@
         fps?: number;
         message?: string;
         vitality?: number;
-        foodLeft?: number;
+        flakes?: number;
+        state?: number;
         alive?: number;
         walls?: number;
       }>,
@@ -121,7 +120,8 @@
       if (e.data.type === 'fps') {
         fps = e.data.fps ?? 0;
         vitality = e.data.vitality ?? 1;
-        foodLeft = e.data.foodLeft ?? 0;
+        flakes = e.data.flakes ?? 0;
+        condition = CONDITION[e.data.state ?? 2] ?? 'stable';
         alive = e.data.alive ?? 1;
         walls = e.data.walls ?? 0;
       }
@@ -189,7 +189,7 @@
       {#if sim === 'physarum'}
         <div class="mt-3 flex flex-wrap items-center justify-center gap-2">
           <span class="font-mono text-xs" class:starving={vitality < 0.25}>
-            {Math.round(foodLeft * 100)}% food · {condition} · {Math.round(alive * 100)}% alive
+            {flakes.toFixed(1)} food · {condition} · {Math.round(alive * 100)}% colony
             {#if contained}· {Math.round(walls * 100)}% walls{/if}
           </span>
           <button

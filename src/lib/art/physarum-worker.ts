@@ -10,13 +10,22 @@
 
 export type SimName = 'physarum' | 'dicty';
 
+/** A region in GRID coordinates, not pixels. */
+export interface Rect {
+  x0: number;
+  y0: number;
+  x1: number;
+  y1: number;
+}
+
 interface WasmExports {
   memory: WebAssembly.Memory;
   physarum_init: (count: number, seed: number) => number;
   physarum_add_food: (x: number, y: number) => number;
   physarum_clear_food: () => void;
   physarum_vitality: () => number;
-  physarum_food_left: () => number;
+  physarum_food_total: () => number;
+  physarum_state: () => number;
   physarum_alive: () => number;
   physarum_wall_buffer: () => number;
   physarum_apply_walls: () => void;
@@ -53,7 +62,8 @@ export type InboundMessage =
   | { type: 'switch'; sim: SimName; agents: number; seed: number }
   | { type: 'food'; x: number; y: number }
   | { type: 'clearFood' }
-  | { type: 'contain'; text: string }
+  | { type: 'contain'; text: string; rect: Rect }
+  | { type: 'containRect'; rect: Rect }
   | { type: 'release' }
   | { type: 'pause' }
   | { type: 'resume' };
@@ -66,7 +76,8 @@ let resumeLoop: (() => void) | null = null;
 let switchSim: ((sim: SimName, agents: number, seed: number) => void) | null = null;
 let addFood: ((x: number, y: number) => void) | null = null;
 let clearFood: (() => void) | null = null;
-let contain: ((text: string) => void) | null = null;
+let contain: ((text: string, rect: Rect) => void) | null = null;
+let containRect: ((rect: Rect) => void) | null = null;
 let release: (() => void) | null = null;
 
 async function start(msg: StartMessage): Promise<void> {
@@ -140,7 +151,21 @@ async function start(msg: StartMessage): Promise<void> {
    * The colony is confined INSIDE the glyphs, so the mask is inverted: solid
    * everywhere the letters are not.
    */
-  contain = (text: string) => {
+  /** Everything outside `rect` becomes wall. */
+  containRect = (rect: Rect) => {
+    const walls = new Uint8Array(exports.memory.buffer, exports.physarum_wall_buffer(), grid * grid);
+    walls.fill(255);
+    const x0 = Math.max(0, Math.round(rect.x0));
+    const x1 = Math.min(grid, Math.round(rect.x1));
+    const y0 = Math.max(0, Math.round(rect.y0));
+    const y1 = Math.min(grid, Math.round(rect.y1));
+    for (let y = y0; y < y1; y++) {
+      walls.fill(0, y * grid + x0, y * grid + x1);
+    }
+    exports.physarum_apply_walls();
+  };
+
+  contain = (text: string, rect: Rect) => {
     const mask = new OffscreenCanvas(grid, grid);
     const m = mask.getContext('2d', { willReadFrequently: true });
     if (!m) return;
@@ -149,7 +174,11 @@ async function start(msg: StartMessage): Promise<void> {
 
     const words = text.trim().split(/\s+/).filter(Boolean).slice(0, 4);
     if (!words.length) return;
-    const lineHeight = grid / (words.length + 0.6);
+    const bx = Math.max(0, rect.x0);
+    const by = Math.max(0, rect.y0);
+    const bw = Math.max(8, Math.min(grid, rect.x1) - bx);
+    const bh = Math.max(8, Math.min(grid, rect.y1) - by);
+    const lineHeight = bh / (words.length + 0.6);
 
     m.fillStyle = '#fff';
     m.textAlign = 'center';
@@ -160,10 +189,9 @@ async function start(msg: StartMessage): Promise<void> {
       let size = lineHeight * 0.95;
       m.font = `900 ${String(size)}px ui-sans-serif, system-ui, sans-serif`;
       const w = m.measureText(word).width;
-      if (w > grid * 0.92) size *= (grid * 0.92) / w;
+      if (w > bw * 0.92) size *= (bw * 0.92) / w;
       m.font = `900 ${String(size)}px ui-sans-serif, system-ui, sans-serif`;
-      const y = lineHeight * (i + 0.8);
-      m.fillText(word, grid / 2, y);
+      m.fillText(word, bx + bw / 2, by + lineHeight * (i + 0.8));
     });
 
     const px = m.getImageData(0, 0, grid, grid).data;
@@ -193,7 +221,8 @@ async function start(msg: StartMessage): Promise<void> {
         type: 'fps',
         fps: Math.round((frames * 1000) / (now - lastReport)),
         vitality: exports.physarum_vitality(),
-        foodLeft: exports.physarum_food_left(),
+        flakes: exports.physarum_food_total(),
+        state: exports.physarum_state(),
         alive: exports.physarum_alive(),
         walls: exports.physarum_walls_intact(),
       });
@@ -221,7 +250,9 @@ self.onmessage = (event: MessageEvent<InboundMessage>) => {
   } else if (msg.type === 'clearFood') {
     clearFood?.();
   } else if (msg.type === 'contain') {
-    contain?.(msg.text);
+    contain?.(msg.text, msg.rect);
+  } else if (msg.type === 'containRect') {
+    containRect?.(msg.rect);
   } else if (msg.type === 'release') {
     release?.();
   } else if (msg.type === 'pause') {
