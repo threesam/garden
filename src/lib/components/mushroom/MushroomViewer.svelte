@@ -65,7 +65,7 @@
 
       // Ambient kept low for the same reason — it is what was washing the
       // forms flat.
-      scene.add(new THREE.AmbientLight('#7f8378', 0.18));
+      scene.add(new THREE.AmbientLight('#8a8d82', 0.3));
       const key = new THREE.DirectionalLight('#fff1db', 1.5);
       key.position.set(0.65, 1.35, 0.45);
       key.castShadow = true;
@@ -76,7 +76,7 @@
       // Bounce from BELOW. Not decorative: the gills face downward, and under
       // overhead-only light the feature that most identifies an oyster renders
       // as a black void.
-      const bounce = new THREE.DirectionalLight('#e8cfa6', 0.5);
+      const bounce = new THREE.DirectionalLight('#e8cfa6', 0.7);
       bounce.position.set(-0.45, -1, 0.75);
       scene.add(bounce);
       // Cool fill from behind, to keep the shadowed sides from going muddy.
@@ -84,7 +84,7 @@
       fill.position.set(-0.9, 0.5, -0.8);
       scene.add(fill);
       // Sky/ground wrap, which is what actually lifts a shaded underside.
-      scene.add(new THREE.HemisphereLight('#dfe6ea', '#806f51', 0.3));
+      scene.add(new THREE.HemisphereLight('#e2e8ec', '#8a7758', 0.55));
       // Headlight, tracked to the camera in the render loop. Gill blades are
       // vertical, so their normals point sideways and BOTH the overhead key and
       // the upward bounce graze them at almost zero incidence — the gills, the

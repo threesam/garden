@@ -150,12 +150,13 @@ function surface(fan: Fan, a: number, u: number): { r: number; y: number } {
   const edgeLobing = (lobes * 0.26 + ripple * 0.12 + torn) * waviness * margin;
   const r = u * radius * (1 + edgeLobing);
 
-  // A domed shell, not a plate: it swells after the attachment, then the
-  // margin rolls under. The rolled edge is deliberately stronger than the
-  // broad dome because the silhouette is what sells an oyster cap.
-  const dome = Math.sin(u * Math.PI) ** 0.72;
-  const base = dome * 0.95 - u * 0.18 - roll * 0.4;
-  const verticalWave = (noise(nx * 3.2 + 29, nz * 3.2 + 29, 29) - 0.5) * height * 0.42 * waviness * margin;
+  // A tongue, not a pillow. sin(u·pi) peaks halfway out, which puts a ridge
+  // across the middle of the cap and is why every render so far looked
+  // inflated. A shelf fungus is thickest where it attaches and slopes away
+  // from there, so the profile declines monotonically and only the rim turns
+  // back under.
+  const base = 0.3 - 0.62 * u ** 1.5 - roll * 0.34;
+  const verticalWave = (noise(nx * 3.2 + 29, nz * 3.2 + 29, 29) - 0.5) * height * 0.3 * waviness * margin;
   const y = height * base + verticalWave;
   return { r, y };
 }
@@ -260,8 +261,13 @@ function buildFan(
         const yRoot = y - thicknessAt(fan, u);
         // Deepest around mid-radius, pinching out at both ends the way a real
         // blade does — a constant-depth blade reads as a comb.
-        const depthProfile = Math.sin(clamp01(u) * Math.PI) ** 0.52;
-        const decurrent = 0.28 * (1 - u) ** 1.7;
+        // Deep across most of the radius, vanishing exactly AT the rim. The
+        // margin of a real cap is a thin blade of flesh with the gills already
+        // run out; leaving them deep there hangs them past the silhouette like
+        // comb teeth. sin(u·pi) was wrong the other way — it pinched to zero at
+        // the attachment too, where the gills should be at their deepest.
+        const depthProfile = 1 - clamp01(u) ** 3;
+        const decurrent = 0.3 * (1 - u) ** 1.7;
         const depth = gillDepth * (depthProfile + decurrent);
         const tuck = 1 - smoothstep(0.78, 1, u) * 0.06;
         const px = Math.cos(a) * r * tuck;
@@ -342,12 +348,14 @@ export function buildFruitingBody(bp: Blueprint, t = 1, seed = 1): Mesh {
     const rise = tierFrac * baseD * bp.cluster.tierRise + (jRise - 0.5) * baseD * 0.045;
     // Attachment points share one mycelial base. Keep them close enough that
     // the caps appear to emerge together instead of on visible stalks.
-    const out = (0.02 + jOut * 0.12) * baseD;
+    const out = (0.06 + jOut * 0.26) * baseD;
     // Front caps tip further over; the whole flush droops away from the wood.
-    // Near-horizontal. Oyster caps shelf out sideways; pitching them steeply
-    // down turns the gills — the feature that most identifies the species —
-    // away from any viewpoint that can see them.
-    const pitch = -(0.02 + (1 - tierFrac) * 0.14 + (jPitch - 0.5) * 0.1);
+    // Tilted UP and outward, not down. A cluster on dead wood curves its
+    // margins away from the attachment and toward the light, which is what
+    // presents the gilled underside to anyone standing in front of it.
+    // Pitching the caps downward instead — which is what "shelf" suggests —
+    // hides the gills from every viewpoint that could otherwise see them.
+    const pitch = 0.12 + (1 - tierFrac) * 0.3 + (jPitch - 0.5) * 0.14;
 
     mb.setPlacement(heading, pitch, Math.cos(heading) * out, rise, Math.sin(heading) * out);
 

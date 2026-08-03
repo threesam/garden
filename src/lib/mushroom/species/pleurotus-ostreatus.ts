@@ -29,7 +29,7 @@ export const pleurotusOstreatus: Blueprint = {
     colour: '#efe9dc',
   },
   gills: {
-    count: 96,
+    count: 150,
     depthRatio: 0.078,
     colour: '#f5f0e6',
   },
@@ -38,7 +38,7 @@ export const pleurotusOstreatus: Blueprint = {
     spreadDeg: 190,
     // 0.48, not lower: at 0.28 the tiers interpenetrate and the whole flush
     // renders as one dough-like mass. Verified by screenshot, twice.
-    tierRise: 0.48,
+    tierRise: 0.4,
   },
   sporePrint: 'lilac-grey',
 };
