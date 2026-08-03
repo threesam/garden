@@ -23,10 +23,20 @@
 //!
 //! ## State of the model
 //!
-//! Concentric TARGET waves emerge and sustain. Spirals do not yet: the broken
-//! front seeded at init curls, but the free end does not survive long enough to
-//! wind up. Both patterns occur in real cultures, so what is on screen is a real
-//! behaviour rather than a stand-in for the missing one.
+//! Both real patterns appear, and neither is drawn. Founding cells emit
+//! concentric target waves; spirals form when a front breaks and the free end
+//! winds up.
+//!
+//! The spirals arrived by REMOVING a cheat, which is worth recording. An earlier
+//! version manufactured the broken front a spiral needs — a straight stripe of
+//! primed cells backed by a rectangular block of refractory ones. It never
+//! produced a spiral, and every straight edge in the output was an edge that had
+//! been drawn rather than grown. Replacing it with a few autonomous pacemaker
+//! cells produced spirals within a thousand steps: a pacemaker firing on its own
+//! clock eventually fires into tissue that has not fully recovered, the front
+//! breaks on that heterogeneity, and the free end curls. That is the mechanism
+//! in a real culture too. The arrangement was not helping the phenomenon, it was
+//! standing in for it and suppressing it.
 //!
 //! The parameters are constrained, not guessed. A sustained chain needs the
 //! spike a single firing puts into its own neighbourhood to clear threshold,
@@ -74,6 +84,13 @@ struct State {
     spontaneous: f32,
 }
 
+/// How many cells cycle autonomously. A few: each founds an aggregation
+/// territory, and too many gives competing patches instead of clean fronts.
+const PACEMAKERS: usize = 5;
+/// Steps between autonomous firings. Longer than the refractory period, or the
+/// centre re-fires into its own recovering tissue and no wave escapes.
+const PACEMAKER_PERIOD: f32 = 150.0;
+
 static STATE: Global<Option<State>> = Global::new(None);
 
 /// Allocate and scatter cells uniformly across the plate.
@@ -89,44 +106,42 @@ pub extern "C" fn dicty_init(count: u32, seed: u32) -> *const u8 {
         cells[i * 3 + 2] = 0.0;
     }
 
-    // Symmetry break: a BROKEN wavefront.
+    // Founding cells.
     //
-    // This is the piece that was missing. A spiral in an excitable medium can
-    // only be born from a wave with a free end — an intact front expands as a
-    // ring forever and never curls. So the plate is seeded with a stripe of
-    // ready cells backed by a stripe of refractory ones, and that barrier is
-    // cut off half way across. The front that runs along it has one end
-    // anchored on the barrier and one end free, and the free end winds into a
-    // spiral on its own.
+    // A handful of individual amoebae, primed to fire on the first step. That
+    // is how a real plate starts: aggregation centres are founded by single
+    // pacemaker cells, not by fronts appearing fully formed. Everything else
+    // gets a randomised recovery phase so the plate does not flash in unison
+    // and then sit dead.
     //
-    // Only the initial condition is arranged. The rotation, the wavelength and
-    // everything after step one comes out of the relay-and-refractory rule, so
-    // the spiral is genuinely emergent rather than drawn. In a real culture the
-    // same job is done by heterogeneity in the cell layer breaking a front.
-    let half = GRID as f32 * 0.5;
-    let quarter = GRID as f32 * 0.25;
+    // A previous version drew a straight stripe of primed cells backed by a
+    // rectangular block of refractory ones, to manufacture the broken wavefront
+    // a spiral needs. It worked as a symmetry break and it looked wrong: every
+    // straight edge on screen was an edge I had drawn, and only the one
+    // propagating front was shaped by the simulation. Prescribing the geometry
+    // at t=0 is milder than painting it every frame, but it is the same species
+    // of cheat, and it is visible. Point sources give circular waves and no
+    // straight lines anywhere.
+    //
+    // Fronts in a discrete cell layer pinch and break on their own, which is
+    // what produces spirals here without anyone arranging one.
     for i in 0..count {
-        let x = cells[i * 3];
-        let y = cells[i * 3 + 1];
-        if y > half && y < half + 6.0 && x < half {
-            // The front itself: primed to fire on the first step.
-            cells[i * 3 + 2] = 0.0;
-        } else if y >= half + 6.0 && y < half + 6.0 + quarter && x < half {
-            // The refractory shadow behind it, which stops the wave running
-            // backwards and leaves it travelling one way only.
-            cells[i * 3 + 2] = 90.0;
-        } else {
-            cells[i * 3 + 2] = 400.0 + rand01(&mut rng) * 40.0;
-        }
+        cells[i * 3 + 2] = rand01(&mut rng) * (400.0);
+    }
+    // The first PACEMAKERS cells in the array are autonomous oscillators, and
+    // their slots are stable because cells are never reordered. Real founding
+    // cells cycle on their own rather than waiting to be told; without that a
+    // centre fires once, emits a single ring and goes quiet forever, which is
+    // why the plate produced lone expanding discs instead of the trains of
+    // concentric rings a starving culture actually shows.
+    for i in 0..PACEMAKERS.min(count) {
+        cells[i * 3] = rand01(&mut rng) * GRID as f32;
+        cells[i * 3 + 1] = rand01(&mut rng) * GRID as f32;
+        cells[i * 3 + 2] = rand01(&mut rng) * PACEMAKER_PERIOD;
     }
 
-    let mut camp = vec![0.0_f32; CELLS];
-    let row = (GRID as f32 * 0.5) as usize;
-    for x in 0..(GRID / 2) {
-        for dy in 0..4 {
-            camp[(row + dy) * GRID + x] = 40.0;
-        }
-    }
+    // No seeded field. The founding cells above put the first cAMP into it.
+    let camp = vec![0.0_f32; CELLS];
 
     let slot = STATE.get();
     *slot = Some(State {
@@ -200,13 +215,30 @@ pub extern "C" fn dicty_step() {
         let density = grid(density);
         density.fill(0.0);
 
-        for c in cells.chunks_exact_mut(3) {
+        for (idx, c) in cells.chunks_exact_mut(3).enumerate() {
+            let pacemaker = idx < PACEMAKERS;
             let x = c[0];
             let y = c[1];
             let ix = wrap(x as i32);
             let iy = wrap(y as i32);
             let here = camp[iy * GRID + ix];
             density[iy * GRID + ix] += 1.0;
+
+            if pacemaker {
+                // Cycles on its own clock, ignoring the field entirely.
+                c[2] -= 1.0;
+                if c[2] <= 0.0 {
+                    let ninth = pulse * (1.0 / 9.0);
+                    for dy in -1_i32..=1 {
+                        let row = wrap(iy as i32 + dy) * GRID;
+                        for dx in -1_i32..=1 {
+                            camp[row + wrap(ix as i32 + dx)] += ninth;
+                        }
+                    }
+                    c[2] = PACEMAKER_PERIOD;
+                }
+                continue;
+            }
 
             if c[2] > 0.0 {
                 // Refractory: recovering, deaf to the signal and not moving.

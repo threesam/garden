@@ -235,13 +235,22 @@
               Nothing stands in for anything.
             </p>
             <p class="text-sm leading-relaxed text-white/60">
-              What you get are the <strong>target waves</strong> — concentric
-              fronts expanding from founding cells, with the tissue brightening
-              where amoebae clump. Spirals are not there yet: the simulation seeds
-              a broken wavefront, which is the only way a spiral can start, but the
-              free end does not survive long enough to wind up. Both patterns are
-              real in culture, so this is a real behaviour rather than a stand-in
-              for the missing one.
+              Both patterns show up, and neither is drawn. Founding cells send out
+              concentric <strong>target waves</strong>; a <strong>spiral</strong>
+              forms wherever a front breaks and the loose end winds up. The tissue
+              brightens where amoebae have clumped.
+            </p>
+            <p class="text-sm leading-relaxed text-white/60">
+              The spirals arrived by taking something out. An earlier version
+              manufactured the broken front a spiral needs — a stripe of primed
+              cells backed by a block of refractory ones — and it never produced
+              one; it just meant every straight edge on screen was an edge I had
+              drawn. Replacing it with a few cells that fire on their own clock
+              gave spirals within a thousand steps, because a pacemaker eventually
+              fires into tissue that has not finished recovering, the front breaks
+              there, and the end curls. That is how it happens on a real plate.
+              The arrangement had been standing in for the phenomenon and
+              suppressing it.
             </p>
             <p class="text-sm leading-relaxed text-white/60">
               Still abstracted: real cAMP relay runs through receptor binding,
@@ -249,12 +258,12 @@
               kinetics. Here it is a threshold, a pulse and a timer.
             </p>
             <p class="text-sm leading-relaxed text-white/60">
-              An earlier attempt hit every measurement I set for it by drawing the
-              spirals from a formula centred on fixed coordinates instead of
-              growing them. It looked considerably better than this does. It was
-              also a picture of the answer rather than the answer, which for the
-              one organism here whose agents mean something would have been the
-              worst possible trade.
+              A separate attempt hit every measurement I set for it by drawing the
+              spirals from a formula centred on fixed coordinates. It looked better
+              than this did at the time. It was a picture of the answer rather than
+              the answer, which for the one organism here whose agents mean
+              something would have been the worst possible trade — and the real
+              ones turned up shortly afterwards anyway.
             </p>
           </div>
         {/if}
