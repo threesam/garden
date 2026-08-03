@@ -17,6 +17,11 @@ interface WasmExports {
   physarum_clear_food: () => void;
   physarum_vitality: () => number;
   physarum_food_left: () => number;
+  physarum_alive: () => number;
+  physarum_wall_buffer: () => number;
+  physarum_apply_walls: () => void;
+  physarum_clear_walls: () => void;
+  physarum_walls_intact: () => number;
   dicty_init: (count: number, seed: number) => number;
   dicty_step: () => void;
   dicty_pixels: () => number;
@@ -48,6 +53,8 @@ export type InboundMessage =
   | { type: 'switch'; sim: SimName; agents: number; seed: number }
   | { type: 'food'; x: number; y: number }
   | { type: 'clearFood' }
+  | { type: 'contain'; text: string }
+  | { type: 'release' }
   | { type: 'pause' }
   | { type: 'resume' };
 
@@ -59,6 +66,8 @@ let resumeLoop: (() => void) | null = null;
 let switchSim: ((sim: SimName, agents: number, seed: number) => void) | null = null;
 let addFood: ((x: number, y: number) => void) | null = null;
 let clearFood: (() => void) | null = null;
+let contain: ((text: string) => void) | null = null;
+let release: (() => void) | null = null;
 
 async function start(msg: StartMessage): Promise<void> {
   const ctx = msg.canvas.getContext('2d');
@@ -118,6 +127,55 @@ async function start(msg: StartMessage): Promise<void> {
   switchSim = load;
   addFood = (x, y) => { exports.physarum_add_food(x, y); };
   clearFood = () => { exports.physarum_clear_food(); };
+  release = () => { exports.physarum_clear_walls(); };
+
+  /**
+   * Rasterise text into the wall mask.
+   *
+   * Canvas `fillText` is available in a worker via OffscreenCanvas and does this
+   * natively, so no text-layout dependency is pulled in. That would start to
+   * earn its place if this ever needed real multiline paragraph layout; for a
+   * word or two, measureText plus a scale-to-fit is the whole job.
+   *
+   * The colony is confined INSIDE the glyphs, so the mask is inverted: solid
+   * everywhere the letters are not.
+   */
+  contain = (text: string) => {
+    const mask = new OffscreenCanvas(grid, grid);
+    const m = mask.getContext('2d', { willReadFrequently: true });
+    if (!m) return;
+    m.fillStyle = '#000';
+    m.fillRect(0, 0, grid, grid);
+
+    const words = text.trim().split(/\s+/).filter(Boolean).slice(0, 4);
+    if (!words.length) return;
+    const lineHeight = grid / (words.length + 0.6);
+
+    m.fillStyle = '#fff';
+    m.textAlign = 'center';
+    m.textBaseline = 'middle';
+    words.forEach((word, i) => {
+      // Fit each line to the plate, then back off so glyphs are fat enough to
+      // hold a colony — thin strokes leave no interior to live in.
+      let size = lineHeight * 0.95;
+      m.font = `900 ${String(size)}px ui-sans-serif, system-ui, sans-serif`;
+      const w = m.measureText(word).width;
+      if (w > grid * 0.92) size *= (grid * 0.92) / w;
+      m.font = `900 ${String(size)}px ui-sans-serif, system-ui, sans-serif`;
+      const y = lineHeight * (i + 0.8);
+      m.fillText(word, grid / 2, y);
+    });
+
+    const px = m.getImageData(0, 0, grid, grid).data;
+    const walls = new Uint8Array(exports.memory.buffer, exports.physarum_wall_buffer(), grid * grid);
+    for (let i = 0; i < grid * grid; i++) {
+      // Inverted: white glyph = open, everything else = wall.
+      // noUncheckedIndexedAccess: the read is in range by construction, but the
+      // compiler cannot see that through a DataView-backed array.
+      walls[i] = (px[i * 4] ?? 0) > 127 ? 0 : 255;
+    }
+    exports.physarum_apply_walls();
+  };
 
   let frames = 0;
   let lastReport = performance.now();
@@ -136,6 +194,8 @@ async function start(msg: StartMessage): Promise<void> {
         fps: Math.round((frames * 1000) / (now - lastReport)),
         vitality: exports.physarum_vitality(),
         foodLeft: exports.physarum_food_left(),
+        alive: exports.physarum_alive(),
+        walls: exports.physarum_walls_intact(),
       });
       frames = 0;
       lastReport = now;
@@ -160,6 +220,10 @@ self.onmessage = (event: MessageEvent<InboundMessage>) => {
     addFood?.(msg.x, msg.y);
   } else if (msg.type === 'clearFood') {
     clearFood?.();
+  } else if (msg.type === 'contain') {
+    contain?.(msg.text);
+  } else if (msg.type === 'release') {
+    release?.();
   } else if (msg.type === 'pause') {
     running = false;
     cancelAnimationFrame(raf);

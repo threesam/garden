@@ -49,8 +49,27 @@ struct State {
     diffuse: f32,
     /// Interleaved x, y, remaining per food source.
     food: Vec<f32>,
-    /// 0 = starved, 1 = well fed. Scales how much trail the agents lay down.
+    /// Which source owns each cell, as index+1; 0 for none. Rebuilt every step
+    /// while emitting, so it tracks each source's shrinking footprint exactly.
+    /// This is what lets consumption be driven by agents ACTUALLY standing on
+    /// the food, at one lookup per agent rather than a distance test per agent
+    /// per source.
+    food_map: Vec<u8>,
+    /// Agents standing on each source this step.
+    grazing: Vec<f32>,
+    /// 0 = starved, 1 = well fed. Scales trail deposit, speed and population.
     vitality: f32,
+    /// Living agents. The loop walks only this many; the rest of the buffer is
+    /// dead stock waiting to be repopulated, so nothing is ever reallocated.
+    active: usize,
+    /// Wall strength per cell, 0 = open, 1 = solid. The colony is confined to
+    /// the open cells; agents pressing against a wall wear it down.
+    wall: Vec<f32>,
+    /// Staging buffer JS writes a rasterised mask into. Separate from `wall`
+    /// because the host writes bytes and the simulation wants floats it can
+    /// erode continuously.
+    wall_in: Vec<u8>,
+    walled: bool,
 }
 
 static STATE: Global<Option<State>> = Global::new(None);
@@ -101,12 +120,30 @@ pub extern "C" fn physarum_init(count: u32, seed: u32) -> *const u8 {
         deposit: 1.0,
         decay: 0.96,
         diffuse: 0.10,
-        food: Vec::with_capacity(96),
+        // Capacity is exact and adds are capped at MAX_FOOD, so pushing a
+        // source can never reallocate. A realloc here could grow wasm memory,
+        // which silently detaches every view JS is holding.
+        food: Vec::with_capacity(MAX_FOOD * 3),
+        food_map: vec![0_u8; CELLS],
+        grazing: vec![0.0_f32; MAX_FOOD],
         vitality: 1.0,
+        active: count,
+        wall: vec![0.0_f32; CELLS],
+        wall_in: vec![0_u8; CELLS],
+        walled: false,
     };
 
     let slot = STATE.get();
     *slot = Some(state);
+
+    // A few flakes to open with. Without them the plate starts starving on the
+    // first frame and the piece opens on something already dying — the feeding
+    // is the interaction, so it needs to begin alive and become your problem.
+    for _ in 0..3 {
+        let fx = 90.0 + rand01(&mut rng) * (GRID as f32 - 180.0);
+        let fy = 90.0 + rand01(&mut rng) * (GRID as f32 - 180.0);
+        physarum_add_food(fx, fy);
+    }
     slot.as_ref().map_or(core::ptr::null(), |s| s.pixels.as_ptr())
 }
 
@@ -123,20 +160,60 @@ pub extern "C" fn physarum_init(count: u32, seed: u32) -> *const u8 {
 /// network just walks past. A chemoattractant in a dish spreads far further than
 /// the food does; the source needs to lay down a gradient with real reach or it
 /// is not an attractor at all, only a decoration.
-const FOOD_STRENGTH: f32 = 9.0;
+/// Emission accumulates: with decay d, a source settles at roughly
+/// strength/(1-d), which is ~25x the per-step amount. At 9.0 that put the centre
+/// near 225 against agent trails of 20-60 — the food outshone the organism by an
+/// order of magnitude, saturated the gradient flat inside its own radius so
+/// agents arriving had nothing to steer by, and rendered as a wall of discs.
+/// Sized now to sit in the same range as a strong trail: attractive, not blinding.
+const FOOD_STRENGTH: f32 = 1.6;
 const FOOD_RADIUS: i32 = 34;
+const MAX_FOOD: usize = 96;
 /// How much a source holds when dropped.
-const FOOD_STORE: f32 = 5_200.0;
-/// Consumption is proportional to the trail sitting on the source, which is a
-/// good enough proxy for how much of the organism has actually arrived. It costs
-/// one lookup per source per step instead of testing every agent against every
-/// source, and it has the right behaviour for free: food nobody has reached is
-/// food nobody is eating.
-const EAT_RATE: f32 = 0.0075;
-/// Standing cost of being alive, per step. Balanced against EAT_RATE so a couple
-/// of sources sustain the colony and an empty plate starves it in ~30 seconds.
+const FOOD_STORE: f32 = 9_000.0;
+/// Eaten per agent standing on a source, per step.
+///
+/// A full-size source covers ~3,600 cells and the plate runs ~0.57 agents per
+/// cell, so roughly 2,000 agents graze a fresh flake every step. At 0.0065 that
+/// stripped a source in under 90 steps — the whole plate was bare in twelve
+/// seconds and dead a few seconds later. Sized now for a source to last a
+/// minute or so of steady grazing, and the footprint shrinks as it goes, so the
+/// last of it takes longer than the first.
+const BITE: f32 = 0.0011;
+/// Fraction of the living population lost per step while starved, and regained
+/// per step while well fed. Dying is faster than breeding, so a plate left alone
+/// empties in well under a minute but takes longer to come back.
+const DIE_RATE: f32 = 1.0 / 1_400.0;
+const BREED_RATE: f32 = 1.0 / 700.0;
+/// Fraction of the population that survives starvation as a dormant remnant.
+///
+/// Without a floor the colony is a one-way trip: at zero agents nothing grazes,
+/// so nothing is eaten, so vitality can never rise — feeding a dead plate did
+/// nothing at all and the piece was unrecoverable. A remnant is also what the
+/// organism does. Starved physarum forms a sclerotium, sits dormant, and
+/// revives when food returns.
+const DORMANT_SHARE: usize = 60;
+/// How fast a blocked agent wears down the wall in front of it, per unit of
+/// signal on the far side.
+///
+/// Scaled by that signal on purpose. Agents bump into walls constantly just
+/// exploring, and eroding on contact alone dissolves the text within seconds.
+/// Tying it to how loudly something is calling from beyond means a wall with
+/// nothing behind it never wears through, and a wall with food behind it opens
+/// exactly where the food is.
+const ERODE: f32 = 0.00022;
+/// Below this a cell is passable.
+const WALL_OPEN: f32 = 0.06;
+
+/// Standing cost of being alive, per step, against what eating returns. Balanced
+/// so a couple of sources sustain the colony and an empty plate starves it.
+///
+/// Deliberately tuned so ONE source cannot quite pay for the colony while two
+/// or three can. A single flake means a slow decline rather than a stable
+/// equilibrium, which is what makes tending it a live decision instead of a
+/// thing you set up once.
 const UPKEEP: f32 = 0.0016;
-const GAIN: f32 = 0.00035;
+const GAIN: f32 = 0.0006;
 
 /// Place a food source, in grid coordinates. Returns the new source count.
 #[no_mangle]
@@ -146,7 +223,7 @@ pub extern "C" fn physarum_add_food(x: f32, y: f32) -> u32 {
         // One NaN in here poisons every sensor reading that ever samples near it.
         return (s.food.len() / 3) as u32;
     }
-    if s.food.len() >= 96 * 3 {
+    if s.food.len() >= MAX_FOOD * 3 {
         return (s.food.len() / 3) as u32;
     }
     s.food.push(x.clamp(0.0, GRID as f32 - 1.0));
@@ -171,6 +248,104 @@ pub extern "C" fn physarum_food_count() -> u32 {
 #[no_mangle]
 pub extern "C" fn physarum_vitality() -> f32 {
     STATE.get().as_ref().map_or(0.0, |s| s.vitality)
+}
+
+/// Pointer to the mask staging buffer, CELLS bytes. The host rasterises text
+/// into it — 255 where the colony is walled out, 0 where it may go — then calls
+/// `physarum_apply_walls`.
+///
+/// Zero-copy, like the pixel buffer, and valid for the same reason: nothing
+/// reallocates after init. Growing wasm memory would silently detach it.
+#[no_mangle]
+pub extern "C" fn physarum_wall_buffer() -> *mut u8 {
+    STATE
+        .get()
+        .as_mut()
+        .map_or(core::ptr::null_mut(), |s| s.wall_in.as_mut_ptr())
+}
+
+/// Adopt whatever is in the staging buffer as the new walls.
+#[no_mangle]
+pub extern "C" fn physarum_apply_walls() {
+    let Some(s) = STATE.get().as_mut() else { return };
+    let mut open = 0_usize;
+    for i in 0..CELLS {
+        s.wall[i] = s.wall_in[i] as f32 / 255.0;
+        if s.wall[i] < WALL_OPEN {
+            open += 1;
+        }
+    }
+    // A mask with nowhere to stand would trap every agent inside solid wall and
+    // freeze the plate; treat it as no mask at all.
+    if open < CELLS / 400 {
+        s.wall.fill(0.0);
+        s.walled = false;
+        return;
+    }
+    s.walled = true;
+
+    // Rehome anyone caught inside the new walls. Walking the open cells in a
+    // fixed order keeps this deterministic for a given mask.
+    let mut cursor = 0_usize;
+    for i in 0..s.count {
+        let x = s.agents[i * 4];
+        let y = s.agents[i * 4 + 1];
+        if s.wall[wrap(y as i32) * GRID + wrap(x as i32)] < WALL_OPEN {
+            continue;
+        }
+        let mut steps = 0;
+        while steps < CELLS {
+            cursor = (cursor + 7919) % CELLS; // coprime stride, spreads them out
+            if s.wall[cursor] < WALL_OPEN {
+                s.agents[i * 4] = (cursor % GRID) as f32 + 0.5;
+                s.agents[i * 4 + 1] = (cursor / GRID) as f32 + 0.5;
+                break;
+            }
+            steps += 1;
+        }
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn physarum_clear_walls() {
+    if let Some(s) = STATE.get().as_mut() {
+        s.wall.fill(0.0);
+        s.wall_in.fill(0);
+        s.walled = false;
+    }
+}
+
+/// How much of the original wall is still standing, 0..1.
+#[no_mangle]
+pub extern "C" fn physarum_walls_intact() -> f32 {
+    STATE.get().as_ref().map_or(0.0, |s| {
+        if !s.walled {
+            return 0.0;
+        }
+        let mut solid = 0.0_f32;
+        let mut original = 0.0_f32;
+        for i in 0..CELLS {
+            solid += s.wall[i];
+            original += s.wall_in[i] as f32 / 255.0;
+        }
+        if original <= 0.0 {
+            0.0
+        } else {
+            solid / original
+        }
+    })
+}
+
+/// Living agents as a fraction of the population the plate started with.
+#[no_mangle]
+pub extern "C" fn physarum_alive() -> f32 {
+    STATE.get().as_ref().map_or(0.0, |s| {
+        if s.count == 0 {
+            0.0
+        } else {
+            s.active as f32 / s.count as f32
+        }
+    })
 }
 
 /// Food left across all sources, as a fraction of what has been dropped.
@@ -225,8 +400,12 @@ pub extern "C" fn physarum_step() {
     // Deposit scales with vitality. A starving colony lays down almost nothing,
     // decay outruns it, and the network resorbs — which is roughly what a
     // plasmodium does when the plate runs out.
-    let (dist, speed) = (s.sensor_dist, s.speed);
-    let dep = s.deposit * (0.04 + 0.96 * s.vitality);
+    let (dist, vit) = (s.sensor_dist, s.vitality);
+    let dep = s.deposit * (0.04 + 0.96 * vit);
+    // Starving agents crawl. With nothing to move toward they should not be out
+    // exploring at full pace, and the slowdown compounds with the thinner
+    // deposit so an unfed plate visibly winds down rather than idling.
+    let speed = s.speed * (0.15 + 0.85 * vit);
     // Rotation constants for this frame. Fixed for every agent, so the sensor
     // offsets and the turn are matrix multiplies rather than trig calls.
     let (sc, ss) = (s.sensor_angle.cos(), s.sensor_angle.sin());
@@ -235,56 +414,56 @@ pub extern "C" fn physarum_step() {
     let diffuse = s.diffuse;
 
     {
-        // Eat, then emit. A source that has been consumed stops calling, which
-        // is what lets the network abandon a patch it has finished and go
-        // looking elsewhere.
-        let State { food, trail, vitality, .. } = s;
+        // Emit, and stamp which source owns each cell as we go. The map tracks
+        // the shrinking footprint exactly because it is rebuilt from the same
+        // radius the emission uses.
+        let State { food, trail, food_map, grazing, .. } = s;
         let trail = grid(trail);
-        let mut eaten_total = 0.0_f32;
+        food_map.fill(0);
+        grazing.fill(0.0);
 
-        for f in food.chunks_exact_mut(3) {
+        for (i, f) in food.chunks_exact(3).enumerate() {
             if f[2] <= 0.0 {
                 continue;
             }
             let fx = f[0] as i32;
             let fy = f[1] as i32;
-
-            // How much organism is sitting on the source right now.
-            let present = trail[wrap(fy) * GRID + wrap(fx)];
-            let eaten = (present * EAT_RATE).min(f[2]);
-            f[2] -= eaten;
-            eaten_total += eaten;
-
-            // Emission fades as the source is consumed, so a nearly-spent flake
-            // pulls weakly and the network drifts off it rather than sitting on
-            // an empty plate forever.
             let share = (f[2] / FOOD_STORE).clamp(0.0, 1.0);
-            let strength = FOOD_STRENGTH * (0.25 + 0.75 * share);
-            for dy in -FOOD_RADIUS..=FOOD_RADIUS {
-                for dx in -FOOD_RADIUS..=FOOD_RADIUS {
+
+            // Radius follows sqrt(share), so AREA is proportional to what is
+            // left: a half-eaten flake covers half the ground it started with
+            // and visibly shrinks toward nothing. Strength per cell stays put,
+            // so what remains is small and bright rather than wide and faint.
+            let radius = ((FOOD_RADIUS as f32) * share.sqrt()).round() as i32;
+            if radius < 1 {
+                continue;
+            }
+            let r2 = (radius * radius) as f32;
+            for dy in -radius..=radius {
+                let row = wrap(fy + dy) * GRID;
+                for dx in -radius..=radius {
                     let d2 = (dx * dx + dy * dy) as f32;
-                    let r2 = (FOOD_RADIUS * FOOD_RADIUS) as f32;
                     if d2 > r2 {
                         continue;
                     }
-                    let falloff = 1.0 - (d2 / r2);
-                    trail[wrap(fy + dy) * GRID + wrap(fx + dx)] += strength * falloff;
+                    let cell = row + wrap(fx + dx);
+                    trail[cell] += FOOD_STRENGTH * (1.0 - d2 / r2);
+                    food_map[cell] = (i + 1) as u8;
                 }
             }
         }
-
-        // Starvation. Upkeep is paid every step whether or not anything was
-        // eaten, so an unfed plate winds down instead of holding its shape.
-        *vitality = (*vitality + eaten_total * GAIN - UPKEEP).clamp(0.0, 1.0);
     }
 
     {
         // Split borrows so the agent walk and the trail writes are independent,
         // and walk fixed-size chunks so field access needs no bounds check.
-        let State { agents, trail, rng, .. } = s;
+        let State { agents, trail, rng, food_map, grazing, active, wall, walled, .. } = s;
         let trail = grid(trail);
+        let wall = grid(wall);
+        let confined = *walled;
+        let living = *active * 4;
 
-        for a in agents.chunks_exact_mut(4) {
+        for a in agents[..living].chunks_exact_mut(4) {
             let x = a[0];
             let y = a[1];
             let mut dx = a[2];
@@ -345,12 +524,85 @@ pub extern "C" fn physarum_step() {
                 ny -= g;
             }
 
-            a[0] = nx;
-            a[1] = ny;
+            let target = wrap(ny as i32) * GRID + wrap(nx as i32);
+
+            // Walls. A blocked agent stays where it is and wears at what is in
+            // front of it, at a rate set by how strong the signal is on the far
+            // side. With nothing calling from beyond, a wall never wears
+            // through; with food out there, it opens exactly where the food is.
+            let (fx_, fy_, cell) = if confined && wall[target] >= WALL_OPEN {
+                wall[target] = (wall[target] - ERODE * trail[target]).max(0.0);
+                let here = wrap(y as i32) * GRID + wrap(x as i32);
+                (x, y, here)
+            } else {
+                (nx, ny, target)
+            };
+
+            a[0] = fx_;
+            a[1] = fy_;
             a[2] = dx;
             a[3] = dy;
-            trail[wrap(ny as i32) * GRID + wrap(nx as i32)] += dep;
+            trail[cell] += dep;
+
+            // Consumption is driven by agents actually standing on a source.
+            // The previous proxy read the trail at the source's centre, which
+            // includes the source's OWN emission — so a flake ate itself at full
+            // rate whether or not the network ever arrived.
+            let owner = food_map[cell];
+            if owner != 0 {
+                grazing[(owner - 1) as usize] += 1.0;
+            }
         }
+    }
+
+    {
+        // Consume what was grazed, then settle the colony's books.
+        let State { food, grazing, vitality, .. } = s;
+        let mut eaten = 0.0_f32;
+        for (i, f) in food.chunks_exact_mut(3).enumerate() {
+            if f[2] <= 0.0 {
+                continue;
+            }
+            let bite = (grazing[i] * BITE).min(f[2]);
+            f[2] -= bite;
+            eaten += bite;
+        }
+        // Upkeep is paid every step whether or not anything was eaten, so an
+        // unfed plate winds down instead of holding its shape indefinitely.
+        *vitality = (*vitality + eaten * GAIN - UPKEEP).clamp(0.0, 1.0);
+    }
+
+    {
+        // Population. Starving kills agents off; a well-fed colony repopulates
+        // from the dead stock still sitting in the buffer. Nothing is allocated
+        // either way — `active` just moves.
+        let vit = s.vitality;
+        if vit <= 0.02 {
+            let floor = (s.count / DORMANT_SHARE).max(1);
+            let loss = ((s.active as f32) * DIE_RATE).ceil() as usize;
+            s.active = s.active.saturating_sub(loss.max(1)).max(floor);
+        } else if vit > 0.45 && s.active < s.count {
+            let gain = ((s.count as f32) * BREED_RATE).ceil() as usize;
+            s.active = (s.active + gain.max(1)).min(s.count);
+        }
+    }
+
+    {
+        // Drop spent sources, in place. A fresh Vec here could reallocate, and a
+        // realloc can grow wasm memory, which detaches every view JS holds.
+        let food = &mut s.food;
+        let mut write = 0;
+        for read in 0..(food.len() / 3) {
+            if food[read * 3 + 2] > 0.0 {
+                if write != read {
+                    food[write * 3] = food[read * 3];
+                    food[write * 3 + 1] = food[read * 3 + 1];
+                    food[write * 3 + 2] = food[read * 3 + 2];
+                }
+                write += 1;
+            }
+        }
+        food.truncate(write * 3);
     }
 
     {
@@ -363,6 +615,31 @@ pub extern "C" fn physarum_step() {
         shade(grid(trail), pixels);
     }
     {
+        // Walls under the food markers: the words should read, but sit behind
+        // the organism rather than competing with it. Alpha follows how much of
+        // each cell is still standing, so a breach shows as the letterform
+        // thinning and opening rather than a wall vanishing all at once.
+        let State { wall, pixels, walled, .. } = s;
+        if *walled {
+            for i in 0..CELLS {
+                let w = wall[i];
+                if w < 0.02 {
+                    continue;
+                }
+                let o = i * 4;
+                // Barely above black. The wall covers most of the plate, so any
+                // real brightness here turns the background into the subject and
+                // the letterforms read as holes in a grey field. Keep it a hair
+                // off black: the word should be legible because the colony fills
+                // it, not because the wall is lit.
+                pixels[o] = (pixels[o] as f32 + 15.0 * w).min(255.0) as u8;
+                pixels[o + 1] = (pixels[o + 1] as f32 + 17.0 * w).min(255.0) as u8;
+                pixels[o + 2] = (pixels[o + 2] as f32 + 23.0 * w).min(255.0) as u8;
+            }
+        }
+    }
+
+    {
         // Marked after shading, so a source stays visible even where the trail
         // around it has saturated the ramp.
         let State { food, pixels, .. } = s;
@@ -370,9 +647,12 @@ pub extern "C" fn physarum_step() {
             let fx = f[0] as i32;
             let fy = f[1] as i32;
             let share = (f[2] / FOOD_STORE).clamp(0.0, 1.0);
-            // Shrinks as it is eaten, so consumption is visible rather than
-            // something you have to infer from the network moving on.
-            let r = (1.0 + share * 3.0) as i32;
+            // Marker tracks the same sqrt(share) as the emission, so the bright
+            // core and the halo shrink together and vanish at the same moment.
+            let r = ((FOOD_RADIUS as f32) * share.sqrt() * 0.16).round() as i32;
+            if r < 1 {
+                continue;
+            }
             for dy in -r..=r {
                 for dx in -r..=r {
                     if dx * dx + dy * dy > r * r {

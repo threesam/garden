@@ -26,6 +26,10 @@
   let fps = $state(0);
   let vitality = $state(1);
   let foodLeft = $state(0);
+  let alive = $state(1);
+  let walls = $state(0);
+  let phrase = $state('slime');
+  let contained = $state(false);
   let status = $state('booting');
 
   // Composed here rather than in markup: Svelte trims the whitespace at the
@@ -36,6 +40,7 @@
     fps = 0;
     // The worker keeps the canvas; only the simulation behind it swaps.
     food = 0;
+    contained = false;
     worker?.postMessage({ type: 'switch', sim: next, agents: SIMS[next].agents, seed });
   }
 
@@ -61,6 +66,17 @@
       });
       food += 1;
     }
+  }
+
+  function contain(): void {
+    if (sim !== 'physarum' || !phrase.trim()) return;
+    worker?.postMessage({ type: 'contain', text: phrase });
+    contained = true;
+  }
+
+  function release(): void {
+    worker?.postMessage({ type: 'release' });
+    contained = false;
   }
 
   function clearFood(): void {
@@ -98,12 +114,16 @@
         message?: string;
         vitality?: number;
         foodLeft?: number;
+        alive?: number;
+        walls?: number;
       }>,
     ) => {
       if (e.data.type === 'fps') {
         fps = e.data.fps ?? 0;
         vitality = e.data.vitality ?? 1;
         foodLeft = e.data.foodLeft ?? 0;
+        alive = e.data.alive ?? 1;
+        walls = e.data.walls ?? 0;
       }
       else if (e.data.type === 'ready') status = 'running';
       else if (e.data.type === 'error') status = e.data.message ?? 'failed';
@@ -169,11 +189,8 @@
       {#if sim === 'physarum'}
         <div class="mt-3 flex flex-wrap items-center justify-center gap-2">
           <span class="font-mono text-xs" class:starving={vitality < 0.25}>
-            {#if food === 0}
-              click the plate to feed it
-            {:else}
-              {Math.round(foodLeft * 100)}% food left · {condition}
-            {/if}
+            {Math.round(foodLeft * 100)}% food · {condition} · {Math.round(alive * 100)}% alive
+            {#if contained}· {Math.round(walls * 100)}% walls{/if}
           </span>
           <button
             type="button"
@@ -189,6 +206,29 @@
               class="rounded-sm border px-3 py-1 font-mono text-xs lowercase"
             >
               clear
+            </button>
+          {/if}
+          <input
+            bind:value={phrase}
+            maxlength="24"
+            aria-label="word to trap the colony inside"
+            class="w-28 rounded-sm border border-white/20 bg-transparent px-2 py-1 font-mono text-xs lowercase"
+          />
+          {#if contained}
+            <button
+              type="button"
+              onclick={release}
+              class="rounded-sm border px-3 py-1 font-mono text-xs lowercase"
+            >
+              release
+            </button>
+          {:else}
+            <button
+              type="button"
+              onclick={contain}
+              class="rounded-sm border px-3 py-1 font-mono text-xs lowercase"
+            >
+              trap it
             </button>
           {/if}
         </div>
@@ -289,11 +329,17 @@
               route. it is just the paths that keep earning traffic.
             </p>
             <p class="text-sm leading-relaxed text-white/60">
-              and it gets eaten. a flake shrinks as the network sits on it, calls
-              more weakly as it empties, and goes quiet when it is gone. feed it
-              and it thickens. stop, and upkeep outruns what it can find — the
-              trails stop being reinforced, decay wins, and it resorbs itself down
-              to almost nothing.
+              and it gets eaten. a flake shrinks as agents graze it, calls more
+              weakly as it empties, and disappears when it is gone. feed it and it
+              thickens. stop, and upkeep outruns what it can find — deposits thin,
+              decay wins, the crawl slows, and the population dies back to a
+              dormant remnant. leave that remnant food and it comes back.
+            </p>
+            <p class="text-sm leading-relaxed text-white/60">
+              trap it in a word and it lives inside the letters. it can chew out,
+              but only toward something worth reaching — a wall with nothing
+              behind it never wears through. put food outside and it will take the
+              word apart to get there.
             </p>
             <p class="text-sm leading-relaxed text-white/60">
               a decent picture of what physarum does. no account of how.
