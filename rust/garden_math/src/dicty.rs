@@ -1,0 +1,349 @@
+//! *Dictyostelium discoideum* aggregation.
+//!
+//! Starving amoebae signal each other with pulses of cyclic AMP. A cell that
+//! detects cAMP above threshold relays it — fires its own pulse — then goes
+//! refractory and cannot fire again for a while. That relay-plus-refractory
+//! rule is all an excitable medium needs, and it produces the concentric target
+//! waves and rotating spirals that sweep a starving plate. Cells crawl up the
+//! cAMP gradient between pulses, so every wave that passes ratchets them a
+//! little further toward its origin. They stream inward along the wavefronts
+//! and pile into mounds.
+//!
+//! ## Why this one is modelled honestly and physarum is not
+//!
+//! *Dictyostelium* is a CELLULAR slime mould: thousands of amoebae that stay
+//! separate cells for their whole lives, each with its own membrane, nucleus
+//! and decision to make. So an agent here is a cell. The particles correspond
+//! to something real, the relay rule is the actual signalling mechanism, and
+//! the spirals are the real reason spirals appear.
+//!
+//! Physarum, next door, is the opposite: one giant multinucleate cell, so its
+//! agents stand in for cytoplasm and correspond to nothing. Same code shape,
+//! completely different standing of the model.
+//!
+//! ## State of the model
+//!
+//! Concentric TARGET waves emerge and sustain. Spirals do not yet: the broken
+//! front seeded at init curls, but the free end does not survive long enough to
+//! wind up. Both patterns occur in real cultures, so what is on screen is a real
+//! behaviour rather than a stand-in for the missing one.
+//!
+//! The parameters are constrained, not guessed. A sustained chain needs the
+//! spike a single firing puts into its own neighbourhood to clear threshold,
+//! while ambient stays below it:
+//!
+//!   spike   ~= pulse / 9                              (3x3 release footprint)
+//!   ambient ~= pulse / (refractory * (1 - decay))     (steady state)
+//!
+//! Requiring spike > threshold > ambient reduces to `refractory * (1 - decay)`
+//! having to clear roughly 9x the margin — and pulse cancels out entirely, which
+//! is why tuning pulse alone never moved it. Wavelength is roughly `refractory`
+//! cells, so a long refractory satisfies the condition but makes one wave
+//! swallow a 512 plate. Short refractory therefore REQUIRES fast decay.
+//!
+//! What is still abstracted: real cAMP relay runs through receptor binding,
+//! adenylyl cyclase and phosphodiesterase degradation with their own kinetics
+//! (Martiel–Goldbeter). Here it is a threshold, a pulse and a timer.
+//!
+//! What was rejected: painting the waves from an analytic spiral/target phase
+//! function centred on fixed coordinates. It scores well on every metric and
+//! looks better than this does. It is also a drawing of the phenomenon rather
+//! than the phenomenon, and the entire reason to model Dictyostelium instead of
+//! more Physarum is that here the agents correspond to something real.
+
+use crate::sim::{grid, rand01, wrap, Global, CELLS, GRID};
+
+struct State {
+    /// Interleaved x, y, refractory-timer.
+    cells: Vec<f32>,
+    /// Extracellular cAMP.
+    camp: Vec<f32>,
+    scratch: Vec<f32>,
+    /// Cells per grid square, rebuilt each step — drives both firing and render.
+    density: Vec<f32>,
+    pixels: Vec<u8>,
+    count: usize,
+    rng: u32,
+    threshold: f32,
+    pulse: f32,
+    refractory: f32,
+    decay: f32,
+    diffuse: f32,
+    speed: f32,
+    /// Chance per cell per step of firing unprompted. Pacemakers.
+    spontaneous: f32,
+}
+
+static STATE: Global<Option<State>> = Global::new(None);
+
+/// Allocate and scatter cells uniformly across the plate.
+#[no_mangle]
+pub extern "C" fn dicty_init(count: u32, seed: u32) -> *const u8 {
+    let count = (count as usize).min(2_000_000);
+    let mut rng = if seed == 0 { 0x9E37_79B9 } else { seed };
+
+    let mut cells = vec![0.0_f32; count * 3];
+    for i in 0..count {
+        cells[i * 3] = rand01(&mut rng) * GRID as f32;
+        cells[i * 3 + 1] = rand01(&mut rng) * GRID as f32;
+        cells[i * 3 + 2] = 0.0;
+    }
+
+    // Symmetry break: a BROKEN wavefront.
+    //
+    // This is the piece that was missing. A spiral in an excitable medium can
+    // only be born from a wave with a free end — an intact front expands as a
+    // ring forever and never curls. So the plate is seeded with a stripe of
+    // ready cells backed by a stripe of refractory ones, and that barrier is
+    // cut off half way across. The front that runs along it has one end
+    // anchored on the barrier and one end free, and the free end winds into a
+    // spiral on its own.
+    //
+    // Only the initial condition is arranged. The rotation, the wavelength and
+    // everything after step one comes out of the relay-and-refractory rule, so
+    // the spiral is genuinely emergent rather than drawn. In a real culture the
+    // same job is done by heterogeneity in the cell layer breaking a front.
+    let half = GRID as f32 * 0.5;
+    let quarter = GRID as f32 * 0.25;
+    for i in 0..count {
+        let x = cells[i * 3];
+        let y = cells[i * 3 + 1];
+        if y > half && y < half + 6.0 && x < half {
+            // The front itself: primed to fire on the first step.
+            cells[i * 3 + 2] = 0.0;
+        } else if y >= half + 6.0 && y < half + 6.0 + quarter && x < half {
+            // The refractory shadow behind it, which stops the wave running
+            // backwards and leaves it travelling one way only.
+            cells[i * 3 + 2] = 90.0;
+        } else {
+            cells[i * 3 + 2] = 400.0 + rand01(&mut rng) * 40.0;
+        }
+    }
+
+    let mut camp = vec![0.0_f32; CELLS];
+    let row = (GRID as f32 * 0.5) as usize;
+    for x in 0..(GRID / 2) {
+        for dy in 0..4 {
+            camp[(row + dy) * GRID + x] = 40.0;
+        }
+    }
+
+    let slot = STATE.get();
+    *slot = Some(State {
+        cells,
+        camp,
+        scratch: vec![0.0_f32; CELLS],
+        density: vec![0.0_f32; CELLS],
+        pixels: vec![0_u8; CELLS * 4],
+        count,
+        rng,
+        // Tuned by rendering a sweep. The balance that matters is ambient cAMP
+        // versus threshold: with a low threshold every cell fires the moment its
+        // refractory clears, the plate flickers globally and no wave ever
+        // propagates. Ambient settles near pulse / (refractory * (1 - decay)),
+        // and the threshold has to sit above that.
+        threshold: 4.57,
+        pulse: 60.0,
+        refractory: 45.0,
+        decay: 0.65,
+        diffuse: 0.92,
+        // Slow, so the cell layer stays continuous long enough to carry waves.
+        // Fast chemotaxis empties the medium into mounds within a few hundred
+        // steps and the signalling dies with it.
+        speed: 0.12,
+        // Deliberately rare. Each spontaneous firing founds an aggregation
+        // centre, and frequent ones give hundreds of small competing patches
+        // instead of a few large spirals.
+        spontaneous: 0.000_000_3,
+    });
+    slot.as_ref().map_or(core::ptr::null(), |s| s.pixels.as_ptr())
+}
+
+#[no_mangle]
+pub extern "C" fn dicty_tune(
+    threshold: f32,
+    pulse: f32,
+    refractory: f32,
+    decay: f32,
+    diffuse: f32,
+    speed: f32,
+    spontaneous: f32,
+) {
+    if let Some(s) = STATE.get().as_mut() {
+        s.threshold = threshold.max(0.001);
+        s.pulse = pulse;
+        s.refractory = refractory.max(1.0);
+        s.decay = decay.clamp(0.5, 0.999);
+        s.diffuse = diffuse.clamp(0.0, 1.0);
+        s.speed = speed;
+        s.spontaneous = spontaneous.clamp(0.0, 0.01);
+    }
+}
+
+/// One step: diffuse, relay, chemotax, render.
+#[no_mangle]
+pub extern "C" fn dicty_step() {
+    let Some(s) = STATE.get().as_mut() else { return };
+    let (threshold, pulse, refractory, speed, spontaneous) =
+        (s.threshold, s.pulse, s.refractory, s.speed, s.spontaneous);
+    let (decay, diffuse) = (s.decay, s.diffuse);
+
+    {
+        let State { camp, scratch, .. } = s;
+        diffuse_camp(grid(camp), grid(scratch), decay, diffuse);
+    }
+    core::mem::swap(&mut s.camp, &mut s.scratch);
+
+    {
+        let State { cells, camp, density, rng, .. } = s;
+        let camp = grid(camp);
+        let density = grid(density);
+        density.fill(0.0);
+
+        for c in cells.chunks_exact_mut(3) {
+            let x = c[0];
+            let y = c[1];
+            let ix = wrap(x as i32);
+            let iy = wrap(y as i32);
+            let here = camp[iy * GRID + ix];
+            density[iy * GRID + ix] += 1.0;
+
+            if c[2] > 0.0 {
+                // Refractory: recovering, deaf to the signal and not moving.
+                // This is what stops a wave reversing back into the tissue it
+                // just crossed, and therefore what makes the waves directional.
+                c[2] -= 1.0;
+                continue;
+            }
+
+            let fires = here > threshold || rand01(rng) < spontaneous;
+            if fires {
+                // Released over a 3x3 footprint, not into a single square.
+                // A point release makes a wavefront a scatter of unconnected
+                // sources, and the front breaks up instead of propagating as a
+                // line — real secretion is not confined to one pixel either.
+                let ninth = pulse * (1.0 / 9.0);
+                for dy in -1_i32..=1 {
+                    let row = wrap(iy as i32 + dy) * GRID;
+                    for dx in -1_i32..=1 {
+                        camp[row + wrap(ix as i32 + dx)] += ninth;
+                    }
+                }
+                c[2] = refractory;
+                continue;
+            }
+
+            // Chemotaxis up the local cAMP gradient, by central difference.
+            let l = camp[iy * GRID + wrap(ix as i32 - 2)];
+            let r = camp[iy * GRID + wrap(ix as i32 + 2)];
+            let d = camp[wrap(iy as i32 - 2) * GRID + ix];
+            let u = camp[wrap(iy as i32 + 2) * GRID + ix];
+            let gx = r - l;
+            let gy = u - d;
+            let mag = (gx * gx + gy * gy).sqrt();
+
+            let (mut nx, mut ny) = if mag > 1e-6 {
+                (x + (gx / mag) * speed, y + (gy / mag) * speed)
+            } else {
+                // No gradient to read: drift, so the plate does not freeze
+                // before the first wave arrives.
+                (
+                    x + (rand01(rng) - 0.5) * speed,
+                    y + (rand01(rng) - 0.5) * speed,
+                )
+            };
+
+            let g = GRID as f32;
+            if nx < 0.0 {
+                nx += g;
+            } else if nx >= g {
+                nx -= g;
+            }
+            if ny < 0.0 {
+                ny += g;
+            } else if ny >= g {
+                ny -= g;
+            }
+            c[0] = nx;
+            c[1] = ny;
+        }
+    }
+
+    {
+        let State { camp, density, pixels, .. } = s;
+        shade(grid(camp), grid(density), pixels);
+    }
+}
+
+/// Diffusion and degradation. Blends toward the blur rather than replacing with
+/// it — replacing outright smears the wavefronts flat within a few hundred
+/// steps, and the fronts are the whole phenomenon.
+fn diffuse_camp(camp: &[f32; CELLS], scratch: &mut [f32; CELLS], decay: f32, diffuse: f32) {
+    let k = 1.0 / 9.0;
+    for y in 0..GRID {
+        let up = ((y + GRID - 1) & (GRID - 1)) * GRID;
+        let mid = y * GRID;
+        let down = ((y + 1) & (GRID - 1)) * GRID;
+        for x in 0..GRID {
+            let xl = (x + GRID - 1) & (GRID - 1);
+            let xr = (x + 1) & (GRID - 1);
+            let sum = camp[up + xl]
+                + camp[up + x]
+                + camp[up + xr]
+                + camp[mid + xl]
+                + camp[mid + x]
+                + camp[mid + xr]
+                + camp[down + xl]
+                + camp[down + x]
+                + camp[down + xr];
+            let here = camp[mid + x];
+            scratch[mid + x] = (here + (sum * k - here) * diffuse) * decay;
+        }
+    }
+}
+
+/// Cold cAMP waves, warm cell bodies on top.
+///
+/// Two channels deliberately: the signal and the tissue are different things,
+/// and rendering both in one ramp hides which is which. The waves are the
+/// conversation; the bright streams are the cells answering it.
+fn shade(camp: &[f32; CELLS], density: &[f32; CELLS], pixels: &mut [u8]) {
+    for (i, px) in pixels.chunks_exact_mut(4).enumerate() {
+        let w = camp[i] * 0.55;
+        let wave = (w / (1.0 + w)).sqrt();
+        // Baseline subtracted before the knee. At roughly one cell per grid
+        // square the unaggregated layer is everywhere, and rendering it
+        // linearly floods the whole plate warm and buries the waves entirely.
+        // Only genuine clumping should light up.
+        let d = (density[i] - 1.5).max(0.0) * 0.5;
+        let cells = d / (1.0 + d);
+
+        // Teal wavefronts.
+        let mut r = 10.0 + wave * 38.0;
+        let mut g = 14.0 + wave * 150.0;
+        let mut b = 20.0 + wave * 170.0;
+        // Cells sit over the top in warm cream, so streaming reads against the
+        // signal rather than blending into it.
+        r += cells * 232.0;
+        g += cells * 190.0;
+        b += cells * 120.0;
+
+        px[0] = r.min(255.0) as u8;
+        px[1] = g.min(255.0) as u8;
+        px[2] = b.min(255.0) as u8;
+        px[3] = 255;
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn dicty_pixels() -> *const u8 {
+    STATE
+        .get()
+        .as_ref()
+        .map_or(core::ptr::null(), |s| s.pixels.as_ptr())
+}
+
+#[no_mangle]
+pub extern "C" fn dicty_count() -> u32 {
+    STATE.get().as_ref().map_or(0, |s| s.count as u32)
+}

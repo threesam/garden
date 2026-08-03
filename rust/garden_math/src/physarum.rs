@@ -20,52 +20,7 @@
 //!
 //! Agents never cross the JS boundary. JS reads one thing: the pixel buffer.
 
-use core::cell::UnsafeCell;
-
-/// Grid edge. A power of two so `& MASK` replaces `% GRID` for wrapping —
-/// faster than modulo in the hot loop, and provably in range, which is also
-/// what keeps the indexing safe without bounds-check noise.
-///
-/// 512, not the 1024 originally planned. Measured on this machine (node/V8,
-/// ms per step, so the frame budget is 16.7):
-///
-/// | agents | 1024 grid | 512 grid |
-/// |--------|-----------|----------|
-/// | 0      | 25.9      | 6.5      |
-/// | 100k   | —         | 14.6     |
-/// | 150k   | —         | 16.9     |
-/// | 200k   | 36.1      | 19.4     |
-/// | 1M     | 74.0      | 55.3     |
-///
-/// The fixed grid pass is the wall, not the agents: at 1024 it costs 26ms
-/// before a single agent moves, so 60fps is unreachable there at ANY agent
-/// count, including zero. At 512 the same pass is 6.5ms and ~150k agents lands
-/// on 60fps in 7MB. Raise this to 1024 if detail matters more than framerate.
-///
-/// So the issue's estimate of 1M agents at 60fps is out by roughly 7x on this
-/// hardware. 1M runs, at about 18fps.
-const GRID: usize = 512;
-const MASK: i32 = (GRID as i32) - 1;
-const CELLS: usize = GRID * GRID;
-
-/// Single-threaded interior mutability.
-///
-/// wasm32-unknown-unknown has no threads, so there is no data race to have. This
-/// exists because the alternative — `static mut` — is a lint error in newer
-/// editions and a footgun in any of them.
-struct Global<T>(UnsafeCell<T>);
-unsafe impl<T> Sync for Global<T> {}
-impl<T> Global<T> {
-    const fn new(value: T) -> Self {
-        Self(UnsafeCell::new(value))
-    }
-    /// # Safety
-    /// Single-threaded target; callers must not hold two live borrows.
-    #[allow(clippy::mut_from_ref)]
-    fn get(&self) -> &mut T {
-        unsafe { &mut *self.0.get() }
-    }
-}
+use crate::sim::{grid, rand01, wrap, xorshift, Global, CELLS, GRID};
 
 struct State {
     /// Interleaved x, y, dx, dy — one contiguous allocation, not four.
@@ -95,19 +50,6 @@ struct State {
 }
 
 static STATE: Global<Option<State>> = Global::new(None);
-
-fn xorshift(s: &mut u32) -> u32 {
-    let mut x = *s;
-    x ^= x << 13;
-    x ^= x >> 17;
-    x ^= x << 5;
-    *s = x;
-    x
-}
-
-fn rand01(s: &mut u32) -> f32 {
-    (xorshift(s) >> 8) as f32 / 16_777_216.0
-}
 
 /// Allocate and scatter. Safe to call again; it reallocates rather than growing.
 ///
@@ -187,27 +129,10 @@ pub extern "C" fn physarum_tune(
 }
 
 #[inline(always)]
-fn wrap(v: i32) -> usize {
-    (v & MASK) as usize
-}
-
-#[inline(always)]
 fn sense(trail: &[f32; CELLS], x: f32, y: f32, dx: f32, dy: f32, dist: f32) -> f32 {
     let sx = wrap((x + dx * dist) as i32);
     let sy = wrap((y + dy * dist) as i32);
     trail[sy * GRID + sx]
-}
-
-/// A grid buffer as a fixed-size array reference.
-///
-/// The conversion is the point: indexing a `Vec`/slice emits a bounds check per
-/// access, and across two million grid accesses a frame that was measurably the
-/// largest single cost in the step. With the length known statically LLVM can
-/// prove every masked index in range and drop the checks — in safe Rust, with
-/// no `get_unchecked`.
-#[inline(always)]
-fn grid(v: &mut [f32]) -> &mut [f32; CELLS] {
-    v.try_into().expect("grid buffer is CELLS long")
 }
 
 /// One frame: sense, rotate, move, deposit, then diffuse and decay.
