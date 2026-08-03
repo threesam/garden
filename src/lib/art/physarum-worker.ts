@@ -64,8 +64,18 @@ async function start(msg: StartMessage): Promise<void> {
 
   let exports: WasmExports;
   try {
-    // instantiateStreaming compiles while the bytes are still arriving.
-    const source = await WebAssembly.instantiateStreaming(fetch(msg.wasmUrl), {});
+    // instantiateStreaming compiles while the bytes are still arriving, but it
+    // REJECTS unless the response is served as application/wasm. That MIME type
+    // is a host/CDN setting rather than anything this code controls, so a config
+    // drift would take the whole page down. Fall back to buffering the bytes,
+    // which has no such requirement.
+    const response = await fetch(msg.wasmUrl);
+    let source: WebAssembly.WebAssemblyInstantiatedSource;
+    try {
+      source = await WebAssembly.instantiateStreaming(response, {});
+    } catch {
+      source = await WebAssembly.instantiate(await response.clone().arrayBuffer(), {});
+    }
     exports = source.instance.exports as unknown as WasmExports;
   } catch (error) {
     self.postMessage({ type: 'error', message: String(error) });

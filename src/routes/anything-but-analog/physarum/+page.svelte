@@ -44,6 +44,8 @@
   let flakes = $state(0);
   let condition = $state('stable');
   let population = $state(0);
+  /** Reported by the worker on ready; the plate is square. */
+  let grid = $state(512);
   let status = $state('booting');
 
   // Composed here rather than in markup: Svelte trims the whitespace at the
@@ -61,8 +63,10 @@
     if (sim !== 'physarum' || !canvasEl) return;
     const r = canvasEl.getBoundingClientRect();
     if (!r.width || !r.height) return;
-    const x = ((event.clientX - r.left) / r.width) * 512;
-    const y = ((event.clientY - r.top) / r.height) * 512;
+    // Mapped through the grid the worker reported, not a literal — changing
+    // GRID in Rust would otherwise move every click silently off target.
+    const x = ((event.clientX - r.left) / r.width) * grid;
+    const y = ((event.clientY - r.top) / r.height) * grid;
     worker?.postMessage({ type: 'food', x, y });
   }
 
@@ -72,8 +76,8 @@
     for (let i = 0; i < 5; i++) {
       worker?.postMessage({
         type: 'food',
-        x: 60 + Math.random() * 392,
-        y: 60 + Math.random() * 392,
+        x: grid * (0.12 + Math.random() * 0.76),
+        y: grid * (0.12 + Math.random() * 0.76),
       });
     }
   }
@@ -102,6 +106,7 @@
         type: string;
         fps?: number;
         message?: string;
+        grid?: number;
         vitality?: number;
         flakes?: number;
         state?: number;
@@ -115,7 +120,10 @@
         condition = CONDITION[e.data.state ?? 2] ?? 'stable';
         population = e.data.agents ?? 0;
       }
-      else if (e.data.type === 'ready') status = 'running';
+      else if (e.data.type === 'ready') {
+        status = 'running';
+        grid = e.data.grid ?? grid;
+      }
       else if (e.data.type === 'error') status = e.data.message ?? 'failed';
     };
 
