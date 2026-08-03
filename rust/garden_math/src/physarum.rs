@@ -157,17 +157,24 @@ pub extern "C" fn physarum_init(count: u32, seed: u32) -> *const u8 {
         field: vec![0.0_f32; CELLS],
     };
 
-    let slot = STATE.get();
-    *slot = Some(state);
-
     // A few flakes to open with. Without them the plate starts starving on the
     // first frame and the piece opens on something already dying — the feeding
     // is the interaction, so it needs to begin alive and become your problem.
+    //
+    // Seeded into the local State BEFORE it is stored. Calling physarum_add_food
+    // here instead meant holding `&mut Option<State>` from STATE.get() while
+    // that function took a second one — two live mutable borrows of the same
+    // data, which is undefined behaviour and exactly what Global::get's own
+    // contract forbids.
+    let mut state = state;
     for _ in 0..3 {
-        let fx = 90.0 + rand01(&mut rng) * (GRID as f32 - 180.0);
-        let fy = 90.0 + rand01(&mut rng) * (GRID as f32 - 180.0);
-        physarum_add_food(fx, fy);
+        state.food.push(90.0 + rand01(&mut rng) * (GRID as f32 - 180.0));
+        state.food.push(90.0 + rand01(&mut rng) * (GRID as f32 - 180.0));
+        state.food.push(FOOD_STORE);
     }
+
+    let slot = STATE.get();
+    *slot = Some(state);
     slot.as_ref().map_or(core::ptr::null(), |s| s.pixels.as_ptr())
 }
 

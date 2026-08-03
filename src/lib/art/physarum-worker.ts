@@ -45,6 +45,8 @@ export type InboundMessage =
 
 let running = false;
 let raf = 0;
+/** Whether the host wants it running. Set by pause/resume even during boot. */
+let wanted = true;
 /** Set by start(); the loop cannot be restarted from outside its own closure. */
 let resumeLoop: (() => void) | null = null;
 /** Set by start(); swaps which simulation the loop is stepping. */
@@ -130,20 +132,9 @@ async function start(msg: StartMessage): Promise<void> {
   addFood = (x, y) => { exports.physarum_add_food(x, y); };
   clearFood = () => { exports.physarum_clear_food(); };
 
-  /**
-   * Rasterise text into the wall mask.
-   *
-   * Canvas `fillText` is available in a worker via OffscreenCanvas and does this
-   * natively, so no text-layout dependency is pulled in. That would start to
-   * earn its place if this ever needed real multiline paragraph layout; for a
-   * word or two, measureText plus a scale-to-fit is the whole job.
-   *
-   * The colony is confined INSIDE the glyphs, so the mask is inverted: solid
-   * everywhere the letters are not.
-   */
   let frames = 0;
   let lastReport = performance.now();
-  running = true;
+  running = wanted;
 
   const tick = (): void => {
     if (!running) return;
@@ -169,7 +160,10 @@ async function start(msg: StartMessage): Promise<void> {
     running = true;
     raf = requestAnimationFrame(tick);
   };
-  raf = requestAnimationFrame(tick);
+  // Only start if a pause did not arrive while the wasm was loading — a tab
+  // hidden during boot, or a reduced-motion timer firing early, used to be
+  // overwritten here and the plate ran anyway.
+  if (running) raf = requestAnimationFrame(tick);
   self.postMessage({ type: 'ready', grid });
 }
 
@@ -188,11 +182,13 @@ self.onmessage = (event: MessageEvent<InboundMessage>) => {
   } else if (msg.type === 'clearFood') {
     clearFood?.();
   } else if (msg.type === 'pause') {
+    wanted = false;
     running = false;
     cancelAnimationFrame(raf);
   } else if (!running) {
     // Only 'resume' is left in the union here, so testing msg.type again would
     // be a comparison that is always true.
+    wanted = true;
     resumeLoop?.();
   }
 };
