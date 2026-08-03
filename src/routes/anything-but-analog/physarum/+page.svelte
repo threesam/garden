@@ -46,9 +46,15 @@
   /** Reported by the worker on ready; the plate is square. */
   let grid = $state(512);
   let status = $state('booting');
+  let paused = $state(false);
 
   // Composed here rather than in markup: Svelte trims the whitespace at the
   // start of an {#if} block, so an inline separator renders as "running· 59".
+  function togglePause(): void {
+    paused = !paused;
+    worker?.postMessage({ type: paused ? 'pause' : 'resume' });
+  }
+
   function pick(next: SimName): void {
     if (next === sim) return;
     sim = next;
@@ -138,7 +144,19 @@
     };
     w.postMessage(start, [offscreen]);
 
+    // Motion that starts on its own and runs indefinitely needs a way to stop
+    // it. Under a reduced-motion preference it also settles by itself: the plate
+    // runs long enough to form a network, then holds that as a still image the
+    // reader can restart if they want it.
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setTimeout(() => {
+        if (!paused) togglePause();
+      }, 4000);
+    }
+
     const onVisibility = (): void => {
+      // A manual pause outlasts tab switches; only auto-resume what we auto-paused.
+      if (paused) return;
       w.postMessage({ type: document.hidden ? 'pause' : 'resume' });
     };
     document.addEventListener('visibilitychange', onVisibility);
@@ -186,6 +204,14 @@
           <span class="font-mono text-xs" class:starving={condition === 'starving' || condition === 'dead'}>
             {flakes.toFixed(1)} food · {condition} · {compact(population)} agents
           </span>
+          <button
+            type="button"
+            onclick={togglePause}
+            aria-pressed={paused}
+            class="rounded-sm border px-3 py-1 font-mono text-xs lowercase"
+          >
+            {paused ? 'play' : 'pause'}
+          </button>
           <button
             type="button"
             onclick={scatter}
