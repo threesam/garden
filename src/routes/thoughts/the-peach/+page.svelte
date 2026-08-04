@@ -1,4 +1,5 @@
 <script lang="ts">
+  import QuietList from "$lib/components/QuietList.svelte";
   import SeoHead from "$lib/components/SeoHead.svelte";
   import { articleNode } from "$lib/seo";
   import type { PageData } from "./$types";
@@ -62,9 +63,15 @@
     {@html html}
 
     <footer class="mt-18 border-t border-zinc-800 pt-9 md:mt-24">
+      <!-- The guestbook: only ever after the content, for the diggers who
+           finished it. See QuietList for the doctrine. -->
+      <QuietList
+        line="these land rarely. if you want them when they do — leave an address."
+        placement="thoughts:the-peach"
+      />
       <a
         href="/thoughts"
-        class="font-mono text-xs uppercase tracking-section text-zinc-500 transition-colors hover:text-coin md:text-sm"
+        class="mt-12 inline-block font-mono text-xs uppercase tracking-section text-zinc-500 transition-colors hover:text-coin md:text-sm"
       >
         ← all thoughts
       </a>
