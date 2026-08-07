@@ -80,3 +80,9 @@ public/
 
 # Rust build output — the compiled wasm is copied to static/wasm by `pnpm wasm:build`.
 rust/*/target/
+
+# Test and audit output. Both are regenerated on every run and neither is a
+# source of truth — `test-results/` is Playwright's, `lighthouse-results.json`
+# is written by `scripts/lighthouse.mjs`.
+test-results/
+lighthouse-results.json
