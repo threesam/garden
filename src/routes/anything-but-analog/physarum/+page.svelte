@@ -280,7 +280,7 @@
           {/if}
         </div>
       {/if}
-      <p class="mt-2 font-mono text-xs text-white/40">
+      <p class="mt-2 font-mono text-xs text-white/60">
         {statusLine}
       </p>
       <!--
@@ -457,8 +457,10 @@
   .starving {
     color: #e8734a;
   }
+  /* 0.6 on black is 7.37:1. At 0.4 it was 3.66:1, under the 4.5:1 that 12px
+     text needs for WCAG 1.4.3 AA. */
   span.font-mono:not(.starving) {
-    color: rgb(255 255 255 / 0.4);
+    color: rgb(255 255 255 / 0.6);
   }
   .feedable {
     cursor: crosshair;
