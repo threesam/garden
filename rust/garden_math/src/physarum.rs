@@ -626,7 +626,11 @@ pub extern "C" fn physarum_step() {
         // either way — `active` just moves.
         let vit = s.vitality;
         if vit <= 0.02 {
-            let floor = (s.nominal / DORMANT_SHARE).max(1);
+            // Clamped to count for the same reason `active` is at init: with
+            // count 0, `nominal` still floors at 1, so the dormant remnant would
+            // raise `active` back to 1 against an empty buffer and the next
+            // step would slice past the end.
+            let floor = (s.nominal / DORMANT_SHARE).max(1).min(s.count);
             let loss = ((s.active as f32) * DIE_RATE).ceil() as usize;
             s.active = s.active.saturating_sub(loss.max(1)).max(floor);
         } else if vit >= 0.995 && s.intake > UPKEEP && s.active < s.count {

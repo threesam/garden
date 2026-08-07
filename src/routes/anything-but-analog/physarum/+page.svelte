@@ -283,6 +283,12 @@
       <p class="mt-2 font-mono text-xs text-white/40">
         {statusLine}
       </p>
+      <!--
+        Carries `status` alone, not `statusLine`: the boot result and the two
+        failure messages are what a screen reader needs, and the fps counter
+        ticks every second — announcing that would be constant interruption.
+      -->
+      <span class="sr-only" role="status">{status}</span>
     </div>
 
     <div
