@@ -1,4 +1,5 @@
 <script lang="ts">
+  import QuietList from "$lib/components/QuietList.svelte";
   import SeoHead from "$lib/components/SeoHead.svelte";
   import { collectionPageNode } from "$lib/seo";
   import EyeOcean from "$lib/sounds/EyeOcean.svelte";
@@ -328,6 +329,12 @@
     </div>
   </section>
 
+  <!-- The guestbook: end of the listening, same hush behavior as the score
+       section while something plays. -->
+  <section class="quiet" class:hushed={modal} inert={modal}>
+    <QuietList line="new sounds, rarely. first listens go here." placement="sounds" />
+  </section>
+
   <!-- while a grid song plays, a click anywhere pauses it (and brings the cards
        back); the playing card + transport sit above this catcher and keep working -->
   {#if modal}
@@ -628,6 +635,18 @@
   }
   /* recede with the grid while a song plays — focus stays on the one playing card */
   .hmbm.hushed {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* the guestbook row — end of the page, clear of the fixed player bar */
+  .quiet {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: 3rem 1.2rem calc(var(--player-h) + 4rem);
+    transition: opacity 0.45s ease;
+  }
+  .quiet.hushed {
     opacity: 0;
     pointer-events: none;
   }
