@@ -169,6 +169,7 @@
     class:diving-out={divingOut}
     href={diveHref}
     aria-label="certainly uncertain — dive into pyre divers"
+    data-umami-event="dive-to-pyre"
     onclick={diveOut}
   ><span class="diver"
       ><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
