@@ -43,6 +43,12 @@ Short personal thoughts, each with its own page under /thoughts:
 - [the peach](${SITE_URL}/thoughts/the-peach): you have to taste a thing before you judge it — the day Sam's parents threw out the pantry and handed him a peach.
 - [certainly uncertain](${SITE_URL}/thoughts/certainly-uncertain): the same day the pantry got emptied, told through what was underneath it — agency, the certainty that you can't know, and the cost of never feeling done.
 
+## Pieces
+
+Standalone interactive work, outside the numbered sketch tour:
+
+- [slime moulds](${SITE_URL}/anything-but-analog/physarum): two slime moulds simulated in Rust/wasm and rendered off the main thread — a physarum transport network that grows toward food you place on the plate, and dictyostelium relaying cyclic AMP into spiral waves. Both patterns are emergent; nothing in either rule set mentions networks or spirals.
+
 ## About
 
 - Name: ${PERSON_NAME} (also known as ${PERSON_ALT})
@@ -55,6 +61,7 @@ Short personal thoughts, each with its own page under /thoughts:
 ## Machine-readable indexes
 
 - [Sitemap](${SITE_URL}/sitemap.xml) — every indexable URL on the site.
+- [RSS](${SITE_URL}/rss.xml) — dated work, newest first.
 - [robots.txt](${SITE_URL}/robots.txt) — crawler permissions (AI agents
   are explicitly welcomed).
 - Per-page JSON-LD \`@graph\` — every page emits a schema.org graph with
