@@ -9,6 +9,12 @@
     <link rel="icon" type="image/x-icon" href="%sveltekit.assets%/favicon.ico?v=7" />
     <link rel="apple-touch-icon" href="%sveltekit.assets%/apple-touch-icon.png?v=7" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Feed autodiscovery. This is how readers, aggregators and answer engines
+         find the feed without being told it exists. -->
+    <!-- Root-absolute on purpose: %sveltekit.assets% resolves relative, which
+         would point a nested route like /anything-but-analog/physarum at
+         /anything-but-analog/rss.xml. The feed only ever lives at the root. -->
+    <link rel="alternate" type="application/rss+xml" title="threesam" href="/rss.xml" />
     <script>
       // testing eject: ?test flips umami's native kill switch for this
       // browser (persistent); ?test=0 rejoins. The tracker (injected in
