@@ -50,6 +50,8 @@ Disallow: /api/
 ${aiBlock}
 
 Sitemap: ${SITE_URL}/sitemap.xml
+
+# Feed: ${SITE_URL}/rss.xml
 `;
   return new Response(body, { headers: { 'Content-Type': 'text/plain' } });
 }

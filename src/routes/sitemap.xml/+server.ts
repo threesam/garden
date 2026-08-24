@@ -1,4 +1,5 @@
 import { visibleSketches } from '$lib/art/registry';
+import { POSTS } from '$lib/posts';
 import { SITE_URL, SITE_PAGES } from '$lib/seo';
 
 // Home + the shared content-page list (single source: SITE_PAGES in $lib/seo).
@@ -16,15 +17,12 @@ export function GET() {
       url: `${SITE_URL}/anything-but-analog/${s.slug}`,
       lastmod: s.date ? new Date(s.date).toISOString() : undefined,
     })),
-    { url: `${SITE_URL}/anything-but-analog/physarum` },
-    {
-      url: `${SITE_URL}/thoughts/the-peach`,
-      lastmod: new Date('2026-06-09T00:00:00Z').toISOString(),
-    },
-    {
-      url: `${SITE_URL}/thoughts/certainly-uncertain`,
-      lastmod: new Date('2026-06-29T00:00:00Z').toISOString(),
-    },
+    // Dated work comes from POSTS, the same list the feed reads, so the two
+    // can't disagree about what exists or when it shipped.
+    ...POSTS.map((p) => ({
+      url: `${SITE_URL}${p.path}`,
+      lastmod: new Date(p.date).toISOString(),
+    })),
   ];
 
   const body = `<?xml version="1.0" encoding="UTF-8"?>
