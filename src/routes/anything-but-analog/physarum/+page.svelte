@@ -9,6 +9,7 @@
   import PhysarumWorker from '$lib/art/physarum-worker?worker';
   import type { InboundMessage, SimName } from '$lib/art/physarum-worker';
   import Segmented from '$lib/components/Segmented.svelte';
+  import MorePieces from '$lib/components/MorePieces.svelte';
 
   /** Counts measured per sim against a 16.7ms budget on a 512 grid. */
   const SIMS = {
@@ -449,6 +450,13 @@
           </div>
         {/if}
       </section>
+
+      <!-- End of the scrolling prose column: the one place a reader who's read
+           to the bottom of the writing lands, so it's where onward paths go.
+           The locked canvas half has no room for a footer. -->
+      <div class="border-t border-white/10 pt-6">
+        <MorePieces current="/anything-but-analog/physarum" />
+      </div>
     </div>
   </div>
 </main>

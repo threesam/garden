@@ -1,5 +1,6 @@
 <script lang="ts">
   import SeoHead from "$lib/components/SeoHead.svelte";
+  import MorePieces from "$lib/components/MorePieces.svelte";
   import { articleNode } from "$lib/seo";
   import type { PageData } from "./$types";
 
@@ -68,6 +69,9 @@
       >
         ← all thoughts
       </a>
+      <div class="mt-12">
+        <MorePieces current="/thoughts/the-peach" />
+      </div>
     </footer>
   </article>
 </main>
