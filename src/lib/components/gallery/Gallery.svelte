@@ -3,25 +3,21 @@
 	import type { Component } from 'svelte';
 	import DanaLabel from '$lib/components/messages/DanaLabel.svelte';
 
-	type ItemHandle =
-		| 'self'
-		| 'deana'
-		| 'shelf'
-		| 'anything-but-analog'
-		| 'thoughts'
-		| 'sounds';
+	import { SITE_ITEMS, type GalleryItem } from './items';
 
-	const UNIQUE_ITEMS: { label: string; handle: ItemHandle; href: string }[] = [
-		{ label: 'self', handle: 'self', href: '/self' },
-		{ label: 'sounds', handle: 'sounds', href: '/sounds' },
-		{ label: 'thoughts', handle: 'thoughts', href: '/thoughts' },
-		{ label: 'D-ANA', handle: 'deana', href: '/deana' },
-		{ label: 'shelf', handle: 'shelf', href: '/shelf' },
-		{ label: 'analog', handle: 'anything-but-analog', href: '/anything-but-analog' },
-	];
+	interface Props {
+		/**
+		 * What the strip carries. Defaults to the six site sections (the
+		 * homepage set). /thoughts passes its own cards so the footer offers
+		 * more reading rather than the sections you're already inside.
+		 */
+		items?: readonly GalleryItem[];
+	}
 
-	const UNIQUE_COUNT = UNIQUE_ITEMS.length;
-	const LOOPED = [...UNIQUE_ITEMS, ...UNIQUE_ITEMS].map((it, i) => ({ id: i, ...it }));
+	let { items = SITE_ITEMS }: Props = $props();
+
+	const UNIQUE_COUNT = $derived(items.length);
+	const LOOPED = $derived([...items, ...items].map((it, i) => ({ id: i, ...it })));
 
 	const CARD_GAP = 24;
 	const SPEED = 30;
@@ -272,13 +268,14 @@
 
 	let didDrag = false;
 
-	function handleClick(e: MouseEvent, item: { href: string; handle: string }) {
+	function handleClick(e: MouseEvent, item: { href: string; handle?: string | undefined }) {
 		if (didDrag) {
 			e.preventDefault();
 			return;
 		}
 		e.preventDefault();
-		window.umami?.track('gallery-card-click', { handle: item.handle });
+		// Image cards have no handle; the href identifies them well enough.
+		window.umami?.track('gallery-card-click', { handle: item.handle ?? item.href });
 		window.location.href = item.href;
 	}
 </script>
@@ -315,7 +312,18 @@
 					class="relative w-full overflow-hidden {cream ? 'bg-black' : 'bg-white'}"
 					style="aspect-ratio: 4 / 5;"
 				>
-					{#if visible}
+					{#if item.img}
+						<!-- Static card: the pixel art already exists, and it costs
+						     nothing to mount, so it renders immediately rather than
+						     waiting on the scroll-in arming the canvases need. -->
+						<img
+							src={item.img}
+							alt=""
+							loading="lazy"
+							draggable="false"
+							class="absolute inset-0 h-full w-full object-cover [image-rendering:pixelated]"
+						/>
+					{:else if visible && item.handle}
 						<!-- Canvas container fades in after a short delay (enough for
 						     the first frame to paint), so cards arriving mid-scroll
 						     never flash a half-rendered frame. CSS animation is
