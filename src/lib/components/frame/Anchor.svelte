@@ -43,16 +43,23 @@
     const opaque = (c: string): boolean =>
       c !== '' && c !== 'transparent' && !c.startsWith('rgba(0, 0, 0, 0)');
 
-    // Descend the trailing edge and keep the DEEPEST opaque background, not
-    // the first. The layout wraps every page in a cream div, so stopping at
-    // the first match reports cream for the black pages too — the page's own
-    // <main> is further in.
+    // Descend the trailing edge keeping the DEEPEST opaque background, but
+    // only through elements that still span the full width. Two traps:
+    // stopping at the first match reports the layout's cream wrapper for every
+    // route, and descending without the width guard walks into a white
+    // thought-card and reports that instead of the black page behind it.
     let node: Element | null = el.previousElementSibling;
     let found = '';
     while (node) {
       const bg = getComputedStyle(node).backgroundColor;
       if (opaque(bg)) found = bg;
-      node = node.lastElementChild;
+      const width = node.getBoundingClientRect().width;
+      const next: Element | null = node.lastElementChild;
+      if (!next) break;
+      // A child narrower than its parent is content sitting on the background,
+      // not the background itself.
+      if (next.getBoundingClientRect().width < width * 0.9) break;
+      node = next;
     }
     fadeFrom = found || getComputedStyle(document.body).backgroundColor;
   }
