@@ -36,6 +36,8 @@ export interface ChannelView {
  */
 export interface PerformanceLog {
   sampleRate: number;
+  /** Render clock the take ends at, so a renderer knows how long to run. */
+  end: number;
   events: { t: number; op: number; a: number; b: number }[];
 }
 
@@ -96,7 +98,7 @@ class Wetyu {
   private gen = 0;
   /** outputLatency is only meaningful once rendering has begun. */
   private latencyStale = true;
-  private logWaiters: ((words: Uint32Array) => void)[] = [];
+  private logWaiters: ((words: Uint32Array, end: number) => void)[] = [];
 
   async boot(): Promise<void> {
     const myGen = ++this.gen;
@@ -191,7 +193,7 @@ class Wetyu {
   }
 
   toggleTransport(): void {
-    this.send(OP.transport, this.playing ? 0 : 1);
+    this.send(OP.transport, 2); // the engine decides; status here can be ~20 ms stale
   }
 
   setTempo(bpm: number): void {
@@ -234,17 +236,18 @@ class Wetyu {
   }
 
   /** Pull the performance log out of the engine (and clear it there). */
+  /** The whole session as a replayable log (see PerformanceLog). */
   takeLog(): Promise<PerformanceLog> {
     const node = this.node;
-    if (!node) return Promise.resolve({ sampleRate: this.sampleRate, events: [] });
+    if (!node) return Promise.resolve({ sampleRate: this.sampleRate, end: 0, events: [] });
     return new Promise((resolve) => {
-      this.logWaiters.push((words) => {
+      this.logWaiters.push((words, end) => {
         const events = [];
         const floats = new Float32Array(words.buffer);
         for (let i = 0; i + 3 < words.length; i += 4) {
           events.push({ t: words[i] ?? 0, op: words[i + 1] ?? 0, a: floats[i + 2] ?? 0, b: floats[i + 3] ?? 0 });
         }
-        resolve({ sampleRate: this.sampleRate, events });
+        resolve({ sampleRate: this.sampleRate, end, events });
       });
       node.port.postMessage(TAKE_LOG);
     });
@@ -292,7 +295,7 @@ class Wetyu {
 
   /** Anyone waiting on a log gets an empty one when the engine goes away. */
   private flushLogWaiters(): void {
-    for (const w of this.logWaiters.splice(0)) w(new Uint32Array(0));
+    for (const w of this.logWaiters.splice(0)) w(new Uint32Array(0), 0);
   }
 
   private updateLatency(): void {
@@ -308,7 +311,7 @@ class Wetyu {
       return;
     }
     if (data[0] === 'log') {
-      this.logWaiters.shift()?.(data[1]);
+      this.logWaiters.shift()?.(data[1], data[2]);
       return;
     }
     const s = data;

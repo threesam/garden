@@ -26,6 +26,8 @@ pub struct Channel {
     /// Input latency compensation in samples: the source sample arriving at
     /// `t` belongs to grid time `t - offset`. Zero for internal instruments.
     pub offset: u32,
+    /// A re-record is queued: the loop keeps playing until the next bar line.
+    pub pending: bool,
     gate: f32,
     target: f32,
 }
@@ -38,6 +40,7 @@ impl Channel {
             anchor: 0,
             len: 0,
             offset: 0,
+            pending: false,
             gate: 0.0,
             target: 0.0,
         }
@@ -102,8 +105,13 @@ impl Channel {
 
     /// Called on every bar line while playing.
     pub fn bar_line(&mut self, t: u32) {
-        if self.state == State::Empty {
+        if self.state == State::Empty || self.pending {
+            self.pending = false;
             self.anchor = t;
+        }
+        if self.anchor == t && self.state == State::Looping {
+            // The queued re-record starts here; the old loop played to the line.
+            self.state = State::Recording;
         }
     }
 
@@ -115,10 +123,14 @@ impl Channel {
                 self.state = State::Recording;
             }
             State::Looping => {
-                // ponytail: no retro start on re-record; needs a second scratch buffer
-                let pos = t % bar;
-                self.anchor = if pos == 0 { t } else { t - pos + bar };
-                self.state = State::Recording;
+                // ponytail: no retro start on re-record; needs a second scratch buffer.
+                // Queued instead: the loop keeps playing until the next bar line.
+                if t.is_multiple_of(bar) {
+                    self.anchor = t;
+                    self.state = State::Recording;
+                } else {
+                    self.pending = !self.pending; // pressing again un-queues it
+                }
             }
             State::Recording => {
                 if t < self.anchor {
@@ -139,6 +151,7 @@ impl Channel {
 
     pub fn clear(&mut self, t: u32, bar: u32) {
         self.state = State::Empty;
+        self.pending = false;
         self.anchor = t - t % bar;
     }
 
@@ -147,6 +160,7 @@ impl Channel {
         if self.state != State::Looping {
             self.state = State::Empty;
         }
+        self.pending = false;
         self.anchor = 0;
     }
 }
@@ -285,8 +299,28 @@ mod tests {
         run(&mut ch, 100, 130);
         assert_eq!(ch.state, State::Looping);
         ch.record(130, BAR);
-        assert_eq!((ch.state, ch.anchor), (State::Recording, 200));
-        ch.clear(130, BAR);
-        assert_eq!((ch.state, ch.anchor), (State::Empty, 100));
+        // queued: still looping (audible) until the bar line
+        assert_eq!((ch.state, ch.pending), (State::Looping, true));
+        ch.hold(true);
+        let out = run(&mut ch, 130, 200);
+        assert!(out.iter().any(|&s| s != 0.0), "the old loop plays while queued");
+        run(&mut ch, 200, 201);
+        assert_eq!((ch.state, ch.anchor, ch.pending), (State::Recording, 200, false));
+        ch.clear(200, BAR);
+        assert_eq!((ch.state, ch.anchor), (State::Empty, 200));
+    }
+
+    #[test]
+    fn pressing_record_again_unqueues_a_re_record() {
+        let mut ch = Channel::new(1000);
+        ch.record(0, BAR);
+        run(&mut ch, 0, 100);
+        ch.record(100, BAR);
+        run(&mut ch, 100, 130);
+        ch.record(130, BAR);
+        ch.record(140, BAR);
+        assert_eq!((ch.state, ch.pending), (State::Looping, false));
+        run(&mut ch, 140, 201);
+        assert_eq!(ch.state, State::Looping, "nothing started at the line");
     }
 }

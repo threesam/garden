@@ -332,8 +332,7 @@ impl App {
                 None
             }
             Action::Transport => {
-                let on = !self.playing();
-                self.send((op::TRANSPORT, flag(on), 0.0));
+                self.send((op::TRANSPORT, 2.0, 0.0)); // toggle, decided on the audio thread
                 None
             }
             Action::Tempo(d) => {
@@ -469,8 +468,7 @@ impl eframe::App for App {
             ui.horizontal(|ui| {
                 let label = if self.playing() { "stop  [space]" } else { "play  [space]" };
                 if ui.button(label).clicked() {
-                    let on = !self.playing();
-                    self.send((op::TRANSPORT, flag(on), 0.0));
+                    self.send((op::TRANSPORT, 2.0, 0.0)); // toggle, decided on the audio thread
                 }
                 ui.label(format!("bar {}", (self.status[3] / self.status[2].max(1.0)).floor() as i32 + 1));
                 ui.separator();

@@ -5,6 +5,7 @@
 
 export const OP = {
   tempo: 0,
+  /** a: 0 stop, 1 start, 2 toggle (decided on the audio thread). */
   transport: 1,
   note: 2,
   drum: 3,
@@ -21,8 +22,8 @@ export const OP = {
 
 export type Msg = [op: number, a: number, b: number];
 
-/** Worklet → page: the status block, a crash, or the performance log. */
-export type Reply = number[] | ['crash', string] | ['log', Uint32Array];
+/** Worklet → page: the status block, a crash, or the performance log + end clock. */
+export type Reply = number[] | ['crash', string] | ['log', Uint32Array, number];
 
 /** Ask the worklet to post the log (`['log', words]`) — see `takeLog`. */
 export const TAKE_LOG = 'log';

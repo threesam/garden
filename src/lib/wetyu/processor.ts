@@ -25,7 +25,7 @@ interface Exports {
   wetyu_command(op: number, a: number, b: number): void;
   wetyu_log_ptr(): number;
   wetyu_log_len(): number;
-  wetyu_log_clear(): void;
+  wetyu_clock(): number;
 }
 
 const BLOCK = 128;
@@ -52,11 +52,12 @@ class Wetyu extends AudioWorkletProcessor {
     this.statusView = new Float32Array(mem, this.x.wetyu_status_ptr(), STATUS_LEN);
     this.port.onmessage = (e: MessageEvent<Msg | typeof TAKE_LOG>) => {
       if (e.data === TAKE_LOG) {
-        // The performance so far: [t, op, a_bits, b_bits] quads, copied out
-        // and cleared so the next take starts fresh.
+        // The whole session so far — [clock, op, a_bits, b_bits] quads — plus
+        // the clock it ends at. Never cleared: a take only replays from a
+        // fresh engine if it starts at the beginning.
+        // ponytail: a one-off copy on a user action, ≤ 1 MiB; a click at worst.
         const words = new Uint32Array(mem, this.x.wetyu_log_ptr(), this.x.wetyu_log_len() * 4).slice();
-        this.x.wetyu_log_clear();
-        this.port.postMessage(['log', words], [words.buffer]);
+        this.port.postMessage(['log', words, this.x.wetyu_clock()], [words.buffer]);
         return;
       }
       const [op, a, b] = e.data;

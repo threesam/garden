@@ -144,7 +144,9 @@ impl Engine {
         let on = b != 0.0;
         match op {
             op::TEMPO => self.set_tempo(a),
-            op::TRANSPORT => self.transport(a != 0.0),
+            // 0 stop, 1 start, 2 toggle — toggling here keeps two quick presses
+            // from both reading a stale "stopped" on the UI thread.
+            op::TRANSPORT => self.transport(if a == 2.0 { !self.playing } else { a != 0.0 }),
             op::NOTE => self.note(a as u32, on),
             op::DRUM => self.drums.trigger(a as u32),
             op::RECORD => self.record(ch),
@@ -160,12 +162,15 @@ impl Engine {
         }
     }
 
+    /// Everything since the engine was made. Never cleared: a take is only
+    /// replayable from a fresh engine if it starts at the beginning.
     pub fn log(&self) -> &[Event] {
         &self.log
     }
 
-    pub fn clear_log(&mut self) {
-        self.log.clear();
+    /// Samples rendered so far — the "now" a saved take ends at.
+    pub fn clock(&self) -> u32 {
+        self.clock
     }
 
     fn locked(&self) -> bool {
@@ -211,11 +216,15 @@ impl Engine {
     }
 
     /// The listen key. Pressing it on a loop that is still recording ends the
-    /// take (snapped to the bar) and opens the gate in the same gesture.
+    /// take (snapped to the bar) and opens the gate in the same gesture; on a
+    /// loop with a re-record queued it un-queues it.
     pub fn hold(&mut self, ch: usize, on: bool) {
         if let Some(c) = self.channels.get_mut(ch) {
             if on && c.state == State::Recording {
                 c.record(self.t, self.bar);
+            }
+            if on {
+                c.pending = false;
             }
             c.hold(on);
         }
@@ -339,6 +348,8 @@ impl Engine {
         for (i, c) in self.channels.iter().enumerate() {
             let base = 4 + CH_FIELDS * i;
             let (len_bars, pos) = match c.state {
+                // A queued re-record reads as "waiting for the bar" while the old loop plays on.
+                State::Looping if c.pending => (0.0, -1.0),
                 State::Empty => (0.0, 0.0),
                 State::Recording => (0.0, (self.t as f32 - c.anchor as f32) / bar),
                 State::Until => (c.len as f32 / bar, (self.t as f32 - c.anchor as f32) / bar),
@@ -347,7 +358,7 @@ impl Engine {
                     loop_pos(self.t, c.anchor, c.len) as f32 / c.len as f32,
                 ),
             };
-            s[base] = c.state as u32 as f32;
+            s[base] = if c.pending { State::Recording } else { c.state } as u32 as f32;
             s[base + 1] = len_bars;
             s[base + 2] = pos;
             s[base + 3] = c.gate();
@@ -412,10 +423,8 @@ pub extern "C" fn wetyu_log_len() -> u32 {
 }
 
 #[no_mangle]
-pub extern "C" fn wetyu_log_clear() {
-    if let Some(e) = engine() {
-        e.clear_log();
-    }
+pub extern "C" fn wetyu_clock() -> u32 {
+    engine().map_or(0, |e| e.clock())
 }
 
 #[cfg(test)]
@@ -516,6 +525,16 @@ mod tests {
             out.extend_from_slice(&e.output);
         }
         out
+    }
+
+    #[test]
+    fn transport_toggle_is_decided_on_the_audio_thread() {
+        let mut e = Engine::new(48000.0);
+        e.command(op::TRANSPORT, 2.0, 0.0);
+        e.command(op::TRANSPORT, 2.0, 0.0);
+        assert!(!e.playing, "two quick toggles cancel out");
+        e.command(op::TRANSPORT, 2.0, 0.0);
+        assert!(e.playing);
     }
 
     #[test]
