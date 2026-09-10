@@ -105,13 +105,13 @@ impl Channel {
 
     /// Called on every bar line while playing.
     pub fn bar_line(&mut self, t: u32) {
-        if self.state == State::Empty || self.pending {
+        if self.pending {
+            // The queued re-record starts here; the old loop played to the line.
             self.pending = false;
             self.anchor = t;
-        }
-        if self.anchor == t && self.state == State::Looping {
-            // The queued re-record starts here; the old loop played to the line.
             self.state = State::Recording;
+        } else if self.state == State::Empty {
+            self.anchor = t;
         }
     }
 
@@ -303,11 +303,30 @@ mod tests {
         assert_eq!((ch.state, ch.pending), (State::Looping, true));
         ch.hold(true);
         let out = run(&mut ch, 130, 200);
-        assert!(out.iter().any(|&s| s != 0.0), "the old loop plays while queued");
+        assert!(
+            out.iter().any(|&s| s != 0.0),
+            "the old loop plays while queued"
+        );
         run(&mut ch, 200, 201);
-        assert_eq!((ch.state, ch.anchor, ch.pending), (State::Recording, 200, false));
+        assert_eq!(
+            (ch.state, ch.anchor, ch.pending),
+            (State::Recording, 200, false)
+        );
         ch.clear(200, BAR);
         assert_eq!((ch.state, ch.anchor), (State::Empty, 200));
+    }
+
+    #[test]
+    fn a_transport_restart_keeps_loops_looping() {
+        let mut ch = Channel::new(1000);
+        ch.record(0, BAR);
+        run(&mut ch, 0, 100);
+        ch.record(100, BAR);
+        run(&mut ch, 100, 130);
+        assert_eq!(ch.state, State::Looping);
+        ch.reset();
+        run(&mut ch, 0, 1); // t = 0 is a bar line with anchor == 0
+        assert_eq!((ch.state, ch.anchor), (State::Looping, 0));
     }
 
     #[test]
