@@ -109,7 +109,10 @@ impl Drums {
                 _ => {
                     h.phase = (h.phase + 800.0 / sr).fract();
                     let click = if s < 0.001 { n } else { 0.0 };
-                    (click + (h.phase * TAU).sin() * (-s / 0.03).exp() * 0.6, s > 0.12)
+                    (
+                        click + (h.phase * TAU).sin() * (-s / 0.03).exp() * 0.6,
+                        s > 0.12,
+                    )
                 }
             };
             out += sample;

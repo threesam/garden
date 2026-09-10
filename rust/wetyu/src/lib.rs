@@ -539,7 +539,11 @@ mod tests {
         let log: Vec<Event> = a.log().to_vec();
         assert_eq!(log.len(), 6);
         // The render clock keeps counting through the stop; the transport clock reset.
-        assert_eq!(log[4][0], 3 * BLOCK as u32, "restart logged on the render clock");
+        assert_eq!(
+            log[4][0],
+            3 * BLOCK as u32,
+            "restart logged on the render clock"
+        );
         assert_eq!(a.t, BLOCK as u32, "transport restarted from 0");
 
         let replayed = replay(&log, 4);

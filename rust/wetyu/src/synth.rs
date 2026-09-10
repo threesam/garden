@@ -73,7 +73,10 @@ impl Synth {
         self.counter = self.counter.wrapping_add(1);
         let freq = 440.0 * 2f32.powf((midi as f32 - 69.0) / 12.0);
         // Retrigger the same note, else a free slot, else the oldest voice.
-        let same = self.voices.iter().position(|v| v.stage != Stage::Off && v.midi == midi);
+        let same = self
+            .voices
+            .iter()
+            .position(|v| v.stage != Stage::Off && v.midi == midi);
         let free = || self.voices.iter().position(|v| v.stage == Stage::Off);
         let oldest = || {
             let mut best = 0;
@@ -86,7 +89,7 @@ impl Synth {
         };
         let slot = same.or_else(free).unwrap_or_else(oldest);
         let v = &mut self.voices[slot]; // slot came from an index over this array
-        // Keep phase / filter / envelope level so a steal or retrigger doesn't click.
+                                        // Keep phase / filter / envelope level so a steal or retrigger doesn't click.
         v.midi = midi;
         v.dt = freq / self.sr;
         v.stage = Stage::Attack;
@@ -110,7 +113,10 @@ impl Synth {
     }
 
     pub fn active(&self) -> impl Iterator<Item = u32> + '_ {
-        self.voices.iter().filter(|v| v.stage != Stage::Off).map(|v| v.midi)
+        self.voices
+            .iter()
+            .filter(|v| v.stage != Stage::Off)
+            .map(|v| v.midi)
     }
 
     #[inline]

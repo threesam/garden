@@ -47,6 +47,11 @@ impl Channel {
         self.gate
     }
 
+    /// The longest loop this buffer can hold, in whole bars (0 if none fit).
+    fn fits(&self, bar: u32) -> u32 {
+        (self.buf.len() as u32 / bar) * bar
+    }
+
     pub fn hold(&mut self, on: bool) {
         self.target = if on { 1.0 } else { 0.0 };
     }
@@ -65,13 +70,12 @@ impl Channel {
                         *slot = src;
                     } else if self.state == State::Recording {
                         // Out of room: keep the whole bars we have.
-                        let whole = (self.buf.len() as u32 / bar) * bar;
-                        if whole == 0 {
-                            self.state = State::Empty;
+                        self.len = self.fits(bar);
+                        self.state = if self.len == 0 {
+                            State::Empty
                         } else {
-                            self.len = whole;
-                            self.state = State::Looping;
-                        }
+                            State::Looping
+                        };
                     }
                 }
             }
@@ -121,8 +125,7 @@ impl Channel {
                     self.clear(t, bar);
                 } else {
                     // Never longer than the buffer: keep the whole bars that fit.
-                    let fits = (self.buf.len() as u32 / bar) * bar;
-                    self.len = snap_stop(t - self.anchor, bar).min(fits);
+                    self.len = snap_stop(t - self.anchor, bar).min(self.fits(bar));
                     if self.len == 0 {
                         self.clear(t, bar);
                     } else {

@@ -203,7 +203,11 @@ impl Crush {
         Self {
             hold: 0.0,
             n: 0,
-            combs: [Line::new(s(0.0297)), Line::new(s(0.0371)), Line::new(s(0.0411))],
+            combs: [
+                Line::new(s(0.0297)),
+                Line::new(s(0.0371)),
+                Line::new(s(0.0411)),
+            ],
             aps: [Line::new(s(0.005)), Line::new(s(0.0017))],
         }
     }
@@ -263,7 +267,10 @@ mod tests {
         let out = run(&mut fx, input);
         assert_eq!(out[0], 1.0, "dry passes through");
         assert!(out[100].abs() > 0.2, "first echo");
-        assert!(out[200].abs() > 0.05 && out[200].abs() < out[100].abs(), "feedback decays");
+        assert!(
+            out[200].abs() > 0.05 && out[200].abs() < out[100].abs(),
+            "feedback decays"
+        );
         assert!(out[50].abs() < 1e-6, "nothing between echoes");
     }
 
@@ -272,7 +279,11 @@ mod tests {
         let sr = 48000.0;
         let mut fx = Octaver::new(sr);
         let tone = |f: f32| (0..48000).map(move |i| (i as f32 * f / sr * TAU).sin());
-        let crossings = |v: &[f32]| v.windows(2).filter(|w| (w[0] < 0.0) != (w[1] < 0.0)).count();
+        let crossings = |v: &[f32]| {
+            v.windows(2)
+                .filter(|w| (w[0] < 0.0) != (w[1] < 0.0))
+                .count()
+        };
         let dry = crossings(&tone(110.0).collect::<Vec<_>>());
         let wet = crossings(&run(&mut fx, tone(110.0))[4800..]);
         let ratio = wet as f32 / (dry as f32 * 0.9);

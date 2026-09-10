@@ -10,15 +10,15 @@
 //! prints the real buffer sizes and output peak — the latency numbers.
 
 use std::collections::HashMap;
-use std::sync::atomic::{AtomicU32, AtomicUsize, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicU32, AtomicUsize, Ordering};
 use std::time::Duration;
 
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{BufferSize, SampleFormat, StreamConfig, SupportedBufferSize};
 use eframe::egui::{self, Key};
 use rtrb::{Consumer, Producer, RingBuffer};
-use wetyu::{op, Engine, CH_FIELDS, STATUS_LEN};
+use wetyu::{CH_FIELDS, Engine, STATUS_LEN, op};
 
 /// Frames per callback we ask CoreAudio for. Clamped to the device's range.
 const WANT_FRAMES: u32 = 64;
@@ -60,7 +60,10 @@ fn start_audio(
     let out_dev = host.default_output_device().ok_or("no output device")?;
     let out_default = out_dev.default_output_config().map_err(|e| e.to_string())?;
     if out_default.sample_format() != SampleFormat::F32 {
-        return Err(format!("output is {:?}, expected f32", out_default.sample_format()));
+        return Err(format!(
+            "output is {:?}, expected f32",
+            out_default.sample_format()
+        ));
     }
     let sample_rate = out_default.sample_rate();
     let channels = out_default.channels() as usize;
@@ -160,7 +163,10 @@ fn start_audio(
         _out: out,
         _mic: mic,
         sample_rate,
-        out_name: out_dev.description().map(|d| d.name().to_string()).unwrap_or_default(),
+        out_name: out_dev
+            .description()
+            .map(|d| d.name().to_string())
+            .unwrap_or_default(),
         mic_name,
         out_frames,
         mic_frames,
@@ -417,7 +423,13 @@ impl eframe::App for App {
         let events = ctx.input(|i| i.events.clone());
         for ev in events {
             match ev {
-                egui::Event::Key { key, physical_key, pressed, repeat, modifiers } => {
+                egui::Event::Key {
+                    key,
+                    physical_key,
+                    pressed,
+                    repeat,
+                    modifiers,
+                } => {
                     if repeat || modifiers.command || modifiers.ctrl || modifiers.alt {
                         continue;
                     }
@@ -428,7 +440,9 @@ impl eframe::App for App {
                         }
                         // Shift turns a loop's listen key into its record key.
                         let a = match action(k) {
-                            Some(Action::Hold(ch)) if modifiers.shift => Some(Action::Record(Some(ch))),
+                            Some(Action::Hold(ch)) if modifiers.shift => {
+                                Some(Action::Record(Some(ch)))
+                            }
                             a => a,
                         };
                         if let Some(a) = a {
@@ -588,12 +602,24 @@ fn probe(audio: &Audio, mut cmd_tx: Producer<Cmd>) {
     let out = audio.out_frames.load(Ordering::Relaxed);
     let mic = audio.mic_frames.load(Ordering::Relaxed);
     let sr = audio.sample_rate as f32;
-    println!("output  {}  {} Hz  {} frames/callback = {:.2} ms", audio.out_name, audio.sample_rate, out, out as f32 * 1000.0 / sr);
+    println!(
+        "output  {}  {} Hz  {} frames/callback = {:.2} ms",
+        audio.out_name,
+        audio.sample_rate,
+        out,
+        out as f32 * 1000.0 / sr
+    );
     match &audio.mic_name {
-        Some(n) => println!("mic     {n}  {mic} frames/callback = {:.2} ms", mic as f32 * 1000.0 / sr),
+        Some(n) => println!(
+            "mic     {n}  {mic} frames/callback = {:.2} ms",
+            mic as f32 * 1000.0 / sr
+        ),
         None => println!("mic     none"),
     }
-    println!("kick peak {:.3}", f32::from_bits(audio.peak.load(Ordering::Relaxed)));
+    println!(
+        "kick peak {:.3}",
+        f32::from_bits(audio.peak.load(Ordering::Relaxed))
+    );
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
