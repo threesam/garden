@@ -8,7 +8,7 @@ export type Action =
   | { kind: 'hold'; ch: Channel }
   | { kind: 'note'; semitone: number }
   | { kind: 'drum'; pad: number }
-  | { kind: 'record' }
+  | { kind: 'record'; ch?: Channel }
   | { kind: 'select' }
   | { kind: 'transport' }
   | { kind: 'tempo'; delta: number }
@@ -69,8 +69,11 @@ const TABLE = new Map<string, Action>([
   ['Backspace', { kind: 'clear' }],
 ]);
 
-export function actionFor(code: string): Action | undefined {
-  return TABLE.get(code);
+/** Shift turns a loop's listen key into its record key. */
+export function actionFor(code: string, shift = false): Action | undefined {
+  const action = TABLE.get(code);
+  if (shift && action?.kind === 'hold') return { kind: 'record', ch: action.ch };
+  return action;
 }
 
 /** MIDI note for a semitone above C in the given octave (C4 = 60). */

@@ -1,10 +1,13 @@
-//! Eight-voice saw synth: polyBLEP saw, linear ADSR, one-pole low-pass.
-//! Nothing allocates; every voice is a fixed slot.
+//! Eight-voice sub bass: a sine driven into a soft clipper for a little
+//! grit, linear ADSR, one-pole low-pass to keep it round. Nothing allocates;
+//! every voice is a fixed slot.
 
-use core::f32::consts::PI;
+use core::f32::consts::{PI, TAU};
 
 const VOICES: usize = 8;
-const SUSTAIN: f32 = 0.6;
+const SUSTAIN: f32 = 0.75;
+/// How hard the sine leans on the clipper. 1.0 is clean; 2.2 is "slightly".
+const DRIVE: f32 = 2.2;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum Stage {
@@ -46,18 +49,11 @@ pub struct Synth {
     lp_a: f32,
 }
 
-/// Standard two-sided polyBLEP correction for a saw discontinuity at phase 0.
+/// Rational tanh: odd harmonics only, so the bass stays round.
 #[inline]
-fn poly_blep(t: f32, dt: f32) -> f32 {
-    if t < dt {
-        let t = t / dt;
-        t + t - t * t - 1.0
-    } else if t > 1.0 - dt {
-        let t = (t - 1.0) / dt;
-        t * t + t + t + 1.0
-    } else {
-        0.0
-    }
+fn soft_clip(x: f32) -> f32 {
+    let x = x.clamp(-3.0, 3.0);
+    x * (27.0 + x * x) / (27.0 + 9.0 * x * x)
 }
 
 impl Synth {
@@ -66,10 +62,10 @@ impl Synth {
             voices: [OFF; VOICES],
             sr,
             counter: 0,
-            attack: 1.0 / (0.003 * sr),
-            decay: (1.0 - SUSTAIN) / (0.15 * sr),
-            release: 1.0 / (0.12 * sr),
-            lp_a: 1.0 - (-2.0 * PI * 4000.0 / sr).exp(),
+            attack: 1.0 / (0.004 * sr),
+            decay: (1.0 - SUSTAIN) / (0.25 * sr),
+            release: 1.0 / (0.18 * sr),
+            lp_a: 1.0 - (-2.0 * PI * 900.0 / sr).exp(),
         }
     }
 
@@ -151,11 +147,11 @@ impl Synth {
             if v.phase >= 1.0 {
                 v.phase -= 1.0;
             }
-            let saw = 2.0 * v.phase - 1.0 - poly_blep(v.phase, v.dt);
-            v.lp += self.lp_a * (saw - v.lp);
+            let sub = soft_clip((v.phase * TAU).sin() * DRIVE);
+            v.lp += self.lp_a * (sub - v.lp);
             out += v.lp * v.env;
         }
-        out * 0.2
+        out * 0.45
     }
 
     /// wasm has no flush-to-zero; a decayed filter state would otherwise crawl
@@ -185,6 +181,23 @@ mod tests {
             s.tick();
         }
         assert_eq!(s.active().count(), 0);
+    }
+
+    #[test]
+    fn a_note_is_round_but_not_clean() {
+        // One period of C2 at 48 kHz, well into sustain: mostly fundamental,
+        // with a little odd-harmonic grit from the clipper.
+        let mut s = Synth::new(48000.0);
+        s.note_on(36);
+        for _ in 0..24000 {
+            s.tick();
+        }
+        let period = (48000.0 / 65.406) as usize;
+        let wave: Vec<f32> = (0..period).map(|_| s.tick()).collect();
+        let peak = wave.iter().fold(0.0f32, |m, x| m.max(x.abs()));
+        let crest = peak / (wave.iter().map(|x| x * x).sum::<f32>() / period as f32).sqrt();
+        // a pure sine has crest √2 ≈ 1.414; a square 1.0; "slightly distorted" sits between
+        assert!((1.15..1.4).contains(&crest), "crest factor {crest}");
     }
 
     #[test]

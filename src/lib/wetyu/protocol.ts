@@ -1,6 +1,7 @@
-// Main thread ↔ worklet wire format: a 3-number array per event. Small enough
-// that structured clone is microseconds, and the worklet handles it before
-// the next render quantum — no SharedArrayBuffer (and no COOP/COEP) needed.
+// Main thread ↔ worklet wire format: a 3-number array per command, mirrored
+// by `wetyu::op` in rust/wetyu/src/lib.rs. Small enough that structured clone
+// is microseconds, and the worklet handles it before the next render quantum
+// — no SharedArrayBuffer (and no COOP/COEP) needed.
 
 export const OP = {
   tempo: 0,
@@ -14,9 +15,22 @@ export const OP = {
   micMonitor: 8,
   micOffset: 9,
   panic: 10,
+  fx: 11,
+  selectFx: 12,
 } as const;
 
 export type Msg = [op: number, a: number, b: number];
 
-/** `[playing, bpm, bar, t]` then `[state, bars, pos, gate]` per channel. Mirrors lib.rs. */
-export const STATUS_LEN = 16;
+/** Worklet → page: the status block, a crash, or the performance log. */
+export type Reply = number[] | ['crash', string] | ['log', Uint32Array];
+
+/** Ask the worklet to post the log (`['log', words]`) — see `takeLog`. */
+export const TAKE_LOG = 'log';
+
+/** `[playing, bpm, bar, t]` then `CH_FIELDS` per channel. Mirrors lib.rs. */
+export const CHANNELS = 3;
+export const CH_FIELDS = 6;
+export const STATUS_LEN = 4 + CH_FIELDS * CHANNELS;
+
+/** Built-in effect plugins, in default channel order: mic, keys, drums. */
+export const FX = ['delay', 'octaver', 'crush'] as const;

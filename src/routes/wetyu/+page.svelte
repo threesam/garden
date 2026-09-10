@@ -3,12 +3,18 @@
   //
   // Feel rule: every key handler sends to the audio thread FIRST, then lights
   // the key. Nothing here waits on a render before the engine hears about it.
+  //
+  // The picture is the default view while playing: a Visual plugin draws the
+  // three loops as layers (keys back, drums middle, mic front) from engine
+  // state only, so a logged performance can be re-rendered later.
   import { onMount } from 'svelte';
   import SeoHead from '$lib/components/SeoHead.svelte';
   import Segmented from '$lib/components/Segmented.svelte';
   import { collectionPageNode } from '$lib/seo';
   import { wetyu, type ChannelView } from '$lib/wetyu/engine.svelte';
   import { actionFor, midiFor, BLACK_KEYS, PADS, WHITE_KEYS, type Action } from '$lib/wetyu/keys';
+  import { FX } from '$lib/wetyu/protocol';
+  import { VISUALS, type Frame, type Visual } from '$lib/wetyu/visuals';
 
   const LATENCY_MODES = [{ label: 'tight' }, { label: 'safe' }] as const;
   const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B', 'C'];
@@ -19,6 +25,14 @@
   const down = new Map<string, Action>(); // eslint-disable-line svelte/prefer-svelte-reactivity -- never rendered; keeps the key path free of reactive bookkeeping
   /** Midi note sent for a held key, so an octave change mid-hold still releases it. */
   const sounding = new Map<string, number>(); // eslint-disable-line svelte/prefer-svelte-reactivity -- same: bookkeeping only
+  /** Loops whose effect shift switched in; released with shift or the loop key. */
+  const fxOn = [false, false, false];
+
+  let help = $state<HTMLDialogElement | null>(null);
+  let canvas = $state<HTMLCanvasElement | null>(null);
+  let visualIndex = $state(0);
+  let visual: Visual = VISUALS[0]?.() ?? { id: 'none', draw: () => undefined };
+  let raf = 0;
 
   function press(code: string, action: Action): void {
     switch (action.kind) {
@@ -35,7 +49,7 @@
         wetyu.drum(action.pad);
         break;
       case 'record':
-        wetyu.record();
+        wetyu.record(action.ch);
         break;
       case 'select':
         wetyu.selected = (wetyu.selected + 1) % wetyu.channels.length;
@@ -60,7 +74,13 @@
   }
 
   function release(code: string, action: Action): void {
-    if (action.kind === 'hold') wetyu.hold(action.ch, false);
+    if (action.kind === 'hold') {
+      if (fxOn[action.ch]) {
+        fxOn[action.ch] = false;
+        wetyu.fx(action.ch, false);
+      }
+      wetyu.hold(action.ch, false);
+    }
     if (action.kind === 'note') {
       const midi = sounding.get(code);
       if (midi !== undefined) wetyu.note(midi, false);
@@ -69,13 +89,34 @@
     lit[code] = false;
   }
 
+  /** Shift pressed while loops are held: their effects in. Released: out. */
+  function shift(on: boolean): void {
+    const held = [false, false, false];
+    for (const a of down.values()) if (a.kind === 'hold') held[a.ch] = true;
+    for (let ch = 0; ch < 3; ch++) {
+      const want = on && held[ch] === true;
+      if (want !== fxOn[ch]) {
+        fxOn[ch] = want;
+        wetyu.fx(ch, want);
+      }
+    }
+  }
+
   function isTyping(target: EventTarget | null): boolean {
-    return target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement;
+    return (
+      target instanceof HTMLInputElement ||
+      target instanceof HTMLTextAreaElement ||
+      target instanceof HTMLSelectElement
+    );
   }
 
   function onKeyDown(e: KeyboardEvent): void {
-    if (e.repeat || e.metaKey || e.ctrlKey || e.altKey || isTyping(e.target)) return;
-    const action = actionFor(e.code);
+    if (e.repeat || e.metaKey || e.ctrlKey || e.altKey || isTyping(e.target) || help?.open) return;
+    if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+      shift(true);
+      return;
+    }
+    const action = actionFor(e.code, e.shiftKey);
     if (!action) return;
     e.preventDefault();
     if (down.has(e.code)) return;
@@ -85,6 +126,10 @@
   }
 
   function onKeyUp(e: KeyboardEvent): void {
+    if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+      shift(false);
+      return;
+    }
     const action = down.get(e.code);
     if (!action) return;
     down.delete(e.code);
@@ -94,6 +139,7 @@
   function releaseAll(): void {
     for (const [code, action] of down) release(code, action);
     down.clear();
+    fxOn.fill(false);
     wetyu.panic();
   }
 
@@ -135,16 +181,78 @@
     return c.pos - Math.floor(c.pos);
   }
 
+  // ---- picture ----------------------------------------------------------
+
+  function frame(): Frame | null {
+    if (!canvas) return null;
+    return {
+      t: wetyu.t,
+      sampleRate: wetyu.sampleRate,
+      bar: wetyu.bar,
+      bpm: wetyu.bpm,
+      playing: wetyu.playing,
+      channels: wetyu.channels,
+      width: canvas.width,
+      height: canvas.height,
+    };
+  }
+
+  function paint(): void {
+    const ctx = canvas?.getContext('2d');
+    const f = frame();
+    if (ctx && f) visual.draw(ctx, f);
+  }
+
+  function resize(): void {
+    if (!canvas) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    canvas.width = Math.round(window.innerWidth * dpr);
+    canvas.height = Math.round(window.innerHeight * dpr);
+    paint();
+  }
+
+  function loop(): void {
+    raf = 0;
+    paint();
+    if (wetyu.playing) raf = requestAnimationFrame(loop);
+  }
+
+  $effect(() => {
+    if (wetyu.playing && !raf) raf = requestAnimationFrame(loop);
+  });
+
+  function pickVisual(i: number): void {
+    const make = VISUALS[i];
+    if (!make) return;
+    visualIndex = i;
+    visual = make();
+    paint();
+  }
+
+  async function saveTake(): Promise<void> {
+    const log = await wetyu.takeLog();
+    const blob = new Blob([JSON.stringify(log)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `wetyu-take-${String(Date.now())}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
   onMount(() => {
     void wetyu.boot();
+    resize();
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', onKeyUp);
     window.addEventListener('blur', releaseAll);
+    window.addEventListener('resize', resize);
     document.addEventListener('visibilitychange', releaseAll);
     return () => {
+      if (raf) cancelAnimationFrame(raf);
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
       window.removeEventListener('blur', releaseAll);
+      window.removeEventListener('resize', resize);
       document.removeEventListener('visibilitychange', releaseAll);
       wetyu.destroy();
     };
@@ -158,10 +266,14 @@
   schema={collectionPageNode({ path: '/wetyu', name: 'wetyu — threesam' })}
 />
 
-<main class="wetyu">
+<main class="wetyu" class:playing={wetyu.playing}>
+  <!-- data-static: the idle frame is deterministic (nothing moves until the
+       transport runs), so the visual suite can screenshot it unmasked. -->
+  <canvas bind:this={canvas} class="layers" aria-hidden="true" data-static></canvas>
+
   <header class="top">
     <h1>wetyu</h1>
-    <p class="lede">three loops, always running. hold <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> to hear them.</p>
+    <p class="lede">three loops, always running.</p>
   </header>
 
   {#if wetyu.error}
@@ -235,6 +347,7 @@
           type="button"
           class="hold"
           class:lit={c.held}
+          class:fx={c.fxWet > 0.5}
           aria-label="hold {c.name}"
           aria-pressed={c.held}
           style:--ring={String(ring(c))}
@@ -255,7 +368,7 @@
               wetyu.record(i);
             }}
           >
-            {c.state === 'recording' ? 'stop' : 'rec'} {#if i === wetyu.selected}<kbd>R</kbd>{/if}
+            {c.state === 'recording' ? 'stop' : 'rec'} <kbd>⇧{i + 1}</kbd>
           </button>
           <button
             type="button"
@@ -268,6 +381,18 @@
           >
             clear
           </button>
+          <select
+            class="fx-pick"
+            aria-label="{c.name} effect"
+            value={c.fx}
+            onchange={(e) => {
+              wetyu.selectFx(i, Number(e.currentTarget.value));
+            }}
+          >
+            {#each FX as id, j (id)}
+              <option value={j}>{id}</option>
+            {/each}
+          </select>
         </div>
         {#if i === 0}
           <div class="mic">
@@ -375,14 +500,53 @@
     </div>
   </section>
 
-  <footer class="legend">
-    <span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> hold a loop</span>
-    <span><kbd>R</kbd> record the selected loop</span>
-    <span><kbd>tab</kbd> select the next loop</span>
-    <span><kbd>⌫</kbd> clear it</span>
-    <span><kbd>↑</kbd><kbd>↓</kbd> tempo ±1 <kbd>←</kbd><kbd>→</kbd> ±5</span>
-    <span>press record in the first half of a bar and the loop starts at the bar line you're already in.</span>
-  </footer>
+  <button type="button" class="info" aria-label="instructions" onclick={() => help?.showModal()}>
+    i
+  </button>
+
+  <dialog bind:this={help} class="help" aria-label="instructions">
+    <h2>how to play</h2>
+    <ul>
+      <li>
+        <kbd>shift</kbd>+<kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> record a loop: mic, keys, drums. the first press
+        starts the clock.
+      </li>
+      <li>
+        <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> hold to hear a loop. on a loop still recording, that ends the take
+        on the bar and drops you into it.
+      </li>
+      <li>
+        <kbd>shift</kbd> while holding a loop adds its effect: delay on the mic, an octave-up phaser on the keys,
+        crush and spring on the drums.
+      </li>
+      <li><kbd>A</kbd>…<kbd>K</kbd> and <kbd>W E T Y U</kbd> play the bass. <kbd>,</kbd> <kbd>.</kbd> change octave.</li>
+      <li><kbd>Z</kbd>…<kbd>M</kbd> hit the drums.</li>
+      <li>
+        <kbd>space</kbd> stop and start. <kbd>↑</kbd><kbd>↓</kbd> tempo ±1, <kbd>←</kbd><kbd>→</kbd> ±5, while nothing
+        is recorded.
+      </li>
+      <li><kbd>tab</kbd> selects the next loop; <kbd>R</kbd> records it, <kbd>⌫</kbd> clears it. <kbd>L</kbd> toggles the click.</li>
+      <li>press record in the first half of a bar and the loop starts at the bar line you're already in.</li>
+    </ul>
+    <div class="help-row">
+      <label>
+        picture
+        <select
+          aria-label="visual"
+          value={visualIndex}
+          onchange={(e) => {
+            pickVisual(Number(e.currentTarget.value));
+          }}
+        >
+          {#each VISUALS as make, i (i)}
+            <option value={i}>{make().id}</option>
+          {/each}
+        </select>
+      </label>
+      <button type="button" class="save" onclick={() => void saveTake()}>save take</button>
+      <button type="button" class="close" onclick={() => help?.close()}>close <kbd>esc</kbd></button>
+    </div>
+  </dialog>
 </main>
 
 <style>
@@ -390,16 +554,48 @@
     --ink: var(--white);
     --dim: rgb(245 244 240 / 0.55);
     --line: rgb(245 244 240 / 0.16);
-    --accent: var(--coin);
+    --paper: #0c0c0a;
+    position: relative;
     min-height: 100dvh;
     padding: clamp(1rem, 4vw, 3rem);
-    background: #14140f;
+    background: var(--paper);
     color: var(--ink);
     font-family: var(--font-mono);
     font-variation-settings: 'MONO' 1;
     display: grid;
     gap: 2rem;
     align-content: start;
+  }
+
+  /* The picture: fixed behind everything, the default view while playing. */
+  .layers {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .top,
+  .error,
+  .transport,
+  .channels,
+  .instruments {
+    position: relative;
+    z-index: 1;
+  }
+  /* Controls recede while playing so the layers read; they come back on hover. */
+  .playing .transport,
+  .playing .channels,
+  .playing .instruments,
+  .playing .top {
+    opacity: 0.55;
+    transition: opacity 400ms ease;
+  }
+  .playing .transport:hover,
+  .playing .channels:hover,
+  .playing .instruments:hover {
+    opacity: 1;
   }
 
   h1 {
@@ -430,11 +626,11 @@
   .error {
     margin: 0;
     padding: 0.75rem 1rem;
-    border: 1px solid var(--accent);
-    color: var(--accent);
+    border: 1px solid var(--ink);
   }
 
-  button {
+  button,
+  select {
     appearance: none;
     border: 1px solid var(--line);
     border-radius: 4px;
@@ -450,6 +646,12 @@
     opacity: 0.35;
     cursor: default;
   }
+  select {
+    padding: 0.35rem 0.5rem;
+  }
+  select option {
+    background: var(--paper);
+  }
 
   .transport {
     display: flex;
@@ -463,8 +665,7 @@
     padding: 0.5rem 1rem;
   }
   .play.on {
-    border-color: var(--accent);
-    color: var(--accent);
+    border-color: var(--ink);
   }
   .bar {
     color: var(--dim);
@@ -493,8 +694,9 @@
     gap: 0.4rem;
     cursor: pointer;
   }
-  .toggle input {
-    accent-color: var(--accent);
+  .toggle input,
+  .offset input {
+    accent-color: var(--ink);
   }
   .latency {
     display: flex;
@@ -505,6 +707,10 @@
   .readout {
     color: var(--dim);
     font-size: 0.85rem;
+  }
+  /* Monochrome everything: the shared segmented control's coin thumb included. */
+  .latency :global(.thumb) {
+    background: var(--ink);
   }
 
   .channels {
@@ -520,7 +726,7 @@
     border-radius: 6px;
   }
   .channel.selected {
-    border-color: var(--accent);
+    border-color: var(--ink);
   }
   .name {
     justify-self: start;
@@ -531,7 +737,7 @@
   }
   .sel {
     margin-left: 0.5rem;
-    color: var(--accent);
+    color: var(--dim);
     font-size: 0.7rem;
     letter-spacing: var(--tracking-meta);
   }
@@ -547,17 +753,18 @@
     border-radius: 50%;
     /* Playhead: the ring sweeps with the loop; gate fills the disc as you hold. */
     background:
-      radial-gradient(circle, rgb(232 163 23 / calc(var(--gate) * 0.35)) 0 60%, transparent 61%),
-      conic-gradient(var(--accent) calc(var(--ring) * 360deg), var(--line) 0);
+      radial-gradient(circle, rgb(245 244 240 / calc(var(--gate) * 0.25)) 0 60%, transparent 61%),
+      conic-gradient(var(--ink) calc(var(--ring) * 360deg), var(--line) 0);
     -webkit-mask: radial-gradient(circle, #000 0 62%, transparent 63%, #000 64%);
     mask: radial-gradient(circle, #000 0 62%, transparent 63%, #000 64%);
+  }
+  .hold.fx {
+    outline: 1px dashed var(--ink);
+    outline-offset: 4px;
   }
   .hold kbd {
     font-size: 1.6rem;
     border-color: transparent;
-  }
-  .hold.lit kbd {
-    color: var(--accent);
   }
   .hold .state {
     font-size: 0.7rem;
@@ -567,10 +774,11 @@
   }
   .channel[data-state='recording'] .hold .state,
   .channel[data-state='until'] .hold .state {
-    color: var(--accent);
+    color: var(--ink);
   }
   .row {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
   }
   .rec,
@@ -579,8 +787,12 @@
     padding: 0.4rem 0.75rem;
   }
   .rec.on {
-    border-color: #e5484d;
-    color: #e5484d;
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .fx-pick {
+    margin-left: auto;
   }
   .mic {
     display: grid;
@@ -591,9 +803,6 @@
     display: grid;
     gap: 0.25rem;
     color: var(--dim);
-  }
-  .offset input {
-    accent-color: var(--accent);
   }
 
   .instruments {
@@ -618,7 +827,7 @@
     left: calc((var(--after) + 1) * var(--w) - var(--w) * 0.3);
     width: calc(var(--w) * 0.6);
     height: 60%;
-    background: #14140f;
+    background: var(--paper);
     border-color: var(--ink);
     z-index: 1;
     padding-top: calc(var(--w) * 1.1);
@@ -626,9 +835,9 @@
   .white.lit,
   .black.lit,
   .pad.lit {
-    background: var(--accent);
-    color: #14140f;
-    border-color: var(--accent);
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
   }
   .octave {
     display: flex;
@@ -663,16 +872,68 @@
     color: inherit;
   }
 
-  .legend {
+  .info {
+    position: fixed;
+    right: 1.25rem;
+    bottom: 1.25rem;
+    z-index: 2;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    border-color: var(--dim);
+    background: var(--paper);
+    font-style: italic;
+    font-size: 1.1rem;
+  }
+  .help {
+    max-width: 36rem;
+    padding: 1.5rem;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-variation-settings: 'MONO' 1;
+    font-size: 0.9rem;
+  }
+  .help::backdrop {
+    background: rgb(12 12 10 / 0.7);
+  }
+  .help h2 {
+    margin: 0 0 1rem;
+    font-size: 1rem;
+    letter-spacing: var(--tracking-label);
+  }
+  .help ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.6rem;
+    color: var(--dim);
+  }
+  .help li kbd {
+    color: var(--ink);
+  }
+  .help-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem 1.5rem;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
     padding-top: 1rem;
     border-top: 1px solid var(--line);
-    color: var(--dim);
-    font-size: 0.8rem;
   }
-  .legend kbd + kbd {
-    margin-left: 0.15em;
+  .help-row label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--dim);
+  }
+  .help-row .close {
+    margin-left: auto;
+  }
+  .help button {
+    padding: 0.4rem 0.75rem;
   }
 </style>

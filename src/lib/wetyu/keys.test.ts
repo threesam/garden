@@ -2,9 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { actionFor, midiFor } from './keys';
 
 describe('keyboard zones', () => {
-  it('maps digits to loop holds', () => {
+  it('maps digits to loop holds, and shifted digits to record', () => {
     expect(actionFor('Digit1')).toEqual({ kind: 'hold', ch: 0 });
     expect(actionFor('Digit3')).toEqual({ kind: 'hold', ch: 2 });
+    expect(actionFor('Digit2', true)).toEqual({ kind: 'record', ch: 1 });
+    // shift does nothing to the other zones
+    expect(actionFor('KeyZ', true)).toEqual({ kind: 'drum', pad: 0 });
   });
 
   it('maps the A row and the black keys to semitones', () => {

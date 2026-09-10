@@ -4,7 +4,7 @@
 // waits on a render.
 import processorUrl from './processor?worker&url';
 import { CHANNEL_NAMES } from './keys';
-import { OP, STATUS_LEN } from './protocol';
+import { CH_FIELDS, FX, OP, STATUS_LEN, TAKE_LOG, type Reply } from './protocol';
 import { defaultMicOffsetMs, msToSamples } from './timing';
 
 export type ChannelState = 'empty' | 'recording' | 'until' | 'looping';
@@ -18,7 +18,24 @@ export interface ChannelView {
   /** 0..1 through the loop, or bars elapsed while recording (may be negative while waiting). */
   pos: number;
   gate: number;
+  /** Peak of this loop's output over the last block, post-effect. */
+  level: number;
+  /** Effect wet mix, 0..1. */
+  fxWet: number;
+  /** Index into FX: which plugin sits on this loop. */
+  fx: number;
   held: boolean;
+}
+
+/**
+ * A performance: every command the engine ran, stamped with the sample it
+ * landed on. Replaying it into a fresh engine at the same sample rate (with
+ * the same mic input) reproduces the audio exactly — the seed for rendering
+ * audio-visual pieces offline later.
+ */
+export interface PerformanceLog {
+  sampleRate: number;
+  events: { t: number; op: number; a: number; b: number }[];
 }
 
 export type MicState = 'off' | 'pending' | 'on' | 'denied';
@@ -43,10 +60,24 @@ class Wetyu {
   /** Bars elapsed on the transport. */
   position = $state(0);
   channels = $state<ChannelView[]>(
-    CHANNEL_NAMES.map((name) => ({ name, state: 'empty', bars: 0, pos: 0, gate: 0, held: false })),
+    CHANNEL_NAMES.map((name, i) => ({
+      name,
+      state: 'empty',
+      bars: 0,
+      pos: 0,
+      gate: 0,
+      level: 0,
+      fxWet: 0,
+      fx: i,
+      held: false,
+    })),
   );
   selected = $state(2);
-  octave = $state(4);
+  /** Sub bass lives low: C2 under the A key. */
+  octave = $state(2);
+  /** Engine sample clock, from the last status message. */
+  t = $state(0);
+  bar = $state(1);
   /** 128-frame output buffer (numeric latencyHint) vs the browser default. */
   tight = $state(true);
   click = $state(false);
@@ -64,6 +95,7 @@ class Wetyu {
   private gen = 0;
   /** outputLatency is only meaningful once rendering has begun. */
   private latencyStale = true;
+  private logWaiters: ((words: Uint32Array) => void)[] = [];
 
   async boot(): Promise<void> {
     const myGen = ++this.gen;
@@ -83,7 +115,7 @@ class Wetyu {
         outputChannelCount: [2],
         processorOptions: { module: this.module },
       });
-      node.port.onmessage = (e: MessageEvent<number[] | [string, string]>) => {
+      node.port.onmessage = (e: MessageEvent<Reply>) => {
         this.onMessage(e.data);
       };
       node.onprocessorerror = () => {
@@ -100,6 +132,9 @@ class Wetyu {
       this.send(OP.click, +this.click);
       this.send(OP.micMonitor, +this.micMonitor);
       this.send(OP.micOffset, msToSamples(this.micOffsetMs, ctx.sampleRate));
+      this.channels.forEach((c, i) => {
+        this.send(OP.selectFx, i, c.fx);
+      });
       if (this.micStream) this.attachMic(this.micStream);
       this.ready = true;
     } catch (error) {
@@ -177,10 +212,37 @@ class Wetyu {
     this.send(OP.micOffset, msToSamples(this.micOffsetMs, this.sampleRate));
   }
 
+  /** Shift with a playing loop: its effect in (or out). */
+  fx(ch: number, on: boolean): void {
+    this.send(OP.fx, ch, +on);
+  }
+
+  selectFx(ch: number, id: number): void {
+    if (id < 0 || id >= FX.length) return;
+    this.send(OP.selectFx, ch, id);
+    const c = this.channels[ch];
+    if (c) c.fx = id;
+  }
+
   /** Release everything (blur, tab hidden). */
   panic(): void {
     this.send(OP.panic);
     for (const c of this.channels) c.held = false;
+  }
+
+  /** Pull the performance log out of the engine (and clear it there). */
+  takeLog(): Promise<PerformanceLog> {
+    return new Promise((resolve) => {
+      this.logWaiters.push((words) => {
+        const events = [];
+        const floats = new Float32Array(words.buffer);
+        for (let i = 0; i + 3 < words.length; i += 4) {
+          events.push({ t: words[i] ?? 0, op: words[i + 1] ?? 0, a: floats[i + 2] ?? 0, b: floats[i + 3] ?? 0 });
+        }
+        resolve({ sampleRate: this.sampleRate, events });
+      });
+      this.node?.port.postMessage(TAKE_LOG);
+    });
   }
 
   async setTight(tight: boolean): Promise<void> {
@@ -226,12 +288,16 @@ class Wetyu {
     this.latencyMs = Math.round((this.ctx.baseLatency + output) * 1000 * 10) / 10;
   }
 
-  private onMessage(data: number[] | [string, string]): void {
-    if (typeof data[0] === 'string') {
-      this.error = `the engine crashed (${String(data[1])}) — reload the page`;
+  private onMessage(data: Reply): void {
+    if (data[0] === 'crash') {
+      this.error = `the engine crashed (${data[1]}) — reload the page`;
       return;
     }
-    const s = data as number[];
+    if (data[0] === 'log') {
+      this.logWaiters.shift()?.(data[1]);
+      return;
+    }
+    const s = data;
     if (s.length < STATUS_LEN) return;
     if (this.latencyStale) {
       this.latencyStale = false;
@@ -240,16 +306,20 @@ class Wetyu {
     const bar = s[2] ?? 1;
     this.playing = s[0] === 1;
     this.bpm = s[1] ?? this.bpm;
-    this.position = (s[3] ?? 0) / bar;
+    this.bar = bar;
+    this.t = s[3] ?? 0;
+    this.position = this.t / bar;
     let locked = false;
     this.channels.forEach((c, i) => {
-      const base = 4 + 4 * i;
+      const base = 4 + CH_FIELDS * i;
       const state = STATE_NAMES[s[base] ?? 0] ?? 'empty';
       if (state !== 'empty') locked = true;
       c.state = state;
       c.bars = s[base + 1] ?? 0;
       c.pos = s[base + 2] ?? 0;
       c.gate = s[base + 3] ?? 0;
+      c.level = s[base + 4] ?? 0;
+      c.fxWet = s[base + 5] ?? 0;
     });
     this.locked = locked;
   }

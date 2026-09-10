@@ -1,8 +1,8 @@
 // The AudioWorkletProcessor: a thin shim around the wasm engine. Everything
 // musical happens in Rust; this file copies 128 floats in, calls process,
-// copies 128 floats out, and forwards events. No allocation on the hot path
-// beyond the ~45 Hz status message.
-import { OP, STATUS_LEN, type Msg } from './protocol';
+// copies 128 floats out, and forwards commands. No allocation on the hot
+// path beyond the ~45 Hz status message.
+import { STATUS_LEN, TAKE_LOG, type Msg } from './protocol';
 
 // AudioWorkletGlobalScope isn't in lib.dom — declare the three things we use.
 declare const sampleRate: number;
@@ -22,17 +22,10 @@ interface Exports {
   wetyu_out_ptr(): number;
   wetyu_status_ptr(): number;
   wetyu_process(frames: number): void;
-  wetyu_set_tempo(bpm: number): void;
-  wetyu_transport(on: number): void;
-  wetyu_note(midi: number, on: number): void;
-  wetyu_drum(pad: number): void;
-  wetyu_record(ch: number): void;
-  wetyu_hold(ch: number, on: number): void;
-  wetyu_clear(ch: number): void;
-  wetyu_set_click(on: number): void;
-  wetyu_set_mic_monitor(on: number): void;
-  wetyu_set_mic_offset(samples: number): void;
-  wetyu_panic(): void;
+  wetyu_command(op: number, a: number, b: number): void;
+  wetyu_log_ptr(): number;
+  wetyu_log_len(): number;
+  wetyu_log_clear(): void;
 }
 
 const BLOCK = 128;
@@ -57,27 +50,18 @@ class Wetyu extends AudioWorkletProcessor {
     this.inView = new Float32Array(mem, this.x.wetyu_in_ptr(), BLOCK);
     this.outView = new Float32Array(mem, this.x.wetyu_out_ptr(), BLOCK);
     this.statusView = new Float32Array(mem, this.x.wetyu_status_ptr(), STATUS_LEN);
-    this.port.onmessage = (e: MessageEvent<Msg>) => {
-      this.dispatch(e.data);
+    this.port.onmessage = (e: MessageEvent<Msg | typeof TAKE_LOG>) => {
+      if (e.data === TAKE_LOG) {
+        // The performance so far: [t, op, a_bits, b_bits] quads, copied out
+        // and cleared so the next take starts fresh.
+        const words = new Uint32Array(mem, this.x.wetyu_log_ptr(), this.x.wetyu_log_len() * 4).slice();
+        this.x.wetyu_log_clear();
+        this.port.postMessage(['log', words], [words.buffer]);
+        return;
+      }
+      const [op, a, b] = e.data;
+      this.x.wetyu_command(op, a, b);
     };
-  }
-
-  private dispatch([op, a, b]: Msg): void {
-    const x = this.x;
-    switch (op) {
-      case OP.tempo: x.wetyu_set_tempo(a); break;
-      case OP.transport: x.wetyu_transport(a); break;
-      case OP.note: x.wetyu_note(a, b); break;
-      case OP.drum: x.wetyu_drum(a); break;
-      case OP.record: x.wetyu_record(a); break;
-      case OP.hold: x.wetyu_hold(a, b); break;
-      case OP.clear: x.wetyu_clear(a); break;
-      case OP.click: x.wetyu_set_click(a); break;
-      case OP.micMonitor: x.wetyu_set_mic_monitor(a); break;
-      case OP.micOffset: x.wetyu_set_mic_offset(a); break;
-      case OP.panic: x.wetyu_panic(); break;
-      default: break;
-    }
   }
 
   process(inputs: Float32Array[][], outputs: Float32Array[][]): boolean {
