@@ -367,7 +367,7 @@
           class="hold"
           class:lit={c.held}
           class:fx={c.fxWet > 0.5}
-          aria-label="hold {c.name}"
+          aria-label="{i + 1} {stateLabel(c)} — hold {c.name}"
           aria-pressed={c.held}
           style:--ring={String(ring(c))}
           style:--gate={String(c.gate)}
@@ -381,7 +381,7 @@
             type="button"
             class="rec"
             class:on={c.state === 'recording'}
-            aria-label="record {c.name}"
+            aria-label="{c.state === 'recording' ? 'stop' : 'rec'} ⇧{i + 1} — record {c.name}"
             onclick={() => {
               void wetyu.resume();
               wetyu.record(i);
