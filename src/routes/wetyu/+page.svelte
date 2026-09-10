@@ -9,14 +9,12 @@
   // state only, so a logged performance can be re-rendered later.
   import { onMount } from 'svelte';
   import SeoHead from '$lib/components/SeoHead.svelte';
-  import Segmented from '$lib/components/Segmented.svelte';
   import { collectionPageNode } from '$lib/seo';
   import { wetyu, type ChannelView } from '$lib/wetyu/engine.svelte';
   import { actionFor, midiFor, BLACK_KEYS, PADS, WHITE_KEYS, type Action } from '$lib/wetyu/keys';
   import { FX } from '$lib/wetyu/protocol';
   import { VISUALS, type Frame, type Visual } from '$lib/wetyu/visuals';
 
-  const LATENCY_MODES = [{ label: 'tight' }, { label: 'safe' }] as const;
   const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B', 'C'];
 
   /** Codes currently lit on screen (keyboard or pointer). */
@@ -308,7 +306,7 @@
     >
       {wetyu.playing ? 'stop' : 'play'} <kbd>space</kbd>
     </button>
-    <span class="bar">bar {Math.floor(wetyu.position) + 1}</span>
+    <span class="bar">bar {Math.floor(wetyu.t / wetyu.bar) + 1}</span>
     <label class="bpm">
       <span>bpm</span>
       <input
@@ -335,12 +333,18 @@
       click <kbd>L</kbd>
     </label>
     <div class="latency">
-      <Segmented
-        items={LATENCY_MODES}
-        active={wetyu.tight ? 0 : 1}
-        onselect={(i) => void wetyu.setTight(i === 0)}
-        ariaLabel="latency mode"
-      />
+      <label class="toggle">
+        <input
+          type="checkbox"
+          checked={wetyu.tight}
+          onchange={(e) => {
+            const want = e.currentTarget.checked;
+            e.currentTarget.checked = wetyu.tight; // the engine decides, after its confirm
+            void wetyu.setTight(want);
+          }}
+        />
+        tight
+      </label>
       <span class="readout">{wetyu.ready ? `${String(wetyu.latencyMs)} ms out` : 'loading engine…'}</span>
     </div>
   </section>
@@ -543,20 +547,22 @@
       <li>press record in the first half of a bar and the loop starts at the bar line you're already in.</li>
     </ul>
     <div class="help-row">
-      <label>
-        picture
-        <select
-          aria-label="visual"
-          value={visualIndex}
-          onchange={(e) => {
-            pickVisual(Number(e.currentTarget.value));
-          }}
-        >
-          {#each VISUALS as make, i (i)}
-            <option value={i}>{make().id}</option>
-          {/each}
-        </select>
-      </label>
+      {#if VISUALS.length > 1}
+        <label>
+          picture
+          <select
+            aria-label="visual"
+            value={visualIndex}
+            onchange={(e) => {
+              pickVisual(Number(e.currentTarget.value));
+            }}
+          >
+            {#each VISUALS as make, i (i)}
+              <option value={i}>{make().id}</option>
+            {/each}
+          </select>
+        </label>
+      {/if}
       <button type="button" class="save" onclick={() => void saveTake()}>save take</button>
       <button type="button" class="close" onclick={() => help?.close()}>close <kbd>esc</kbd></button>
     </div>
@@ -721,10 +727,6 @@
   .readout {
     color: var(--dim);
     font-size: 0.85rem;
-  }
-  /* Monochrome everything: the shared segmented control's coin thumb included. */
-  .latency :global(.thumb) {
-    background: var(--ink);
   }
 
   .channels {

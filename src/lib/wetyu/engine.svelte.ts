@@ -62,8 +62,6 @@ class Wetyu {
   playing = $state(false);
   bpm = $state(120);
   locked = $state(false);
-  /** Bars elapsed on the transport. */
-  position = $state(0);
   channels = $state<ChannelView[]>(
     CHANNEL_NAMES.map((name, i) => ({
       name,
@@ -100,7 +98,8 @@ class Wetyu {
   private gen = 0;
   /** outputLatency is only meaningful once rendering has begun. */
   private latencyStale = true;
-  private logWaiters: ((words: Uint32Array, end: number) => void)[] = [];
+  /** The one save in flight, if any; the worklet answers in order. */
+  private logWaiter: ((words: Uint32Array, end: number) => void) | null = null;
 
   async boot(): Promise<void> {
     const myGen = ++this.gen;
@@ -244,14 +243,14 @@ class Wetyu {
     const node = this.node;
     if (!node) return Promise.resolve({ sampleRate: this.sampleRate, end: 0, truncated: false, events: [] });
     return new Promise((resolve) => {
-      this.logWaiters.push((words, end) => {
+      this.logWaiter = (words, end) => {
         const events = [];
         const floats = new Float32Array(words.buffer);
         for (let i = 0; i + 3 < words.length; i += 4) {
           events.push({ t: words[i] ?? 0, op: words[i + 1] ?? 0, a: floats[i + 2] ?? 0, b: floats[i + 3] ?? 0 });
         }
         resolve({ sampleRate: this.sampleRate, end, truncated: events.length >= LOG_CAP, events });
-      });
+      };
       node.port.postMessage(TAKE_LOG);
     });
   }
@@ -296,9 +295,10 @@ class Wetyu {
     this.setMicOffsetMs(defaultMicOffsetMs(base, output, settings?.latency));
   }
 
-  /** Anyone waiting on a log gets an empty one when the engine goes away. */
+  /** A save waiting on a log gets an empty one when the engine goes away. */
   private flushLogWaiters(): void {
-    for (const w of this.logWaiters.splice(0)) w(new Uint32Array(0), 0);
+    this.logWaiter?.(new Uint32Array(0), 0);
+    this.logWaiter = null;
   }
 
   private updateLatency(): void {
@@ -314,7 +314,8 @@ class Wetyu {
       return;
     }
     if (data[0] === 'log') {
-      this.logWaiters.shift()?.(data[1], data[2]);
+      this.logWaiter?.(data[1], data[2]);
+      this.logWaiter = null;
       return;
     }
     const s = data;
@@ -328,7 +329,6 @@ class Wetyu {
     this.bpm = s[1] ?? this.bpm;
     this.bar = bar;
     this.t = s[3] ?? 0;
-    this.position = this.t / bar;
     let locked = false;
     this.channels.forEach((c, i) => {
       const base = 4 + CH_FIELDS * i;
