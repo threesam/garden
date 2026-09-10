@@ -4,7 +4,7 @@
 // waits on a render.
 import processorUrl from './processor?worker&url';
 import { CHANNEL_NAMES } from './keys';
-import { CH_FIELDS, FX, OP, STATUS_LEN, TAKE_LOG, type Reply } from './protocol';
+import { CH_FIELDS, FX, LOG_CAP, OP, STATUS_LEN, TAKE_LOG, type Reply } from './protocol';
 import { defaultMicOffsetMs, msToSamples } from './timing';
 
 export type ChannelState = 'empty' | 'recording' | 'until' | 'looping';
@@ -38,6 +38,8 @@ export interface PerformanceLog {
   sampleRate: number;
   /** Render clock the take ends at, so a renderer knows how long to run. */
   end: number;
+  /** The engine's log filled up; commands after the last event are missing. */
+  truncated: boolean;
   events: { t: number; op: number; a: number; b: number }[];
 }
 
@@ -161,6 +163,7 @@ class Wetyu {
     for (const track of this.micStream?.getTracks() ?? []) track.stop();
     this.micStream = null;
     this.micSource = null;
+    this.mic = 'off';
     this.ready = false;
   }
 
@@ -239,7 +242,7 @@ class Wetyu {
   /** The whole session as a replayable log (see PerformanceLog). */
   takeLog(): Promise<PerformanceLog> {
     const node = this.node;
-    if (!node) return Promise.resolve({ sampleRate: this.sampleRate, end: 0, events: [] });
+    if (!node) return Promise.resolve({ sampleRate: this.sampleRate, end: 0, truncated: false, events: [] });
     return new Promise((resolve) => {
       this.logWaiters.push((words, end) => {
         const events = [];
@@ -247,7 +250,7 @@ class Wetyu {
         for (let i = 0; i + 3 < words.length; i += 4) {
           events.push({ t: words[i] ?? 0, op: words[i + 1] ?? 0, a: floats[i + 2] ?? 0, b: floats[i + 3] ?? 0 });
         }
-        resolve({ sampleRate: this.sampleRate, end, events });
+        resolve({ sampleRate: this.sampleRate, end, truncated: events.length >= LOG_CAP, events });
       });
       node.port.postMessage(TAKE_LOG);
     });

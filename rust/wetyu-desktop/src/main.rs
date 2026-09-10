@@ -259,7 +259,8 @@ struct App {
     shift: bool,
     /// Pointer-held on-screen controls, for edge detection.
     ui_hold: [bool; 3],
-    ui_note: [bool; 13],
+    /// Midi note each on-screen key is sounding, so an octave change mid-press still releases it.
+    ui_note: [Option<u32>; 13],
     octave: i32,
     bpm: f32,
     click: bool,
@@ -571,10 +572,17 @@ impl eframe::App for App {
                 for (n, (_, semi, label)) in WHITE.iter().chain(BLACK.iter()).enumerate() {
                     let r = ui.add_sized([36.0, 60.0], egui::Button::new(*label));
                     let held = r.is_pointer_button_down_on();
-                    if held != self.ui_note[n] {
-                        self.ui_note[n] = held;
-                        let midi = self.midi(*semi) as f32;
-                        self.send((op::NOTE, midi, flag(held)));
+                    match (held, self.ui_note[n]) {
+                        (true, None) => {
+                            let midi = self.midi(*semi);
+                            self.ui_note[n] = Some(midi);
+                            self.send((op::NOTE, midi as f32, 1.0));
+                        }
+                        (false, Some(midi)) => {
+                            self.ui_note[n] = None;
+                            self.send((op::NOTE, midi as f32, 0.0));
+                        }
+                        _ => {}
                     }
                 }
                 ui.label(format!("octave {}  [, .]", self.octave));
@@ -639,7 +647,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         fx_on: [false; 3],
         shift: false,
         ui_hold: [false; 3],
-        ui_note: [false; 13],
+        ui_note: [None; 13],
         octave: 2,
         bpm: 120.0,
         click: false,

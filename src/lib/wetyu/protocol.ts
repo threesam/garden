@@ -25,8 +25,10 @@ export type Msg = [op: number, a: number, b: number];
 /** Worklet → page: the status block, a crash, or the performance log + end clock. */
 export type Reply = number[] | ['crash', string] | ['log', Uint32Array, number];
 
-/** Ask the worklet to post the log (`['log', words]`) — see `takeLog`. */
+/** Ask the worklet to post the log (`['log', words, clock]`) — see `takeLog`. */
 export const TAKE_LOG = 'log';
+/** Events the engine keeps before it stops logging. Mirrors LOG_CAP in lib.rs. */
+export const LOG_CAP = 65536;
 
 /** `[playing, bpm, bar, t]` then `CH_FIELDS` per channel. Mirrors lib.rs. */
 export const CHANNELS = 3;

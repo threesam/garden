@@ -27,6 +27,11 @@
   const sounding = new Map<string, number>(); // eslint-disable-line svelte/prefer-svelte-reactivity -- same: bookkeeping only
   /** Loops whose effect shift switched in; released with shift or the loop key. */
   const fxOn = [false, false, false];
+  /** How many inputs (keys, pointers) hold each loop; the gate follows the count. */
+  const holds: [number, number, number] = [0, 0, 0];
+  /** Pointer presses live in their own key space so they never release a physical key. */
+  const POINTER = 'ptr:';
+  const keyOf = (code: string) => (code.startsWith(POINTER) ? code.slice(POINTER.length) : code);
 
   let help = $state<HTMLDialogElement | null>(null);
   let canvas = $state<HTMLCanvasElement | null>(null);
@@ -37,7 +42,7 @@
   function press(code: string, action: Action): void {
     switch (action.kind) {
       case 'hold':
-        wetyu.hold(action.ch, true);
+        if (++holds[action.ch] === 1) wetyu.hold(action.ch, true);
         break;
       case 'note': {
         const midi = midiFor(action.semitone, wetyu.octave);
@@ -70,11 +75,12 @@
         wetyu.octave = Math.min(7, Math.max(1, wetyu.octave + action.delta));
         break;
     }
-    lit[code] = true;
+    lit[keyOf(code)] = true;
   }
 
   function release(code: string, action: Action): void {
-    if (action.kind === 'hold') {
+    if (action.kind === 'hold' && --holds[action.ch] <= 0) {
+      holds[action.ch] = 0;
       if (fxOn[action.ch]) {
         fxOn[action.ch] = false;
         wetyu.fx(action.ch, false);
@@ -86,7 +92,7 @@
       if (midi !== undefined) wetyu.note(midi, false);
       sounding.delete(code);
     }
-    lit[code] = false;
+    lit[keyOf(code)] = false;
   }
 
   /** Shift pressed while loops are held: their effects in. Released: out. */
@@ -139,25 +145,32 @@
   function releaseAll(): void {
     for (const [code, action] of down) release(code, action);
     down.clear();
+    sounding.clear();
+    holds.fill(0);
     fxOn.fill(false);
+    lit = {};
     wetyu.panic();
   }
 
   /** Pointer press-and-hold for the on-screen keys, pads and hold buttons. */
-  function pointer(code: string, action: Action) {
+  function pointer(key: string, action: Action) {
+    const code = POINTER + key;
+    let held = false;
+    const up = () => {
+      if (!held) return;
+      held = false;
+      release(code, action);
+    };
     return {
       onpointerdown: (e: PointerEvent) => {
         e.preventDefault();
         (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
         void wetyu.resume();
+        held = true;
         press(code, action);
       },
-      onpointerup: () => {
-        release(code, action);
-      },
-      onpointercancel: () => {
-        release(code, action);
-      },
+      onpointerup: up,
+      onpointercancel: up,
     };
   }
 
