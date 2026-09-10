@@ -67,14 +67,20 @@ pub mod op {
     pub const SELECT_FX: u32 = 12;
 }
 
-/// One logged command: `[t, op, a.to_bits(), b.to_bits()]`.
+/// One logged command: `[clock, op, a.to_bits(), b.to_bits()]`, where clock is
+/// samples rendered since the engine was made — monotonic, unlike the transport
+/// clock, so a take that stops and restarts still replays unambiguously.
 pub type Event = [u32; 4];
 
 pub struct Engine {
     sr: f32,
     bpm: f32,
     bar: u32,
+    /// Transport clock: samples since play started. Resets on start.
     t: u32,
+    /// Render clock: every sample ever processed. Never resets.
+    /// ponytail: u32 wraps after ~24 h at 48 kHz; nobody performs that long
+    clock: u32,
     playing: bool,
     click_on: bool,
     monitor_mic: bool,
@@ -109,6 +115,7 @@ impl Engine {
             bpm,
             bar: 0,
             t: 0,
+            clock: 0,
             playing: false,
             click_on: false,
             monitor_mic: false,
@@ -130,7 +137,7 @@ impl Engine {
     /// The one entry point. Logged with the sample it lands on.
     pub fn command(&mut self, op: u32, a: f32, b: f32) {
         if self.log.len() < self.log.capacity() {
-            self.log.push([self.t, op, a.to_bits(), b.to_bits()]);
+            self.log.push([self.clock, op, a.to_bits(), b.to_bits()]);
         }
         let ch = a as usize;
         let on = b != 0.0;
@@ -173,7 +180,8 @@ impl Engine {
 
     fn apply_tempo(&mut self, bpm: f32) {
         self.bpm = bpm;
-        self.bar = bar_len(bpm, self.sr);
+        // A bar is never shorter than a sample: every `% bar` below depends on it.
+        self.bar = bar_len(bpm, self.sr).max(1);
         let beat = (self.bar / 4) as usize;
         for slot in self.fx.iter_mut().flatten() {
             slot.effect.set_beat(beat);
@@ -219,6 +227,7 @@ impl Engine {
     }
 
     pub fn note(&mut self, midi: u32, on: bool) {
+        let midi = midi.min(127); // past this the oscillator step goes infinite
         if on {
             self.synth.note_on(midi);
         } else {
@@ -301,12 +310,12 @@ impl Engine {
                     level[ch] = level[ch].max(y.abs());
                     out += y;
                 }
-                // ponytail: u32 wraps after ~24 h at 48 kHz; nobody loops that long
                 self.t = t.wrapping_add(1);
             }
             out += self.drums.tick_click();
             self.output[i] = out.clamp(-1.0, 1.0);
         }
+        self.clock = self.clock.wrapping_add(frames as u32);
         self.synth.flush_denormals();
         self.write_status(level);
     }
@@ -486,38 +495,45 @@ mod tests {
         assert!(ch(&e, KEYS)[5] > 0.9, "fx wet");
     }
 
-    #[test]
-    fn commands_are_logged_on_the_sample_clock_and_replay_identically() {
-        let mut a = Engine::new(48000.0);
-        a.command(op::TEMPO, 100.0, 0.0);
-        a.command(op::RECORD, DRUMS as f32, 0.0);
-        a.process(BLOCK);
-        a.command(op::DRUM, 0.0, 0.0);
-        a.process(BLOCK);
-        let log: Vec<Event> = a.log().to_vec();
-        assert_eq!(log.len(), 3);
-        assert_eq!(log[2][0], 128, "third command landed on sample 128");
-        assert_eq!(log[2][1], op::DRUM);
-
-        // Replay into a fresh engine at the logged samples → same output.
-        let mut b = Engine::new(48000.0);
-        let mut replayed = Vec::new();
-        for block in 0..2u32 {
+    /// Render `blocks` blocks, applying logged commands on the render clock.
+    fn replay(log: &[Event], blocks: u32) -> Vec<f32> {
+        let mut e = Engine::new(48000.0);
+        let mut out = Vec::new();
+        for block in 0..blocks {
             for ev in log.iter().filter(|ev| ev[0] == block * BLOCK as u32) {
-                b.command(ev[1], f32::from_bits(ev[2]), f32::from_bits(ev[3]));
+                e.command(ev[1], f32::from_bits(ev[2]), f32::from_bits(ev[3]));
             }
-            b.process(BLOCK);
-            replayed.extend_from_slice(&b.output);
+            e.process(BLOCK);
+            out.extend_from_slice(&e.output);
         }
+        out
+    }
+
+    #[test]
+    fn a_take_replays_identically_even_across_a_transport_restart() {
+        // Perform: record drums, play a kick, stop, restart, kick again.
+        let mut a = Engine::new(48000.0);
         let mut original = Vec::new();
-        let mut c = Engine::new(48000.0);
-        c.command(op::TEMPO, 100.0, 0.0);
-        c.command(op::RECORD, DRUMS as f32, 0.0);
-        c.process(BLOCK);
-        original.extend_from_slice(&c.output);
-        c.command(op::DRUM, 0.0, 0.0);
-        c.process(BLOCK);
-        original.extend_from_slice(&c.output);
+        let script: [&[(u32, f32)]; 4] = [
+            &[(op::TEMPO, 100.0), (op::RECORD, DRUMS as f32)],
+            &[(op::DRUM, 0.0)],
+            &[(op::TRANSPORT, 0.0)],
+            &[(op::RECORD, DRUMS as f32), (op::DRUM, 1.0)],
+        ];
+        for cmds in script {
+            for &(o, arg) in cmds {
+                a.command(o, arg, 0.0);
+            }
+            a.process(BLOCK);
+            original.extend_from_slice(&a.output);
+        }
+        let log: Vec<Event> = a.log().to_vec();
+        assert_eq!(log.len(), 6);
+        // The render clock keeps counting through the stop; the transport clock reset.
+        assert_eq!(log[4][0], 3 * BLOCK as u32, "restart logged on the render clock");
+        assert_eq!(a.t, BLOCK as u32, "transport restarted from 0");
+
+        let replayed = replay(&log, 4);
         assert_eq!(replayed, original);
         assert!(replayed.iter().any(|&s| s != 0.0));
     }

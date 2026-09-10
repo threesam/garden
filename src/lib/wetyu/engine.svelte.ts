@@ -28,9 +28,10 @@ export interface ChannelView {
 }
 
 /**
- * A performance: every command the engine ran, stamped with the sample it
- * landed on. Replaying it into a fresh engine at the same sample rate (with
- * the same mic input) reproduces the audio exactly — the seed for rendering
+ * A performance: every command the engine ran, stamped with the render clock
+ * (samples rendered since the engine was made, monotonic across stops).
+ * Replaying it into a fresh engine at the same sample rate (with the same
+ * mic input) reproduces the audio exactly — the seed for rendering
  * audio-visual pieces offline later.
  */
 export interface PerformanceLog {
@@ -232,6 +233,8 @@ class Wetyu {
 
   /** Pull the performance log out of the engine (and clear it there). */
   takeLog(): Promise<PerformanceLog> {
+    const node = this.node;
+    if (!node) return Promise.resolve({ sampleRate: this.sampleRate, events: [] });
     return new Promise((resolve) => {
       this.logWaiters.push((words) => {
         const events = [];
@@ -241,7 +244,7 @@ class Wetyu {
         }
         resolve({ sampleRate: this.sampleRate, events });
       });
-      this.node?.port.postMessage(TAKE_LOG);
+      node.port.postMessage(TAKE_LOG);
     });
   }
 

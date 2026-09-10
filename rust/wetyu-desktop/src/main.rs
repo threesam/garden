@@ -529,7 +529,7 @@ impl eframe::App for App {
                         if ui.add_enabled(state != 0.0, egui::Button::new("clear")).clicked() {
                             self.send((op::CLEAR, i as f32, 0.0));
                         }
-                        ui.weak(format!("{} {}", wetyu::fx::BUILTIN[[0, 1, 2][i]], if wet > 0.5 { "on" } else { "" }));
+                        ui.weak(format!("{} {}", wetyu::fx::BUILTIN[i], if wet > 0.5 { "on" } else { "" }));
                     });
                     if i == 0 {
                         if self.audio.mic_name.is_none() {
