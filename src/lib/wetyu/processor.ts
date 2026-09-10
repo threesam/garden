@@ -67,23 +67,32 @@ class Wetyu extends AudioWorkletProcessor {
   process(inputs: Float32Array[][], outputs: Float32Array[][]): boolean {
     if (this.dead) return false;
     const input = inputs[0]?.[0];
-    if (input?.length === BLOCK) {
-      this.inView.set(input);
-    } else {
-      this.inView.fill(0);
-    }
-    try {
-      this.x.wetyu_process(BLOCK);
-    } catch (error) {
-      // A wasm trap leaves the instance unusable; tell the page and stop.
-      this.dead = true;
-      this.port.postMessage(['crash', String(error)]);
-      return false;
-    }
-    for (const channel of outputs[0] ?? []) {
-      channel.set(this.outView);
+    const channels = outputs[0] ?? [];
+    const frames = channels[0]?.length ?? BLOCK;
+    // The spec fixes the quantum at 128, which is the engine's block; if a
+    // browser ever renders bigger quanta, walk them in engine-sized chunks.
+    for (let start = 0; start < frames; start += BLOCK) {
+      const n = Math.min(BLOCK, frames - start);
+      if (input) {
+        this.inView.set(input.subarray(start, start + n));
+      } else {
+        this.inView.fill(0, 0, n);
+      }
+      try {
+        this.x.wetyu_process(n);
+      } catch (error) {
+        // A wasm trap leaves the instance unusable; tell the page and stop.
+        this.dead = true;
+        this.port.postMessage(['crash', String(error)]);
+        return false;
+      }
+      for (const channel of channels) {
+        channel.set(this.outView.subarray(0, n), start);
+      }
     }
     if (++this.n % STATUS_EVERY === 0) {
+      // ponytail: one small array clone ~47×/s; a SharedArrayBuffer would need
+      // cross-origin isolation for the whole page and buys nothing audible.
       this.port.postMessage(Array.from(this.statusView));
     }
     return true;

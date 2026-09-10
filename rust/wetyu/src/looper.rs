@@ -120,8 +120,14 @@ impl Channel {
                 if t < self.anchor {
                     self.clear(t, bar);
                 } else {
-                    self.len = snap_stop(t - self.anchor, bar);
-                    self.state = State::Until;
+                    // Never longer than the buffer: keep the whole bars that fit.
+                    let fits = (self.buf.len() as u32 / bar) * bar;
+                    self.len = snap_stop(t - self.anchor, bar).min(fits);
+                    if self.len == 0 {
+                        self.clear(t, bar);
+                    } else {
+                        self.state = State::Until;
+                    }
                 }
             }
             State::Until => {}
@@ -251,6 +257,20 @@ mod tests {
         ch.record(0, BAR);
         run(&mut ch, 0, 251);
         assert_eq!((ch.state, ch.len), (State::Looping, 200));
+    }
+
+    #[test]
+    fn a_take_never_snaps_longer_than_the_buffer() {
+        let mut ch = Channel::new(250);
+        ch.record(0, BAR);
+        run(&mut ch, 0, 240);
+        ch.record(240, BAR); // nearest bar would be 200; 300 would not fit anyway
+        assert_eq!((ch.state, ch.len), (State::Until, 200));
+        let mut tiny = Channel::new(50); // less than a bar: nothing can fit
+        tiny.record(0, BAR);
+        run(&mut tiny, 0, 40);
+        tiny.record(40, BAR);
+        assert_eq!(tiny.state, State::Empty);
     }
 
     #[test]

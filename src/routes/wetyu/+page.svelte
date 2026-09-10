@@ -113,7 +113,7 @@
   function onKeyDown(e: KeyboardEvent): void {
     if (e.repeat || e.metaKey || e.ctrlKey || e.altKey || isTyping(e.target) || help?.open) return;
     if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
-      shift(true);
+      shift(e.shiftKey);
       return;
     }
     const action = actionFor(e.code, e.shiftKey);
@@ -127,7 +127,7 @@
 
   function onKeyUp(e: KeyboardEvent): void {
     if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
-      shift(false);
+      shift(e.shiftKey); // still true while the other shift key is down
       return;
     }
     const action = down.get(e.code);

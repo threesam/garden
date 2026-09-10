@@ -124,9 +124,11 @@ fn start_audio(
                 }
                 let frames = data.len() / channels;
                 frames_w.store(frames, Ordering::Relaxed);
-                // ponytail: in/out run on separate device clocks and drift; cap the
-                // backlog at four buffers so the mic can never lag behind the grid.
-                while mic_rx.slots() > 4 * frames {
+                // ponytail: in/out may sit on different device clocks and drift.
+                // Shed at most one sample per callback once the backlog passes four
+                // buffers — inaudible, and 1/64 covers any real drift. A resampling
+                // bridge with a fill-level controller is the upgrade if it ever matters.
+                if mic_rx.slots() > 4 * frames {
                     let _ = mic_rx.pop();
                 }
                 let mut max = f32::from_bits(peak_w.load(Ordering::Relaxed));

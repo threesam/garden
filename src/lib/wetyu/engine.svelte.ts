@@ -121,6 +121,7 @@ class Wetyu {
       };
       node.onprocessorerror = () => {
         this.error = 'the engine crashed — reload the page';
+        this.flushLogWaiters();
       };
       node.connect(ctx.destination);
       this.ctx = ctx;
@@ -150,6 +151,7 @@ class Wetyu {
 
   destroy(): void {
     this.gen++;
+    this.flushLogWaiters();
     this.node?.disconnect();
     this.node = null;
     void this.ctx?.close();
@@ -248,9 +250,12 @@ class Wetyu {
     });
   }
 
+  /** Rebuilds the context; the engine (and its loops) start over. */
   async setTight(tight: boolean): Promise<void> {
     if (tight === this.tight) return;
+    if (this.locked && !window.confirm('switching latency mode clears the loops — go ahead?')) return;
     this.tight = tight;
+    this.flushLogWaiters();
     this.node?.disconnect();
     this.node = null;
     await this.ctx?.close();
@@ -285,6 +290,11 @@ class Wetyu {
     this.setMicOffsetMs(defaultMicOffsetMs(base, output, settings?.latency));
   }
 
+  /** Anyone waiting on a log gets an empty one when the engine goes away. */
+  private flushLogWaiters(): void {
+    for (const w of this.logWaiters.splice(0)) w(new Uint32Array(0));
+  }
+
   private updateLatency(): void {
     if (!this.ctx) return;
     const output = (this.ctx as { outputLatency?: number }).outputLatency ?? 0;
@@ -294,6 +304,7 @@ class Wetyu {
   private onMessage(data: Reply): void {
     if (data[0] === 'crash') {
       this.error = `the engine crashed (${data[1]}) — reload the page`;
+      this.flushLogWaiters();
       return;
     }
     if (data[0] === 'log') {

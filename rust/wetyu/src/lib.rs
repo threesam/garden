@@ -87,8 +87,9 @@ pub struct Engine {
     /// Gate / wet ramp per sample: full swing in 2 ms.
     step: f32,
     channels: [Channel; CHANNELS],
-    /// Every built-in effect, for every channel, built once — switching
-    /// plugins must not allocate on the audio thread.
+    /// Every built-in effect, for every channel, built once and always
+    /// running — switching plugins must not allocate on the audio thread,
+    /// and a plugin switched in should already carry the loop's recent past.
     fx: [[Slot; 3]; CHANNELS],
     active_fx: [usize; CHANNELS],
     synth: Synth,
@@ -281,8 +282,8 @@ impl Engine {
         let frames = frames.min(BLOCK);
         let bar = self.bar;
         let beat = (bar / 4).max(1);
-        for (ch, &i) in self.active_fx.iter().enumerate() {
-            self.fx[ch][i].effect.begin_block(frames);
+        for slot in self.fx.iter_mut().flatten() {
+            slot.effect.begin_block(frames);
         }
         let mut level = [0.0f32; CHANNELS];
         for i in 0..frames {
@@ -306,7 +307,15 @@ impl Engine {
                 let src = [mic, keys, drums];
                 for (ch, (c, s)) in self.channels.iter_mut().zip(src).enumerate() {
                     let raw = c.tick(t, bar, s, self.step);
-                    let y = self.fx[ch][self.active_fx[ch]].process(raw, self.step);
+                    // Every plugin hears the loop so its tail is live when it is
+                    // switched in; only the active one reaches the mix.
+                    let mut y = raw;
+                    for (j, slot) in self.fx[ch].iter_mut().enumerate() {
+                        let v = slot.process(raw, self.step);
+                        if j == self.active_fx[ch] {
+                            y = v;
+                        }
+                    }
                     level[ch] = level[ch].max(y.abs());
                     out += y;
                 }
