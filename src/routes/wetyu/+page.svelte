@@ -118,6 +118,8 @@
 
   function onKeyDown(e: KeyboardEvent): void {
     if (e.repeat || e.metaKey || e.ctrlKey || e.altKey || isTyping(e.target) || help?.open) return;
+    // A focused button owns Space and Enter; don't double up with the transport.
+    if ((e.code === 'Space' || e.code === 'Enter') && e.target instanceof HTMLButtonElement) return;
     if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
       shift(e.shiftKey);
       return;
@@ -368,7 +370,7 @@
           {...pointer(`Digit${String(i + 1)}`, { kind: 'hold', ch: i as 0 | 1 | 2 })}
         >
           <kbd>{i + 1}</kbd>
-          <span class="state">{stateLabel(c)}</span>
+          <span class="state" aria-live="polite">{stateLabel(c)}</span>
         </button>
         <div class="row">
           <button
@@ -459,7 +461,7 @@
           type="button"
           class="white"
           class:lit={lit[code]}
-          aria-label={NOTE_NAMES[semitone]}
+          aria-label="{label} {NOTE_NAMES[semitone]}"
           {...pointer(code, { kind: 'note', semitone })}
         >
           {label}
@@ -471,7 +473,7 @@
           class="black"
           class:lit={lit[code]}
           style:--after={String(after)}
-          aria-label={NOTE_NAMES[semitone]}
+          aria-label="{label} {NOTE_NAMES[semitone]}"
           {...pointer(code, { kind: 'note', semitone })}
         >
           {label}
@@ -503,7 +505,6 @@
           type="button"
           class="pad"
           class:lit={lit[code]}
-          aria-label={name}
           {...pointer(code, { kind: 'drum', pad })}
         >
           <kbd>{key}</kbd>
@@ -538,7 +539,7 @@
         <kbd>space</kbd> stop and start. <kbd>↑</kbd><kbd>↓</kbd> tempo ±1, <kbd>←</kbd><kbd>→</kbd> ±5, while nothing
         is recorded.
       </li>
-      <li><kbd>tab</kbd> selects the next loop; <kbd>R</kbd> records it, <kbd>⌫</kbd> clears it. <kbd>L</kbd> toggles the click.</li>
+      <li><kbd>Q</kbd> selects the next loop; <kbd>R</kbd> records it, <kbd>⌫</kbd> clears it. <kbd>L</kbd> toggles the click.</li>
       <li>press record in the first half of a bar and the loop starts at the bar line you're already in.</li>
     </ul>
     <div class="help-row">
@@ -775,6 +776,11 @@
     outline: 1px dashed var(--ink);
     outline-offset: 4px;
   }
+  /* The mask clips an outline; a focus ring has to live inside the disc. */
+  .hold:focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 3px var(--ink);
+  }
   .hold kbd {
     font-size: 1.6rem;
     border-color: transparent;
@@ -837,8 +843,8 @@
   .black {
     position: absolute;
     top: 0;
-    left: calc((var(--after) + 1) * var(--w) - var(--w) * 0.3);
-    width: calc(var(--w) * 0.6);
+    left: calc((var(--after) + 1) * var(--w) - var(--w) * 0.35);
+    width: max(24px, calc(var(--w) * 0.7));
     height: 60%;
     background: var(--paper);
     border-color: var(--ink);

@@ -57,7 +57,8 @@ const TABLE = new Map<string, Action>([
   ...BLACK_KEYS.map(([code, semitone]): [string, Action] => [code, { kind: 'note', semitone }]),
   ...PADS.map(([code], pad): [string, Action] => [code, { kind: 'drum', pad }]),
   ['KeyR', { kind: 'record' }],
-  ['Tab', { kind: 'select' }],
+  // Not Tab: the page must stay tabbable for keyboard users.
+  ['KeyQ', { kind: 'select' }],
   ['Space', { kind: 'transport' }],
   ['ArrowUp', { kind: 'tempo', delta: 1 }],
   ['ArrowDown', { kind: 'tempo', delta: -1 }],

@@ -24,13 +24,17 @@ test.describe('wetyu looper', () => {
     await page.goto('/wetyu');
     // Listeners attach on mount; the readout flips once the worklet is up.
     await expect(page.locator('.readout')).toContainText('ms out', { timeout: 15000 });
+    const keyA = page.getByRole('group', { name: 'keys' }).getByRole('button', { name: 'A C', exact: true });
     await page.keyboard.down('KeyA');
-    await expect(page.getByRole('group', { name: 'keys' }).getByRole('button', { name: 'C', exact: true }).first()).toHaveClass(/lit/);
+    await expect(keyA).toHaveClass(/lit/);
     await page.keyboard.up('KeyA');
-    await expect(page.getByRole('group', { name: 'keys' }).getByRole('button', { name: 'C', exact: true }).first()).not.toHaveClass(/lit/);
-    // drums is selected by default; tab wraps to mic
+    await expect(keyA).not.toHaveClass(/lit/);
+    // drums is selected by default; Q wraps to mic. Tab stays the browser's.
     await expect(page.locator('.channel.selected')).toContainText('drums');
+    await page.keyboard.press('KeyQ');
+    await expect(page.locator('.channel.selected')).toContainText('mic');
     await page.keyboard.press('Tab');
     await expect(page.locator('.channel.selected')).toContainText('mic');
+    await expect(page.locator(':focus')).toHaveCount(1);
   });
 });

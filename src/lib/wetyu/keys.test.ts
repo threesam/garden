@@ -22,9 +22,10 @@ describe('keyboard zones', () => {
     expect(actionFor('KeyM')).toEqual({ kind: 'drum', pad: 6 });
   });
 
-  it('ignores keys it does not own', () => {
-    expect(actionFor('KeyQ')).toBeUndefined();
+  it('ignores keys it does not own, and never takes Tab from the browser', () => {
+    expect(actionFor('Tab')).toBeUndefined();
     expect(actionFor('Escape')).toBeUndefined();
+    expect(actionFor('KeyQ')).toEqual({ kind: 'select' });
   });
 
   it('turns semitone + octave into a midi note', () => {
