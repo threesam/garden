@@ -86,6 +86,9 @@ pub struct Engine {
     monitor_mic: bool,
     /// Gate / wet ramp per sample: full swing in 2 ms.
     step: f32,
+    /// The tempo dial. `bpm` follows it until the first loop sets the grid,
+    /// and comes back to it once every loop is cleared.
+    dial_bpm: f32,
     channels: [Channel; CHANNELS],
     /// Every built-in effect, for every channel, built once and always
     /// running — switching plugins must not allocate on the audio thread,
@@ -121,6 +124,7 @@ impl Engine {
             click_on: false,
             monitor_mic: false,
             step: 1.0 / (0.002 * sr),
+            dial_bpm: bpm,
             channels: [Channel::new(cap), Channel::new(cap), Channel::new(cap)],
             fx: [slots(), slots(), slots()],
             active_fx: [0, 1, 2],
@@ -181,17 +185,54 @@ impl Engine {
         if self.locked() || !bpm.is_finite() {
             return;
         }
-        self.apply_tempo(bpm.clamp(40.0, 240.0));
+        self.dial_bpm = bpm.clamp(40.0, 240.0);
+        self.apply_tempo(self.dial_bpm);
     }
 
     fn apply_tempo(&mut self, bpm: f32) {
-        self.bpm = bpm;
         // A bar is never shorter than a sample: every `% bar` below depends on it.
-        self.bar = bar_len(bpm, self.sr).max(1);
+        self.set_grid(bar_len(bpm, self.sr).max(1));
+    }
+
+    /// The grid is one bar of `bar` samples; bpm is whatever that implies.
+    fn set_grid(&mut self, bar: u32) {
+        self.bar = bar.max(1);
+        self.bpm = 4.0 * 60.0 * self.sr / self.bar as f32;
         let beat = (self.bar / 4) as usize;
         for slot in self.fx.iter_mut().flatten() {
             slot.effect.set_beat(beat);
         }
+    }
+
+    /// Smart snap for the first loop, against the tempo dial. A stop that
+    /// lands within a slice of a sixteenth of a whole bar is that many bars
+    /// (and keeps the dial's grid); within the same slice of a sixteenth it
+    /// is that many sixteenths; anything else is the exact take. The window
+    /// is 30% of a sixteenth: 37 ms at 120 bpm, well under a rushed press.
+    /// Returns `(len, bar)`.
+    fn snap_first(&self, elapsed: u32) -> (u32, u32) {
+        let dial_bar = bar_len(self.dial_bpm, self.sr).max(16);
+        let sixteenth = dial_bar / 16;
+        let tol = sixteenth * 3 / 10;
+        let near = |unit: u32| {
+            let n = (elapsed + unit / 2) / unit;
+            (n >= 1 && elapsed.abs_diff(n * unit) <= tol).then_some(n * unit)
+        };
+        if let Some(len) = near(dial_bar) {
+            (len, dial_bar)
+        } else if let Some(len) = near(sixteenth) {
+            (len, len)
+        } else {
+            (elapsed, elapsed)
+        }
+    }
+
+    /// True while `ch` is the only loop that exists: its take is the master.
+    fn is_first_loop(&self, ch: usize) -> bool {
+        self.channels
+            .iter()
+            .enumerate()
+            .all(|(i, c)| i == ch || c.state == State::Empty)
     }
 
     pub fn transport(&mut self, on: bool) {
@@ -206,23 +247,51 @@ impl Engine {
 
     pub fn record(&mut self, ch: usize) {
         if !self.playing {
-            // First press from silence: bar 1 is now, click on so you can hear the grid.
+            // First press from silence: the click counts two beats of the dial,
+            // then the take begins. Only the first loop gets a count-in.
             self.transport(true);
             self.click_on = true;
+            if let Some(c) = self.channels.get_mut(ch) {
+                c.start_at(2 * (self.bar / 4));
+            }
+            return;
         }
-        if let Some(c) = self.channels.get_mut(ch) {
-            c.record(self.t, self.bar);
+        let t = self.t;
+        let Some(c) = self.channels.get(ch) else {
+            return;
+        };
+        let master_stop = self.is_first_loop(ch) && c.state == State::Recording && t > c.anchor;
+        if master_stop {
+            // The first loop is the master: it loops the instant you stop, and
+            // its length (smart-snapped against the dial) becomes the grid.
+            let (len, bar) = self.snap_first(t - c.anchor);
+            let c = &mut self.channels[ch]; // ch < CHANNELS: the get above passed
+            c.stop_with(len);
+            let bar = bar.min(c.len); // the buffer may have capped the take
+                                      // Rebase the transport on the master's start so bar lines (and every
+                                      // later loop) line up with it, not with the count-in.
+            self.t = t - c.anchor;
+            c.anchor = 0;
+            self.set_grid(bar);
+        } else {
+            let bar = self.bar;
+            self.channels[ch].record(t, bar);
         }
     }
 
     /// The listen key. Pressing it on a loop that is still recording ends the
-    /// take (snapped to the bar) and opens the gate in the same gesture; on a
-    /// loop with a re-record queued it un-queues it.
+    /// take (the first loop exactly, later ones snapped to it) and opens the
+    /// gate in the same gesture; on a loop with a re-record queued it un-queues it.
     pub fn hold(&mut self, ch: usize, on: bool) {
+        if on
+            && self
+                .channels
+                .get(ch)
+                .is_some_and(|c| c.state == State::Recording)
+        {
+            self.record(ch);
+        }
         if let Some(c) = self.channels.get_mut(ch) {
-            if on && c.state == State::Recording {
-                c.record(self.t, self.bar);
-            }
             if on {
                 c.pending = false;
             }
@@ -233,6 +302,10 @@ impl Engine {
     pub fn clear(&mut self, ch: usize) {
         if let Some(c) = self.channels.get_mut(ch) {
             c.clear(self.t, self.bar);
+        }
+        if !self.locked() {
+            // Nothing left to lock the grid: the dial rules again.
+            self.apply_tempo(self.dial_bpm);
         }
     }
 
@@ -535,6 +608,101 @@ mod tests {
         assert!(!e.playing, "two quick toggles cancel out");
         e.command(op::TRANSPORT, 2.0, 0.0);
         assert!(e.playing);
+    }
+
+    /// Blocks in a two-beat count-in at 120 bpm / 48k: 2 × 24000 / 128.
+    const COUNT_IN: u32 = 375;
+
+    #[test]
+    fn the_first_loop_counts_in_two_beats_then_records() {
+        let mut e = Engine::new(48000.0);
+        e.set_tempo(120.0);
+        e.record(DRUMS);
+        assert!(e.playing && e.click_on);
+        e.process(BLOCK);
+        assert!(ch(&e, DRUMS)[2] < 0.0, "waiting through the count-in");
+        for _ in 1..COUNT_IN {
+            e.process(BLOCK);
+        }
+        assert_eq!(e.channels[DRUMS].anchor, 48_000);
+        assert!(
+            ch(&e, DRUMS)[2] >= 0.0,
+            "recording began on the second beat"
+        );
+        // The click ticked at beat 0 and beat 1: the transport clock says so.
+        assert_eq!(e.t, 48_000);
+    }
+
+    #[test]
+    fn the_first_loop_snaps_smartly_against_the_dial() {
+        // 120 bpm @ 48k: bar 96000, sixteenth 6000, window 1800 samples (37 ms).
+        let stop_after = |blocks: u32| {
+            let mut e = Engine::new(48000.0);
+            e.set_tempo(120.0);
+            e.record(DRUMS);
+            for _ in 0..COUNT_IN + blocks {
+                e.process(BLOCK);
+            }
+            e.record(DRUMS);
+            e.process(BLOCK);
+            (
+                e.channels[DRUMS].len,
+                e.bar,
+                e.bpm,
+                e.channels[DRUMS].anchor,
+            )
+        };
+        // 1024 samples late on a bar → a whole bar, dial grid kept, rebased to 0
+        assert_eq!(stop_after(758), (96_000, 96_000, 120.0, 0));
+        // 32 samples late on two sixteenths → two sixteenths, which become the bar
+        let (len, bar, _, _) = stop_after(94);
+        assert_eq!((len, bar), (12_000, 12_000));
+        // 1920 samples past a sixteenth: outside the window → the exact take
+        assert_eq!(stop_after(390).0, 49_920);
+        assert_eq!(stop_after(390).1, 49_920);
+    }
+
+    #[test]
+    fn the_first_loop_sets_the_grid_and_loops_the_moment_it_stops() {
+        let mut e = Engine::new(48000.0);
+        e.set_tempo(120.0);
+        e.record(DRUMS); // transport starts; two beats of count-in
+        for _ in 0..COUNT_IN + 3 {
+            e.process(BLOCK);
+        }
+        e.record(DRUMS); // 384 samples into the take: nowhere near a bar
+        e.process(BLOCK);
+        assert_eq!(
+            ch(&e, DRUMS)[0],
+            State::Looping as u32 as f32,
+            "looping right away"
+        );
+        assert_eq!(e.bar, 384, "the take is the grid");
+        assert!(
+            (e.bpm - 30_000.0).abs() < 1.0,
+            "bpm follows the grid: {}",
+            e.bpm
+        );
+        assert_eq!(ch(&e, DRUMS)[1], 1.0, "one bar of its own length");
+
+        // A second loop snaps to multiples of the master, not to the dial.
+        e.record(KEYS); // t = 512 after the rebase; bar pos 128 < 192 → retro anchor 384
+        for _ in 0..5 {
+            e.process(BLOCK);
+        }
+        e.record(KEYS); // t = 1152, elapsed 768 → exactly two master lengths
+        for _ in 0..3 {
+            e.process(BLOCK);
+        }
+        assert_eq!(ch(&e, KEYS)[0], State::Looping as u32 as f32);
+        assert_eq!(ch(&e, KEYS)[1], 2.0, "snapped to two master lengths");
+
+        // Clear everything: the dial's tempo comes back.
+        e.clear(DRUMS);
+        assert_eq!(e.bar, 384, "still locked by the keys loop");
+        e.clear(KEYS);
+        assert_eq!(e.bar, 96_000);
+        assert_eq!(e.bpm, 120.0);
     }
 
     #[test]

@@ -20,6 +20,8 @@ describe('keyboard zones', () => {
   it('maps the Z row to pads in order', () => {
     expect(actionFor('KeyZ')).toEqual({ kind: 'drum', pad: 0 });
     expect(actionFor('KeyM')).toEqual({ kind: 'drum', pad: 6 });
+    expect(actionFor('Slash')).toEqual({ kind: 'drum', pad: 9 });
+    expect(actionFor('BracketRight')).toEqual({ kind: 'octave', delta: 1 });
   });
 
   it('ignores keys it does not own, and never takes Tab from the browser', () => {

@@ -15,7 +15,7 @@ test.describe('wetyu looper', () => {
       await expect(page.getByRole('button', { name: `record ${name}` })).toBeVisible();
     }
     await expect(page.getByRole('group', { name: 'keys' }).getByRole('button')).toHaveCount(13);
-    await expect(page.getByRole('group', { name: 'drums' }).getByRole('button')).toHaveCount(7);
+    await expect(page.getByRole('group', { name: 'drums' }).getByRole('button')).toHaveCount(10);
     await expect(page.getByRole('button', { name: 'enable mic' })).toBeVisible();
     expect(errors).toEqual([]);
   });

@@ -41,12 +41,15 @@ export const BLACK_KEYS = [
 
 export const PADS = [
   ['KeyZ', 'Z', 'kick'],
-  ['KeyX', 'X', 'snare'],
+  ['KeyX', 'X', 'tight'],
   ['KeyC', 'C', 'clap'],
-  ['KeyV', 'V', 'hat'],
-  ['KeyB', 'B', 'open'],
-  ['KeyN', 'N', 'tom'],
-  ['KeyM', 'M', 'rim'],
+  ['KeyV', 'V', 'snare'],
+  ['KeyB', 'B', 'snap'],
+  ['KeyN', 'N', 'open'],
+  ['KeyM', 'M', 'hat'],
+  ['Comma', ',', 'rim'],
+  ['Period', '.', 'clav'],
+  ['Slash', '/', 'cymbal'],
 ] as const;
 
 const TABLE = new Map<string, Action>([
@@ -64,8 +67,8 @@ const TABLE = new Map<string, Action>([
   ['ArrowDown', { kind: 'tempo', delta: -1 }],
   ['ArrowRight', { kind: 'tempo', delta: 5 }],
   ['ArrowLeft', { kind: 'tempo', delta: -5 }],
-  ['Comma', { kind: 'octave', delta: -1 }],
-  ['Period', { kind: 'octave', delta: 1 }],
+  ['BracketLeft', { kind: 'octave', delta: -1 }],
+  ['BracketRight', { kind: 'octave', delta: 1 }],
   ['KeyL', { kind: 'click' }],
   ['Backspace', { kind: 'clear' }],
 ]);

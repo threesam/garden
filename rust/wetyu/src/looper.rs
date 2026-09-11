@@ -115,6 +115,23 @@ impl Channel {
         }
     }
 
+    /// Begin a take at a future grid sample (a count-in). Waits, then records.
+    pub fn start_at(&mut self, anchor: u32) {
+        self.anchor = anchor;
+        self.pending = false;
+        self.state = State::Recording;
+    }
+
+    /// Stop with a given length (the engine decides the snapping). Longer than
+    /// the take so far keeps recording to that point; shorter drops the tail.
+    pub fn stop_with(&mut self, len: u32) {
+        if self.state != State::Recording || len == 0 {
+            return;
+        }
+        self.len = len.min(self.buf.len() as u32);
+        self.state = State::Until;
+    }
+
     /// The record key: start, or stop and snap.
     pub fn record(&mut self, t: u32, bar: u32) {
         match self.state {

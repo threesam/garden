@@ -489,18 +489,18 @@
         type="button"
         aria-label="octave down"
         onclick={() => {
-          press('Comma', { kind: 'octave', delta: -1 });
-          lit['Comma'] = false;
-        }}>,</button
+          press('BracketLeft', { kind: 'octave', delta: -1 });
+          lit['BracketLeft'] = false;
+        }}>[</button
       >
       <span>octave {wetyu.octave}</span>
       <button
         type="button"
         aria-label="octave up"
         onclick={() => {
-          press('Period', { kind: 'octave', delta: 1 });
-          lit['Period'] = false;
-        }}>.</button
+          press('BracketRight', { kind: 'octave', delta: 1 });
+          lit['BracketRight'] = false;
+        }}>]</button
       >
     </div>
     <div class="pads" role="group" aria-label="drums">
@@ -527,7 +527,7 @@
     <ul>
       <li>
         <kbd>shift</kbd>+<kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> record a loop: mic, keys, drums. the first press
-        starts the clock.
+        starts the clock, counts two clicks, then records.
       </li>
       <li>
         <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> hold to hear a loop. on a loop still recording, that ends the take
@@ -537,14 +537,18 @@
         <kbd>shift</kbd> while holding a loop adds its effect: delay on the mic, an octave-up phaser on the keys,
         crush and spring on the drums.
       </li>
-      <li><kbd>A</kbd>…<kbd>K</kbd> and <kbd>W E T Y U</kbd> play the bass. <kbd>,</kbd> <kbd>.</kbd> change octave.</li>
-      <li><kbd>Z</kbd>…<kbd>M</kbd> hit the drums.</li>
+      <li><kbd>A</kbd>…<kbd>K</kbd> and <kbd>W E T Y U</kbd> play the bass. <kbd>[</kbd> <kbd>]</kbd> change octave.</li>
+      <li><kbd>Z</kbd>…<kbd>/</kbd> hit the drums: kick, tight kick, clap, snare, snap, open hat, hat, rim, clav, cymbal.</li>
       <li>
         <kbd>space</kbd> stop and start. <kbd>↑</kbd><kbd>↓</kbd> tempo ±1, <kbd>←</kbd><kbd>→</kbd> ±5, while nothing
         is recorded.
       </li>
       <li><kbd>Q</kbd> selects the next loop; <kbd>R</kbd> records it, <kbd>⌫</kbd> clears it. <kbd>L</kbd> toggles the click.</li>
-      <li>press record in the first half of a bar and the loop starts at the bar line you're already in.</li>
+      <li>
+        the first loop is the master: it loops the instant you stop, and its length becomes the bar. later
+        loops snap to multiples of it; press record in the first half of one and the loop starts at the line
+        you're already in.
+      </li>
     </ul>
     <div class="help-row">
       {#if VISUALS.length > 1}

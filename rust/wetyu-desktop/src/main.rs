@@ -251,14 +251,17 @@ const BLACK: [(Key, u32, &str); 5] = [
     (Key::Y, 8, "Y"),
     (Key::U, 10, "U"),
 ];
-const PADS: [(Key, &str, &str); 7] = [
+const PADS: [(Key, &str, &str); 10] = [
     (Key::Z, "Z", "kick"),
-    (Key::X, "X", "snare"),
+    (Key::X, "X", "tight"),
     (Key::C, "C", "clap"),
-    (Key::V, "V", "hat"),
-    (Key::B, "B", "open"),
-    (Key::N, "N", "tom"),
-    (Key::M, "M", "rim"),
+    (Key::V, "V", "snare"),
+    (Key::B, "B", "snap"),
+    (Key::N, "N", "open"),
+    (Key::M, "M", "hat"),
+    (Key::Comma, ",", "rim"),
+    (Key::Period, ".", "clav"),
+    (Key::Slash, "/", "cymbal"),
 ];
 const NAMES: [&str; 3] = ["mic", "keys", "drums"];
 
@@ -280,8 +283,8 @@ fn action(k: Key) -> Option<Action> {
         Key::ArrowDown => Action::Tempo(-1.0),
         Key::ArrowRight => Action::Tempo(5.0),
         Key::ArrowLeft => Action::Tempo(-5.0),
-        Key::Comma => Action::Octave(-1),
-        Key::Period => Action::Octave(1),
+        Key::OpenBracket => Action::Octave(-1),
+        Key::CloseBracket => Action::Octave(1),
         Key::L => Action::Click,
         Key::Backspace => Action::Clear,
         _ => return None,
@@ -505,7 +508,7 @@ impl eframe::App for App {
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ui, |ui| {
             ui.heading("wetyu");
-            ui.label("three loops, always running. shift+1 records a loop, hold 1 to hear it.");
+            ui.label("three loops, always running. shift+1 records a loop (two clicks, then it takes), hold 1 to hear it.");
             ui.add_space(8.0);
 
             // transport
@@ -628,7 +631,7 @@ impl eframe::App for App {
                         _ => {}
                     }
                 }
-                ui.label(format!("octave {}  [, .]", self.octave));
+                ui.label(format!("octave {}  [ ]", self.octave));
             });
             ui.horizontal(|ui| {
                 for (pad, (_, key, name)) in PADS.iter().enumerate() {
@@ -639,7 +642,7 @@ impl eframe::App for App {
             });
             ui.add_space(8.0);
             ui.weak("1 2 3 hold to hear a loop (ends its take if recording) · shift+1 2 3 record · shift while holding a loop adds its effect · R records the selected · tab select · ⌫ clear · ↑↓ tempo ±1 ←→ ±5");
-            ui.weak("press record in the first half of a bar and the loop starts at the bar line you're already in.");
+            ui.weak("the first loop loops the instant you stop and its length becomes the bar; later loops snap to it.");
         });
     }
 }
