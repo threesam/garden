@@ -8,6 +8,10 @@
 //!
 //! `wetyu-desktop --probe` opens the streams headless, fires a kick, and
 //! prints the real buffer sizes and output peak — the latency numbers.
+//! `--out <name>` / `--in <name>` pick devices by (case-insensitive substring
+//! of) name instead of the system default; `--list` prints what there is.
+//! Bluetooth output adds ~150 ms after our buffer, so with AirPods connected
+//! you want `--out speakers`.
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -52,12 +56,46 @@ fn fixed(size: &SupportedBufferSize) -> BufferSize {
     }
 }
 
+fn name_of(dev: &cpal::Device) -> String {
+    dev.description()
+        .map(|d| d.name().to_string())
+        .unwrap_or_default()
+}
+
+/// The device whose name contains `want` (case-insensitive), else the default.
+fn pick(
+    devices: impl Iterator<Item = cpal::Device>,
+    want: Option<&str>,
+    default: Option<cpal::Device>,
+) -> Option<cpal::Device> {
+    match want {
+        Some(w) => devices
+            .into_iter()
+            .find(|d| name_of(d).to_lowercase().contains(&w.to_lowercase())),
+        None => default,
+    }
+}
+
 fn start_audio(
     mut cmd_rx: Consumer<Cmd>,
     mut status_tx: Producer<[f32; STATUS_LEN]>,
+    want_out: Option<&str>,
+    want_in: Option<&str>,
 ) -> Result<Audio, String> {
     let host = cpal::default_host();
-    let out_dev = host.default_output_device().ok_or("no output device")?;
+    let out_dev = pick(
+        host.output_devices().map_err(|e| e.to_string())?,
+        want_out,
+        host.default_output_device(),
+    )
+    .ok_or_else(|| {
+        format!(
+            "no output device{}",
+            want_out
+                .map(|w| format!(" matching {w:?}"))
+                .unwrap_or_default()
+        )
+    })?;
     let out_default = out_dev.default_output_config().map_err(|e| e.to_string())?;
     if out_default.sample_format() != SampleFormat::F32 {
         return Err(format!(
@@ -81,7 +119,15 @@ fn start_audio(
     let (mut mic_tx, mut mic_rx) = RingBuffer::<f32>::new(1 << 15);
     let mic_frames = Arc::new(AtomicUsize::new(0));
     let mut mic_name = None;
-    let mic = host.default_input_device().and_then(|dev| {
+    let in_dev = pick(
+        host.input_devices().map_err(|e| e.to_string())?,
+        want_in,
+        host.default_input_device(),
+    );
+    if want_in.is_some() && in_dev.is_none() {
+        eprintln!("mic disabled: no input device matching {want_in:?}");
+    }
+    let mic = in_dev.and_then(|dev| {
         let cfg = dev.default_input_config().ok()?;
         if cfg.sample_format() != SampleFormat::F32 {
             return None;
@@ -108,7 +154,7 @@ fn start_audio(
             .map_err(|e| eprintln!("mic disabled: {e}"))
             .ok()?;
         stream.play().ok()?;
-        mic_name = dev.description().ok().map(|d| d.name().to_string());
+        mic_name = Some(name_of(&dev));
         Some(stream)
     });
 
@@ -163,10 +209,7 @@ fn start_audio(
         _out: out,
         _mic: mic,
         sample_rate,
-        out_name: out_dev
-            .description()
-            .map(|d| d.name().to_string())
-            .unwrap_or_default(),
+        out_name: name_of(&out_dev),
         mic_name,
         out_frames,
         mic_frames,
@@ -628,10 +671,29 @@ fn probe(audio: &Audio, mut cmd_tx: Producer<Cmd>) {
     );
 }
 
+/// `--flag value` from argv, if present.
+fn arg(flag: &str) -> Option<String> {
+    let mut args = std::env::args();
+    args.find(|a| a == flag).and_then(|_| args.next())
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    if std::env::args().any(|a| a == "--list") {
+        let host = cpal::default_host();
+        for (kind, devs) in [
+            ("out", host.output_devices()?),
+            ("in ", host.input_devices()?),
+        ] {
+            for d in devs {
+                println!("{kind}  {}", name_of(&d));
+            }
+        }
+        return Ok(());
+    }
     let (cmd_tx, cmd_rx) = RingBuffer::<Cmd>::new(256);
     let (status_tx, status_rx) = RingBuffer::<[f32; STATUS_LEN]>::new(64);
-    let audio = start_audio(cmd_rx, status_tx)?;
+    let (want_out, want_in) = (arg("--out"), arg("--in"));
+    let audio = start_audio(cmd_rx, status_tx, want_out.as_deref(), want_in.as_deref())?;
 
     if std::env::args().any(|a| a == "--probe") {
         probe(&audio, cmd_tx);
