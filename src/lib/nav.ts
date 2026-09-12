@@ -12,5 +12,6 @@ export const NAV_ROUTES: NavRoute[] = [
   { href: '/benny',               label: 'benny' },
   { href: '/shelf',               label: 'shelf' },
   { href: '/sounds',              label: 'sounds' },
+  { href: '/wetyu',               label: 'wetyu' },
   { href: '/thoughts',            label: 'thoughts' },
 ];

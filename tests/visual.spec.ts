@@ -68,12 +68,13 @@ test.describe('visual parity', () => {
       });
       await page.waitForTimeout(800);
 
-      // Mask all canvas elements, voronoi banner wrappers (dynamic aspect
-      // ratio), the gallery carousel strip (card positions are
-      // animation-frame-dependent even after RAF freeze), and iframes
-      // (Spotify embeds load asynchronously and vary by network state).
+      // Mask all canvas elements (except ones that declare their idle frame
+      // deterministic with data-static, e.g. /wetyu's layers), voronoi banner
+      // wrappers (dynamic aspect ratio), the gallery carousel strip (card
+      // positions are animation-frame-dependent even after RAF freeze), and
+      // iframes (Spotify embeds load asynchronously and vary by network state).
       const masks = [
-        ...await page.locator('canvas').all(),
+        ...await page.locator('canvas:not([data-static])').all(),
         ...await page.locator('.voronoi-banner').all(),
         ...await page.locator('[data-gallery-strip]').all(),
         ...await page.locator('iframe').all(),

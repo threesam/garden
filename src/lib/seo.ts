@@ -55,6 +55,11 @@ export const SITE_PAGES: { path: string; label: string; blurb: string }[] = [
   },
   { path: "/thoughts", label: "thoughts", blurb: "Personal stories and thoughts." },
   { path: "/sounds", label: "sounds", blurb: "Original music — demos and scores." },
+  {
+    path: "/wetyu",
+    label: "wetyu",
+    blurb: "A three-channel looper — mic, keys, drums. Loops run forever; hold a key to hear one.",
+  },
 ];
 
 export interface PageMeta {
