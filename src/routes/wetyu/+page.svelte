@@ -790,12 +790,20 @@
     width: 100%;
     justify-self: center;
     border-radius: 50%;
-    /* Playhead: the ring sweeps with the loop; gate fills the disc as you hold. */
+    /* A record: black vinyl with grooves, the label lit by the gate, the
+       playhead a bright arc on the rim. Nothing but --ring/--gate moves. */
     background:
-      radial-gradient(circle, rgb(245 244 240 / calc(var(--gate) * 0.25)) 0 60%, transparent 61%),
+      radial-gradient(circle, rgb(245 244 240 / calc(0.08 + var(--gate) * 0.22)) 0 38%, transparent 38.5%),
+      radial-gradient(circle, #1c1c19 0 40%, transparent 40.5%),
+      repeating-radial-gradient(
+        circle,
+        rgb(245 244 240 / calc(0.03 + var(--gate) * 0.05)) 0 1px,
+        transparent 1px 4px
+      ),
+      radial-gradient(circle, #141412 0 90%, transparent 90.5%),
       conic-gradient(var(--ink) calc(var(--ring) * 360deg), var(--line) 0);
-    -webkit-mask: radial-gradient(circle, #000 0 62%, transparent 63%, #000 64%);
-    mask: radial-gradient(circle, #000 0 62%, transparent 63%, #000 64%);
+    -webkit-mask: radial-gradient(circle, #000 0 91%, transparent 91.5%, #000 92%);
+    mask: radial-gradient(circle, #000 0 91%, transparent 91.5%, #000 92%);
   }
   .hold.fx {
     outline: 1px dashed var(--ink);

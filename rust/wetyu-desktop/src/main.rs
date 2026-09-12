@@ -315,8 +315,6 @@ struct App {
     /// Pointer-held on-screen controls, for edge detection.
     ui_hold: [bool; 3],
     ui_hold_at: [Option<Instant>; 3],
-    /// Midi note each on-screen key is sounding, so an octave change mid-press still releases it.
-    ui_note: [Option<u32>; 13],
     octave: i32,
     bpm: f32,
     click: bool,
@@ -591,173 +589,88 @@ impl eframe::App for App {
     }
 
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
-        egui::CentralPanel::default().show(ui, |ui| {
-            ui.heading("wetyu");
-            ui.label("three loops, always running.");
-            ui.add_space(8.0);
+        let screen = ui.ctx().content_rect();
+        let painter = ui.painter_at(screen);
+        painter.rect_filled(screen, 0.0, PAPER);
 
-            // transport
-            ui.horizontal(|ui| {
-                let label = if self.playing() {
-                    "stop  [space]"
-                } else {
-                    "play  [space]"
-                };
-                if ui.button(label).clicked() {
-                    self.send((op::TRANSPORT, 2.0, 0.0)); // toggle, decided on the audio thread
-                }
-                ui.label(format!(
-                    "bar {}",
-                    (self.status[3] / self.status[2].max(1.0)).floor() as i32 + 1
-                ));
-                ui.separator();
-                ui.label("bpm");
-                let locked = self.locked();
-                let mut bpm = self.bpm;
-                if ui
-                    .add_enabled(!locked, egui::DragValue::new(&mut bpm).range(40.0..=240.0))
-                    .changed()
-                {
-                    self.set_tempo(bpm);
-                }
-                if locked {
-                    ui.weak("clear the loops to change tempo");
-                }
-                ui.separator();
-                if ui.checkbox(&mut self.click, "click  [L]").changed() {
-                    let on = self.click;
-                    self.send((op::CLICK, flag(on), 0.0));
-                }
-            });
-            let a = &self.audio;
-            let out_frames = a.out_frames.load(Ordering::Relaxed);
-            let mic_frames = a.mic_frames.load(Ordering::Relaxed);
-            ui.weak(format!(
-                "{} · {} Hz · {} frames out ({:.2} ms) · mic: {}",
-                a.out_name,
-                a.sample_rate,
-                out_frames,
-                out_frames as f32 * 1000.0 / a.sample_rate as f32,
-                match &a.mic_name {
-                    Some(n) => format!("{n} ({mic_frames} frames)"),
-                    None => "none".into(),
-                },
-            ));
-            ui.add_space(8.0);
-
-            // channels
-            ui.columns(3, |cols| {
-                for (i, col) in cols.iter_mut().enumerate() {
-                    col.label(NAMES[i]);
-                    let r = col.add_sized([110.0, 110.0], egui::Button::new(format!("{}", i + 1)));
-                    // Playhead ring around the hold button.
-                    let painter = col.painter();
-                    let c = r.rect.center();
-                    let radius = r.rect.width() * 0.5 - 2.0;
-                    let gate = self.ch(i)[3];
-                    let stroke = egui::Stroke::new(
-                        2.0,
-                        egui::Color32::from_rgb(232, 163, 23).gamma_multiply(0.4 + 0.6 * gate),
-                    );
-                    painter.circle_stroke(c, radius, stroke);
-                    let ang = self.ring(i) * std::f32::consts::TAU - std::f32::consts::FRAC_PI_2;
-                    painter.line_segment([c, c + egui::Vec2::angled(ang) * radius], stroke);
-                    // The on-screen pad taps and holds like the key does.
-                    let held = r.is_pointer_button_down_on();
-                    if held != self.ui_hold[i] {
-                        self.ui_hold[i] = held;
-                        if held {
-                            self.ui_hold_at[i] = Some(Instant::now());
-                            self.hold_down(i);
-                        } else {
-                            let since = self.ui_hold_at[i].take();
-                            self.hold_up(i, since);
-                        }
+        // ---- transport, one quiet line at the top ----
+        egui::Area::new(egui::Id::new("transport"))
+            .anchor(egui::Align2::LEFT_TOP, [16.0, 12.0])
+            .show(ui.ctx(), |ui| {
+                ui.horizontal(|ui| {
+                    ui.label(egui::RichText::new("wetyu").size(20.0).color(INK));
+                    ui.add_space(12.0);
+                    let label = if self.playing() { "stop" } else { "play" };
+                    if ui.button(label).clicked() {
+                        self.send((op::TRANSPORT, 2.0, 0.0)); // toggle, decided on the audio thread
                     }
-                    let state = self.ch(i)[0];
-                    col.label(self.state_label(i));
-                    col.horizontal(|ui| {
+                    ui.label(format!(
+                        "bar {}",
+                        (self.status[3] / self.status[2].max(1.0)).floor() as i32 + 1
+                    ));
+                    ui.separator();
+                    if self.locked() {
+                        ui.label(format!("{:.0} bpm", self.bpm));
+                    } else {
+                        let mut bpm = self.bpm;
                         if ui
-                            .button(format!("{}  [⇧{}]", self.rec_label(i), i + 1))
-                            .clicked()
-                        {
-                            self.send((op::RECORD, i as f32, 0.0));
-                        }
-                        let fx = wetyu::fx::BUILTIN[i];
-                        if ui
-                            .selectable_label(self.fx_on[i], format!("{fx}  [⌥{}]", i + 1))
-                            .clicked()
-                        {
-                            self.toggle_fx(i);
-                        }
-                        if ui
-                            .add_enabled(
-                                state != 0.0,
-                                egui::Button::new(format!("clear  [{}+⌫]", i + 1)),
+                            .add(
+                                egui::DragValue::new(&mut bpm)
+                                    .range(40.0..=240.0)
+                                    .suffix(" bpm"),
                             )
-                            .clicked()
+                            .changed()
                         {
-                            self.clear(i);
-                        }
-                    });
-                    if i == 0 {
-                        if self.audio.mic_name.is_none() {
-                            col.weak("no input device");
-                        } else {
-                            if col.checkbox(&mut self.monitor, "monitor").changed() {
-                                let on = self.monitor;
-                                self.send((op::MIC_MONITOR, flag(on), 0.0));
-                            }
-                            if col
-                                .add(
-                                    egui::Slider::new(&mut self.offset_ms, 0.0..=50.0)
-                                        .text("offset ms"),
-                                )
-                                .changed()
-                            {
-                                let n = (self.offset_ms / 1000.0 * self.audio.sample_rate as f32)
-                                    .round();
-                                self.send((op::MIC_OFFSET, n, 0.0));
-                            }
+                            self.set_tempo(bpm);
                         }
                     }
-                }
+                    ui.separator();
+                    if ui.checkbox(&mut self.click, "click").changed() {
+                        let on = self.click;
+                        self.send((op::CLICK, flag(on), 0.0));
+                    }
+                    if self.audio.mic_name.is_some() {
+                        ui.separator();
+                        if ui.checkbox(&mut self.monitor, "monitor").changed() {
+                            let on = self.monitor;
+                            self.send((op::MIC_MONITOR, flag(on), 0.0));
+                        }
+                        if ui
+                            .add(
+                                egui::Slider::new(&mut self.offset_ms, 0.0..=50.0)
+                                    .text("mic offset ms")
+                                    .show_value(true),
+                            )
+                            .changed()
+                        {
+                            let n =
+                                (self.offset_ms / 1000.0 * self.audio.sample_rate as f32).round();
+                            self.send((op::MIC_OFFSET, n, 0.0));
+                        }
+                    }
+                });
+                let a = &self.audio;
+                let out = a.out_frames.load(Ordering::Relaxed);
+                ui.weak(format!(
+                    "{} · {} Hz · {} frames = {:.2} ms · mic: {}",
+                    a.out_name,
+                    a.sample_rate,
+                    out,
+                    out as f32 * 1000.0 / a.sample_rate as f32,
+                    a.mic_name.as_deref().unwrap_or("none"),
+                ));
             });
-            ui.add_space(8.0);
 
-            // keys
-            ui.horizontal(|ui| {
-                for (n, (_, semi, label)) in WHITE.iter().chain(BLACK.iter()).enumerate() {
-                    let r = ui.add_sized([36.0, 60.0], egui::Button::new(*label));
-                    let held = r.is_pointer_button_down_on();
-                    match (held, self.ui_note[n]) {
-                        (true, None) => {
-                            let midi = self.midi(*semi);
-                            self.ui_note[n] = Some(midi);
-                            self.send((op::NOTE, midi as f32, 1.0));
-                        }
-                        (false, Some(midi)) => {
-                            self.ui_note[n] = None;
-                            self.send((op::NOTE, midi as f32, 0.0));
-                        }
-                        _ => {}
-                    }
-                }
-                ui.label(format!("octave {}  [ ]", self.octave));
-            });
-            ui.horizontal(|ui| {
-                for (pad, (_, key, name)) in PADS.iter().enumerate() {
-                    if ui
-                        .add_sized([64.0, 48.0], egui::Button::new(format!("{key}\n{name}")))
-                        .clicked()
-                    {
-                        self.send((op::DRUM, pad as f32, 0.0));
-                    }
-                }
-            });
-        });
+        // ---- three records, centred ----
+        let radius = (screen.width() / 8.0).min(screen.height() / 3.6).max(40.0);
+        let cy = screen.center().y - 20.0;
+        let spacing = screen.width() / 3.0;
+        for i in 0..3 {
+            let c = egui::pos2(screen.left() + spacing * (i as f32 + 0.5), cy);
+            self.record(ui, c, radius, i);
+        }
 
-        // The manual: an `i` fixed bottom right, a modal when open.
+        // ---- the i, fixed bottom right; the key map as an overlay ----
         egui::Area::new(egui::Id::new("manual-button"))
             .anchor(egui::Align2::RIGHT_BOTTOM, [-16.0, -16.0])
             .show(ui.ctx(), |ui| {
@@ -766,26 +679,261 @@ impl eframe::App for App {
                 }
             });
         if self.manual {
-            let response = egui::Modal::new(egui::Id::new("manual")).show(ui.ctx(), |ui| {
-                ui.set_max_width(520.0);
-                ui.heading("how to play");
-                ui.weak("a little song in six presses: ⇧3 play drums 3 · ⇧2 play bass 2 · ⇧1 sing 1 · it loops. ⇧3 again layers more drums.");
-                ui.add_space(6.0);
-                egui::Grid::new("manual-grid").num_columns(2).spacing([16.0, 6.0]).striped(true).show(ui, |ui| {
-                    for (keys, what) in MANUAL {
-                        ui.strong(*keys);
-                        ui.label(*what);
-                        ui.end_row();
-                    }
-                });
-                ui.add_space(6.0);
-                if ui.button("close  [esc]").clicked() {
-                    self.manual = false;
-                }
-            });
-            if response.should_close() {
-                self.manual = false;
+            self.overlay(ui, screen);
+        }
+    }
+}
+
+const PAPER: egui::Color32 = egui::Color32::from_rgb(12, 12, 10);
+const INK: egui::Color32 = egui::Color32::from_rgb(245, 244, 240);
+const VINYL: egui::Color32 = egui::Color32::from_rgb(20, 20, 18);
+
+impl App {
+    /// One loop as a record: black vinyl with grooves, the number on the
+    /// label, a bright arc for the playhead. Tap / hold it like the key.
+    fn record(&mut self, ui: &mut egui::Ui, c: egui::Pos2, radius: f32, i: usize) {
+        let s = self.ch(i);
+        let (state, gate, level, wet) = (s[0] as u32, s[3], s[4], s[5]);
+        let pos = self.ring(i);
+        let rect = egui::Rect::from_center_size(c, egui::vec2(radius * 2.0, radius * 2.0));
+        let r = ui.interact(
+            rect,
+            egui::Id::new(("record", i)),
+            egui::Sense::click_and_drag(),
+        );
+        let held = r.is_pointer_button_down_on();
+        if held != self.ui_hold[i] {
+            self.ui_hold[i] = held;
+            if held {
+                self.ui_hold_at[i] = Some(Instant::now());
+                self.hold_down(i);
+            } else {
+                let since = self.ui_hold_at[i].take();
+                self.hold_up(i, since);
             }
+        }
+        let p = ui.painter();
+        // vinyl and grooves — lighter while the loop is heard
+        let lift = 0.5 + 0.5 * gate;
+        p.circle_filled(c, radius, VINYL);
+        let grooves = (radius / 3.0) as usize;
+        for g in 0..grooves {
+            let rr = radius * (0.42 + 0.58 * (g as f32 + 0.5) / grooves as f32);
+            let alpha = if g % 2 == 0 { 0.10 } else { 0.05 } * lift;
+            p.circle_stroke(c, rr, egui::Stroke::new(1.0, INK.gamma_multiply(alpha)));
+        }
+        // label: brightness follows the loop's level
+        let label = INK.gamma_multiply(0.10 + 0.5 * level.min(1.0) + 0.1 * gate);
+        p.circle_filled(c, radius * 0.4, egui::Color32::from_rgb(28, 28, 25));
+        p.circle_stroke(c, radius * 0.4, egui::Stroke::new(1.0, label));
+        p.circle_filled(c, radius * 0.04, PAPER);
+        p.text(
+            c - egui::vec2(0.0, radius * 0.16),
+            egui::Align2::CENTER_CENTER,
+            format!("{}", i + 1),
+            egui::FontId::proportional(radius * 0.28),
+            INK.gamma_multiply(0.3 + 0.7 * gate),
+        );
+        p.text(
+            c + egui::vec2(0.0, radius * 0.12),
+            egui::Align2::CENTER_CENTER,
+            NAMES[i],
+            egui::FontId::proportional(radius * 0.11),
+            INK.gamma_multiply(0.55),
+        );
+        // playhead: the swept part of the rim, and a stylus line
+        let rim = egui::Stroke::new(2.0, INK.gamma_multiply(0.25 + 0.75 * gate));
+        if matches!(state, 1 | 2 | 3 | 4) {
+            let steps = (pos * 96.0) as usize + 1;
+            let pts: Vec<egui::Pos2> = (0..=steps)
+                .map(|k| {
+                    let a = (k as f32 / steps as f32) * pos * std::f32::consts::TAU
+                        - std::f32::consts::FRAC_PI_2;
+                    c + egui::Vec2::angled(a) * (radius - 1.0)
+                })
+                .collect();
+            p.add(egui::Shape::line(pts, rim));
+            let a = pos * std::f32::consts::TAU - std::f32::consts::FRAC_PI_2;
+            p.line_segment(
+                [
+                    c + egui::Vec2::angled(a) * radius * 0.42,
+                    c + egui::Vec2::angled(a) * radius,
+                ],
+                rim,
+            );
+        }
+        // outer edge: dashed while the effect is in; pulsing while recording
+        let edge = if wet > 0.5 {
+            egui::Stroke::new(1.0, INK.gamma_multiply(0.7))
+        } else {
+            egui::Stroke::new(1.0, INK.gamma_multiply(0.18))
+        };
+        p.circle_stroke(c, radius + 4.0, edge);
+        if matches!(state, 1 | 4) {
+            let pulse = 0.5 + 0.5 * (ui.input(|i| i.time) as f32 * 6.0).sin();
+            p.circle_stroke(
+                c,
+                radius + 8.0,
+                egui::Stroke::new(1.5, INK.gamma_multiply(0.3 + 0.5 * pulse)),
+            );
+        }
+        // state and the mouse controls, quietly below
+        p.text(
+            c + egui::vec2(0.0, radius + 22.0),
+            egui::Align2::CENTER_TOP,
+            self.state_label(i),
+            egui::FontId::proportional(13.0),
+            INK.gamma_multiply(0.6),
+        );
+        // the mouse controls, stacked quietly below (the keys are in the overlay)
+        let col = egui::Rect::from_center_size(
+            c + egui::vec2(0.0, radius + 84.0),
+            egui::vec2(120.0, 90.0),
+        );
+        let mut child = ui.new_child(
+            egui::UiBuilder::new()
+                .max_rect(col)
+                .layout(egui::Layout::top_down(egui::Align::Center)),
+        );
+        if child
+            .add_sized([110.0, 22.0], egui::Button::new(self.rec_label(i)).small())
+            .clicked()
+        {
+            self.send((op::RECORD, i as f32, 0.0));
+        }
+        if child
+            .add_sized(
+                [110.0, 22.0],
+                egui::Button::new(wetyu::fx::BUILTIN[i])
+                    .small()
+                    .selected(self.fx_on[i]),
+            )
+            .clicked()
+        {
+            self.toggle_fx(i);
+        }
+        if child
+            .add_enabled_ui(state != 0, |ui| {
+                ui.add_sized([110.0, 22.0], egui::Button::new("clear").small())
+            })
+            .inner
+            .clicked()
+        {
+            self.clear(i);
+        }
+    }
+
+    /// The manual, drawn over everything: what every key does, where it is.
+    fn overlay(&mut self, ui: &mut egui::Ui, screen: egui::Rect) {
+        let p = ui.painter_at(screen);
+        p.rect_filled(screen, 0.0, egui::Color32::from_black_alpha(200));
+        let font = egui::FontId::proportional(14.0);
+        let key = egui::FontId::monospace(13.0);
+        let mut y = screen.top() + 70.0;
+        let x = screen.left() + 40.0;
+        p.text(
+            egui::pos2(x, y),
+            egui::Align2::LEFT_TOP,
+            "how to play — a little song in six presses: shift+3, play drums, 3 · shift+2, play bass, 2 · shift+1, sing, 1 · it loops. shift+3 again layers more drums.",
+            font.clone(),
+            INK,
+        );
+        y += 34.0;
+        for (keys, what) in MANUAL {
+            p.text(
+                egui::pos2(x, y),
+                egui::Align2::LEFT_TOP,
+                *keys,
+                key.clone(),
+                INK,
+            );
+            p.text(
+                egui::pos2(x + 170.0, y),
+                egui::Align2::LEFT_TOP,
+                *what,
+                font.clone(),
+                INK.gamma_multiply(0.75),
+            );
+            y += if what.len() > 90 { 44.0 } else { 24.0 };
+        }
+        // the keyboard itself, along the bottom: bass then drums
+        let cap = 44.0;
+        let mut kx = x;
+        let ky = screen.bottom() - 150.0;
+        for (_, semi, label) in WHITE.iter().chain(BLACK.iter()) {
+            let r = egui::Rect::from_min_size(egui::pos2(kx, ky), egui::vec2(cap - 4.0, cap));
+            p.rect_stroke(
+                r,
+                3.0,
+                egui::Stroke::new(1.0, INK.gamma_multiply(0.5)),
+                egui::StrokeKind::Inside,
+            );
+            p.text(
+                r.center() - egui::vec2(0.0, 8.0),
+                egui::Align2::CENTER_CENTER,
+                *label,
+                key.clone(),
+                INK,
+            );
+            let names = [
+                "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "C",
+            ];
+            p.text(
+                r.center() + egui::vec2(0.0, 10.0),
+                egui::Align2::CENTER_CENTER,
+                names[*semi as usize],
+                egui::FontId::proportional(10.0),
+                INK.gamma_multiply(0.6),
+            );
+            kx += cap;
+        }
+        p.text(
+            egui::pos2(kx + 8.0, ky + cap / 2.0),
+            egui::Align2::LEFT_CENTER,
+            format!("bass · octave {}  [ ]", self.octave),
+            font.clone(),
+            INK.gamma_multiply(0.75),
+        );
+        let mut kx = x;
+        let ky = ky + cap + 12.0;
+        for (_, label, name) in PADS.iter() {
+            let r = egui::Rect::from_min_size(egui::pos2(kx, ky), egui::vec2(cap * 1.4, cap));
+            p.rect_stroke(
+                r,
+                3.0,
+                egui::Stroke::new(1.0, INK.gamma_multiply(0.5)),
+                egui::StrokeKind::Inside,
+            );
+            p.text(
+                r.center() - egui::vec2(0.0, 8.0),
+                egui::Align2::CENTER_CENTER,
+                *label,
+                key.clone(),
+                INK,
+            );
+            p.text(
+                r.center() + egui::vec2(0.0, 10.0),
+                egui::Align2::CENTER_CENTER,
+                *name,
+                egui::FontId::proportional(10.0),
+                INK.gamma_multiply(0.6),
+            );
+            kx += cap * 1.4 + 4.0;
+        }
+        p.text(
+            egui::pos2(kx + 8.0, ky + cap / 2.0),
+            egui::Align2::LEFT_CENTER,
+            "drums",
+            font,
+            INK.gamma_multiply(0.75),
+        );
+        // click anywhere, or esc, to close
+        if ui
+            .interact(screen, egui::Id::new("overlay"), egui::Sense::click())
+            .clicked()
+            || ui.input(|i| i.key_pressed(Key::Escape))
+        {
+            self.manual = false;
         }
     }
 }
@@ -797,26 +945,26 @@ const MANUAL: &[(&str, &str)] = &[
         "hear it only while held, then back how it was.",
     ),
     (
-        "⇧ + 1 2 3",
+        "shift + 1 2 3",
         "record. empty: start — the very first take counts two clicks first. recording: stop, and it loops right away (the first loop sets the bar; later ones snap to it). playing: overdub on top from the next bar. tapping the loop key while recording also stops it.",
     ),
     (
-        "⌥ + 1 2 3",
+        "option + 1 2 3",
         "that loop's effect on / off (delay, octaver, crush).",
     ),
     (
-        "hold 1 2 3 + ⌫",
-        "clear that loop. with ⇧⌫: record over it — clear and take again.",
+        "hold 1 2 3 + delete",
+        "clear that loop. with shift+delete: record over it — clear and take again.",
     ),
-    ("A…K  W E T Y U", "bass. [ ] octave."),
+    ("A..K  W E T Y U", "bass. [ ] octave."),
     (
-        "Z…/",
+        "Z../",
         "drums: kick, tight kick, clap, snare, snap, open hat, hat, rim, clav, cymbal.",
     ),
     ("space", "stop and start everything. loops stay."),
-    ("↑ ↓ ← →", "tempo ±1 / ±5, until the first loop sets it."),
+    ("arrows", "tempo ±1 / ±5, until the first loop sets it."),
     ("L", "click on / off."),
-    ("⌘S", "save the take."),
+    ("cmd+S", "save the take."),
 ];
 
 fn probe(audio: &Audio, mut cmd_tx: Producer<Cmd>) {
@@ -889,7 +1037,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         manual: false,
         ui_hold: [false; 3],
         ui_hold_at: [None; 3],
-        ui_note: [None; 13],
         octave: 2,
         bpm: 120.0,
         click: false,
@@ -901,7 +1048,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_title("wetyu")
-            .with_inner_size([760.0, 520.0]),
+            .with_inner_size([960.0, 640.0]),
         // No vsync: a key event must never wait on a frame present.
         glow_options: eframe::egui_glow::GlowConfiguration {
             vsync: false,
@@ -909,6 +1056,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         },
         ..Default::default()
     };
-    eframe::run_native("wetyu", options, Box::new(|_cc| Ok(Box::new(app))))?;
+    eframe::run_native(
+        "wetyu",
+        options,
+        Box::new(|cc| {
+            let mut v = egui::Visuals::dark();
+            v.panel_fill = PAPER;
+            v.window_fill = PAPER;
+            v.override_text_color = Some(INK);
+            cc.egui_ctx.set_visuals(v);
+            Ok(Box::new(app))
+        }),
+    )?;
     Ok(())
 }
