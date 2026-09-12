@@ -366,7 +366,8 @@ impl App {
     }
 
     /// Backspace while holding loops: clear them (and drop their latches).
-    fn clear_held(&mut self) -> bool {
+    /// With shift, record over: clear, then start a fresh take right away.
+    fn clear_held(&mut self, over: bool) -> bool {
         let held: Vec<usize> = self
             .down
             .values()
@@ -378,6 +379,9 @@ impl App {
         for &ch in &held {
             self.clear(ch);
             self.consumed[ch] = true;
+            if over {
+                self.send((op::RECORD, ch as f32, 0.0));
+            }
         }
         !held.is_empty()
     }
@@ -552,7 +556,7 @@ impl eframe::App for App {
                     }
                     let k = physical_key.unwrap_or(key);
                     if pressed {
-                        if k == Key::Backspace && self.clear_held() {
+                        if k == Key::Backspace && self.clear_held(modifiers.shift) {
                             continue;
                         }
                         if self.down.contains_key(&k) {
@@ -800,7 +804,10 @@ const MANUAL: &[(&str, &str)] = &[
         "⌥ + 1 2 3",
         "that loop's effect on / off (delay, octaver, crush).",
     ),
-    ("hold 1 2 3 + ⌫", "clear that loop."),
+    (
+        "hold 1 2 3 + ⌫",
+        "clear that loop. with ⇧⌫: record over it — clear and take again.",
+    ),
     ("A…K  W E T Y U", "bass. [ ] octave."),
     (
         "Z…/",

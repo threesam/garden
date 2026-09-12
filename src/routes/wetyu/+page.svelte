@@ -106,8 +106,11 @@
     lit[keyOf(code)] = false;
   }
 
-  /** Backspace while holding a loop: clear it (and drop its latch). */
-  function clearHeld(): boolean {
+  /**
+   * Backspace while holding a loop: clear it (and drop its latch). With
+   * shift, record over it: clear, then start a fresh take right away.
+   */
+  function clearHeld(over: boolean): boolean {
     let any = false;
     for (const [code, a] of down) {
       if (a.kind !== 'hold') continue;
@@ -115,6 +118,7 @@
       consumed.add(code);
       latched[a.ch] = false;
       wetyu.clear(a.ch);
+      if (over) wetyu.record(a.ch);
     }
     return any;
   }
@@ -131,7 +135,7 @@
     if (e.repeat || e.ctrlKey || isTyping(e.target) || help?.open) return;
     // A focused button owns Space and Enter; don't double up with the transport.
     if ((e.code === 'Space' || e.code === 'Enter') && e.target instanceof HTMLButtonElement) return;
-    if (e.code === 'Backspace' && clearHeld()) {
+    if (e.code === 'Backspace' && clearHeld(e.shiftKey)) {
       e.preventDefault();
       return;
     }
@@ -566,7 +570,7 @@
           </td>
         </tr>
         <tr><th><kbd>⌥</kbd>+<kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></th><td>that loop's effect on / off. pick the effect per loop above.</td></tr>
-        <tr><th>hold <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> + <kbd>⌫</kbd></th><td>clear that loop.</td></tr>
+        <tr><th>hold <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> + <kbd>⌫</kbd></th><td>clear that loop. with <kbd>⇧⌫</kbd>: record over it — clear and take again.</td></tr>
         <tr><th><kbd>A</kbd>…<kbd>K</kbd> <kbd>W E T Y U</kbd></th><td>bass. <kbd>[</kbd> <kbd>]</kbd> octave.</td></tr>
         <tr><th><kbd>Z</kbd>…<kbd>/</kbd></th><td>drums: kick, tight kick, clap, snare, snap, open hat, hat, rim, clav, cymbal.</td></tr>
         <tr><th><kbd>space</kbd></th><td>stop and start everything. loops stay.</td></tr>
