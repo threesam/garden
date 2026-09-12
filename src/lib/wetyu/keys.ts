@@ -8,12 +8,12 @@ export type Action =
   | { kind: 'hold'; ch: Channel }
   | { kind: 'note'; semitone: number }
   | { kind: 'drum'; pad: number }
-  | { kind: 'record'; ch?: Channel }
-  | { kind: 'select' }
+  | { kind: 'record'; ch: Channel }
+  | { kind: 'fx'; ch: Channel }
   | { kind: 'transport' }
   | { kind: 'tempo'; delta: number }
   | { kind: 'click' }
-  | { kind: 'clear' }
+  | { kind: 'save' }
   | { kind: 'octave'; delta: number };
 
 export const CHANNEL_NAMES = ['mic', 'keys', 'drums'] as const;
@@ -59,9 +59,6 @@ const TABLE = new Map<string, Action>([
   ...WHITE_KEYS.map(([code, semitone]): [string, Action] => [code, { kind: 'note', semitone }]),
   ...BLACK_KEYS.map(([code, semitone]): [string, Action] => [code, { kind: 'note', semitone }]),
   ...PADS.map(([code], pad): [string, Action] => [code, { kind: 'drum', pad }]),
-  ['KeyR', { kind: 'record' }],
-  // Not Tab: the page must stay tabbable for keyboard users.
-  ['KeyQ', { kind: 'select' }],
   ['Space', { kind: 'transport' }],
   ['ArrowUp', { kind: 'tempo', delta: 1 }],
   ['ArrowDown', { kind: 'tempo', delta: -1 }],
@@ -70,15 +67,28 @@ const TABLE = new Map<string, Action>([
   ['BracketLeft', { kind: 'octave', delta: -1 }],
   ['BracketRight', { kind: 'octave', delta: 1 }],
   ['KeyL', { kind: 'click' }],
-  ['Backspace', { kind: 'clear' }],
 ]);
 
-/** Shift turns a loop's listen key into its record key. */
-export function actionFor(code: string, shift = false): Action | undefined {
+/**
+ * Shift turns a loop's listen key into its record key; Option into its
+ * effect toggle. Cmd+S saves the take. (Clear is a chord — hold the loop,
+ * press Backspace — handled by the page, not a key of its own.)
+ */
+export function actionFor(
+  code: string,
+  mods: { shift?: boolean; alt?: boolean; meta?: boolean } = {},
+): Action | undefined {
+  if (mods.meta) return code === 'KeyS' ? { kind: 'save' } : undefined;
   const action = TABLE.get(code);
-  if (shift && action?.kind === 'hold') return { kind: 'record', ch: action.ch };
-  return action;
+  if (action?.kind === 'hold') {
+    if (mods.shift) return { kind: 'record', ch: action.ch };
+    if (mods.alt) return { kind: 'fx', ch: action.ch };
+  }
+  return mods.alt ? undefined : action;
 }
+
+/** A press shorter than this is a tap (latch toggle); longer is a momentary hold. */
+export const TAP_MS = 150;
 
 /** MIDI note for a semitone above C in the given octave (C4 = 60). */
 export function midiFor(semitone: number, octave: number): number {

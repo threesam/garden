@@ -11,7 +11,7 @@
   import SeoHead from '$lib/components/SeoHead.svelte';
   import { collectionPageNode } from '$lib/seo';
   import { wetyu, type ChannelView } from '$lib/wetyu/engine.svelte';
-  import { actionFor, midiFor, BLACK_KEYS, PADS, WHITE_KEYS, type Action } from '$lib/wetyu/keys';
+  import { actionFor, midiFor, BLACK_KEYS, PADS, TAP_MS, WHITE_KEYS, type Action } from '$lib/wetyu/keys';
   import { FX } from '$lib/wetyu/protocol';
   import { VISUALS, type Frame, type Visual } from '$lib/wetyu/visuals';
 
@@ -23,10 +23,17 @@
   const down = new Map<string, Action>(); // eslint-disable-line svelte/prefer-svelte-reactivity -- never rendered; keeps the key path free of reactive bookkeeping
   /** Midi note sent for a held key, so an octave change mid-hold still releases it. */
   const sounding = new Map<string, number>(); // eslint-disable-line svelte/prefer-svelte-reactivity -- same: bookkeeping only
-  /** Loops whose effect shift switched in; released with shift or the loop key. */
-  const fxOn = [false, false, false];
-  /** How many inputs (keys, pointers) hold each loop; the gate follows the count. */
+  /**
+   * Loop gating. A loop is heard while latched OR while any input holds it.
+   * A tap (shorter than TAP_MS) flips the latch; a longer press is momentary
+   * and puts the latch back how it was. The engine only ever sees on/off.
+   */
+  const latched: [boolean, boolean, boolean] = [false, false, false];
   const holds: [number, number, number] = [0, 0, 0];
+  /** When each hold began, per key code, to tell a tap from a hold. */
+  const pressedAt = new Map<string, number>(); // eslint-disable-line svelte/prefer-svelte-reactivity -- bookkeeping only
+  /** A chord (Backspace) consumed this hold: its release must not toggle the latch. */
+  const consumed = new Set<string>(); // eslint-disable-line svelte/prefer-svelte-reactivity -- bookkeeping only
   /** Pointer presses live in their own key space so they never release a physical key. */
   const POINTER = 'ptr:';
   const keyOf = (code: string) => (code.startsWith(POINTER) ? code.slice(POINTER.length) : code);
@@ -37,10 +44,17 @@
   let visual: Visual = VISUALS[0]?.() ?? { id: 'none', draw: () => undefined };
   let raf = 0;
 
+  function gate(ch: 0 | 1 | 2): void {
+    const on = latched[ch] || holds[ch] > 0;
+    if (on !== wetyu.channels[ch]?.held) wetyu.hold(ch, on);
+  }
+
   function press(code: string, action: Action): void {
     switch (action.kind) {
       case 'hold':
-        if (++holds[action.ch] === 1) wetyu.hold(action.ch, true);
+        holds[action.ch]++;
+        pressedAt.set(code, performance.now());
+        gate(action.ch);
         break;
       case 'note': {
         const midi = midiFor(action.semitone, wetyu.octave);
@@ -54,8 +68,11 @@
       case 'record':
         wetyu.record(action.ch);
         break;
-      case 'select':
-        wetyu.selected = (wetyu.selected + 1) % wetyu.channels.length;
+      case 'fx':
+        wetyu.fx(action.ch, !wetyu.channels[action.ch]?.fxOn);
+        break;
+      case 'save':
+        void saveTake();
         break;
       case 'transport':
         wetyu.toggleTransport();
@@ -66,9 +83,6 @@
       case 'click':
         wetyu.setClick(!wetyu.click);
         break;
-      case 'clear':
-        wetyu.clear();
-        break;
       case 'octave':
         wetyu.octave = Math.min(7, Math.max(1, wetyu.octave + action.delta));
         break;
@@ -77,13 +91,12 @@
   }
 
   function release(code: string, action: Action): void {
-    if (action.kind === 'hold' && --holds[action.ch] <= 0) {
-      holds[action.ch] = 0;
-      if (fxOn[action.ch]) {
-        fxOn[action.ch] = false;
-        wetyu.fx(action.ch, false);
-      }
-      wetyu.hold(action.ch, false);
+    if (action.kind === 'hold') {
+      holds[action.ch] = Math.max(0, holds[action.ch] - 1);
+      const tap = performance.now() - (pressedAt.get(code) ?? 0) < TAP_MS;
+      pressedAt.delete(code);
+      if (tap && !consumed.delete(code)) latched[action.ch] = !latched[action.ch];
+      gate(action.ch);
     }
     if (action.kind === 'note') {
       const midi = sounding.get(code);
@@ -93,17 +106,17 @@
     lit[keyOf(code)] = false;
   }
 
-  /** Shift pressed while loops are held: their effects in. Released: out. */
-  function shift(on: boolean): void {
-    const held = [false, false, false];
-    for (const a of down.values()) if (a.kind === 'hold') held[a.ch] = true;
-    for (let ch = 0; ch < 3; ch++) {
-      const want = on && held[ch] === true;
-      if (want !== fxOn[ch]) {
-        fxOn[ch] = want;
-        wetyu.fx(ch, want);
-      }
+  /** Backspace while holding a loop: clear it (and drop its latch). */
+  function clearHeld(): boolean {
+    let any = false;
+    for (const [code, a] of down) {
+      if (a.kind !== 'hold') continue;
+      any = true;
+      consumed.add(code);
+      latched[a.ch] = false;
+      wetyu.clear(a.ch);
     }
+    return any;
   }
 
   function isTyping(target: EventTarget | null): boolean {
@@ -115,14 +128,14 @@
   }
 
   function onKeyDown(e: KeyboardEvent): void {
-    if (e.repeat || e.metaKey || e.ctrlKey || e.altKey || isTyping(e.target) || help?.open) return;
+    if (e.repeat || e.ctrlKey || isTyping(e.target) || help?.open) return;
     // A focused button owns Space and Enter; don't double up with the transport.
     if ((e.code === 'Space' || e.code === 'Enter') && e.target instanceof HTMLButtonElement) return;
-    if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
-      shift(e.shiftKey);
+    if (e.code === 'Backspace' && clearHeld()) {
+      e.preventDefault();
       return;
     }
-    const action = actionFor(e.code, e.shiftKey);
+    const action = actionFor(e.code, { shift: e.shiftKey, alt: e.altKey, meta: e.metaKey });
     if (!action) return;
     e.preventDefault();
     if (down.has(e.code)) return;
@@ -132,10 +145,6 @@
   }
 
   function onKeyUp(e: KeyboardEvent): void {
-    if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
-      shift(e.shiftKey); // still true while the other shift key is down
-      return;
-    }
     const action = down.get(e.code);
     if (!action) return;
     down.delete(e.code);
@@ -146,8 +155,10 @@
     for (const [code, action] of down) release(code, action);
     down.clear();
     sounding.clear();
+    pressedAt.clear();
+    consumed.clear();
     holds.fill(0);
-    fxOn.fill(false);
+    latched.fill(false);
     lit = {};
     wetyu.panic();
   }
@@ -184,12 +195,21 @@
         return 'finishing the bar';
       case 'looping':
         return `${String(c.bars)} bar${c.bars === 1 ? '' : 's'}`;
+      case 'overdub':
+        return `overdubbing ${String(c.bars)} bar${c.bars === 1 ? '' : 's'}`;
     }
+  }
+
+  function recLabel(c: ChannelView): string {
+    if (c.state === 'recording' || c.state === 'until') return 'stop';
+    if (c.state === 'overdub') return 'stop dub';
+    if (c.state === 'looping') return 'overdub';
+    return 'rec';
   }
 
   /** 0..1 around the ring: loop position, or bars-elapsed fraction while recording. */
   function ring(c: ChannelView): number {
-    if (c.state === 'looping') return c.pos;
+    if (c.state === 'looping' || c.state === 'overdub') return c.pos;
     if (c.pos <= 0) return 0;
     return c.pos - Math.floor(c.pos);
   }
@@ -351,23 +371,14 @@
 
   <section class="channels" aria-label="loops">
     {#each wetyu.channels as c, i (c.name)}
-      <article class="channel" class:selected={i === wetyu.selected} data-state={c.state}>
-        <button
-          type="button"
-          class="name"
-          onclick={() => {
-            wetyu.selected = i;
-          }}
-        >
-          {c.name}
-          {#if i === wetyu.selected}<span class="sel">selected</span>{/if}
-        </button>
+      <article class="channel" data-state={c.state}>
+        <h2 class="name">{c.name}</h2>
         <button
           type="button"
           class="hold"
           class:lit={c.held}
           class:fx={c.fxWet > 0.5}
-          aria-label="{i + 1} {stateLabel(c)} — hold {c.name}"
+          aria-label="{i + 1} {stateLabel(c)} — {c.name} loop, tap to latch, hold to hear"
           aria-pressed={c.held}
           style:--ring={String(ring(c))}
           style:--gate={String(c.gate)}
@@ -380,25 +391,39 @@
           <button
             type="button"
             class="rec"
-            class:on={c.state === 'recording'}
-            aria-label="{c.state === 'recording' ? 'stop' : 'rec'} ⇧{i + 1} — record {c.name}"
+            class:on={c.state === 'recording' || c.state === 'overdub'}
+            aria-label="{recLabel(c)} ⇧{i + 1} — record {c.name}"
             onclick={() => {
               void wetyu.resume();
               wetyu.record(i);
             }}
           >
-            {c.state === 'recording' ? 'stop' : 'rec'} <kbd>⇧{i + 1}</kbd>
+            {recLabel(c)} <kbd>⇧{i + 1}</kbd>
+          </button>
+          <button
+            type="button"
+            class="fx-toggle"
+            class:on={c.fxOn}
+            aria-pressed={c.fxOn}
+            aria-label="fx ⌥{i + 1} — {FX[c.fx]} on {c.name}"
+            onclick={() => {
+              wetyu.fx(i, !c.fxOn);
+            }}
+          >
+            fx <kbd>⌥{i + 1}</kbd>
           </button>
           <button
             type="button"
             class="clear"
-            aria-label="clear {c.name}"
+            aria-label="clear {i + 1}+⌫ — clear {c.name}"
             disabled={c.state === 'empty'}
             onclick={() => {
+              latched[i] = false;
               wetyu.clear(i);
+              gate(i as 0 | 1 | 2);
             }}
           >
-            clear
+            clear <kbd>{i + 1}+⌫</kbd>
           </button>
           <select
             class="fx-pick"
@@ -524,32 +549,32 @@
 
   <dialog bind:this={help} class="help" aria-label="instructions">
     <h2>how to play</h2>
-    <ul>
-      <li>
-        <kbd>shift</kbd>+<kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> record a loop: mic, keys, drums. the first press
-        starts the clock, counts two clicks, then records.
-      </li>
-      <li>
-        <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> hold to hear a loop. on a loop still recording, that ends the take
-        on the bar and drops you into it.
-      </li>
-      <li>
-        <kbd>shift</kbd> while holding a loop adds its effect: delay on the mic, an octave-up phaser on the keys,
-        crush and spring on the drums.
-      </li>
-      <li><kbd>A</kbd>…<kbd>K</kbd> and <kbd>W E T Y U</kbd> play the bass. <kbd>[</kbd> <kbd>]</kbd> change octave.</li>
-      <li><kbd>Z</kbd>…<kbd>/</kbd> hit the drums: kick, tight kick, clap, snare, snap, open hat, hat, rim, clav, cymbal.</li>
-      <li>
-        <kbd>space</kbd> stop and start. <kbd>↑</kbd><kbd>↓</kbd> tempo ±1, <kbd>←</kbd><kbd>→</kbd> ±5, while nothing
-        is recorded.
-      </li>
-      <li><kbd>Q</kbd> selects the next loop; <kbd>R</kbd> records it, <kbd>⌫</kbd> clears it. <kbd>L</kbd> toggles the click.</li>
-      <li>
-        the first loop is the master: it loops the instant you stop, and its length becomes the bar. later
-        loops snap to multiples of it; press record in the first half of one and the loop starts at the line
-        you're already in.
-      </li>
-    </ul>
+    <p class="how">
+      a little song in six presses: <kbd>⇧3</kbd> play drums <kbd>3</kbd> · <kbd>⇧2</kbd> play bass
+      <kbd>2</kbd> · <kbd>⇧1</kbd> sing <kbd>1</kbd> · it loops. <kbd>⇧3</kbd> again layers more drums.
+    </p>
+    <table>
+      <tbody>
+        <tr><th><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> tap</th><td>loop on / off. mic, keys, drums.</td></tr>
+        <tr><th><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> hold</th><td>hear it only while held, then back how it was.</td></tr>
+        <tr>
+          <th><kbd>⇧</kbd>+<kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></th>
+          <td>
+            record. empty: start — the very first take counts two clicks first. recording: stop, and it loops
+            right away (the first loop sets the bar; later ones snap to it). playing: overdub on top from the next
+            bar. tapping the loop key while recording also stops it.
+          </td>
+        </tr>
+        <tr><th><kbd>⌥</kbd>+<kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></th><td>that loop's effect on / off. pick the effect per loop above.</td></tr>
+        <tr><th>hold <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> + <kbd>⌫</kbd></th><td>clear that loop.</td></tr>
+        <tr><th><kbd>A</kbd>…<kbd>K</kbd> <kbd>W E T Y U</kbd></th><td>bass. <kbd>[</kbd> <kbd>]</kbd> octave.</td></tr>
+        <tr><th><kbd>Z</kbd>…<kbd>/</kbd></th><td>drums: kick, tight kick, clap, snare, snap, open hat, hat, rim, clav, cymbal.</td></tr>
+        <tr><th><kbd>space</kbd></th><td>stop and start everything. loops stay.</td></tr>
+        <tr><th><kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd></th><td>tempo ±1 / ±5, until the first loop sets it.</td></tr>
+        <tr><th><kbd>L</kbd></th><td>click on / off.</td></tr>
+        <tr><th><kbd>⌘S</kbd></th><td>save the take.</td></tr>
+      </tbody>
+    </table>
     <div class="help-row">
       {#if VISUALS.length > 1}
         <label>
@@ -745,21 +770,11 @@
     border: 1px solid var(--line);
     border-radius: 6px;
   }
-  .channel.selected {
-    border-color: var(--ink);
-  }
   .name {
-    justify-self: start;
-    border: 0;
-    padding: 0;
+    margin: 0;
     font-size: 1.1rem;
+    font-weight: 400;
     letter-spacing: var(--tracking-label);
-  }
-  .sel {
-    margin-left: 0.5rem;
-    color: var(--dim);
-    font-size: 0.7rem;
-    letter-spacing: var(--tracking-meta);
   }
   .hold {
     position: relative;
@@ -808,10 +823,12 @@
   }
   .rec,
   .clear,
+  .fx-toggle,
   .enable {
     padding: 0.4rem 0.75rem;
   }
-  .rec.on {
+  .rec.on,
+  .fx-toggle.on {
     border-color: var(--ink);
     background: var(--ink);
     color: var(--paper);
@@ -929,16 +946,29 @@
     font-size: 1rem;
     letter-spacing: var(--tracking-label);
   }
-  .help ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    display: grid;
-    gap: 0.6rem;
+  .how {
+    margin: 0 0 1rem;
     color: var(--dim);
   }
-  .help li kbd {
+  .help table {
+    border-collapse: collapse;
+    color: var(--dim);
+  }
+  .help th {
+    padding: 0.35rem 0.75rem 0.35rem 0;
+    text-align: left;
+    font-weight: 400;
+    white-space: nowrap;
+    vertical-align: top;
     color: var(--ink);
+  }
+  .help td {
+    padding: 0.35rem 0;
+    vertical-align: top;
+  }
+  .help tr + tr th,
+  .help tr + tr td {
+    border-top: 1px solid var(--line);
   }
   .help-row {
     display: flex;

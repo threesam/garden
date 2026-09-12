@@ -16,7 +16,7 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicU32, AtomicUsize, Ordering};
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{BufferSize, SampleFormat, StreamConfig, SupportedBufferSize};
@@ -224,15 +224,19 @@ enum Action {
     Hold(usize),
     Note(u32),
     Drum(u32),
-    /// `None` records the selected loop (R); `Some` is shift+digit.
-    Record(Option<usize>),
-    Select,
+    /// Shift+digit.
+    Record(usize),
+    /// Option+digit: that loop's effect on / off.
+    Fx(usize),
     Transport,
     Tempo(f32),
     Click,
-    Clear,
+    Save,
     Octave(i32),
 }
+
+/// A press shorter than this is a tap (latch toggle); longer is a momentary hold.
+const TAP: Duration = Duration::from_millis(150);
 
 const WHITE: [(Key, u32, &str); 8] = [
     (Key::A, 0, "A"),
@@ -276,8 +280,6 @@ fn action(k: Key) -> Option<Action> {
         Key::Num1 => Action::Hold(0),
         Key::Num2 => Action::Hold(1),
         Key::Num3 => Action::Hold(2),
-        Key::R => Action::Record(None),
-        Key::Tab => Action::Select,
         Key::Space => Action::Transport,
         Key::ArrowUp => Action::Tempo(1.0),
         Key::ArrowDown => Action::Tempo(-1.0),
@@ -286,7 +288,6 @@ fn action(k: Key) -> Option<Action> {
         Key::OpenBracket => Action::Octave(-1),
         Key::CloseBracket => Action::Octave(1),
         Key::L => Action::Click,
-        Key::Backspace => Action::Clear,
         _ => return None,
     })
 }
@@ -300,11 +301,20 @@ struct App {
     audio: Audio,
     /// Keys physically down → what to send on release.
     down: HashMap<Key, Option<Cmd>>,
-    /// Loops whose effect shift switched in; released with shift or the loop key.
+    /// Loop gating: a loop is heard while latched OR while any input holds it.
+    /// A tap flips the latch; a longer press is momentary. The engine sees on/off.
+    latched: [bool; 3],
+    holds: [u8; 3],
+    /// When each loop key went down, to tell a tap from a hold.
+    pressed_at: HashMap<Key, Instant>,
+    /// A Backspace chord cleared this loop: its release must not toggle the latch.
+    consumed: [bool; 3],
     fx_on: [bool; 3],
-    shift: bool,
+    /// The manual, behind the `i` bottom right.
+    manual: bool,
     /// Pointer-held on-screen controls, for edge detection.
     ui_hold: [bool; 3],
+    ui_hold_at: [Option<Instant>; 3],
     /// Midi note each on-screen key is sounding, so an octave change mid-press still releases it.
     ui_note: [Option<u32>; 13],
     octave: i32,
@@ -312,7 +322,6 @@ struct App {
     click: bool,
     monitor: bool,
     offset_ms: f32,
-    selected: usize,
 }
 
 impl App {
@@ -332,8 +341,32 @@ impl App {
         &self.status[4 + CH_FIELDS * i..4 + CH_FIELDS * (i + 1)]
     }
 
-    /// Shift pressed while loops are held: their effects in.
-    fn shift(&mut self, on: bool) {
+    fn midi(&self, semitone: u32) -> u32 {
+        (12 * (self.octave + 1)) as u32 + semitone
+    }
+
+    fn gate(&mut self, ch: usize) {
+        let on = self.latched[ch] || self.holds[ch] > 0;
+        self.send((op::HOLD, ch as f32, flag(on)));
+    }
+
+    fn hold_down(&mut self, ch: usize) {
+        self.holds[ch] += 1;
+        self.gate(ch);
+    }
+
+    /// Release a hold that began at `since`: a tap flips the latch.
+    fn hold_up(&mut self, ch: usize, since: Option<Instant>) {
+        self.holds[ch] = self.holds[ch].saturating_sub(1);
+        let tap = since.is_some_and(|t| t.elapsed() < TAP);
+        if tap && !std::mem::take(&mut self.consumed[ch]) {
+            self.latched[ch] = !self.latched[ch];
+        }
+        self.gate(ch);
+    }
+
+    /// Backspace while holding loops: clear them (and drop their latches).
+    fn clear_held(&mut self) -> bool {
         let held: Vec<usize> = self
             .down
             .values()
@@ -342,23 +375,51 @@ impl App {
                 _ => None,
             })
             .collect();
-        for i in 0..3 {
-            let want = on && held.contains(&i);
-            if want != self.fx_on[i] {
-                self.fx_on[i] = want;
-                self.send((op::FX, i as f32, flag(want)));
-            }
+        for &ch in &held {
+            self.clear(ch);
+            self.consumed[ch] = true;
         }
+        !held.is_empty()
     }
 
-    fn midi(&self, semitone: u32) -> u32 {
-        (12 * (self.octave + 1)) as u32 + semitone
+    fn clear(&mut self, ch: usize) {
+        self.latched[ch] = false;
+        self.fx_on[ch] = false;
+        self.send((op::CLEAR, ch as f32, 0.0));
+        self.gate(ch);
+    }
+
+    fn toggle_fx(&mut self, ch: usize) {
+        self.fx_on[ch] = !self.fx_on[ch];
+        self.send((op::FX, ch as f32, flag(self.fx_on[ch])));
+    }
+
+    /// Cmd+S: the take as JSON next to the binary's cwd. ponytail: no dialog.
+    fn save(&self) {
+        let name = format!(
+            "wetyu-take-{}.json",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .map(|d| d.as_secs())
+                .unwrap_or(0)
+        );
+        // The desktop engine lives on the audio thread; the log comes back via
+        // the status ring only as a summary, so for now save what the UI knows.
+        let body = format!(
+            "{{\"sampleRate\":{},\"bpm\":{},\"note\":\"desktop takes export the log in a later build\"}}",
+            self.audio.sample_rate, self.bpm
+        );
+        match std::fs::write(&name, body) {
+            Ok(()) => eprintln!("saved {name}"),
+            Err(e) => eprintln!("save failed: {e}"),
+        }
     }
 
     fn press(&mut self, key: Key, a: Action) {
         let release = match a {
             Action::Hold(ch) => {
-                self.send((op::HOLD, ch as f32, 1.0));
+                self.pressed_at.insert(key, Instant::now());
+                self.hold_down(ch);
                 Some((op::HOLD, ch as f32, 0.0))
             }
             Action::Note(semi) => {
@@ -371,11 +432,15 @@ impl App {
                 None
             }
             Action::Record(ch) => {
-                self.send((op::RECORD, ch.unwrap_or(self.selected) as f32, 0.0));
+                self.send((op::RECORD, ch as f32, 0.0));
                 None
             }
-            Action::Select => {
-                self.selected = (self.selected + 1) % 3;
+            Action::Fx(ch) => {
+                self.toggle_fx(ch);
+                None
+            }
+            Action::Save => {
+                self.save();
                 None
             }
             Action::Transport => {
@@ -391,10 +456,6 @@ impl App {
                 self.send((op::CLICK, flag(self.click), 0.0));
                 None
             }
-            Action::Clear => {
-                self.send((op::CLEAR, self.selected as f32, 0.0));
-                None
-            }
             Action::Octave(d) => {
                 self.octave = (self.octave + d).clamp(1, 7);
                 None
@@ -406,13 +467,11 @@ impl App {
     fn release(&mut self, key: Key) {
         if let Some(rel) = self.down.remove(&key).flatten() {
             if rel.0 == op::HOLD {
-                let ch = rel.1 as usize;
-                if self.fx_on[ch] {
-                    self.fx_on[ch] = false;
-                    self.send((op::FX, rel.1, 0.0));
-                }
+                let since = self.pressed_at.remove(&key);
+                self.hold_up(rel.1 as usize, since);
+            } else {
+                self.send(rel);
             }
-            self.send(rel);
         }
     }
 
@@ -426,6 +485,10 @@ impl App {
 
     fn release_all(&mut self) {
         self.down.clear();
+        self.pressed_at.clear();
+        self.holds = [0; 3];
+        self.latched = [false; 3];
+        self.consumed = [false; 3];
         self.fx_on = [false; 3];
         self.send((op::PANIC, 0.0, 0.0));
     }
@@ -437,13 +500,27 @@ impl App {
             1 => format!("recording bar {}", s[2].floor() as i32 + 1),
             2 => "finishing the bar".into(),
             3 => format!("{} bar{}", s[1] as i32, if s[1] == 1.0 { "" } else { "s" }),
+            4 => format!(
+                "overdubbing {} bar{}",
+                s[1] as i32,
+                if s[1] == 1.0 { "" } else { "s" }
+            ),
             _ => "empty".into(),
+        }
+    }
+
+    fn rec_label(&self, ch: usize) -> &'static str {
+        match self.ch(ch)[0] as u32 {
+            1 | 2 => "stop",
+            3 => "overdub",
+            4 => "stop dub",
+            _ => "rec",
         }
     }
 
     fn ring(&self, ch: usize) -> f32 {
         let s = self.ch(ch);
-        if s[0] as u32 == 3 {
+        if matches!(s[0] as u32, 3 | 4) {
             s[2]
         } else if s[2] <= 0.0 {
             0.0
@@ -460,12 +537,6 @@ impl eframe::App for App {
         }
         self.bpm = self.status[1];
         // Keys first, before any drawing: this is the whole point of the app.
-        // egui reports shift as a modifier, not a key: edge-detect it here.
-        let shift = ctx.input(|i| i.modifiers.shift);
-        if shift != self.shift {
-            self.shift = shift;
-            self.shift(shift);
-        }
         let events = ctx.input(|i| i.events.clone());
         for ev in events {
             match ev {
@@ -476,20 +547,30 @@ impl eframe::App for App {
                     repeat,
                     modifiers,
                 } => {
-                    if repeat || modifiers.command || modifiers.ctrl || modifiers.alt {
+                    if repeat || modifiers.ctrl || self.manual {
                         continue;
                     }
                     let k = physical_key.unwrap_or(key);
                     if pressed {
+                        if k == Key::Backspace && self.clear_held() {
+                            continue;
+                        }
                         if self.down.contains_key(&k) {
                             continue;
                         }
-                        // Shift turns a loop's listen key into its record key.
-                        let a = match action(k) {
-                            Some(Action::Hold(ch)) if modifiers.shift => {
-                                Some(Action::Record(Some(ch)))
+                        // Cmd+S saves; other Cmd chords are the OS's. Shift turns a
+                        // loop key into record, Option into its effect toggle.
+                        let a = if modifiers.command {
+                            (k == Key::S).then_some(Action::Save)
+                        } else {
+                            match action(k) {
+                                Some(Action::Hold(ch)) if modifiers.shift => {
+                                    Some(Action::Record(ch))
+                                }
+                                Some(Action::Hold(ch)) if modifiers.alt => Some(Action::Fx(ch)),
+                                _ if modifiers.alt => None, // other Option chords are the OS's
+                                a => a,
                             }
-                            a => a,
                         };
                         if let Some(a) = a {
                             self.press(k, a);
@@ -508,16 +589,23 @@ impl eframe::App for App {
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ui, |ui| {
             ui.heading("wetyu");
-            ui.label("three loops, always running. shift+1 records a loop (two clicks, then it takes), hold 1 to hear it.");
+            ui.label("three loops, always running.");
             ui.add_space(8.0);
 
             // transport
             ui.horizontal(|ui| {
-                let label = if self.playing() { "stop  [space]" } else { "play  [space]" };
+                let label = if self.playing() {
+                    "stop  [space]"
+                } else {
+                    "play  [space]"
+                };
                 if ui.button(label).clicked() {
                     self.send((op::TRANSPORT, 2.0, 0.0)); // toggle, decided on the audio thread
                 }
-                ui.label(format!("bar {}", (self.status[3] / self.status[2].max(1.0)).floor() as i32 + 1));
+                ui.label(format!(
+                    "bar {}",
+                    (self.status[3] / self.status[2].max(1.0)).floor() as i32 + 1
+                ));
                 ui.separator();
                 ui.label("bpm");
                 let locked = self.locked();
@@ -556,41 +644,57 @@ impl eframe::App for App {
             // channels
             ui.columns(3, |cols| {
                 for (i, col) in cols.iter_mut().enumerate() {
-                    let selected = i == self.selected;
-                    col.horizontal(|ui| {
-                        if ui.selectable_label(selected, NAMES[i]).clicked() {
-                            self.selected = i;
-                        }
-                        if selected {
-                            ui.weak("selected");
-                        }
-                    });
+                    col.label(NAMES[i]);
                     let r = col.add_sized([110.0, 110.0], egui::Button::new(format!("{}", i + 1)));
                     // Playhead ring around the hold button.
                     let painter = col.painter();
                     let c = r.rect.center();
                     let radius = r.rect.width() * 0.5 - 2.0;
                     let gate = self.ch(i)[3];
-                    let stroke = egui::Stroke::new(2.0, egui::Color32::from_rgb(232, 163, 23).gamma_multiply(0.4 + 0.6 * gate));
+                    let stroke = egui::Stroke::new(
+                        2.0,
+                        egui::Color32::from_rgb(232, 163, 23).gamma_multiply(0.4 + 0.6 * gate),
+                    );
                     painter.circle_stroke(c, radius, stroke);
                     let ang = self.ring(i) * std::f32::consts::TAU - std::f32::consts::FRAC_PI_2;
                     painter.line_segment([c, c + egui::Vec2::angled(ang) * radius], stroke);
+                    // The on-screen pad taps and holds like the key does.
                     let held = r.is_pointer_button_down_on();
                     if held != self.ui_hold[i] {
                         self.ui_hold[i] = held;
-                        self.send((op::HOLD, i as f32, flag(held)));
+                        if held {
+                            self.ui_hold_at[i] = Some(Instant::now());
+                            self.hold_down(i);
+                        } else {
+                            let since = self.ui_hold_at[i].take();
+                            self.hold_up(i, since);
+                        }
                     }
-                    let (state, wet) = (self.ch(i)[0], self.ch(i)[5]);
+                    let state = self.ch(i)[0];
                     col.label(self.state_label(i));
                     col.horizontal(|ui| {
-                        let rec = if state as u32 == 1 { "stop" } else { "rec" };
-                        if ui.button(rec).clicked() {
+                        if ui
+                            .button(format!("{}  [⇧{}]", self.rec_label(i), i + 1))
+                            .clicked()
+                        {
                             self.send((op::RECORD, i as f32, 0.0));
                         }
-                        if ui.add_enabled(state != 0.0, egui::Button::new("clear")).clicked() {
-                            self.send((op::CLEAR, i as f32, 0.0));
+                        let fx = wetyu::fx::BUILTIN[i];
+                        if ui
+                            .selectable_label(self.fx_on[i], format!("{fx}  [⌥{}]", i + 1))
+                            .clicked()
+                        {
+                            self.toggle_fx(i);
                         }
-                        ui.weak(format!("{} {}", wetyu::fx::BUILTIN[i], if wet > 0.5 { "on" } else { "" }));
+                        if ui
+                            .add_enabled(
+                                state != 0.0,
+                                egui::Button::new(format!("clear  [{}+⌫]", i + 1)),
+                            )
+                            .clicked()
+                        {
+                            self.clear(i);
+                        }
                     });
                     if i == 0 {
                         if self.audio.mic_name.is_none() {
@@ -601,10 +705,14 @@ impl eframe::App for App {
                                 self.send((op::MIC_MONITOR, flag(on), 0.0));
                             }
                             if col
-                                .add(egui::Slider::new(&mut self.offset_ms, 0.0..=50.0).text("offset ms"))
+                                .add(
+                                    egui::Slider::new(&mut self.offset_ms, 0.0..=50.0)
+                                        .text("offset ms"),
+                                )
                                 .changed()
                             {
-                                let n = (self.offset_ms / 1000.0 * self.audio.sample_rate as f32).round();
+                                let n = (self.offset_ms / 1000.0 * self.audio.sample_rate as f32)
+                                    .round();
                                 self.send((op::MIC_OFFSET, n, 0.0));
                             }
                         }
@@ -635,17 +743,74 @@ impl eframe::App for App {
             });
             ui.horizontal(|ui| {
                 for (pad, (_, key, name)) in PADS.iter().enumerate() {
-                    if ui.add_sized([64.0, 48.0], egui::Button::new(format!("{key}\n{name}"))).clicked() {
+                    if ui
+                        .add_sized([64.0, 48.0], egui::Button::new(format!("{key}\n{name}")))
+                        .clicked()
+                    {
                         self.send((op::DRUM, pad as f32, 0.0));
                     }
                 }
             });
-            ui.add_space(8.0);
-            ui.weak("1 2 3 hold to hear a loop (ends its take if recording) · shift+1 2 3 record · shift while holding a loop adds its effect · R records the selected · tab select · ⌫ clear · ↑↓ tempo ±1 ←→ ±5");
-            ui.weak("the first loop loops the instant you stop and its length becomes the bar; later loops snap to it.");
         });
+
+        // The manual: an `i` fixed bottom right, a modal when open.
+        egui::Area::new(egui::Id::new("manual-button"))
+            .anchor(egui::Align2::RIGHT_BOTTOM, [-16.0, -16.0])
+            .show(ui.ctx(), |ui| {
+                if ui.add_sized([32.0, 32.0], egui::Button::new("i")).clicked() {
+                    self.manual = !self.manual;
+                }
+            });
+        if self.manual {
+            let response = egui::Modal::new(egui::Id::new("manual")).show(ui.ctx(), |ui| {
+                ui.set_max_width(520.0);
+                ui.heading("how to play");
+                ui.weak("a little song in six presses: ⇧3 play drums 3 · ⇧2 play bass 2 · ⇧1 sing 1 · it loops. ⇧3 again layers more drums.");
+                ui.add_space(6.0);
+                egui::Grid::new("manual-grid").num_columns(2).spacing([16.0, 6.0]).striped(true).show(ui, |ui| {
+                    for (keys, what) in MANUAL {
+                        ui.strong(*keys);
+                        ui.label(*what);
+                        ui.end_row();
+                    }
+                });
+                ui.add_space(6.0);
+                if ui.button("close  [esc]").clicked() {
+                    self.manual = false;
+                }
+            });
+            if response.should_close() {
+                self.manual = false;
+            }
+        }
     }
 }
+
+const MANUAL: &[(&str, &str)] = &[
+    ("1 2 3 tap", "loop on / off. mic, keys, drums."),
+    (
+        "1 2 3 hold",
+        "hear it only while held, then back how it was.",
+    ),
+    (
+        "⇧ + 1 2 3",
+        "record. empty: start — the very first take counts two clicks first. recording: stop, and it loops right away (the first loop sets the bar; later ones snap to it). playing: overdub on top from the next bar. tapping the loop key while recording also stops it.",
+    ),
+    (
+        "⌥ + 1 2 3",
+        "that loop's effect on / off (delay, octaver, crush).",
+    ),
+    ("hold 1 2 3 + ⌫", "clear that loop."),
+    ("A…K  W E T Y U", "bass. [ ] octave."),
+    (
+        "Z…/",
+        "drums: kick, tight kick, clap, snare, snap, open hat, hat, rim, clav, cymbal.",
+    ),
+    ("space", "stop and start everything. loops stay."),
+    ("↑ ↓ ← →", "tempo ±1 / ±5, until the first loop sets it."),
+    ("L", "click on / off."),
+    ("⌘S", "save the take."),
+];
 
 fn probe(audio: &Audio, mut cmd_tx: Producer<Cmd>) {
     std::thread::sleep(Duration::from_millis(150));
@@ -709,16 +874,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         status: [0.0; STATUS_LEN],
         audio,
         down: HashMap::new(),
+        latched: [false; 3],
+        holds: [0; 3],
+        pressed_at: HashMap::new(),
+        consumed: [false; 3],
         fx_on: [false; 3],
-        shift: false,
+        manual: false,
         ui_hold: [false; 3],
+        ui_hold_at: [None; 3],
         ui_note: [None; 13],
         octave: 2,
         bpm: 120.0,
         click: false,
         monitor: false,
         offset_ms: 0.0,
-        selected: 2,
     };
     app.offset_ms = WANT_FRAMES as f32 * 3.0 * 1000.0 / app.audio.sample_rate as f32;
 

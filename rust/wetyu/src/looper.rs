@@ -26,8 +26,10 @@ pub struct Channel {
     /// Input latency compensation in samples: the source sample arriving at
     /// `t` belongs to grid time `t - offset`. Zero for internal instruments.
     pub offset: u32,
-    /// A re-record is queued: the loop keeps playing until the next bar line.
+    /// An overdub is queued: it starts at the next bar line.
     pub pending: bool,
+    /// Overdubbing: new playing is added onto the loop as it cycles.
+    pub overdub: bool,
     gate: f32,
     target: f32,
 }
@@ -41,6 +43,7 @@ impl Channel {
             len: 0,
             offset: 0,
             pending: false,
+            overdub: false,
             gate: 0.0,
             target: 0.0,
         }
@@ -91,7 +94,15 @@ impl Channel {
                     }
                 }
             }
-            State::Looping => {}
+            State::Looping => {
+                if self.overdub {
+                    // Layer the source onto the loop at the grid time it belongs to.
+                    let p = loop_pos(t.wrapping_sub(self.offset), self.anchor, self.len) as usize;
+                    if let Some(slot) = self.buf.get_mut(p) {
+                        *slot += src;
+                    }
+                }
+            }
         }
         let d = self.target - self.gate;
         self.gate += d.clamp(-step, step);
@@ -106,10 +117,9 @@ impl Channel {
     /// Called on every bar line while playing.
     pub fn bar_line(&mut self, t: u32) {
         if self.pending {
-            // The queued re-record starts here; the old loop played to the line.
+            // The queued overdub starts here, on the line.
             self.pending = false;
-            self.anchor = t;
-            self.state = State::Recording;
+            self.overdub = true;
         } else if self.state == State::Empty {
             self.anchor = t;
         }
@@ -132,7 +142,8 @@ impl Channel {
         self.state = State::Until;
     }
 
-    /// The record key: start, or stop and snap.
+    /// The record key: start a take, stop and snap it, or — on a playing
+    /// loop — overdub from the next bar line (press again to stop layering).
     pub fn record(&mut self, t: u32, bar: u32) {
         match self.state {
             State::Empty => {
@@ -140,13 +151,14 @@ impl Channel {
                 self.state = State::Recording;
             }
             State::Looping => {
-                // ponytail: no retro start on re-record; needs a second scratch buffer.
-                // Queued instead: the loop keeps playing until the next bar line.
-                if t.is_multiple_of(bar) {
-                    self.anchor = t;
-                    self.state = State::Recording;
+                if self.overdub {
+                    self.overdub = false;
+                } else if self.pending {
+                    self.pending = false; // pressing again un-queues it
+                } else if t.is_multiple_of(bar) {
+                    self.overdub = true;
                 } else {
-                    self.pending = !self.pending; // pressing again un-queues it
+                    self.pending = true;
                 }
             }
             State::Recording => {
@@ -169,6 +181,7 @@ impl Channel {
     pub fn clear(&mut self, t: u32, bar: u32) {
         self.state = State::Empty;
         self.pending = false;
+        self.overdub = false;
         self.anchor = t - t % bar;
     }
 
@@ -308,46 +321,53 @@ mod tests {
     }
 
     #[test]
-    fn re_record_waits_for_next_bar_and_clear_reopens_tempo() {
+    fn overdub_layers_onto_the_loop_from_the_bar_line() {
         let mut ch = Channel::new(1000);
         ch.record(0, BAR);
         run(&mut ch, 0, 100);
-        ch.record(100, BAR);
+        ch.record(100, BAR); // 1 bar, content == grid time 0..100
         run(&mut ch, 100, 130);
         assert_eq!(ch.state, State::Looping);
         ch.record(130, BAR);
-        // queued: still looping (audible) until the bar line
-        assert_eq!((ch.state, ch.pending), (State::Looping, true));
+        // queued: still looping, untouched, until the bar line
+        assert_eq!(
+            (ch.state, ch.pending, ch.overdub),
+            (State::Looping, true, false)
+        );
         ch.hold(true);
         let out = run(&mut ch, 130, 200);
-        assert!(
-            out.iter().any(|&s| s != 0.0),
-            "the old loop plays while queued"
-        );
-        run(&mut ch, 200, 201);
-        assert_eq!(
-            (ch.state, ch.anchor, ch.pending),
-            (State::Recording, 200, false)
-        );
-        ch.clear(200, BAR);
-        assert_eq!((ch.state, ch.anchor), (State::Empty, 200));
+        assert_eq!(out[0], 30.0, "the loop plays as it was while queued");
+        // From 200 the source (grid time) is added on: slot p gets +(200+p).
+        run(&mut ch, 200, 300);
+        assert!(ch.overdub && !ch.pending);
+        ch.record(300, BAR); // stop layering
+        assert!(!ch.overdub);
+        let out = run(&mut ch, 300, 400);
+        assert_eq!(out[50], 50.0 + 250.0, "layer added at the right grid slot");
+        ch.clear(400, BAR);
+        assert_eq!((ch.state, ch.anchor), (State::Empty, 400));
     }
 
     #[test]
-    fn a_transport_restart_keeps_loops_looping() {
+    fn overdub_on_the_mic_lands_at_the_grid_time_it_belongs_to() {
         let mut ch = Channel::new(1000);
+        ch.offset = 10;
         ch.record(0, BAR);
-        run(&mut ch, 0, 100);
-        ch.record(100, BAR);
-        run(&mut ch, 100, 130);
-        assert_eq!(ch.state, State::Looping);
-        ch.reset();
-        run(&mut ch, 0, 1); // t = 0 is a bar line with anchor == 0
-        assert_eq!((ch.state, ch.anchor), (State::Looping, 0));
+        run(&mut ch, 0, 200);
+        ch.record(200, BAR);
+        run(&mut ch, 200, 300); // 2 bars, content == grid time
+        ch.record(300, BAR); // on the line → overdubbing now
+        assert!(ch.overdub);
+        ch.hold(true);
+        run(&mut ch, 300, 500);
+        ch.record(500, BAR);
+        let out = run(&mut ch, 500, 700);
+        // loop slot 50 was layered at t = 460 (grid 450 after the 10-sample offset)
+        assert_eq!(out[550 - 500], 50.0 + 450.0);
     }
 
     #[test]
-    fn pressing_record_again_unqueues_a_re_record() {
+    fn pressing_record_again_unqueues_an_overdub() {
         let mut ch = Channel::new(1000);
         ch.record(0, BAR);
         run(&mut ch, 0, 100);
@@ -357,6 +377,6 @@ mod tests {
         ch.record(140, BAR);
         assert_eq!((ch.state, ch.pending), (State::Looping, false));
         run(&mut ch, 140, 201);
-        assert_eq!(ch.state, State::Looping, "nothing started at the line");
+        assert!(!ch.overdub, "nothing started at the line");
     }
 }

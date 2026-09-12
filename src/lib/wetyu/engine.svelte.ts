@@ -7,8 +7,8 @@ import { CHANNEL_NAMES } from './keys';
 import { CH_FIELDS, FX, LOG_CAP, OP, STATUS_LEN, TAKE_LOG, type Reply } from './protocol';
 import { defaultMicOffsetMs, msToSamples } from './timing';
 
-export type ChannelState = 'empty' | 'recording' | 'until' | 'looping';
-const STATE_NAMES: readonly ChannelState[] = ['empty', 'recording', 'until', 'looping'];
+export type ChannelState = 'empty' | 'recording' | 'until' | 'looping' | 'overdub';
+const STATE_NAMES: readonly ChannelState[] = ['empty', 'recording', 'until', 'looping', 'overdub'];
 
 export interface ChannelView {
   name: string;
@@ -24,6 +24,9 @@ export interface ChannelView {
   fxWet: number;
   /** Index into FX: which plugin sits on this loop. */
   fx: number;
+  /** The effect is switched in (the engine ramps `fxWet` toward it). */
+  fxOn: boolean;
+  /** The loop is gated in: latched by a tap, or held for the moment. */
   held: boolean;
 }
 
@@ -72,10 +75,10 @@ class Wetyu {
       level: 0,
       fxWet: 0,
       fx: i,
+      fxOn: false,
       held: false,
     })),
   );
-  selected = $state(2);
   /** Sub bass lives low: C2 under the A key. */
   octave = $state(2);
   /** Engine sample clock, from the last status message. */
@@ -186,11 +189,11 @@ class Wetyu {
     this.send(OP.drum, pad);
   }
 
-  record(ch = this.selected): void {
+  record(ch: number): void {
     this.send(OP.record, ch);
   }
 
-  clear(ch = this.selected): void {
+  clear(ch: number): void {
     this.send(OP.clear, ch);
   }
 
@@ -219,9 +222,11 @@ class Wetyu {
     this.send(OP.micOffset, msToSamples(this.micOffsetMs, this.sampleRate));
   }
 
-  /** Shift with a playing loop: its effect in (or out). */
+  /** Option+digit: that loop's effect in (or out). */
   fx(ch: number, on: boolean): void {
     this.send(OP.fx, ch, +on);
+    const c = this.channels[ch];
+    if (c) c.fxOn = on;
   }
 
   selectFx(ch: number, id: number): void {
@@ -234,7 +239,10 @@ class Wetyu {
   /** Release everything (blur, tab hidden). */
   panic(): void {
     this.send(OP.panic);
-    for (const c of this.channels) c.held = false;
+    for (const c of this.channels) {
+      c.held = false;
+      c.fxOn = false;
+    }
   }
 
   /** Pull the performance log out of the engine (and clear it there). */

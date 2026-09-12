@@ -43,7 +43,9 @@ pub const LOG_CAP: usize = 1 << 16;
 
 /// Status block: `[playing, bpm, bar, t]` then [`CH_FIELDS`] per channel.
 pub const STATUS_LEN: usize = 4 + CH_FIELDS * CHANNELS;
-/// Per channel: `[state, len_bars, pos, gate, level, fx_wet]`.
+/// Per channel: `[state, len_bars, pos, gate, level, fx_wet]`. `state` is the
+/// channel's [`looper::State`], or 4 while overdubbing (and 1 while an
+/// overdub is queued, since the player is about to be recorded).
 pub const CH_FIELDS: usize = 6;
 
 pub const MIC: usize = 0;
@@ -281,7 +283,7 @@ impl Engine {
 
     /// The listen key. Pressing it on a loop that is still recording ends the
     /// take (the first loop exactly, later ones snapped to it) and opens the
-    /// gate in the same gesture; on a loop with a re-record queued it un-queues it.
+    /// gate in the same gesture.
     pub fn hold(&mut self, ch: usize, on: bool) {
         if on
             && self
@@ -292,9 +294,6 @@ impl Engine {
             self.record(ch);
         }
         if let Some(c) = self.channels.get_mut(ch) {
-            if on {
-                c.pending = false;
-            }
             c.hold(on);
         }
     }
@@ -421,8 +420,8 @@ impl Engine {
         for (i, c) in self.channels.iter().enumerate() {
             let base = 4 + CH_FIELDS * i;
             let (len_bars, pos) = match c.state {
-                // A queued re-record reads as "waiting for the bar" while the old loop plays on.
-                State::Looping if c.pending => (0.0, -1.0),
+                // A queued overdub reads as "waiting for the bar" while the loop plays on.
+                State::Looping if c.pending => (c.len as f32 / bar, -1.0),
                 State::Empty => (0.0, 0.0),
                 State::Recording => (0.0, (self.t as f32 - c.anchor as f32) / bar),
                 State::Until => (c.len as f32 / bar, (self.t as f32 - c.anchor as f32) / bar),
@@ -431,7 +430,13 @@ impl Engine {
                     loop_pos(self.t, c.anchor, c.len) as f32 / c.len as f32,
                 ),
             };
-            s[base] = if c.pending { State::Recording } else { c.state } as u32 as f32;
+            s[base] = if c.overdub {
+                4.0
+            } else if c.pending {
+                State::Recording as u32 as f32
+            } else {
+                c.state as u32 as f32
+            };
             s[base + 1] = len_bars;
             s[base + 2] = pos;
             s[base + 3] = c.gate();

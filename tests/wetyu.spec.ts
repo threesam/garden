@@ -11,8 +11,9 @@ test.describe('wetyu looper', () => {
     await expect(page.getByRole('button', { name: /^play/ })).toBeVisible();
     await expect(page.getByLabel('tempo')).toHaveValue('120');
     for (const name of ['mic', 'keys', 'drums']) {
-      await expect(page.getByRole('button', { name: `hold ${name}` })).toBeVisible();
+      await expect(page.getByRole('button', { name: `${name} loop` })).toBeVisible();
       await expect(page.getByRole('button', { name: `record ${name}` })).toBeVisible();
+      await expect(page.getByRole('button', { name: `on ${name}` })).toBeVisible();
     }
     await expect(page.getByRole('group', { name: 'keys' }).getByRole('button')).toHaveCount(13);
     await expect(page.getByRole('group', { name: 'drums' }).getByRole('button')).toHaveCount(10);
@@ -29,12 +30,13 @@ test.describe('wetyu looper', () => {
     await expect(keyA).toHaveClass(/lit/);
     await page.keyboard.up('KeyA');
     await expect(keyA).not.toHaveClass(/lit/);
-    // drums is selected by default; Q wraps to mic. Tab stays the browser's.
-    await expect(page.locator('.channel.selected')).toContainText('drums');
-    await page.keyboard.press('KeyQ');
-    await expect(page.locator('.channel.selected')).toContainText('mic');
+    // A tap latches the loop on; a second tap latches it off. Tab stays the browser's.
+    const drums = page.getByRole('button', { name: /drums loop/ });
+    await page.keyboard.press('Digit3');
+    await expect(drums).toHaveAttribute('aria-pressed', 'true');
+    await page.keyboard.press('Digit3');
+    await expect(drums).toHaveAttribute('aria-pressed', 'false');
     await page.keyboard.press('Tab');
-    await expect(page.locator('.channel.selected')).toContainText('mic');
     await expect(page.locator(':focus')).toHaveCount(1);
   });
 });

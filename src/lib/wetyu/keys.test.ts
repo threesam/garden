@@ -2,12 +2,19 @@ import { describe, expect, it } from 'vitest';
 import { actionFor, midiFor } from './keys';
 
 describe('keyboard zones', () => {
-  it('maps digits to loop holds, and shifted digits to record', () => {
+  it('maps digits to loop holds; shift records, option toggles the effect', () => {
     expect(actionFor('Digit1')).toEqual({ kind: 'hold', ch: 0 });
     expect(actionFor('Digit3')).toEqual({ kind: 'hold', ch: 2 });
-    expect(actionFor('Digit2', true)).toEqual({ kind: 'record', ch: 1 });
-    // shift does nothing to the other zones
-    expect(actionFor('KeyZ', true)).toEqual({ kind: 'drum', pad: 0 });
+    expect(actionFor('Digit2', { shift: true })).toEqual({ kind: 'record', ch: 1 });
+    expect(actionFor('Digit2', { alt: true })).toEqual({ kind: 'fx', ch: 1 });
+    // shift does nothing to the other zones; option is left to the OS
+    expect(actionFor('KeyZ', { shift: true })).toEqual({ kind: 'drum', pad: 0 });
+    expect(actionFor('KeyZ', { alt: true })).toBeUndefined();
+  });
+
+  it('saves on cmd+s and swallows every other cmd chord', () => {
+    expect(actionFor('KeyS', { meta: true })).toEqual({ kind: 'save' });
+    expect(actionFor('KeyA', { meta: true })).toBeUndefined();
   });
 
   it('maps the A row and the black keys to semitones', () => {
@@ -27,7 +34,8 @@ describe('keyboard zones', () => {
   it('ignores keys it does not own, and never takes Tab from the browser', () => {
     expect(actionFor('Tab')).toBeUndefined();
     expect(actionFor('Escape')).toBeUndefined();
-    expect(actionFor('KeyQ')).toEqual({ kind: 'select' });
+    expect(actionFor('KeyQ')).toBeUndefined();
+    expect(actionFor('Backspace')).toBeUndefined();
   });
 
   it('turns semitone + octave into a midi note', () => {

@@ -19,8 +19,8 @@
 - press "Shift+Digit3"
 - expect text "recording bar" (a bar is 2 s; don't pin the number)
 - press "KeyZ"
-- press "Digit3" (listen key ends the take on the bar)
-- expect text "recording bar" gone, then the drums state ending in "bar" or "bars" and its record button reading "rec"
+- press "Digit3" (tap: ends the take and latches the loop on)
+- expect text "recording bar" gone, then the drums state ending in "bar" or "bars" and its record button reading "overdub"
 - click "instructions"
 - expect heading "how to play"
 - click "close"
