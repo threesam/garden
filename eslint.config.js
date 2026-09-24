@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import js from '@eslint/js';
 import { defineConfig } from 'eslint/config';
 import svelte from 'eslint-plugin-svelte';
@@ -91,6 +92,10 @@ export default defineConfig(
       // `||` on strings is the intentional ''-falls-back idiom here (env vars,
       // markdown segment defaults). `??` stays enforced for everything else.
       '@typescript-eslint/prefer-nullish-coalescing': ['error', { ignorePrimitives: { string: true } }],
+      // `void x;` is the $effect dependency-tracking idiom (read a value so the
+      // effect re-runs). typescript-eslint 8.70 started flagging non-call
+      // operands; the idiom is deliberate.
+      '@typescript-eslint/no-meaningless-void-operator': 'off',
     },
   },
   {
