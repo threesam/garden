@@ -16,26 +16,3 @@ export function compileShader(gl: AnyGL, type: number, source: string): WebGLSha
   }
   return shader;
 }
-
-/**
- * Link two compiled shaders into a program.
- * Logs and returns null on link failure.
- */
-export function linkProgram(
-  gl: AnyGL,
-  vert: WebGLShader,
-  frag: WebGLShader,
-): WebGLProgram | null {
-  const program = gl.createProgram();
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- createProgram returns null on a lost context despite the non-null lib type
-  if (!program) return null;
-  gl.attachShader(program, vert);
-  gl.attachShader(program, frag);
-  gl.linkProgram(program);
-  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    console.error('Program link error:', gl.getProgramInfoLog(program));
-    gl.deleteProgram(program);
-    return null;
-  }
-  return program;
-}

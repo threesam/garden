@@ -73,7 +73,7 @@ export const sketches: Sketch[] = [
  *
  * Visible tour: 21, 23, 25, 30.
  */
-export const HIDDEN_SLUGS = new Set<string>([
+const HIDDEN_SLUGS = new Set<string>([
   "1",
   "2",
   "3",

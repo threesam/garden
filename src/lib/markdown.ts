@@ -19,7 +19,7 @@ function escapeAttr(text: string): string {
   return text.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 }
 
-export function createMarkdownRenderer(): Marked {
+function createMarkdownRenderer(): Marked {
   const md = new Marked();
 
   md.use(markedEmoji({ emojis: emojiMap }));
