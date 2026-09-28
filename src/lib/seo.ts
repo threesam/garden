@@ -21,8 +21,8 @@ export const KNOWS_ABOUT = [
 
 // Stable @ids so every page's graph references one shared Person/WebSite entity
 // rather than redefining them — this is what fuses the whole site to one identity.
-export const PERSON_ID = `${SITE_URL}/#person`;
-export const WEBSITE_ID = `${SITE_URL}/#website`;
+const PERSON_ID = `${SITE_URL}/#person`;
+const WEBSITE_ID = `${SITE_URL}/#website`;
 
 /**
  * The site's content pages in one place — the single source consumed by both

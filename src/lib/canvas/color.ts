@@ -6,16 +6,3 @@ export function parseHex(hex: string): [number, number, number] {
     parseInt(hex.slice(5, 7), 16) / 255,
   ];
 }
-
-/**
- * Read a CSS custom property from an element, parse it as a hex color,
- * and fall back to `fallback` if the property is absent or empty.
- */
-export function readCssColor(
-  el: Element,
-  prop: string,
-  fallback: string,
-): [number, number, number] {
-  const value = getComputedStyle(el).getPropertyValue(prop).trim();
-  return parseHex(value || fallback);
-}
