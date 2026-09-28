@@ -464,7 +464,7 @@
 <!-- touch-action: none so our drag logic owns the gesture; overscroll none
      belt-and-suspenders for elastic bounce the overflow lock already kills. -->
 <div
-	class="fixed inset-0 z-40 grid place-items-center bg-[var(--coin)] [overscroll-behavior:none] [touch-action:none]"
+	class="fixed inset-0 z-40 grid place-items-center bg-coin [overscroll-behavior:none] [touch-action:none]"
 	role="application"
 	aria-label="space invaders game"
 >
