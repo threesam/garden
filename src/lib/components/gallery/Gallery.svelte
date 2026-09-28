@@ -296,8 +296,13 @@
 		{#each LOOPED as item, i (`${item.id}-${i}`)}
 			{@const visible = isActive(i)}
 			{@const cream = paletteFor(i) === 'cream'}
+			<!-- The second half is the loop's visual copy: keep it clickable but out
+			     of the tab order and a11y tree, or every card is announced twice. -->
+			{@const copy = i >= UNIQUE_COUNT}
 			<a
 				href={item.href}
+				aria-hidden={copy || undefined}
+				tabindex={copy ? -1 : undefined}
 				draggable="false"
 				data-sveltekit-preload-data="off"
 				onclick={(e) => { handleClick(e, item); }}
