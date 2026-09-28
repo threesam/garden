@@ -2,6 +2,10 @@
   import { page } from '$app/state';
 </script>
 
+<svelte:head>
+  <title>{page.status === 404 ? 'nothing here' : 'something broke'} — threesam</title>
+</svelte:head>
+
 <main
   class="flex min-h-dvh flex-col items-center justify-center gap-6 bg-black px-6 text-white"
 >

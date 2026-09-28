@@ -24,8 +24,12 @@
   })}
 />
 
+<!-- The gallery scrolls inside <main>, not the document, and holds nothing
+     focusable, so it takes focus itself or arrow/space keys can't reach it. -->
+<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <main
   id="art-scroller"
+  tabindex="0"
   class="h-dvh snap-y snap-mandatory overflow-y-scroll bg-black"
 >
   <ArtScrollSync />

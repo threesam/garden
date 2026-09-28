@@ -38,7 +38,12 @@
 	}
 </script>
 
+<!-- Focusable so keyboard users can pan it (mobile) before the lazy iframes mount. -->
+<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <div
+	role="region"
+	aria-label="soundcloud tracks"
+	tabindex="0"
 	class="flex snap-x snap-mandatory overflow-x-auto scroll-pl-6 pb-3 pr-6 [scrollbar-color:var(--coin)_transparent] [scrollbar-width:thin] md:gap-9 md:overflow-x-visible md:pb-0 md:pl-9 md:pr-9"
 >
 	{#each TRACKS as t (`${t.user}/${t.slug}`)}
@@ -50,7 +55,7 @@
 				<iframe
 					src={trackEmbed(t.user, t.slug)}
 					loading="lazy"
-					allow="autoplay"
+					allow="autoplay; encrypted-media"
 					title={t.title}
 					class="block h-full w-full border-0"
 				></iframe>

@@ -52,7 +52,7 @@
     <footer class="mt-18 border-t border-zinc-800 pt-9 md:mt-24">
       <a
         href="/thoughts"
-        class="font-mono text-xs uppercase tracking-section text-zinc-500 transition-colors hover:text-coin md:text-sm"
+        class="font-mono text-xs uppercase tracking-section text-zinc-400 transition-colors hover:text-coin md:text-sm"
       >
         ← all thoughts
       </a>

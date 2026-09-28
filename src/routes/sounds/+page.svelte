@@ -852,7 +852,7 @@
   /* Same flip for the `.dim` "now playing" subtitle inside the transport. */
   .transport .dim {
     color: var(--black);
-    opacity: 0.7;
+    opacity: 0.85; /* 0.7 measured 4.1:1 on the idle bg; AA needs 4.5 */
   }
   .transport.playing .dim {
     color: var(--coin);
