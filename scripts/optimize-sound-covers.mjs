@@ -30,7 +30,7 @@ const collect = (obj, out = new Set()) => {
 // The film posters (sk+w scores, HMBM) are hardcoded in the page, not the
 // manifest — harvest them too, or coverUrl() points at a webp that never exists.
 const PAGE = join(REPO_ROOT, "src/routes/sounds/+page.svelte");
-const posters = readFileSync(PAGE, "utf-8").matchAll(/"(\/audio\/sounds\/covers\/[^"]+)"/g);
+const posters = readFileSync(PAGE, "utf-8").matchAll(/["'](\/audio\/sounds\/covers\/[^"']+)["']/g);
 const covers = [...collect(manifest), ...Array.from(posters, (m) => m[1])];
 
 let bytesIn = 0;
