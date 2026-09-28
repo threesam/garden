@@ -12,7 +12,12 @@
 </script>
 
 <div class="relative">
+  <!-- Focusable so keyboard users can pan it before the lazy iframes mount. -->
+  <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
   <div
+    role="region"
+    aria-label="playlists"
+    tabindex="0"
     class="flex snap-x snap-mandatory overflow-x-auto scroll-pl-6 pb-3 pr-6 [scrollbar-color:var(--coin)_transparent] [scrollbar-width:thin] md:scroll-pl-9 md:pr-9"
   >
     {#each playlists as p (p.id)}

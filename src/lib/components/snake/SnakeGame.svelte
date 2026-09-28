@@ -230,7 +230,7 @@
      reading the gesture. overscroll-behavior: none belt-and-suspenders
      for the elastic-bounce that html-overflow lock already kills. -->
 <div
-	class="fixed inset-0 z-40 grid place-items-center bg-[var(--coin)] [overscroll-behavior:none] [touch-action:none]"
+	class="fixed inset-0 z-40 grid place-items-center bg-coin [overscroll-behavior:none] [touch-action:none]"
 	role="application"
 	aria-label="snake game"
 	ontouchstart={onTouchStart}

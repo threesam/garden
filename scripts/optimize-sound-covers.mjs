@@ -6,7 +6,7 @@
 // Idempotent — skips covers whose .webp already exists locally.
 
 import sharp from "sharp";
-import { existsSync, mkdirSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -16,7 +16,7 @@ const MANIFEST = join(REPO_ROOT, "src/lib/sounds/manifest.json");
 const BASE =
   process.env.PUBLIC_SOUNDS_BASE ?? "https://pub-8f57a973c6474360ad0635348f674992.r2.dev";
 
-const manifest = JSON.parse(await import("node:fs").then((m) => m.readFileSync(MANIFEST, "utf-8")));
+const manifest = JSON.parse(readFileSync(MANIFEST, "utf-8"));
 
 const collect = (obj, out = new Set()) => {
   if (!obj) return out;
@@ -27,7 +27,11 @@ const collect = (obj, out = new Set()) => {
   }
   return out;
 };
-const covers = [...collect(manifest)];
+// The film posters (sk+w scores, HMBM) are hardcoded in the page, not the
+// manifest — harvest them too, or coverUrl() points at a webp that never exists.
+const PAGE = join(REPO_ROOT, "src/routes/sounds/+page.svelte");
+const posters = readFileSync(PAGE, "utf-8").matchAll(/["'](\/audio\/sounds\/covers\/[^"']+)["']/g);
+const covers = [...collect(manifest), ...Array.from(posters, (m) => m[1])];
 
 let bytesIn = 0;
 let bytesOut = 0;

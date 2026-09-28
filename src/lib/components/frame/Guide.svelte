@@ -6,6 +6,7 @@
   let open = $state(false);
   let hovered = $state(false);
   let locked = $state(false);
+  let coin: HTMLButtonElement | undefined = $state();
   // The back-face "+" already renders as an "x" once rotated, so the snake
   // game borrows it: the coin flips to the x glyph and a click quits the
   // game instead of opening the nav menu.
@@ -21,6 +22,14 @@
       hovered = false;
       locked = true;
     }
+  }
+
+  // Escape closes the open menu and hands focus back to the coin (the menu
+  // goes inert on close, so focus can't stay on its link).
+  function handleKeydown(e: KeyboardEvent) {
+    if (e.key !== 'Escape' || !open) return;
+    open = false;
+    coin?.focus();
   }
 
   function handleCoinMouseEnter() {
@@ -64,11 +73,14 @@
 
 <!-- Coin — fixed top-right -->
 <button
+  bind:this={coin}
   onclick={handleCoinClick}
   onmouseenter={handleCoinMouseEnter}
   onmouseleave={handleCoinMouseLeave}
-  aria-label="Menu"
-  style="border:0;outline:0;background:none;padding:0;margin:0;appearance:none;-webkit-appearance:none;box-shadow:none;transform:translateZ(0)"
+  aria-label={inMode ? 'Quit game' : 'Menu'}
+  aria-expanded={inMode ? undefined : open}
+  aria-controls={inMode ? undefined : 'guide-menu'}
+  style="border:0;background:none;padding:0;margin:0;appearance:none;-webkit-appearance:none;box-shadow:none;transform:translateZ(0)"
   class="fixed top-5 right-5 z-[9999] cursor-pointer md:top-6 md:right-8"
 >
   <!-- style: directives (not a dynamic style string) so the box-shadow /
@@ -107,8 +119,13 @@
   </div>
 </button>
 
-<!-- Menu overlay -->
+<svelte:window onkeydown={handleKeydown} />
+
+<!-- Menu overlay. inert while closed: it's only faded out, so without this
+     its link stayed in the tab order as an invisible focus stop on every page. -->
 <nav
+  id="guide-menu"
+  inert={!open}
   class="fixed inset-0 z-[9998] flex items-center justify-center backdrop-blur-md transition-all duration-300"
   class:opacity-100={open}
   class:pointer-events-none={!open}

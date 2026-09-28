@@ -121,10 +121,12 @@
 					     anchor to the cover's real corner rather than the flex cell,
 					     and it carries the hover transform so the stamp travels with
 					     the cover instead of detaching from it. Sizing stays on the
-					     img — md:max-h-[60dvh] can shorten it, and the wrapper has
-					     to follow that, not dictate it. -->
+					     img on desktop. On mobile the wrapper carries the width: a w-full
+					     img in a shrink-to-fit box has no width until it loads (CLS 0.4).
+					     Desktop caps the width by the cover's own ratio so it never runs
+					     past 60dvh tall; the old max-h squashed it on short screens. -->
 					<span
-						class="relative inline-block transition-transform duration-700 group-hover/cover:-translate-y-1 group-hover/cover:-rotate-[1.3deg]"
+						class="relative inline-block w-full max-w-[18rem] md:w-auto md:max-w-none transition-transform duration-700 group-hover/cover:-translate-y-1 group-hover/cover:-rotate-[1.3deg]"
 					>
 						<img
 							bind:this={coverEl}
@@ -134,8 +136,8 @@
 							height={featured.coverH ?? 600}
 							fetchpriority="high"
 							loading="eager"
-							style="--shadow-rgb: {shadowRgb};"
-							class="block w-full max-w-[18rem] shadow-[0_20px_50px_-15px_rgb(var(--shadow-rgb)/0.45)] transition-shadow duration-700 group-hover/cover:shadow-[0_50px_120px_-20px_rgb(var(--shadow-rgb)/0.8)] md:max-h-[60dvh] md:w-[clamp(18rem,32vw,26rem)] md:max-w-none"
+							style="--shadow-rgb: {shadowRgb}; --cover-ar: {(featured.coverW ?? 400) / (featured.coverH ?? 600)};"
+							class="block w-full shadow-[0_20px_50px_-15px_rgb(var(--shadow-rgb)/0.45)] transition-shadow duration-700 group-hover/cover:shadow-[0_50px_120px_-20px_rgb(var(--shadow-rgb)/0.8)] md:w-[min(clamp(18rem,32vw,26rem),60dvh*var(--cover-ar))] md:max-w-none"
 						/>
 						<span
 							class="pointer-events-none absolute top-3 right-3 bg-coin px-2 py-1 font-display text-[0.625rem] leading-none uppercase tracking-base text-black"

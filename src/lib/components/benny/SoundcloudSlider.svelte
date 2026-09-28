@@ -36,9 +36,27 @@
 		});
 		return `https://w.soundcloud.com/player/?${params.toString()}`;
 	}
+
+	// A tab stop only while the row overflows (mobile), so keyboard users can pan
+	// it before the lazy iframes mount; on desktop the three cards fit and a
+	// focusable wrapper would be a dead stop.
+	function focusableWhileScrollable(el: HTMLElement) {
+		const sync = () => {
+			if (el.scrollWidth > el.clientWidth) el.setAttribute('tabindex', '0');
+			else el.removeAttribute('tabindex');
+		};
+		const ro = new ResizeObserver(sync);
+		ro.observe(el);
+		return () => {
+			ro.disconnect();
+		};
+	}
 </script>
 
 <div
+	role="region"
+	aria-label="soundcloud tracks"
+	{@attach focusableWhileScrollable}
 	class="flex snap-x snap-mandatory overflow-x-auto scroll-pl-6 pb-3 pr-6 [scrollbar-color:var(--coin)_transparent] [scrollbar-width:thin] md:gap-9 md:overflow-x-visible md:pb-0 md:pl-9 md:pr-9"
 >
 	{#each TRACKS as t (`${t.user}/${t.slug}`)}
@@ -50,7 +68,7 @@
 				<iframe
 					src={trackEmbed(t.user, t.slug)}
 					loading="lazy"
-					allow="autoplay"
+					allow="autoplay; encrypted-media"
 					title={t.title}
 					class="block h-full w-full border-0"
 				></iframe>
