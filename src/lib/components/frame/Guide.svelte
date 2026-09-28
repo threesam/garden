@@ -77,9 +77,9 @@
   onclick={handleCoinClick}
   onmouseenter={handleCoinMouseEnter}
   onmouseleave={handleCoinMouseLeave}
-  aria-label="Menu"
-  aria-expanded={open}
-  aria-controls="guide-menu"
+  aria-label={inMode ? 'Quit game' : 'Menu'}
+  aria-expanded={inMode ? undefined : open}
+  aria-controls={inMode ? undefined : 'guide-menu'}
   style="border:0;background:none;padding:0;margin:0;appearance:none;-webkit-appearance:none;box-shadow:none;transform:translateZ(0)"
   class="fixed top-5 right-5 z-[9999] cursor-pointer md:top-6 md:right-8"
 >

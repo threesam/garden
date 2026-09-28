@@ -126,7 +126,7 @@
 					     Desktop caps the width by the cover's own ratio so it never runs
 					     past 60dvh tall; the old max-h squashed it on short screens. -->
 					<span
-						class="relative inline-block w-full max-w-[18rem] transition-transform md:w-auto md:max-w-none duration-700 group-hover/cover:-translate-y-1 group-hover/cover:-rotate-[1.3deg]"
+						class="relative inline-block w-full max-w-[18rem] md:w-auto md:max-w-none transition-transform duration-700 group-hover/cover:-translate-y-1 group-hover/cover:-rotate-[1.3deg]"
 					>
 						<img
 							bind:this={coverEl}
