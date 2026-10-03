@@ -2,6 +2,7 @@
   import { mount, onMount, unmount } from 'svelte';
   import '$lib/fonts/epilogue'; // .tier-essay body copy
   import SeoHead from '$lib/components/SeoHead.svelte';
+  import ReadMark from '$lib/components/ReadMark.svelte';
   import { profilePageNode } from '$lib/seo';
   import Prose from '$lib/components/Prose.svelte';
   import VoronoiCanvas from '$lib/components/canvas/VoronoiCanvas.svelte';
@@ -157,5 +158,6 @@
     class="tier-essay mx-auto max-w-3xl px-6 py-12 text-black md:px-9 md:py-24"
   >
     <Prose content={extracted.processed} slots={proseSlots} />
+    <ReadMark />
   </section>
 {/if}

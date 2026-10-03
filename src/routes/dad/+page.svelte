@@ -1,6 +1,7 @@
 <script lang="ts">
   import "$lib/fonts/epilogue"; // .tier-essay body copy
   import SeoHead from "$lib/components/SeoHead.svelte";
+  import ReadMark from "$lib/components/ReadMark.svelte";
   import { articleNode } from "$lib/seo";
   import Prose from "$lib/components/Prose.svelte";
   import LazyMount from "$lib/components/LazyMount.svelte";
@@ -42,6 +43,7 @@
     <div class="tier-essay">
       {#if markdown}
         <Prose content={markdown} />
+        <ReadMark />
       {:else}
         <p class="font-sans text-base leading-relaxed md:text-2xl md:leading-relaxed">
           more soon.
