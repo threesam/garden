@@ -7,8 +7,9 @@
   // skimmers swamp the numbers.
   const markRead: Attachment<HTMLElement> = (node) => {
     const observer = new IntersectionObserver(([entry]) => {
-      if (!entry?.isIntersecting) return;
-      window.umami?.track('essay-read', { path: window.location.pathname });
+      // umami loads async: stay armed until it exists, or an early finish is lost
+      if (!entry?.isIntersecting || !window.umami) return;
+      window.umami.track('essay-read', { path: window.location.pathname });
       observer.disconnect();
     });
     observer.observe(node);
