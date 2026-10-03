@@ -1,5 +1,6 @@
 <script lang="ts">
   import SeoHead from "$lib/components/SeoHead.svelte";
+  import ReadMark from "$lib/components/ReadMark.svelte";
   import { articleNode } from "$lib/seo";
   import { BENNY_PLAYLISTS } from "$lib/benny/playlists";
   import Video from "$lib/components/Video.svelte";
@@ -92,6 +93,7 @@
             </div>
           {/if}
         {/each}
+        <ReadMark />
       </div>
     </section>
   {/if}
