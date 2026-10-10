@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onDestroy } from "svelte";
   import { MediaQuery } from "svelte/reactivity";
   import { videoVisibility } from "$lib/actions/video-visibility";
   import { assetDimensions } from "$lib/asset-dimensions";
@@ -28,16 +29,29 @@
   };
 
   // A picture with a sound plays it when pressed, and stops it when pressed
-  // again. One sound at a time.
+  // again. One sound at a time; `heard` is the one playing.
   let playing: HTMLAudioElement | undefined;
-  const toggle = (src: string): void => {
-    if (playing && !playing.paused) {
-      playing.pause();
-      return;
-    }
-    playing = new Audio(src);
-    void playing.play();
+  let heard = $state<string>();
+  const stop = (): void => {
+    playing?.pause();
+    heard = undefined;
   };
+  const toggle = (src: string): void => {
+    const was = heard;
+    stop();
+    if (was === src) return;
+    const audio = new Audio(src);
+    const done = (): void => {
+      if (playing === audio) stop();
+    };
+    audio.onended = done;
+    playing = audio;
+    heard = src;
+    // Stopped before it began, or a file that would not load: back to stopped.
+    audio.play().catch(done);
+  };
+  // Leaving the page takes the button away, so the sound goes with it.
+  onDestroy(stop);
 
   const where = (phases: readonly number[]): string =>
     `${phases.length > 1 ? "phases" : "phase"} ${phases.join(", ")} in the raw log`;
@@ -154,12 +168,13 @@
             {@const sound = m.sound}
             <button
               type="button"
-              class="block w-full cursor-pointer rounded-lg"
+              aria-pressed={heard === sound}
+              class="block w-full cursor-pointer rounded-lg outline-offset-4 outline-coin aria-pressed:outline-2"
               onclick={() => {
                 toggle(sound);
               }}
             >
-              <span class="sr-only">play or stop the sound:</span>
+              <span class="sr-only">play the sound:</span>
               {@render still(m)}
             </button>
           {:else}
