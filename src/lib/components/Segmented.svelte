@@ -4,8 +4,12 @@
   // The thumb is positioned by left/right insets rather than width + translate,
   // which is what keeps it flush at the first and last segment instead of
   // leaving a hairline gap at the ends. Ported from the same control in duet.
+  //
+  // An item with an href renders as a link, for a switch between two pages:
+  // the active one is the current page. Items without one are buttons.
   interface Item {
     readonly label: string;
+    readonly href?: string | undefined;
   }
 
   let {
@@ -16,7 +20,7 @@
   }: {
     items: readonly Item[];
     active: number;
-    onselect: (index: number) => void;
+    onselect?: ((index: number) => void) | undefined;
     ariaLabel?: string;
   } = $props();
 </script>
@@ -24,17 +28,29 @@
 <div class="seg" role="group" aria-label={ariaLabel} style:--n={items.length}>
   <span class="thumb" aria-hidden="true" style:--i={active < 0 ? 0 : active}></span>
   {#each items as item, i (item.label)}
-    <button
-      type="button"
-      class="seg-btn"
-      class:on={active === i}
-      aria-pressed={active === i}
-      onclick={() => {
-        onselect(i);
-      }}
-    >
-      {item.label}
-    </button>
+    {#if item.href}
+      <a
+        class="seg-btn"
+        class:on={active === i}
+        href={item.href}
+        aria-current={active === i ? 'page' : undefined}
+        data-sveltekit-noscroll
+      >
+        {item.label}
+      </a>
+    {:else}
+      <button
+        type="button"
+        class="seg-btn"
+        class:on={active === i}
+        aria-pressed={active === i}
+        onclick={() => {
+          onselect?.(i);
+        }}
+      >
+        {item.label}
+      </button>
+    {/if}
   {/each}
 </div>
 
@@ -69,6 +85,8 @@
     font-family: ui-monospace, Menlo, monospace;
     font-size: 0.75rem;
     padding: 0.3rem 0.9rem;
+    text-align: center;
+    text-decoration: none;
     cursor: pointer;
     transition: color 0.35s ease;
   }
@@ -79,9 +97,11 @@
     color: #14140f;
     font-weight: 700;
   }
+  /* Drawn inside the segment, in its own text colour: .seg clips anything
+     outside it, and a coin ring would vanish on the coin thumb. */
   .seg-btn:focus-visible {
-    outline: 2px solid #e8a317;
-    outline-offset: 2px;
+    outline: 2px solid currentColor;
+    outline-offset: -4px;
   }
   @media (prefers-reduced-motion: reduce) {
     .thumb {
