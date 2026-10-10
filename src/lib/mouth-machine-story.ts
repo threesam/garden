@@ -54,7 +54,7 @@ export const layers: readonly Layer[] = [
         src: `${A}/memo-first-look.webp`,
         alt: "the same memo drawn twice: a thin white waveform on black, and under it a spectrogram in purple, red and orange where each mouth sound is a bright streak or arc",
         caption:
-          "the first picture made of it. the same nine seconds twice: loudness on top, pitch underneath, brighter is louder",
+          "the first picture made of it. the same nine seconds twice: the wave on top, and under it every frequency in the sound, low at the bottom, brighter where there is more",
       },
     ],
   },
