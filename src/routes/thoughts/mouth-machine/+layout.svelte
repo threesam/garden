@@ -138,8 +138,10 @@
   }
   /* The title is cut out of the memo's frequency picture: letters in the
      ground colour, which on a flat ground is the same as a hole. Each picture
-     is drawn so its nearest pixel is still 3:1 against the letters. */
+     is drawn so its nearest pixel is still 3:1 against the letters. The ink
+     underneath keeps the title readable if the picture does not load. */
   .cut {
+    background-color: var(--ink);
     background-image: var(--hero);
   }
 </style>
