@@ -2,7 +2,7 @@
   import { onDestroy } from "svelte";
   import { MediaQuery } from "svelte/reactivity";
   import { videoVisibility } from "$lib/actions/video-visibility";
-  import { assetDimensions } from "$lib/asset-dimensions";
+  import { assetSize } from "$lib/asset-dimensions";
   import ReadMark from "$lib/components/ReadMark.svelte";
   import SeoHead from "$lib/components/SeoHead.svelte";
   import {
@@ -83,8 +83,8 @@
   <img
     src={m.src}
     alt={m.alt}
-    width={assetDimensions[m.src]?.w}
-    height={assetDimensions[m.src]?.h}
+    width={assetSize(m.src)?.w}
+    height={assetSize(m.src)?.h}
     loading="lazy"
     decoding="async"
     class="block w-full rounded-lg"

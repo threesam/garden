@@ -1,6 +1,7 @@
 import { readFile } from "fs/promises";
 import { join } from "path";
 import { dev } from "$app/environment";
+import { stampAssets } from "$lib/asset-version";
 
 const CONTENT_DIR = join(process.cwd(), "content");
 
@@ -14,7 +15,11 @@ export async function getContent(slug: string): Promise<string | null> {
       const cached = cache.get(slug);
       if (cached !== undefined) return cached;
     }
-    const raw = await readFile(join(CONTENT_DIR, `${slug}.md`), "utf-8");
+    // Every picture an essay names gets its fingerprint here, once per essay.
+    const raw = stampAssets(
+      await readFile(join(CONTENT_DIR, `${slug}.md`), "utf-8"),
+      __ASSET_VERSIONS__,
+    );
     if (!dev) cache.set(slug, raw);
     return raw;
   } catch {
