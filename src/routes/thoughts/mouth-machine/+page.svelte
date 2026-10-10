@@ -58,7 +58,7 @@
 </script>
 
 <SeoHead
-  title="mouth machine"
+  title="sea foam"
   description={DESCRIPTION}
   canonical="/thoughts/mouth-machine"
   ogType="article"
@@ -67,7 +67,7 @@
   preloadImage={POSTER}
   schema={articleNode({
     path: "/thoughts/mouth-machine",
-    headline: "mouth machine",
+    headline: "sea foam",
     image: POSTER,
     datePublished: PUBLISHED,
     dateModified: "2026-10-10",
@@ -75,7 +75,7 @@
   breadcrumbTrail={[
     { path: "/", name: "threesam" },
     { path: "/thoughts", name: "thoughts" },
-    { path: "/thoughts/mouth-machine", name: "mouth machine" },
+    { path: "/thoughts/mouth-machine", name: "sea foam" },
   ]}
 />
 
@@ -93,11 +93,11 @@
 
 {#snippet said(ask: string)}
   <figure class="my-9 border-l-2 border-coin pl-6 md:pl-9">
-    <blockquote class="font-sans text-xl leading-snug text-white md:text-3xl">
+    <blockquote class="font-sans text-xl leading-snug md:text-3xl">
       {ask}
     </blockquote>
     <figcaption
-      class="mt-3 font-mono text-xs uppercase tracking-section text-zinc-400"
+      class="mt-3 font-mono text-xs uppercase tracking-section text-(--soft)"
     >
       Sam
     </figcaption>
@@ -106,14 +106,14 @@
 
 {#snippet told(text: string, phases: readonly [number, ...number[]])}
   <p
-    class="max-w-[60ch] font-sans text-base leading-relaxed text-zinc-300 md:text-xl"
+    class="max-w-[60ch] font-sans text-base leading-relaxed md:text-xl"
   >
     {text}
   </p>
   <p class="mt-6 font-mono text-xs uppercase tracking-section">
     <a
       href="/thoughts/mouth-machine/raw#phase-{phases[0]}"
-      class="inline-block py-1 text-zinc-400 transition-colors hover:text-coin"
+      class="inline-block py-1 text-(--soft) transition-colors hover:text-coin"
     >
       {where(phases)} →
     </a>
@@ -121,7 +121,7 @@
 {/snippet}
 
 <p
-  class="font-mono text-xs uppercase leading-relaxed tracking-section text-zinc-400 md:text-sm"
+  class="font-mono text-xs uppercase leading-relaxed tracking-section text-(--soft) md:text-sm"
 >
   one thursday night into friday afternoon · 45 turns · {layers.length} layers
 </p>
@@ -181,7 +181,7 @@
             {@render still(m)}
           {/if}
           <figcaption
-            class="mt-3 font-mono text-xs leading-relaxed text-zinc-400"
+            class="mt-3 font-mono text-xs leading-relaxed text-(--soft)"
           >
             {m.caption}
           </figcaption>
@@ -207,7 +207,7 @@
   .stack span {
     width: 1rem;
     height: 2px;
-    background: #3f3f46;
+    background: var(--rule);
   }
   .stack span.on {
     background: var(--coin);

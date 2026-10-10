@@ -8,6 +8,9 @@
   // Items with an href render as links, for a switch between pages: the
   // active one is the current page. Items without one are buttons, and
   // buttons need an onselect, so the types make it one or the other.
+  //
+  // A page with its own colours sets --seg-thumb, --seg-on, --seg-text,
+  // --seg-hover and --seg-rule on an ancestor.
   type Props = { active: number; ariaLabel?: string } & (
     | {
         items: readonly { readonly label: string; readonly href: string }[];
@@ -56,7 +59,7 @@
     position: relative;
     display: grid;
     grid-template-columns: repeat(var(--n), 1fr);
-    border: 1px solid rgb(255 255 255 / 0.16);
+    border: 1px solid var(--seg-rule, rgb(255 255 255 / 0.16));
     border-radius: 3px;
     overflow: hidden;
   }
@@ -66,7 +69,7 @@
     bottom: 0;
     left: calc(var(--i) * 100% / var(--n));
     right: calc((var(--n) - 1 - var(--i)) * 100% / var(--n));
-    background: #e8a317;
+    background: var(--seg-thumb, #e8a317);
     transition:
       left 0.35s ease,
       right 0.35s ease;
@@ -78,7 +81,7 @@
     appearance: none;
     border: 0;
     background: transparent;
-    color: rgb(255 255 255 / 0.55);
+    color: var(--seg-text, rgb(255 255 255 / 0.55));
     font-family: ui-monospace, Menlo, monospace;
     font-size: 0.75rem;
     padding: 0.3rem 0.9rem;
@@ -88,10 +91,10 @@
     transition: color 0.35s ease;
   }
   .seg-btn:hover:not(.on) {
-    color: rgb(255 255 255 / 0.9);
+    color: var(--seg-hover, rgb(255 255 255 / 0.9));
   }
   .seg-btn.on {
-    color: #14140f;
+    color: var(--seg-on, #14140f);
     font-weight: 700;
   }
   /* Drawn inside the segment, in its own text colour: .seg clips anything

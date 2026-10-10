@@ -56,7 +56,7 @@ export const layers: readonly Layer[] = [
       {
         kind: "img",
         src: `${A}/memo-first-look.webp`,
-        alt: "a spectrogram of the same memo in purple, red and orange: each mouth sound is a bright streak or arc",
+        alt: "a spectrogram of the same memo in seafoam on olive: each mouth sound is a bright streak or arc",
         caption:
           "the first picture made of it. the same nine seconds as every frequency in the sound: low at the bottom, brighter where there is more",
       },
