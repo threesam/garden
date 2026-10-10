@@ -5,24 +5,21 @@
   // which is what keeps it flush at the first and last segment instead of
   // leaving a hairline gap at the ends. Ported from the same control in duet.
   //
-  // An item with an href renders as a link, for a switch between two pages:
-  // the active one is the current page. Items without one are buttons.
-  interface Item {
-    readonly label: string;
-    readonly href?: string | undefined;
-  }
+  // Items with an href render as links, for a switch between pages: the
+  // active one is the current page. Items without one are buttons, and
+  // buttons need an onselect, so the types make it one or the other.
+  type Props = { active: number; ariaLabel?: string } & (
+    | {
+        items: readonly { readonly label: string; readonly href: string }[];
+        onselect?: undefined;
+      }
+    | {
+        items: readonly { readonly label: string; readonly href?: undefined }[];
+        onselect: (index: number) => void;
+      }
+  );
 
-  let {
-    items,
-    active,
-    onselect,
-    ariaLabel = 'Options',
-  }: {
-    items: readonly Item[];
-    active: number;
-    onselect?: ((index: number) => void) | undefined;
-    ariaLabel?: string;
-  } = $props();
+  let { items, active, onselect, ariaLabel = 'Options' }: Props = $props();
 </script>
 
 <div class="seg" role="group" aria-label={ariaLabel} style:--n={items.length}>
