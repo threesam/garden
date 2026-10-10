@@ -47,7 +47,7 @@ export const layers: readonly Layer[] = [
     media: [
       {
         kind: "img",
-        src: `${A}/take-1-beat.webp`,
+        src: `${A}/take-1-beat-seafoam.webp`,
         alt: "waveform of the first voice memo, New Recording 22: nine seconds of mouth drums",
         caption:
           "the memo: boom, boom, pap, and a breath in. press the picture to hear it",
@@ -55,7 +55,7 @@ export const layers: readonly Layer[] = [
       },
       {
         kind: "img",
-        src: `${A}/memo-first-look.webp`,
+        src: `${A}/memo-first-look-seafoam.webp`,
         alt: "a spectrogram of the same memo in seafoam on olive: each mouth sound is a bright streak or arc",
         caption:
           "the first picture made of it. the same nine seconds as every frequency in the sound: low at the bottom, brighter where there is more",
@@ -70,13 +70,13 @@ export const layers: readonly Layer[] = [
     media: [
       {
         kind: "img",
-        src: `${A}/take-2-over-the-beat.webp`,
+        src: `${A}/take-2-over-the-beat-seafoam.webp`,
         alt: "waveform of the second voice memo, busier than the first, recorded while the loop played in the room",
         caption: "the second take, over the beat",
       },
       {
         kind: "img",
-        src: `${A}/take-3-go-to-sleep.webp`,
+        src: `${A}/take-3-go-to-sleep-seafoam.webp`,
         alt: "waveform of the third voice memo: one burst at the start, then a flat line of room sound",
         caption: "the third: the words, then the room",
       },

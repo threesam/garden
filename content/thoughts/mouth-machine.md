@@ -103,7 +103,7 @@ Then: "i like 77bpm", "now play it", "just play on loop". The loop started playi
 
 Take: `takes/1-beat.m4a`
 
-![the first take](/assets/mouth-machine/take-1-beat.webp)
+![the first take](/assets/mouth-machine/take-1-beat-seafoam.webp)
 
 ## Phase 2: go native
 
@@ -141,7 +141,7 @@ What came back: boom, boom, pap, snapped to the beat, over a count of four.
 
 Take: `takes/2-over-the-beat.m4a`, recorded on the phone while the loop played in the room.
 
-![the second take](/assets/mouth-machine/take-2-over-the-beat.webp)
+![the second take](/assets/mouth-machine/take-2-over-the-beat-seafoam.webp)
 
 What came back:
 - Placement came from the recording itself. The drums are faintly in it, so it is known exactly where in the bar Sam started.
@@ -168,7 +168,7 @@ Choices made without asking, still open to change: the layer is two bars long, a
 
 Take: `takes/3-go-to-sleep.m4a`
 
-![the third take](/assets/mouth-machine/take-3-go-to-sleep.webp)
+![the third take](/assets/mouth-machine/take-3-go-to-sleep-seafoam.webp)
 
 What came back:
 - The half second of quiet before "go to sleep" is cut. The rest of the take plays out whole, all 9.8 seconds.
@@ -238,7 +238,7 @@ Take: `takes/4-guitar-in-the-dark.m4a` is the sound of the video. Two minutes tw
 
 ![still from the first video](/assets/mouth-machine/video-4-in-the-dark.webp)
 
-![the first video's sound](/assets/mouth-machine/take-4-guitar-in-the-dark.webp)
+![the first video's sound](/assets/mouth-machine/take-4-guitar-in-the-dark-seafoam.webp)
 
 What came back:
 - The bar lines were found from the drums in the video's sound. The match is strong.
@@ -264,7 +264,7 @@ Take: `takes/5-guitar-with-an-ending.m4a`, the sound of the video.
 
 ![still from the second video](/assets/mouth-machine/video-5-guitar.webp)
 
-![the second video's sound](/assets/mouth-machine/take-5-guitar-with-an-ending.webp)
+![the second video's sound](/assets/mouth-machine/take-5-guitar-with-an-ending-seafoam.webp)
 
 What was found, by measuring and not by ear:
 - The guitar plays a figure two bars long, over and over: one bar sitting on one low note, the next bar a step below it.
