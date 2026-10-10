@@ -26,7 +26,7 @@
     {preload}
     src="/assets/mouth-machine/piece-19.mp4"
     poster={POSTER}
-    aria-label="mouth machine, piece 19: seafoam shapes on black, guitar over a loop of mouth drums"
+    aria-label="sea foam, piece 19 of mouth machine: seafoam shapes on black, guitar over a loop of mouth drums"
     class="mx-auto my-9 block aspect-9/16 w-full max-w-sm rounded-lg bg-black md:my-12"
     tracks={[
       {
@@ -39,27 +39,29 @@
   />
 {/snippet}
 
-<main class="min-h-dvh bg-black text-white">
+<main class="min-h-dvh bg-(--ground) text-(--ink)">
   <article class="mx-auto max-w-3xl px-6 py-18 md:px-9 md:py-24">
     <header class="mb-9 md:mb-12">
       <p
         class="mb-4 font-mono text-xs uppercase tracking-section text-coin md:text-sm"
       >
-        // log
-      </p>
-      <h1
-        class="font-display text-4xl uppercase tracking-base text-white md:text-6xl"
-      >
         mouth machine
+      </p>
+      <h1 class="font-display text-4xl uppercase tracking-base md:text-6xl">
+        <span
+          class="cut block rounded-lg bg-cover bg-center px-6 py-12 text-(--ground) md:px-9 md:py-20"
+        >
+          sea foam
+        </span>
         {#if raw}
           <span
-            class="mt-4 block font-mono text-sm tracking-section text-zinc-400 md:text-base"
+            class="mt-4 block font-mono text-sm tracking-section text-(--soft) md:text-base"
           >
             the raw log
           </span>
         {/if}
       </h1>
-      <p class="mt-6 font-sans text-base leading-relaxed text-zinc-400 md:text-lg">
+      <p class="mt-6 font-sans text-base leading-relaxed text-(--soft) md:text-lg">
         {#if raw}
           kept by claude, one entry per turn, while Sam made the video below.
           where it says "this side", that is claude's side.
@@ -80,22 +82,22 @@
     {@render piece("none")}
 
     <footer
-      class="mt-18 flex flex-wrap justify-between gap-x-9 gap-y-4 border-t border-zinc-800 pt-9 font-mono text-xs uppercase tracking-section md:mt-24 md:text-sm"
+      class="mt-18 flex flex-wrap justify-between gap-x-9 gap-y-4 border-t border-(--rule) pt-9 font-mono text-xs uppercase tracking-section md:mt-24 md:text-sm"
     >
-      <a href="/thoughts" class="text-zinc-400 transition-colors hover:text-coin">
+      <a href="/thoughts" class="text-(--soft) transition-colors hover:text-coin">
         ← all thoughts
       </a>
       {#if raw}
         <a
           href="/thoughts/mouth-machine"
-          class="text-zinc-400 transition-colors hover:text-coin"
+          class="text-(--soft) transition-colors hover:text-coin"
         >
           the annotated version →
         </a>
       {:else}
         <a
           href="/thoughts/mouth-machine/raw"
-          class="text-zinc-400 transition-colors hover:text-coin"
+          class="text-(--soft) transition-colors hover:text-coin"
         >
           the raw log, all 45 turns →
         </a>
@@ -103,3 +105,43 @@
     </footer>
   </article>
 </main>
+
+<style>
+  /* Two colours, the piece's own. A dark device gets seafoam on olive, a light
+     one gets olive on seafoam, and the two shades between swap with them.
+     --soft is small text (4.5:1 or better on its ground), --rule is lines and
+     fills. The accent here is the ink, so --coin follows it for the shared
+     pieces: links, quote bars, the switch. */
+  main {
+    --ground: #2b3016;
+    --ink: #9fe2bf;
+    --soft: #82b695;
+    --rule: #485d40;
+    --coin: var(--ink);
+    --hero: url("/assets/mouth-machine/hero-olive.webp");
+    --seg-thumb: var(--ink);
+    --seg-on: var(--ground);
+    --seg-text: var(--soft);
+    --seg-hover: var(--ink);
+    --seg-rule: var(--rule);
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: light) {
+    main {
+      --ground: #9fe2bf;
+      --ink: #2b3016;
+      --soft: #485d40;
+      --rule: #82b695;
+      --hero: url("/assets/mouth-machine/hero-light.webp");
+      color-scheme: light;
+    }
+  }
+  /* The title is cut out of the memo's frequency picture: letters in the
+     ground colour, which on a flat ground is the same as a hole. Each picture
+     is drawn so its nearest pixel is still 3:1 against the letters. The ink
+     underneath keeps the title readable if the picture does not load. */
+  .cut {
+    background-color: var(--ink);
+    background-image: var(--hero);
+  }
+</style>

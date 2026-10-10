@@ -5,11 +5,13 @@
 // `ask` is Sam, verbatim from the log (mouth-machine-story.test.ts checks it
 // letter for letter). `title`, `told` and the captions are claude's.
 
-interface Still {
+export interface Still {
   kind: "img";
   src: string;
   alt: string;
   caption: string;
+  /** A sound the picture plays when it is pressed. */
+  sound?: string;
 }
 
 interface Clip {
@@ -47,7 +49,16 @@ export const layers: readonly Layer[] = [
         kind: "img",
         src: `${A}/take-1-beat.webp`,
         alt: "waveform of the first voice memo, New Recording 22: nine seconds of mouth drums",
-        caption: "the memo: boom, boom, pap, and a breath in",
+        caption:
+          "the memo: boom, boom, pap, and a breath in. press the picture to hear it",
+        sound: `${A}/take-1-beat.m4a`,
+      },
+      {
+        kind: "img",
+        src: `${A}/memo-first-look.webp`,
+        alt: "a spectrogram of the same memo in seafoam on olive: each mouth sound is a bright streak or arc",
+        caption:
+          "the first picture made of it. the same nine seconds as every frequency in the sound: low at the bottom, brighter where there is more",
       },
     ],
   },

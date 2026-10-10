@@ -1,7 +1,7 @@
 A plain record of the turns taken: what Sam asked for, what came back, what was kept.
 It is not a code changelog. The code has git for that. This is the story of the thing being made.
 
-"Mouth machine" is a working name. Nobody has named this yet.
+"Mouth machine" was the working name. It is now the name of the series, and this first piece is "sea foam". Sam named it on October 10.
 
 ## How this is kept
 

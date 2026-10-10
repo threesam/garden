@@ -37,7 +37,10 @@ describe("mouth machine story stays true to the raw log", () => {
     for (const m of layers.flatMap((l) => l.media)) {
       expect(inStatic(m.src), m.src).toBe(true);
       if (m.kind === "clip") expect(inStatic(m.poster), m.poster).toBe(true);
-      else expect(assetDimensions[m.src], m.src).toBeDefined();
+      else {
+        expect(assetDimensions[m.src], m.src).toBeDefined();
+        if (m.sound) expect(inStatic(m.sound), m.sound).toBe(true);
+      }
     }
   });
 

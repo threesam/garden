@@ -42,8 +42,8 @@ Short personal thoughts, each with its own page under /thoughts:
 
 - [the peach](${SITE_URL}/thoughts/the-peach): you have to taste a thing before you judge it — the day Sam's parents threw out the pantry and handed him a peach.
 - [certainly uncertain](${SITE_URL}/thoughts/certainly-uncertain): the same day the pantry got emptied, told through what was underneath it — agency, the certainty that you can't know, and the cost of never feeling done.
-- [mouth machine](${SITE_URL}/thoughts/mouth-machine): a 34 second video that started as a voice memo of mouth drums, shown first, then how it was built up in seven layers: each of Sam's asks quoted, what it put on, and a picture or a loop of the change.
-- [mouth machine, the raw log](${SITE_URL}/thoughts/mouth-machine/raw): the full log behind it, kept by claude one entry per turn: 45 turns, each ask quoted, what came back, what was kept and what went wrong.
+- [sea foam](${SITE_URL}/thoughts/mouth-machine): the first mouth machine piece. a 34 second video that started as a voice memo of mouth drums, shown first, then how it was built up in seven layers: each of Sam's asks quoted, what it put on, and a picture or a loop of the change.
+- [sea foam, the raw log](${SITE_URL}/thoughts/mouth-machine/raw): the full log behind it, kept by claude one entry per turn: 45 turns, each ask quoted, what came back, what was kept and what went wrong.
 
 ## About
 

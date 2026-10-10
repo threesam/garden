@@ -92,7 +92,7 @@
     },
     {
       href: "/thoughts/mouth-machine",
-      title: "mouth machine",
+      title: "sea foam",
       description: "a voice memo becomes a video, turn by turn.",
       img: `/assets/thoughts-pixel/mouth-machine.webp?v=${PIXEL_V}`,
     },

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onDestroy } from "svelte";
   import { MediaQuery } from "svelte/reactivity";
   import { videoVisibility } from "$lib/actions/video-visibility";
   import { assetDimensions } from "$lib/asset-dimensions";
@@ -10,6 +11,7 @@
     PUBLISHED,
     layers,
     type Layer,
+    type Still,
   } from "$lib/mouth-machine-story";
   import { articleNode } from "$lib/seo";
 
@@ -26,12 +28,37 @@
     return "";
   };
 
+  // A picture with a sound plays it when pressed, and stops it when pressed
+  // again. One sound at a time; `heard` is the one playing.
+  let playing: HTMLAudioElement | undefined;
+  let heard = $state<string>();
+  const stop = (): void => {
+    playing?.pause();
+    heard = undefined;
+  };
+  const toggle = (src: string): void => {
+    const was = heard;
+    stop();
+    if (was === src) return;
+    const audio = new Audio(src);
+    const done = (): void => {
+      if (playing === audio) stop();
+    };
+    audio.onended = done;
+    playing = audio;
+    heard = src;
+    // Stopped before it began, or a file that would not load: back to stopped.
+    audio.play().catch(done);
+  };
+  // Leaving the page takes the button away, so the sound goes with it.
+  onDestroy(stop);
+
   const where = (phases: readonly number[]): string =>
     `${phases.length > 1 ? "phases" : "phase"} ${phases.join(", ")} in the raw log`;
 </script>
 
 <SeoHead
-  title="mouth machine"
+  title="sea foam"
   description={DESCRIPTION}
   canonical="/thoughts/mouth-machine"
   ogType="article"
@@ -40,7 +67,7 @@
   preloadImage={POSTER}
   schema={articleNode({
     path: "/thoughts/mouth-machine",
-    headline: "mouth machine",
+    headline: "sea foam",
     image: POSTER,
     datePublished: PUBLISHED,
     dateModified: "2026-10-10",
@@ -48,17 +75,29 @@
   breadcrumbTrail={[
     { path: "/", name: "threesam" },
     { path: "/thoughts", name: "thoughts" },
-    { path: "/thoughts/mouth-machine", name: "mouth machine" },
+    { path: "/thoughts/mouth-machine", name: "sea foam" },
   ]}
 />
 
+{#snippet still(m: Still)}
+  <img
+    src={m.src}
+    alt={m.alt}
+    width={assetDimensions[m.src]?.w}
+    height={assetDimensions[m.src]?.h}
+    loading="lazy"
+    decoding="async"
+    class="block w-full rounded-lg"
+  />
+{/snippet}
+
 {#snippet said(ask: string)}
   <figure class="my-9 border-l-2 border-coin pl-6 md:pl-9">
-    <blockquote class="font-sans text-xl leading-snug text-white md:text-3xl">
+    <blockquote class="font-sans text-xl leading-snug md:text-3xl">
       {ask}
     </blockquote>
     <figcaption
-      class="mt-3 font-mono text-xs uppercase tracking-section text-zinc-400"
+      class="mt-3 font-mono text-xs uppercase tracking-section text-(--soft)"
     >
       Sam
     </figcaption>
@@ -67,14 +106,14 @@
 
 {#snippet told(text: string, phases: readonly [number, ...number[]])}
   <p
-    class="max-w-[60ch] font-sans text-base leading-relaxed text-zinc-300 md:text-xl"
+    class="max-w-[60ch] font-sans text-base leading-relaxed md:text-xl"
   >
     {text}
   </p>
   <p class="mt-6 font-mono text-xs uppercase tracking-section">
     <a
       href="/thoughts/mouth-machine/raw#phase-{phases[0]}"
-      class="inline-block py-1 text-zinc-400 transition-colors hover:text-coin"
+      class="inline-block py-1 text-(--soft) transition-colors hover:text-coin"
     >
       {where(phases)} →
     </a>
@@ -82,7 +121,7 @@
 {/snippet}
 
 <p
-  class="font-mono text-xs uppercase leading-relaxed tracking-section text-zinc-400 md:text-sm"
+  class="font-mono text-xs uppercase leading-relaxed tracking-section text-(--soft) md:text-sm"
 >
   one thursday night into friday afternoon · 45 turns · {layers.length} layers
 </p>
@@ -125,19 +164,24 @@
               class="block aspect-9/16 w-full rounded-lg bg-black"
               use:videoVisibility={{ autoplay: !calm.current }}
             ></video>
+          {:else if m.kind === "img" && m.sound}
+            {@const sound = m.sound}
+            <button
+              type="button"
+              aria-pressed={heard === sound}
+              class="block w-full cursor-pointer rounded-lg outline-offset-4 outline-coin aria-pressed:outline-2"
+              onclick={() => {
+                toggle(sound);
+              }}
+            >
+              <span class="sr-only">play the sound:</span>
+              {@render still(m)}
+            </button>
           {:else}
-            <img
-              src={m.src}
-              alt={m.alt}
-              width={assetDimensions[m.src]?.w}
-              height={assetDimensions[m.src]?.h}
-              loading="lazy"
-              decoding="async"
-              class="block w-full rounded-lg"
-            />
+            {@render still(m)}
           {/if}
           <figcaption
-            class="mt-3 font-mono text-xs leading-relaxed text-zinc-400"
+            class="mt-3 font-mono text-xs leading-relaxed text-(--soft)"
           >
             {m.caption}
           </figcaption>
@@ -163,7 +207,7 @@
   .stack span {
     width: 1rem;
     height: 2px;
-    background: #3f3f46;
+    background: var(--rule);
   }
   .stack span.on {
     background: var(--coin);

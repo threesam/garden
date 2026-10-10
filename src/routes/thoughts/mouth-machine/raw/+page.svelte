@@ -9,7 +9,7 @@
   let { html } = $derived(data);
 
   const PATH = "/thoughts/mouth-machine/raw";
-  const TITLE = "mouth machine, the raw log";
+  const TITLE = "sea foam, the raw log";
   const DESCRIPTION =
     "the full log behind a 34 second video: 45 turns, each of Sam's asks quoted, what came back, what was kept and what went wrong.";
 </script>
@@ -31,7 +31,7 @@
   breadcrumbTrail={[
     { path: "/", name: "threesam" },
     { path: "/thoughts", name: "thoughts" },
-    { path: "/thoughts/mouth-machine", name: "mouth machine" },
+    { path: "/thoughts/mouth-machine", name: "sea foam" },
     { path: PATH, name: "the raw log" },
   ]}
 />
@@ -96,7 +96,7 @@
   .log :global(code) {
     padding: 0.1em 0.35em;
     border-radius: 0.25rem;
-    background: #27272a;
+    background: var(--rule);
     font-size: 0.875em;
     font-variation-settings: "MONO" 1, "CASL" 0, "slnt" 0;
     overflow-wrap: anywhere;
@@ -111,7 +111,7 @@
   .log :global(th),
   .log :global(td) {
     padding: 0.5rem 0.75rem 0.5rem 0;
-    border-bottom: 1px solid #27272a;
+    border-bottom: 1px solid var(--rule);
     text-align: left;
     vertical-align: top;
   }
@@ -121,7 +121,7 @@
     white-space: nowrap;
   }
   .log :global(th) {
-    color: #a1a1aa;
+    color: var(--soft);
     font-weight: 600;
   }
 
