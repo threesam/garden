@@ -30,7 +30,7 @@ export const assetDimensions: Record<string, Dimensions> = {
   "/assets/mouth-machine/guitar-only-second-video.webp": { w: 1600, h: 600 },
   "/assets/mouth-machine/layer-2-down-13.webp": { w: 1600, h: 600 },
   "/assets/mouth-machine/layer-2-softer.webp": { w: 1320, h: 715 },
-  "/assets/mouth-machine/memo-first-look.webp": { w: 1600, h: 613 },
+  "/assets/mouth-machine/memo-first-look.webp": { w: 1600, h: 391 },
   "/assets/mouth-machine/piece-1-twelve-bars.webp": { w: 1600, h: 237 },
   "/assets/mouth-machine/piece-11-light-ground-drops.webp": { w: 1600, h: 284 },
   "/assets/mouth-machine/piece-11-timeline.webp": { w: 1600, h: 688 },

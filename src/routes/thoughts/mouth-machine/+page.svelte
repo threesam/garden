@@ -10,6 +10,7 @@
     PUBLISHED,
     layers,
     type Layer,
+    type Still,
   } from "$lib/mouth-machine-story";
   import { articleNode } from "$lib/seo";
 
@@ -24,6 +25,18 @@
     if (layer.pair) return "max-w-lg grid-cols-2";
     if (layer.media.some((m) => m.kind === "clip")) return "max-w-xs";
     return "";
+  };
+
+  // A picture with a sound plays it when pressed, and stops it when pressed
+  // again. One sound at a time.
+  let playing: HTMLAudioElement | undefined;
+  const toggle = (src: string): void => {
+    if (playing && !playing.paused) {
+      playing.pause();
+      return;
+    }
+    playing = new Audio(src);
+    void playing.play();
   };
 
   const where = (phases: readonly number[]): string =>
@@ -51,6 +64,18 @@
     { path: "/thoughts/mouth-machine", name: "mouth machine" },
   ]}
 />
+
+{#snippet still(m: Still)}
+  <img
+    src={m.src}
+    alt={m.alt}
+    width={assetDimensions[m.src]?.w}
+    height={assetDimensions[m.src]?.h}
+    loading="lazy"
+    decoding="async"
+    class="block w-full rounded-lg"
+  />
+{/snippet}
 
 {#snippet said(ask: string)}
   <figure class="my-9 border-l-2 border-coin pl-6 md:pl-9">
@@ -125,16 +150,20 @@
               class="block aspect-9/16 w-full rounded-lg bg-black"
               use:videoVisibility={{ autoplay: !calm.current }}
             ></video>
+          {:else if m.kind === "img" && m.sound}
+            {@const sound = m.sound}
+            <button
+              type="button"
+              class="block w-full cursor-pointer rounded-lg"
+              onclick={() => {
+                toggle(sound);
+              }}
+            >
+              <span class="sr-only">play or stop the sound:</span>
+              {@render still(m)}
+            </button>
           {:else}
-            <img
-              src={m.src}
-              alt={m.alt}
-              width={assetDimensions[m.src]?.w}
-              height={assetDimensions[m.src]?.h}
-              loading="lazy"
-              decoding="async"
-              class="block w-full rounded-lg"
-            />
+            {@render still(m)}
           {/if}
           <figcaption
             class="mt-3 font-mono text-xs leading-relaxed text-zinc-400"
