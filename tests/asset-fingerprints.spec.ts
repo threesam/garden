@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { test, expect } from '@playwright/test';
 
 // /assets and /wasm are cached for a year, so every file from them has to
@@ -5,7 +7,7 @@ import { test, expect } from '@playwright/test';
 // returning visitor. These pages cover each way an address gets its stamp:
 // written in a component, in a data file, in a srcset, and in an essay, which
 // is stamped as it is read.
-const STAMPED = /\?v=[0-9a-f]{8}$/;
+const fingerprint = (bytes: Buffer): string => createHash('sha256').update(bytes).digest('hex').slice(0, 8);
 
 for (const path of ['/thoughts', '/benny', '/deana', '/thoughts/mouth-machine', '/thoughts/mouth-machine/raw']) {
   test(`every picture on ${path} carries its fingerprint`, async ({ page, request }) => {
@@ -19,7 +21,10 @@ for (const path of ['/thoughts', '/benny', '/deana', '/thoughts/mouth-machine', 
         .filter((src) => src.startsWith('/assets/')),
     );
     expect(srcs.length).toBeGreaterThan(0);
-    for (const src of srcs) expect(src).toMatch(STAMPED);
+    for (const src of srcs) {
+      const file = src.replace(/\?.*$/, '');
+      expect(src).toBe(`${file}?v=${fingerprint(readFileSync(`static${file}`))}`);
+    }
     expect((await request.get(srcs[0] ?? '')).ok()).toBe(true);
   });
 }
@@ -28,6 +33,6 @@ test('the physarum plate fetches its wasm by fingerprint', async ({ page }) => {
   const wasm = page.waitForResponse((r) => r.url().includes('/wasm/garden_math.wasm'));
   await page.goto('/anything-but-analog/physarum');
   const response = await wasm;
-  expect(response.url()).toMatch(STAMPED);
   expect(response.ok()).toBe(true);
+  expect(new URL(response.url()).search).toBe(`?v=${fingerprint(await response.body())}`);
 });

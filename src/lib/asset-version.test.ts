@@ -81,9 +81,10 @@ describe("the one rule", () => {
   });
 
   // The build stamps an address it can read. One put together as the page runs
-  // (`${dir}/${n}.jpg`), or carrying a number kept by hand, is not one.
+  // (`${dir}/${n}.jpg`, "/assets" + name), or carrying a number kept by hand,
+  // is not one.
   it("has every address in src written out whole, naming a real file", () => {
-    const mention = new RegExp(`(?<![\\w.-])/(?:${STAMPED_DIRS.join("|")})/[^\\s"'\`)<>,;#]*`, "g");
+    const mention = new RegExp(`(?<![\\w.-])/(?:${STAMPED_DIRS.join("|")})\\b[^\\s"'\`)<>,;#]*`, "g");
     const isFile = (path: string): boolean =>
       statSync(path, { throwIfNoEntry: false })?.isFile() ?? false;
     const offenders = readdirSync("src", { recursive: true, encoding: "utf8" })
