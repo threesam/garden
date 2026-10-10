@@ -29,8 +29,6 @@ export interface Layer {
   media: readonly (Still | Clip)[];
   /** Two stills meant to be read against each other, side by side. */
   pair?: true;
-  /** One wide still under the rest: a row of frames, read left to right. */
-  strip?: Still;
 }
 
 const A = "/assets/mouth-machine";
@@ -97,8 +95,7 @@ export const layers: readonly Layer[] = [
         kind: "img",
         src: `${A}/guitar-only-second-video.webp`,
         alt: "two waveforms of the same five bars: as the phone heard them, and with the room loop turned down so the gaps between notes go quiet",
-        caption:
-          "top, as the phone heard it. bottom, the room loop turned down",
+        caption: "top, as the phone heard it. bottom, the room loop turned down",
       },
     ],
   },
@@ -122,13 +119,6 @@ export const layers: readonly Layer[] = [
         caption: "filtered",
       },
     ],
-    strip: {
-      kind: "img",
-      src: `${A}/seafoam-six-lines.webp`,
-      alt: "one filtered frame seven times, side by side. at the lowest line seafoam floods the wall and breaks up into speckle. at the highest only a head and the top of a guitar are left. the last is rough with grain",
-      caption:
-        "one frame, the line moved six times: 3, 3.5, 4, 4.5, 5.5 and 7 out of 100. the last is 4.5 again, with no softening",
-    },
   },
   {
     title: "night",
