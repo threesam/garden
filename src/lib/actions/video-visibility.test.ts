@@ -83,6 +83,23 @@ describe('videoVisibility', () => {
     expect(node.paused).toBe(true);
   });
 
+  it('a resume owed from before autoplay does not outlive it', () => {
+    const { node, action, scroll } = setup({ autoplay: false });
+    const set = (autoplay: boolean) => {
+      if (action && 'update' in action) action.update({ autoplay });
+    };
+    scroll(true);
+    void node.play();
+    scroll(false);
+    set(true);
+    scroll(true);
+    set(false);
+    expect(node.paused).toBe(true);
+    scroll(false);
+    scroll(true);
+    expect(node.paused).toBe(true);
+  });
+
   it('no autoplay: resumes only what the scroll itself paused', () => {
     const { node, scroll } = setup({ autoplay: false });
     scroll(true);

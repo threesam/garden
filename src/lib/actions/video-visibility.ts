@@ -73,6 +73,8 @@ export const videoVisibility: Action<HTMLVideoElement, VideoVisibilityOptions | 
         ourPause = true;
         node.pause();
       }
+      // A resume owed under the old mode is not owed under the new one.
+      if (autoplay !== next) wasPlaying = false;
       autoplay = next;
     },
     destroy() {
