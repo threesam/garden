@@ -24,7 +24,7 @@ rate. It counts reaching the end however fast, so a skimmer counts too.
 pyre's own analytics shows threesam.com as the referrer on the other side.
 
 Essays with a `ReadMark`: /thoughts/the-peach, /thoughts/certainly-uncertain,
-/self, /dad, /benny. **A new essay needs one too** (`tests/essay-read.spec.ts`
+/thoughts/mouth-machine, /self, /dad, /benny. **A new essay needs one too** (`tests/essay-read.spec.ts`
 lists them).
 
 ## tag every link you send

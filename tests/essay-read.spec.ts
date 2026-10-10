@@ -16,7 +16,14 @@ async function trackCalls(page: Page) {
     );
 }
 
-const ESSAYS = ['/thoughts/the-peach', '/thoughts/certainly-uncertain', '/self', '/dad', '/benny'];
+const ESSAYS = [
+  '/thoughts/the-peach',
+  '/thoughts/certainly-uncertain',
+  '/thoughts/mouth-machine',
+  '/self',
+  '/dad',
+  '/benny',
+];
 
 for (const path of ESSAYS) {
   test(`${path} fires essay-read once, only after scrolling to the end`, async ({ page }) => {
