@@ -10,25 +10,32 @@ test('the memo picture plays the memo', async ({ page }) => {
 });
 
 // The page has two modes, olive and light. In each, on both tellings, every
-// line of running text has to clear 4.5:1 on the page's ground (WCAG AA). The
-// title sits on a picture and the switch has its own ground, so neither is here.
-const TEXT = 'article :is(p, figcaption, blockquote, h2, h3, li, th, td, footer a)';
+// line of running text, link and bit of code has to clear 4.5:1 on whatever is
+// behind it (WCAG AA). The title sits on a picture and the switch slides its
+// own ground under its labels, so neither is here.
+const TEXT = 'article :is(p, figcaption, blockquote, h2, h3, li, th, td, code, p a, footer a)';
 for (const colorScheme of ['dark', 'light'] as const) {
   for (const path of ['/thoughts/mouth-machine', '/thoughts/mouth-machine/raw']) {
     test(`${colorScheme} mode keeps ${path} readable`, async ({ page }) => {
       await page.emulateMedia({ colorScheme });
       await page.goto(path);
       const ratios = await page.locator('main').evaluate((main, selector) => {
+        const parts = (colour: string): number[] => (colour.match(/[\d.]+/g) ?? []).map(Number);
         const luminance = (colour: string): number => {
-          const [r = 0, g = 0, b = 0] = (colour.match(/[\d.]+/g) ?? []).map((n) => {
-            const v = Number(n) / 255;
+          const [r = 0, g = 0, b = 0] = parts(colour).map((n) => {
+            const v = n / 255;
             return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
           });
           return 0.2126 * r + 0.7152 * g + 0.0722 * b;
         };
-        const ground = luminance(getComputedStyle(main).backgroundColor);
+        // The nearest ancestor that paints a ground; main always does.
+        const behind = (el: Element): string => {
+          const colour = getComputedStyle(el).backgroundColor;
+          return parts(colour)[3] === 0 && el.parentElement ? behind(el.parentElement) : colour;
+        };
         return [...main.querySelectorAll(selector)].map((el) => {
           const text = luminance(getComputedStyle(el).color);
+          const ground = luminance(behind(el));
           return (Math.max(text, ground) + 0.05) / (Math.min(text, ground) + 0.05);
         });
       }, TEXT);
