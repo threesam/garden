@@ -9,9 +9,10 @@
 
 export type AssetVersions = Readonly<Record<string, string>>;
 
-// A whole asset address, and only when no query follows it: one that already
-// carries `?v=` is left to whoever wrote it.
-const ADDRESS = /\/assets\/[\w./-]+(?![\w./?-])/g;
+// A whole asset address on this site. It has to start where a path starts, so a
+// path on disk (static/assets/…) and another site's address are not touched.
+// One that already carries a query is left to whoever wrote it.
+const ADDRESS = /(?<![\w.-])\/assets\/[\w./-]+(?![\w./?%-])/g;
 
 export function stampAssets(text: string, versions: AssetVersions): string {
   return text.replace(ADDRESS, (address) => {

@@ -35,10 +35,20 @@ describe("stampAssets", () => {
     expect(stampAssets(text, versions)).toBe(text);
   });
 
-  it("stamps an address that follows an origin", () => {
-    expect(stampAssets("https://threesam.com/assets/a.webp", versions)).toBe(
-      "https://threesam.com/assets/a.webp?v=11111111",
+  it("stamps an address joined to the site's origin in code", () => {
+    expect(stampAssets("`${SITE_URL}/assets/a.webp`", versions)).toBe(
+      "`${SITE_URL}/assets/a.webp?v=11111111`",
     );
+  });
+
+  it("leaves a path on disk and another site's address alone", () => {
+    const text = "static/assets/a.webp https://cdn.example.com/assets/a.webp";
+    expect(stampAssets(text, versions)).toBe(text);
+  });
+
+  it("leaves an address that runs on into an escaped character alone", () => {
+    const text = "/assets/a.webp%20large";
+    expect(stampAssets(text, versions)).toBe(text);
   });
 
   it("does nothing when there are no fingerprints, as in dev", () => {

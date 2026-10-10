@@ -33,6 +33,9 @@ function fingerprintAssets(versions: AssetVersions): Plugin {
     transform(code, id) {
       if (!/\/src\/.*\.(svelte|ts|css)$/.test(id) || id.endsWith('/asset-dimensions.ts')) return null;
       const stamped = stampAssets(code, versions);
+      // ponytail: no source map for the edit. A stamp adds eleven characters to
+      // its own line and moves nothing else; emit one (magic-string) if a
+      // production stack trace ever has to land on the exact column.
       return stamped === code ? null : { code: stamped, map: null };
     },
   };
