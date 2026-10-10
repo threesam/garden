@@ -4,10 +4,26 @@ import { test, expect } from '@playwright/test';
 // reaches the file and the file is served, not that it is heard.
 test('the memo picture plays the memo', async ({ page }) => {
   await page.goto('/thoughts/mouth-machine');
-  const sound = page.waitForResponse((r) => r.url().endsWith('/assets/mouth-machine/take-1-beat.m4a'));
+  const sound = page.waitForResponse((r) => r.url().includes('/assets/mouth-machine/take-1-beat.m4a'));
   await page.getByRole('button', { name: /play the sound/ }).click();
   expect((await sound).ok()).toBe(true);
 });
+
+// /assets is cached for a year, so every picture has to carry a fingerprint of
+// its own bytes or a redrawn one never reaches a returning visitor. The first
+// address is written in code and stamped by the build, the second is written
+// in an essay and stamped as the essay is read.
+for (const path of ['/thoughts/mouth-machine', '/thoughts/mouth-machine/raw']) {
+  test(`every picture on ${path} carries its fingerprint`, async ({ page, request }) => {
+    await page.goto(path);
+    const srcs = await page
+      .locator('article img[src^="/assets/"]')
+      .evaluateAll((imgs) => imgs.map((img) => img.getAttribute('src') ?? ''));
+    expect(srcs.length).toBeGreaterThan(0);
+    for (const src of srcs) expect(src).toMatch(/\?v=[0-9a-f]{8}$/);
+    expect((await request.get(srcs[0] ?? '')).ok()).toBe(true);
+  });
+}
 
 // The page has two modes, olive and light. In each, on both tellings, every
 // line of running text, link and bit of code has to clear 4.5:1 on whatever is

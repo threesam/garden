@@ -2,7 +2,7 @@ import { Marked } from "marked";
 import { markedEmoji } from "marked-emoji";
 import * as emoji from "node-emoji";
 import { linkClasses } from "$lib/components/link";
-import { assetDimensions } from "$lib/asset-dimensions";
+import { assetSize } from "$lib/asset-dimensions";
 
 const emojiMap = new Proxy({}, {
   get(_, name: string) {
@@ -75,7 +75,7 @@ function createMarkdownRenderer(): Marked {
           const vClass = isBottom ? "bottom-6 md:bottom-18" : "top-6 md:top-18";
           return `<div class="relative my-12 -mx-6 md:-mx-9"><img src="${href}" alt="${escapeAttr(rawHeading)}" class="w-full md:rounded-lg" loading="lazy" /><span class="absolute ${vClass} ${hClass} font-mono text-2xl font-bold uppercase tracking-base md:text-5xl" style="color: ${color}">${heading}</span></div>`;
         }
-        const dims = assetDimensions[href];
+        const dims = assetSize(href);
         const dimAttrs = dims ? ` width="${dims.w}" height="${dims.h}"` : '';
         // Sits at content width inside the section's padding (aligned with the
         // body text) and centred — no edge bleed.

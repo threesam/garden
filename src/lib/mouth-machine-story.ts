@@ -33,10 +33,8 @@ export interface Layer {
   pair?: true;
 }
 
-const A = "/assets/mouth-machine";
-
 export const PUBLISHED = "2026-10-09";
-export const POSTER = `${A}/piece-19-poster.jpg`;
+export const POSTER = "/assets/mouth-machine/piece-19-poster.jpg";
 
 export const layers: readonly Layer[] = [
   {
@@ -47,15 +45,15 @@ export const layers: readonly Layer[] = [
     media: [
       {
         kind: "img",
-        src: `${A}/take-1-beat.webp`,
+        src: "/assets/mouth-machine/take-1-beat.webp",
         alt: "waveform of the first voice memo, New Recording 22: nine seconds of mouth drums",
         caption:
           "the memo: boom, boom, pap, and a breath in. press the picture to hear it",
-        sound: `${A}/take-1-beat.m4a`,
+        sound: "/assets/mouth-machine/take-1-beat.m4a",
       },
       {
         kind: "img",
-        src: `${A}/memo-first-look.webp`,
+        src: "/assets/mouth-machine/memo-first-look.webp",
         alt: "a spectrogram of the same memo in seafoam on olive: each mouth sound is a bright streak or arc",
         caption:
           "the first picture made of it. the same nine seconds as every frequency in the sound: low at the bottom, brighter where there is more",
@@ -70,13 +68,13 @@ export const layers: readonly Layer[] = [
     media: [
       {
         kind: "img",
-        src: `${A}/take-2-over-the-beat.webp`,
+        src: "/assets/mouth-machine/take-2-over-the-beat.webp",
         alt: "waveform of the second voice memo, busier than the first, recorded while the loop played in the room",
         caption: "the second take, over the beat",
       },
       {
         kind: "img",
-        src: `${A}/take-3-go-to-sleep.webp`,
+        src: "/assets/mouth-machine/take-3-go-to-sleep.webp",
         alt: "waveform of the third voice memo: one burst at the start, then a flat line of room sound",
         caption: "the third: the words, then the room",
       },
@@ -90,7 +88,7 @@ export const layers: readonly Layer[] = [
     media: [
       {
         kind: "img",
-        src: `${A}/piece-4-one-ring-one-bar.webp`,
+        src: "/assets/mouth-machine/piece-4-one-ring-one-bar.webp",
         alt: "one ring, step by step, opening from a dot until it is wider than the frame",
         caption: "one ring, one bar",
       },
@@ -104,7 +102,7 @@ export const layers: readonly Layer[] = [
     media: [
       {
         kind: "img",
-        src: `${A}/guitar-only-second-video.webp`,
+        src: "/assets/mouth-machine/guitar-only-second-video.webp",
         alt: "two waveforms of the same five bars: as the phone heard them, and with the room loop turned down so the gaps between notes go quiet",
         caption: "top, as the phone heard it. bottom, the room loop turned down",
       },
@@ -119,13 +117,13 @@ export const layers: readonly Layer[] = [
     media: [
       {
         kind: "img",
-        src: `${A}/video-4-in-the-dark.webp`,
+        src: "/assets/mouth-machine/video-4-in-the-dark.webp",
         alt: "a dark, grainy still from the first phone video: Sam in profile with a guitar",
         caption: "as filmed",
       },
       {
         kind: "img",
-        src: `${A}/seafoam-and-olive.webp`,
+        src: "/assets/mouth-machine/seafoam-and-olive.webp",
         alt: "a filtered still in two flat colours, seafoam shapes on olive, with the ask set over it as a block quote",
         caption: "filtered",
       },
@@ -139,8 +137,8 @@ export const layers: readonly Layer[] = [
     media: [
       {
         kind: "clip",
-        src: `${A}/story-night.mp4`,
-        poster: `${A}/story-night-poster.jpg`,
+        src: "/assets/mouth-machine/story-night.mp4",
+        poster: "/assets/mouth-machine/story-night-poster.jpg",
         alt: "two bars of the second guitar video, no sound: seafoam shapes on black, swelling with the bar",
         caption: "two bars, as they are in the piece",
       },
@@ -154,8 +152,8 @@ export const layers: readonly Layer[] = [
     media: [
       {
         kind: "clip",
-        src: `${A}/story-go-round.mp4`,
-        poster: `${A}/story-go-round-poster.jpg`,
+        src: "/assets/mouth-machine/story-go-round.mp4",
+        poster: "/assets/mouth-machine/story-go-round-poster.jpg",
         alt: "the last bar into the first, no sound: a seafoam ring on black closes to a point and opens from it again",
         caption: "the last bar, into the first",
       },

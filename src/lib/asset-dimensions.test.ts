@@ -2,7 +2,7 @@ import { readFile } from "fs/promises";
 import { join } from "path";
 import sharp from "sharp";
 import { describe, expect, it } from "vitest";
-import { assetAspect, assetDimensions } from "./asset-dimensions";
+import { assetAspect, assetDimensions, assetSize } from "./asset-dimensions";
 
 describe("assetAspect", () => {
   it("returns width/height for a known landscape asset", () => {
@@ -21,6 +21,13 @@ describe("assetAspect", () => {
 
   it("returns undefined for unknown assets so callers can fall back", () => {
     expect(assetAspect("/assets/not-a-real-image.webp")).toBeUndefined();
+  });
+
+  it("finds an asset by its fingerprinted address", () => {
+    // The build stamps `?v=` on every address (asset-version.ts); the box a
+    // picture reserves must not depend on that.
+    expect(assetSize("/assets/fault-lines.webp?v=1a2b3c4d")).toEqual({ w: 2000, h: 999 });
+    expect(assetAspect("/assets/fault-lines.webp?v=1a2b3c4d")).toBeCloseTo(2000 / 999, 5);
   });
 
   it("exposes intrinsic pixel dimensions for the inline screenshot (CLS guard)", () => {

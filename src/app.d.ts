@@ -1,4 +1,6 @@
 declare global {
+  /** A fingerprint for each file under static/assets; empty outside a build. See vite.config.ts. */
+  const __ASSET_VERSIONS__: Readonly<Record<string, string>>;
   namespace App {
     // interface Error {}
     // interface Locals {}

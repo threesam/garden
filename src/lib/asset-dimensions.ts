@@ -81,8 +81,16 @@ export const assetDimensions: Record<string, Dimensions> = {
   "/assets/mouth-machine/video-5-guitar.webp": { w: 540, h: 960 },
 };
 
+/**
+ * Pixel dimensions for a known asset, or undefined if unmapped. The build
+ * stamps `?v=` on asset addresses (asset-version.ts), so the query is ignored.
+ */
+export function assetSize(src: string): { w: number; h: number } | undefined {
+  return assetDimensions[src.replace(/\?.*$/, "")];
+}
+
 /** Aspect ratio (width / height) for a known asset, or undefined if unmapped. */
 export function assetAspect(src: string): number | undefined {
-  const d = assetDimensions[src];
+  const d = assetSize(src);
   return d ? d.w / d.h : undefined;
 }
