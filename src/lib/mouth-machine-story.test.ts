@@ -12,7 +12,8 @@ const log = readFileSync(
   "utf8",
 );
 const rawHtml = withPhaseIds(markdownRenderer.parse(log) as string);
-const inStatic = (src: string) => existsSync(join(process.cwd(), "static", src));
+const inStatic = (src: string) =>
+  existsSync(join(process.cwd(), "static", src));
 
 describe("mouth machine story stays true to the raw log", () => {
   it.each([...layers.map((l) => l.ask), LAST_ASK.ask])(
