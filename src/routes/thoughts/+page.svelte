@@ -55,46 +55,42 @@
     }
   }
 
-  // ?v=N busts the immutable 1-year cache when we re-bake the source
-  // (covers iOS Safari, which won't even check the server otherwise).
-  // Bump the version every time you change generate-thoughts-pixel.mjs.
-  const PIXEL_V = 3;
   const cards = [
     {
       href: "/thoughts/the-peach",
       title: "the peach",
       description: "you have to taste it first.",
-      img: `/assets/thoughts-pixel/the-peach.webp?v=${PIXEL_V}`,
+      img: "/assets/thoughts-pixel/the-peach.webp",
     },
     {
       href: "/thoughts/certainly-uncertain",
       title: "certainly uncertain",
       description: "crush the chips.",
-      img: `/assets/thoughts-pixel/certainly-uncertain.webp?v=${PIXEL_V}`,
+      img: "/assets/thoughts-pixel/certainly-uncertain.webp",
     },
     {
       href: "/self",
       title: "self",
       description: "growing up in trenton.",
-      img: `/assets/thoughts-pixel/self.webp?v=${PIXEL_V}`,
+      img: "/assets/thoughts-pixel/self.webp",
     },
     {
       href: "/benny",
       title: "benny",
       description: "remembering 102 jackson street.",
-      img: `/assets/thoughts-pixel/benny.webp?v=${PIXEL_V}`,
+      img: "/assets/thoughts-pixel/benny.webp",
     },
     {
       href: "/dad",
       title: "dad",
       description: "stories about my dad.",
-      img: `/assets/thoughts-pixel/dad.webp?v=${PIXEL_V}`,
+      img: "/assets/thoughts-pixel/dad.webp",
     },
     {
       href: "/thoughts/mouth-machine",
       title: "sea foam",
       description: "a voice memo becomes a video, turn by turn.",
-      img: `/assets/thoughts-pixel/mouth-machine.webp?v=${PIXEL_V}`,
+      img: "/assets/thoughts-pixel/mouth-machine.webp",
     },
   ];
 </script>
