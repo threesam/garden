@@ -27,7 +27,11 @@ export function GET() {
     },
     {
       url: `${SITE_URL}/thoughts/mouth-machine`,
-      lastmod: new Date('2026-10-09T00:00:00Z').toISOString(),
+      lastmod: new Date('2026-10-10T00:00:00Z').toISOString(),
+    },
+    {
+      url: `${SITE_URL}/thoughts/mouth-machine/raw`,
+      lastmod: new Date('2026-10-10T00:00:00Z').toISOString(),
     },
   ];
 
