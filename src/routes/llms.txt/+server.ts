@@ -42,6 +42,7 @@ Short personal thoughts, each with its own page under /thoughts:
 
 - [the peach](${SITE_URL}/thoughts/the-peach): you have to taste a thing before you judge it — the day Sam's parents threw out the pantry and handed him a peach.
 - [certainly uncertain](${SITE_URL}/thoughts/certainly-uncertain): the same day the pantry got emptied, told through what was underneath it — agency, the certainty that you can't know, and the cost of never feeling done.
+- [mouth machine](${SITE_URL}/thoughts/mouth-machine): a 34 second video that started as a voice memo of mouth drums, shown first, then the full log of the 45 turns that made it: each ask quoted, what came back, what went wrong.
 
 ## About
 

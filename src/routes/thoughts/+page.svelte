@@ -90,6 +90,12 @@
       description: "stories about my dad.",
       img: `/assets/thoughts-pixel/dad.webp?v=${PIXEL_V}`,
     },
+    {
+      href: "/thoughts/mouth-machine",
+      title: "mouth machine",
+      description: "a voice memo becomes a video, turn by turn.",
+      img: `/assets/thoughts-pixel/mouth-machine.webp?v=${PIXEL_V}`,
+    },
   ];
 </script>
 
