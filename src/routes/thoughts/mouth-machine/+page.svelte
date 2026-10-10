@@ -144,6 +144,34 @@
         </figure>
       {/each}
     </div>
+
+    {#if layer.strip}
+      {@const strip = layer.strip}
+      <figure class="mt-9 min-w-0 md:mt-12">
+        <!-- Wider than a phone, so it scrolls sideways there, and a scrolling
+             row has to be reachable by keyboard. -->
+        <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+        <div
+          class="overflow-x-auto rounded-lg [scrollbar-color:var(--coin)_transparent] [scrollbar-width:thin]"
+          role="group"
+          aria-label="one frame at seven settings, in a row"
+          tabindex="0"
+        >
+          <img
+            src={strip.src}
+            alt={strip.alt}
+            width={assetDimensions[strip.src]?.w}
+            height={assetDimensions[strip.src]?.h}
+            loading="lazy"
+            decoding="async"
+            class="block h-56 w-auto max-w-none md:h-auto md:w-full"
+          />
+        </div>
+        <figcaption class="mt-3 font-mono text-xs leading-relaxed text-zinc-400">
+          {strip.caption}
+        </figcaption>
+      </figure>
+    {/if}
   </section>
 {/each}
 

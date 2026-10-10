@@ -12,7 +12,8 @@ const log = readFileSync(
   "utf8",
 );
 const rawHtml = withPhaseIds(markdownRenderer.parse(log) as string);
-const inStatic = (src: string) => existsSync(join(process.cwd(), "static", src));
+const inStatic = (src: string) =>
+  existsSync(join(process.cwd(), "static", src));
 
 describe("mouth machine story stays true to the raw log", () => {
   it.each([...layers.map((l) => l.ask), LAST_ASK.ask])(
@@ -32,9 +33,13 @@ describe("mouth machine story stays true to the raw log", () => {
   });
 
   it("uses each piece of creative once, and every file exists", () => {
-    const srcs = layers.flatMap((l) => l.media.map((m) => m.src));
+    const all = layers.flatMap((l) => [
+      ...l.media,
+      ...(l.strip ? [l.strip] : []),
+    ]);
+    const srcs = all.map((m) => m.src);
     expect(new Set(srcs).size).toBe(srcs.length);
-    for (const m of layers.flatMap((l) => l.media)) {
+    for (const m of all) {
       expect(inStatic(m.src), m.src).toBe(true);
       if (m.kind === "clip") expect(inStatic(m.poster), m.poster).toBe(true);
       else expect(assetDimensions[m.src], m.src).toBeDefined();
