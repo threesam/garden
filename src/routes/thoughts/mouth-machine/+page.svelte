@@ -22,7 +22,9 @@
 
   const frame = (layer: Layer): string => {
     if (layer.pair) return "max-w-lg grid-cols-2";
-    if (layer.media.some((m) => m.kind === "clip")) return "max-w-xs";
+    // The same cap as the piece's own player, so a phone gives a clip the
+    // whole column.
+    if (layer.media.some((m) => m.kind === "clip")) return "max-w-sm";
     return "";
   };
 
