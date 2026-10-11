@@ -54,7 +54,7 @@ export const layers: readonly Layer[] = [
       {
         kind: "img",
         src: "/assets/mouth-machine/memo-first-look.webp",
-        alt: "a spectrogram of the same memo in seafoam on olive: each mouth sound is a bright streak or arc",
+        alt: "a spectrogram of the same memo in seafoam: each mouth sound is a bright streak or arc",
         caption:
           "the first picture made of it. the same nine seconds as every frequency in the sound: low at the bottom, brighter where there is more",
       },
@@ -160,13 +160,6 @@ export const layers: readonly Layer[] = [
     ],
   },
 ];
-
-/** The one that finished it. It closes the story, just above the piece. */
-export const LAST_ASK = {
-  ask: "dont need the fade on last video just cut when done",
-  told: "the last ask. the picture holds to the end of its bar, the drop comes back in, and it goes round.",
-  phases: [44],
-} as const;
 
 /** Give the raw log's phase headings an id, so a layer can link to its phases. */
 export const withPhaseIds = (html: string): string =>

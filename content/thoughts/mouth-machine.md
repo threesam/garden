@@ -3,6 +3,8 @@ It is not a code changelog. The code has git for that. This is the story of the 
 
 "Mouth machine" was the working name. It is now the name of the series, and this first piece is "sea foam". Sam named it on October 10.
 
+The pictures were put onto black on October 11, after the piece was done. Sam: "yeah bg of creative should all be true black". Where an entry says olive, the piece was olive at the time. The few pictures that are about the olive ground itself were left as they were.
+
 ## How this is kept
 
 - One entry per turn that changes what is heard. Sam's words are quoted as typed or spoken.
