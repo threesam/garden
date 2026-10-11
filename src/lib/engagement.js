@@ -22,7 +22,8 @@ const MEDIA_MARKS = [FIRST, 50, 75, END];
  * @param {number} from
  * @param {number} to
  */
-export const crossed = (marks, from, to) => marks.filter((mark) => mark > from && mark <= to);
+export const crossed = (marks, from, to) =>
+  marks.filter((mark) => mark > from && mark <= to);
 
 function watch() {
   let path = location.pathname;
@@ -38,7 +39,9 @@ function watch() {
   // SvelteKit changes page without loading a new document, so a new address
   // is what starts the counts again.
   const turnPage = () => {
-    if (location.pathname === path) return;
+    if (location.pathname === path) {
+      return;
+    }
     path = location.pathname;
     depth = 0;
     seconds = 0;
@@ -47,11 +50,15 @@ function watch() {
   // Every handler waits for the tracker, which loads after the page does, so
   // nothing reached before it arrives is marked as told and then lost.
   const onScroll = () => {
-    if (!window.umami) return;
+    if (!window.umami) {
+      return;
+    }
     turnPage();
     const room = document.documentElement.scrollHeight - innerHeight;
     // Less than a screen of scrolling says nothing about reading.
-    if (room < innerHeight) return;
+    if (room < innerHeight) {
+      return;
+    }
     const now = Math.round((scrollY / room) * 100);
     for (const mark of crossed(SCROLL_MARKS, depth, now)) {
       window.umami.track(`scroll-${String(mark)}`);
@@ -62,11 +69,17 @@ function watch() {
   // Only seconds with the page in front of the visitor count.
   // ponytail: looked at once a second, so a mark can be a second out.
   const tick = () => {
-    if (!window.umami) return;
+    if (!window.umami) {
+      return;
+    }
     turnPage();
-    if (document.visibilityState !== 'visible') return;
+    if (document.visibilityState !== 'visible') {
+      return;
+    }
     seconds += 1;
-    if (SECOND_MARKS.includes(seconds)) window.umami.track(`engaged-${String(seconds)}s`);
+    if (SECOND_MARKS.includes(seconds)) {
+      window.umami.track(`engaged-${String(seconds)}s`);
+    }
   };
 
   // Media events do not bubble, but the capture phase passes through here on
@@ -78,15 +91,23 @@ function watch() {
   // its `media-end`. Nothing that short plays with sound today.
   /** @param {Event} event */
   const onTime = ({ type, target: media }) => {
-    if (!window.umami || !(media instanceof HTMLMediaElement)) return;
+    if (!window.umami || !(media instanceof HTMLMediaElement)) {
+      return;
+    }
     // Paused means a visitor dragging the bar, except at the very end, where
     // some browsers pause before they say so.
-    if (media.muted || (media.paused && type !== 'ended')) return;
-    if (!Number.isFinite(media.duration) || media.duration === 0) return;
+    if (media.muted || (media.paused && type !== 'ended')) {
+      return;
+    }
+    if (!Number.isFinite(media.duration) || media.duration === 0) {
+      return;
+    }
     const src = media.currentSrc;
     // Where the file is, without the cache stamp. Files of the site's own
     // lose the site's name; anything hosted elsewhere keeps its whole address.
-    const data = { src: src.replace(location.origin, '').split(/[?#]/)[0] ?? '' };
+    const data = {
+      src: src.replace(location.origin, '').split(/[?#]/)[0] ?? '',
+    };
     const now = (media.currentTime / media.duration) * 100;
     const last = played.get(media);
     let was = last?.src === src ? last.at : undefined;
@@ -100,7 +121,10 @@ function watch() {
       was = 0;
     }
     for (const mark of crossed(MEDIA_MARKS, was, now)) {
-      window.umami.track(mark === END ? 'media-end' : `media-${String(mark)}`, data);
+      window.umami.track(
+        mark === END ? 'media-end' : `media-${String(mark)}`,
+        data,
+      );
     }
     played.set(media, { src, at: Math.max(was, now) });
   };
@@ -109,9 +133,13 @@ function watch() {
   // and auxclick, because a middle click to open a new tab fires only auxclick.
   /** @param {MouseEvent} event */
   const onClick = ({ button, target }) => {
-    if (button !== 0 && button !== 1) return;
+    if (button !== 0 && button !== 1) {
+      return;
+    }
     const anchor = target instanceof Element ? target.closest('a') : null;
-    if (!anchor?.href.startsWith('http') || anchor.origin === location.origin) return;
+    if (!anchor?.href.startsWith('http') || anchor.origin === location.origin) {
+      return;
+    }
     window.umami?.track('outbound-click', {
       host: anchor.host,
       path: anchor.pathname,
@@ -129,4 +157,6 @@ function watch() {
 
 // Started by being loaded, and it lives as long as the page does. On the
 // server there is no page to watch.
-if (typeof window !== 'undefined') watch();
+if (typeof window !== 'undefined') {
+  watch();
+}
