@@ -169,6 +169,8 @@
             <button
               type="button"
               aria-pressed={heard === sound}
+              data-umami-event="sound-press"
+              data-umami-event-src={sound}
               class="block w-full cursor-pointer rounded-lg outline-offset-4 outline-coin aria-pressed:outline-2"
               onclick={() => {
                 toggle(sound);

@@ -1,19 +1,11 @@
 import { test, expect, type Page } from '@playwright/test';
+import { trackCalls } from './umami';
 
 // essay-read is the content site's conversion: which essays people finish, not
-// just open. The real tracker only loads on threesam.com, so stub window.umami.
-async function trackCalls(page: Page) {
-  await page.addInitScript(() => {
-    const calls: unknown[][] = [];
-    (window as unknown as { __calls: unknown[][] }).__calls = calls;
-    window.umami = { track: (...args: unknown[]) => void calls.push(args) };
-  });
-  return () =>
-    page.evaluate(() =>
-      (window as unknown as { __calls: [string, unknown][] }).__calls.filter(
-        ([name]) => name === 'essay-read',
-      ),
-    );
+// just open.
+async function readCalls(page: Page) {
+  const calls = await trackCalls(page);
+  return async () => (await calls()).filter(([name]) => name === 'essay-read');
 }
 
 const ESSAYS = [
@@ -28,7 +20,7 @@ const ESSAYS = [
 
 for (const path of ESSAYS) {
   test(`${path} fires essay-read once, only after scrolling to the end`, async ({ page }) => {
-    const reads = await trackCalls(page);
+    const reads = await readCalls(page);
     await page.goto(path);
     await page.waitForTimeout(300);
     expect(await reads(), 'fired on load').toHaveLength(0);

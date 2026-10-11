@@ -14,9 +14,9 @@
   // those routes directly so the other 7 pages don't ship 3 unused
   // weight files. See src/lib/fonts/epilogue.ts.
   import Guide from '$lib/components/frame/Guide.svelte';
-  import OutboundTracker from '$lib/components/OutboundTracker.svelte';
   import Anchor from '$lib/components/frame/Anchor.svelte';
   import { diveMode } from '$lib/dive-mode.svelte';
+  import { watchEngagement } from '$lib/engagement';
 
   let { children }: { children: import('svelte').Snippet } = $props();
 
@@ -40,9 +40,12 @@
     script.dataset['websiteId'] = '2a502ffa-58a1-4057-be13-e46f0354cfb7';
     document.head.append(preconnect, script);
   });
+
+  // Scroll depth, time in view, media and off-site clicks, on every page.
+  // Off threesam.com there is no tracker to hear them, so they go nowhere.
+  onMount(watchEngagement);
 </script>
 
-<OutboundTracker />
 <!-- the guide coin leaves with everything else during the dive send-off;
      wrapper (not Guide itself) so the fade composes with its own state -->
 <div class="guide-slot" class:diving-away={diveMode.leaving}>
