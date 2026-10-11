@@ -64,7 +64,8 @@ export function watchEngagement(): () => void {
   const onTime = ({ target: media }: Event): void => {
     if (!(media instanceof HTMLMediaElement) || media.muted || media.paused) return;
     if (!Number.isFinite(media.duration) || media.duration === 0) return;
-    const data = { src: new URL(media.currentSrc).pathname.split('/').pop() ?? '' };
+    // The file's name, without the folder or the cache stamp.
+    const data = { src: media.currentSrc.split(/[?#]/)[0]?.split('/').pop() ?? '' };
     const now = (media.currentTime / media.duration) * 100;
     let was = played.get(media);
     if (was === undefined) {
