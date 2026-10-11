@@ -5,7 +5,6 @@
   import ReadMark from "$lib/components/ReadMark.svelte";
   import SeoHead from "$lib/components/SeoHead.svelte";
   import {
-    LAST_ASK,
     POSTER,
     PUBLISHED,
     layers,
@@ -67,7 +66,7 @@
     headline: "sea foam",
     image: POSTER,
     datePublished: PUBLISHED,
-    dateModified: "2026-10-10",
+    dateModified: "2026-10-11",
   })}
   breadcrumbTrail={[
     { path: "/", name: "threesam" },
@@ -188,10 +187,12 @@
   </section>
 {/each}
 
-<section class="mt-24 md:mt-36" aria-label="the last ask">
-  {@render said(LAST_ASK.ask)}
-  {@render told(LAST_ASK.told, LAST_ASK.phases)}
-</section>
+<!-- The piece comes again straight under this, from the layout. -->
+<h2
+  class="mt-24 font-mono text-2xl font-bold uppercase tracking-[0.08em] text-balance md:mt-36 md:text-4xl"
+>
+  where i stopped
+</h2>
 <audio bind:this={player} onended={stop}></audio>
 <ReadMark />
 

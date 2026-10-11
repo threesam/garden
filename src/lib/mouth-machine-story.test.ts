@@ -3,7 +3,7 @@ import { join } from "path";
 import { describe, expect, it } from "vitest";
 import { assetDimensions } from "./asset-dimensions";
 import { markdownRenderer } from "./markdown";
-import { LAST_ASK, layers, withPhaseIds } from "./mouth-machine-story";
+import { layers, withPhaseIds } from "./mouth-machine-story";
 
 // Drift guard: the story is a hand-written distillation of the raw log. Sam's
 // words are quoted, so they have to be the words in the log, letter for letter.
@@ -15,7 +15,7 @@ const rawHtml = withPhaseIds(markdownRenderer.parse(log) as string);
 const inStatic = (src: string) => existsSync(join(process.cwd(), "static", src));
 
 describe("mouth machine story stays true to the raw log", () => {
-  it.each([...layers.map((l) => l.ask), LAST_ASK.ask])(
+  it.each(layers.map((l) => l.ask))(
     "Sam's ask is in the log verbatim: %s",
     (ask) => {
       expect(log).toContain(`"${ask}`);
@@ -23,7 +23,7 @@ describe("mouth machine story stays true to the raw log", () => {
   );
 
   it("links only to phases the raw page has an anchor for", () => {
-    const phases = [...layers.flatMap((l) => l.phases), ...LAST_ASK.phases];
+    const phases = layers.flatMap((l) => l.phases);
     for (const n of phases) expect(rawHtml).toContain(`<h2 id="phase-${n}" `);
   });
 
