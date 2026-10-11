@@ -18,7 +18,7 @@ land → read to the end → go somewhere next.
 | 4. listen   | `sounds-play`         | `slug`, `variant` | a fresh play on /sounds                                                       |
 | 5. leave to | `outbound-click`      | `host`, `path`, `from` | any off-site link, left or middle click                                  |
 
-On every page, from `src/lib/engagement.ts` (the same file runs sixtom.com and
+On every page, from `src/lib/engagement.js` (the same file runs sixtom.com and
 pyredivers.com, so the names match across all three):
 
 | event                                      | data  | fires when                                                                       |

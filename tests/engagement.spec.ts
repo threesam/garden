@@ -1,7 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import { trackCalls } from './umami';
 
-// src/lib/engagement.ts, in a real browser: what a visitor did after the page
+// src/lib/engagement.js, in a real browser: what a visitor did after the page
 // loaded. One page stands for all of them, since the layout mounts it once.
 const PAGE = '/thoughts/mouth-machine';
 

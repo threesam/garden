@@ -16,7 +16,9 @@
   import Guide from '$lib/components/frame/Guide.svelte';
   import Anchor from '$lib/components/frame/Anchor.svelte';
   import { diveMode } from '$lib/dive-mode.svelte';
-  import { watchEngagement } from '$lib/engagement';
+  // Scroll depth, time in view, media and off-site clicks, on every page. It
+  // starts itself; off threesam.com there is no tracker to hear it.
+  import '$lib/engagement';
 
   let { children }: { children: import('svelte').Snippet } = $props();
 
@@ -40,10 +42,6 @@
     script.dataset['websiteId'] = '2a502ffa-58a1-4057-be13-e46f0354cfb7';
     document.head.append(preconnect, script);
   });
-
-  // Scroll depth, time in view, media and off-site clicks, on every page.
-  // Off threesam.com there is no tracker to hear them, so they go nowhere.
-  onMount(watchEngagement);
 </script>
 
 <!-- the guide coin leaves with everything else during the dive send-off;
