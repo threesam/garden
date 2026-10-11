@@ -26,8 +26,9 @@ export function watchEngagement(): () => void {
   let path = location.pathname;
   let depth = 0;
   let seconds = 0;
-  // How far into each video or sound this play has got, as a percentage.
-  const played = new WeakMap<HTMLMediaElement, number>();
+  // What each player is on, and how far into it this play has got, as a
+  // percentage. A player that moves to another file starts again.
+  const played = new WeakMap<HTMLMediaElement, { src: string; at: number }>();
 
   // SvelteKit changes page without loading a new document, so a new address
   // is what starts the counts again.
@@ -38,22 +39,27 @@ export function watchEngagement(): () => void {
     seconds = 0;
   };
 
+  // Every handler waits for the tracker, which loads after the page does, so
+  // nothing reached before it arrives is marked as told and then lost.
   const onScroll = (): void => {
+    if (!window.umami) return;
     turnPage();
     const room = document.documentElement.scrollHeight - innerHeight;
     // Less than a screen of scrolling says nothing about reading.
     if (room < innerHeight) return;
     const now = Math.round((scrollY / room) * 100);
-    for (const mark of crossed(SCROLL_MARKS, depth, now)) track(`scroll-${mark}`);
+    for (const mark of crossed(SCROLL_MARKS, depth, now)) track(`scroll-${String(mark)}`);
     depth = Math.max(depth, now);
   };
 
   // Only seconds with the page in front of the visitor count.
+  // ponytail: looked at once a second, so a mark can be a second out.
   const tick = (): void => {
+    if (!window.umami) return;
     turnPage();
     if (document.visibilityState !== 'visible') return;
     seconds += 1;
-    if (SECOND_MARKS.includes(seconds)) track(`engaged-${seconds}s`);
+    if (SECOND_MARKS.includes(seconds)) track(`engaged-${String(seconds)}s`);
   };
 
   // Media events do not bubble, but the capture phase passes through here on
@@ -62,12 +68,15 @@ export function watchEngagement(): () => void {
   // ponytail: a jump forward counts every mark it passes, so `media-75` means
   // "got to 75%", not "sat through 75%". Count watched seconds if that matters.
   const onTime = ({ target: media }: Event): void => {
-    if (!(media instanceof HTMLMediaElement) || media.muted || media.paused) return;
+    if (!window.umami || !(media instanceof HTMLMediaElement)) return;
+    if (media.muted || media.paused) return;
     if (!Number.isFinite(media.duration) || media.duration === 0) return;
+    const src = media.currentSrc;
     // The file's name, without the folder or the cache stamp.
-    const data = { src: media.currentSrc.split(/[?#]/)[0]?.split('/').pop() ?? '' };
+    const data = { src: src.split(/[?#]/)[0]?.split('/').pop() ?? '' };
     const now = (media.currentTime / media.duration) * 100;
-    let was = played.get(media);
+    const last = played.get(media);
+    let was = last?.src === src ? last.at : undefined;
     if (was === undefined) {
       track('media-play', data);
       was = 0;
@@ -76,9 +85,9 @@ export function watchEngagement(): () => void {
       was = 0;
     }
     for (const mark of crossed(MEDIA_MARKS, was, now)) {
-      track(mark === END ? 'media-end' : `media-${mark}`, data);
+      track(mark === END ? 'media-end' : `media-${String(mark)}`, data);
     }
-    played.set(media, Math.max(was, now));
+    played.set(media, { src, at: Math.max(was, now) });
   };
 
   // Capture phase so an inner stopPropagation can't hide the click. Both click

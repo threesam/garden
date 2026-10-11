@@ -16,7 +16,6 @@ land → read to the end → go somewhere next.
 |             | `aba-banner-click`    |                   | the anything-but-analog banner                                                |
 | 3. **read** | **`essay-read`**      | `path`            | the end of an essay scrolls into view, once per view (`ReadMark.svelte`)      |
 | 4. listen   | `sounds-play`         | `slug`, `variant` | a fresh play on /sounds                                                       |
-|             | `sound-press`         | `src`             | the memo picture on /thoughts/mouth-machine is pressed                        |
 | 5. leave to | `outbound-click`      | `host`, `path`, `from` | any off-site link, left or middle click                                  |
 
 On every page, from `src/lib/engagement.ts` (the same file runs sixtom.com and

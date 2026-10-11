@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onDestroy } from "svelte";
   import { MediaQuery } from "svelte/reactivity";
   import { videoVisibility } from "$lib/actions/video-visibility";
   import { assetSize } from "$lib/asset-dimensions";
@@ -29,29 +28,27 @@
   };
 
   // A picture with a sound plays it when pressed, and stops it when pressed
-  // again. One sound at a time; `heard` is the one playing.
-  let playing: HTMLAudioElement | undefined;
+  // again. One player, so one sound at a time; `heard` is the one playing. It
+  // is an element on the page so the site's tracker follows it like any other
+  // sound, and so leaving the page stops it.
+  let player = $state<HTMLAudioElement>();
   let heard = $state<string>();
   const stop = (): void => {
-    playing?.pause();
+    player?.pause();
     heard = undefined;
   };
   const toggle = (src: string): void => {
     const was = heard;
     stop();
-    if (was === src) return;
-    const audio = new Audio(src);
-    const done = (): void => {
-      if (playing === audio) stop();
-    };
-    audio.onended = done;
-    playing = audio;
+    if (was === src || !player) return;
+    player.src = src;
     heard = src;
-    // Stopped before it began, or a file that would not load: back to stopped.
-    audio.play().catch(done);
+    // A file that would not load, or a press that stopped it first: back to
+    // stopped, unless another sound has started since.
+    player.play().catch(() => {
+      if (heard === src) stop();
+    });
   };
-  // Leaving the page takes the button away, so the sound goes with it.
-  onDestroy(stop);
 
   const where = (phases: readonly number[]): string =>
     `${phases.length > 1 ? "phases" : "phase"} ${phases.join(", ")} in the raw log`;
@@ -169,8 +166,6 @@
             <button
               type="button"
               aria-pressed={heard === sound}
-              data-umami-event="sound-press"
-              data-umami-event-src={sound}
               class="block w-full cursor-pointer rounded-lg outline-offset-4 outline-coin aria-pressed:outline-2"
               onclick={() => {
                 toggle(sound);
@@ -197,6 +192,7 @@
   {@render said(LAST_ASK.ask)}
   {@render told(LAST_ASK.told, LAST_ASK.phases)}
 </section>
+<audio bind:this={player} onended={stop}></audio>
 <ReadMark />
 
 <style>

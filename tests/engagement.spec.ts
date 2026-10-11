@@ -81,6 +81,41 @@ const addSound = (page: Page, muted: boolean) =>
     document.body.append(audio, button);
   }, muted);
 
+// The tracker loads after the page, so a visitor can get somewhere first.
+test('what happened before the tracker loaded is told once it has', async ({ page }) => {
+  await page.goto(PAGE);
+  await toTheEnd(page);
+  await page.waitForTimeout(300);
+  await page.evaluate(() => {
+    const calls: unknown[][] = [];
+    (window as unknown as { __calls: unknown[][] }).__calls = calls;
+    window.umami = { track: (...args: unknown[]) => void calls.push(args) };
+    window.scrollBy(0, -1);
+  });
+  await expect
+    .poll(() => page.evaluate(() => (window as unknown as { __calls: unknown[][] }).__calls))
+    .toEqual([['scroll-25'], ['scroll-50'], ['scroll-75'], ['scroll-100']]);
+});
+
+test('a player that moves to another file starts again', async ({ page }) => {
+  const media = await named(page, 'media-');
+  await page.goto(PAGE);
+  await addSound(page, false);
+  const play = page.getByRole('button', { name: 'test sound' });
+  await play.click();
+  await expect.poll(async () => (await media()).length).toBe(5);
+  // The same bytes at a new address: to the page, a different file.
+  await page.evaluate(async () => {
+    const audio = document.querySelector<HTMLAudioElement>('audio[src^="blob:"]');
+    if (!audio) throw new Error('no test sound');
+    audio.src = URL.createObjectURL(await (await fetch(audio.src)).blob());
+  });
+  await play.click();
+  await expect
+    .poll(async () => (await media()).slice(5).map(([name]) => name))
+    .toEqual(['media-play', 'media-25', 'media-50', 'media-75', 'media-end']);
+});
+
 test('a sound played to its end is followed all the way', async ({ page }) => {
   const media = await named(page, 'media-');
   await page.goto(PAGE);
