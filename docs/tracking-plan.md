@@ -16,7 +16,29 @@ land → read to the end → go somewhere next.
 |             | `aba-banner-click`    |                   | the anything-but-analog banner                                                |
 | 3. **read** | **`essay-read`**      | `path`            | the end of an essay scrolls into view, once per view (`ReadMark.svelte`)      |
 | 4. listen   | `sounds-play`         | `slug`, `variant` | a fresh play on /sounds                                                       |
-| 5. leave to | `outbound-click`      | `host`, `path`, `from` | any off-site link, left or middle click (`OutboundTracker.svelte`)       |
+| 5. leave to | `outbound-click`      | `host`, `path`, `from` | any off-site link, left or middle click                                  |
+
+On every page, from `src/lib/engagement.js` (the same file runs sixtom.com and
+pyredivers.com, so the names match across all three):
+
+| event                                      | data  | fires when                                                                       |
+| ------------------------------------------ | ----- | -------------------------------------------------------------------------------- |
+| `scroll-25` `-50` `-75` `-100`             |       | that far down the page, once per page view. Pages under two screens are skipped  |
+| `engaged-10s` `-30s` `-60s` `-180s`        |       | that many seconds with the page in front of the visitor (hidden tabs do not count) |
+| `media-play`                               | `src` | a video or sound with its sound on starts                                        |
+| `media-25` `-50` `-75`, `media-end`        | `src` | it gets that far. `media-end` is 95%, because a loop never reports an end        |
+| `media-replay`                             | `src` | it is back at the start after getting a quarter in: a loop, a second press       |
+
+Muted loops are decoration and are not followed. Each mark is its own event
+name so umami's Journey and Funnel reports can put them in order, for example
+pageview → `scroll-50` → `media-play` → `media-end` → `outbound-click`.
+
+## reading one visitor
+
+Umami → threesam.com → **Sessions**, pick a session: its page views and events
+are listed in the order they happened. **Reports → Journey** shows the common
+paths across everyone; **Reports → Funnel** takes any run of the events above.
+Filter either by `utm_campaign` to follow one post.
 
 `essay-read` is the conversion. Reads ÷ pageviews per essay is the finish
 rate. It counts reaching the end however fast, so a skimmer counts too.
