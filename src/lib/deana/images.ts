@@ -1,32 +1,46 @@
 // Pre-baked ASCII prints (see scripts/generate-deana-ascii.mjs) shared by the
 // homepage gallery card and the /deana page hero. Static <img srcset>
 // replaces the prior ~960ms runtime canvas conversion on the critical path.
-const ASCII_BASES = [
-	"deana-6",
-	"deana-5",
-	"deana-hero-3",
-	"deana-hero",
-	"deana-hero-5",
-	"deana-hero-6",
-];
-
 export interface AsciiSrc {
 	sm: string;
 	md: string;
 	lg: string;
 }
 
-// ?v=N busts Vercel's immutable 1-year cache on /assets/ when we re-bake the
-// prints. Bump every time scripts/generate-deana-ascii.mjs changes the look
-// (CELL, ramp, lumToTone) so browsers fetch the new bake instead of serving
-// the stale cached webp from the same URL.
-const DEANA_V = 11;
-
-export const DEANA_ASCII: AsciiSrc[] = ASCII_BASES.map((base) => ({
-	sm: `/assets/deana-ascii/${base}-sm.webp?v=${DEANA_V}`,
-	md: `/assets/deana-ascii/${base}-md.webp?v=${DEANA_V}`,
-	lg: `/assets/deana-ascii/${base}-lg.webp?v=${DEANA_V}`,
-}));
+// Each address is written out whole so the build can fingerprint it
+// (asset-version.ts): a re-baked print is fetched again with nothing to bump.
+export const DEANA_ASCII: AsciiSrc[] = [
+	{
+		sm: "/assets/deana-ascii/deana-6-sm.webp",
+		md: "/assets/deana-ascii/deana-6-md.webp",
+		lg: "/assets/deana-ascii/deana-6-lg.webp",
+	},
+	{
+		sm: "/assets/deana-ascii/deana-5-sm.webp",
+		md: "/assets/deana-ascii/deana-5-md.webp",
+		lg: "/assets/deana-ascii/deana-5-lg.webp",
+	},
+	{
+		sm: "/assets/deana-ascii/deana-hero-3-sm.webp",
+		md: "/assets/deana-ascii/deana-hero-3-md.webp",
+		lg: "/assets/deana-ascii/deana-hero-3-lg.webp",
+	},
+	{
+		sm: "/assets/deana-ascii/deana-hero-sm.webp",
+		md: "/assets/deana-ascii/deana-hero-md.webp",
+		lg: "/assets/deana-ascii/deana-hero-lg.webp",
+	},
+	{
+		sm: "/assets/deana-ascii/deana-hero-5-sm.webp",
+		md: "/assets/deana-ascii/deana-hero-5-md.webp",
+		lg: "/assets/deana-ascii/deana-hero-5-lg.webp",
+	},
+	{
+		sm: "/assets/deana-ascii/deana-hero-6-sm.webp",
+		md: "/assets/deana-ascii/deana-hero-6-md.webp",
+		lg: "/assets/deana-ascii/deana-hero-6-lg.webp",
+	},
+];
 
 // Widths match SM_W / MD_W / LG_W in scripts/generate-deana-ascii.mjs.
 export const asciiSrcset = (s: AsciiSrc): string => `${s.sm} 320w, ${s.md} 480w, ${s.lg} 700w`;

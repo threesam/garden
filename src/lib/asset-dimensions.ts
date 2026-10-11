@@ -1,4 +1,4 @@
-// Intrinsic pixel dimensions of the static /assets used on content pages.
+// Intrinsic pixel dimensions of the files in static/assets used on content pages.
 //
 // One source of truth for two CLS guards that both need an image's shape
 // *before* the bitmap decodes:

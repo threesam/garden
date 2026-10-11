@@ -5,12 +5,14 @@ import { join } from 'node:path';
 import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, type Plugin } from 'vite';
-import { stampAssets, type AssetVersions } from './src/lib/asset-version';
+import { STAMPED_DIRS, stampAssets, type AssetVersions } from './src/lib/asset-version';
 
-// A fingerprint of the bytes of every file under static/assets, keyed by the
-// address it is served at.
+// A fingerprint of the bytes of every file in the folders cached for a year,
+// keyed by the address it is served at.
 function assetVersions(): AssetVersions {
-  const files = readdirSync('static/assets', { recursive: true, withFileTypes: true });
+  const files = STAMPED_DIRS.flatMap((dir) =>
+    readdirSync(`static/${dir}`, { recursive: true, withFileTypes: true }),
+  );
   return Object.fromEntries(
     files
       .filter((file) => file.isFile())
@@ -24,8 +26,9 @@ function assetVersions(): AssetVersions {
 
 // Stamps every asset address written out in full in the source: markup, styles
 // and data files alike. An address put together at run time (`${dir}/${n}.jpg`)
-// is not seen, so write addresses whole. asset-dimensions.ts is skipped because
-// its addresses are lookup keys, not links.
+// is not seen, so addresses are written whole; asset-version.test.ts holds src
+// to that. asset-dimensions.ts is skipped because its addresses are lookup
+// keys, not links.
 function fingerprintAssets(versions: AssetVersions): Plugin {
   return {
     name: 'fingerprint-assets',

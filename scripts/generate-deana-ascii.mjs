@@ -27,8 +27,8 @@ const OUT_DIR = "static/assets/deana-ascii";
 // at the /deana hero scale — at the 1440 px desktop display the upscale
 // from the 700 px source leaves each glyph at ~6 CSS px, dense enough
 // to read as a portrait, sparse enough to still see the grid.
-// Bump DEANA_V in src/lib/deana/images.ts when changing this so the
-// browser actually fetches the new bake past Vercel's immutable cache.
+// The build fingerprints each print (src/lib/asset-version.ts), so a new
+// bake reaches the browser past Vercel's immutable cache with nothing to bump.
 const CELL = 3;
 const HEIGHT_RATIO = 1.8; // glyph cell is taller than wide
 // The card displays at ~432px wide on lg (30vw of 1440) and full-bleed on
