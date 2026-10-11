@@ -27,7 +27,7 @@ pyredivers.com, so the names match across all three):
 | `engaged-10s` `-30s` `-60s` `-180s`        |       | that many seconds with the page in front of the visitor (hidden tabs do not count) |
 | `media-play`                               | `src` | a video or sound with its sound on starts                                        |
 | `media-25` `-50` `-75`, `media-end`        | `src` | it gets that far. `media-end` is 95%, because a loop never reports an end        |
-| `media-replay`                             | `src` | it comes round again, or is taken back after the end                             |
+| `media-replay`                             | `src` | it is back at the start after getting a quarter in: a loop, a second press       |
 
 Muted loops are decoration and are not followed. Each mark is its own event
 name so umami's Journey and Funnel reports can put them in order, for example

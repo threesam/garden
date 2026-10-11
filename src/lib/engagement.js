@@ -13,7 +13,8 @@ const SECOND_MARKS = [10, 30, 60, 180];
 // A looping video goes back to the start without ever saying it ended, so
 // getting this far counts as the end.
 const END = 95;
-const MEDIA_MARKS = [25, 50, 75, END];
+const FIRST = 25;
+const MEDIA_MARKS = [FIRST, 50, 75, END];
 
 /**
  * The marks passed on the way from one reading up to the next.
@@ -73,6 +74,8 @@ function watch() {
   // Muted loops are decoration and are left out.
   // ponytail: a jump forward counts every mark it passes, so `media-75` means
   // "got to 75%", not "sat through 75%". Count watched seconds if that matters.
+  // ponytail: a loop of a few seconds can go round between two looks and skip
+  // its `media-end`. Nothing that short plays with sound today.
   /** @param {Event} event */
   const onTime = ({ type, target: media }) => {
     if (!window.umami || !(media instanceof HTMLMediaElement)) return;
@@ -81,15 +84,18 @@ function watch() {
     if (media.muted || (media.paused && type !== 'ended')) return;
     if (!Number.isFinite(media.duration) || media.duration === 0) return;
     const src = media.currentSrc;
-    // The file's name, without the folder or the cache stamp.
-    const data = { src: src.split(/[?#]/)[0]?.split('/').pop() ?? '' };
+    // Where the file is, without the cache stamp. Files of the site's own
+    // lose the site's name; anything hosted elsewhere keeps its whole address.
+    const data = { src: src.replace(location.origin, '').split(/[?#]/)[0] ?? '' };
     const now = (media.currentTime / media.duration) * 100;
     const last = played.get(media);
     let was = last?.src === src ? last.at : undefined;
     if (was === undefined) {
       window.umami.track('media-play', data);
       was = 0;
-    } else if (was >= END && now < END) {
+    } else if (was >= FIRST && now < FIRST) {
+      // Back at the start after getting somewhere: a loop coming round, a
+      // second press, or the bar dragged back.
       window.umami.track('media-replay', data);
       was = 0;
     }

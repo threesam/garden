@@ -127,6 +127,19 @@ test('a sound played to its end is followed all the way', async ({ page }) => {
   expect((await media())[0]?.[1]).toHaveProperty('src');
 });
 
+test('a sound started again counts as a replay and is followed again', async ({ page }) => {
+  const media = await named(page, 'media-');
+  await page.goto(PAGE);
+  await addSound(page, false);
+  const play = page.getByRole('button', { name: 'test sound' });
+  await play.click();
+  await expect.poll(async () => (await media()).length).toBe(5);
+  await play.click();
+  await expect
+    .poll(async () => (await media()).slice(5).map(([name]) => name))
+    .toEqual(['media-replay', 'media-25', 'media-50', 'media-75', 'media-end']);
+});
+
 test('a muted sound is decoration and is not followed', async ({ page }) => {
   const media = await named(page, 'media-');
   await page.goto(PAGE);
