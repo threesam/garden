@@ -3,7 +3,7 @@
   import { page } from "$app/state";
   import Segmented from "$lib/components/Segmented.svelte";
   import Video from "$lib/components/Video.svelte";
-  import { POSTER } from "$lib/mouth-machine-story";
+  import { POSTER, VIDEO } from "$lib/mouth-machine-story";
 
   let { children }: { children: Snippet } = $props();
 
@@ -24,7 +24,7 @@
     loop
     playsinline
     {preload}
-    src="/assets/mouth-machine/piece-19.mp4"
+    src={VIDEO}
     poster={POSTER}
     aria-label="sea foam, piece 19 of mouth machine: seafoam shapes on black, guitar over a loop of mouth drums"
     class="mx-auto my-9 block aspect-9/16 w-full max-w-sm rounded-lg bg-black md:my-12"
@@ -102,6 +102,12 @@
           the raw log, all 45 turns →
         </a>
       {/if}
+      <a
+        href="/thoughts/love-bombed"
+        class="text-(--soft) transition-colors hover:text-coin"
+      >
+        love bombed, the second piece →
+      </a>
     </footer>
   </article>
 </main>

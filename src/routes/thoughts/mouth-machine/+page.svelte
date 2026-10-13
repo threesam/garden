@@ -5,13 +5,15 @@
   import ReadMark from "$lib/components/ReadMark.svelte";
   import SeoHead from "$lib/components/SeoHead.svelte";
   import {
+    OG,
     POSTER,
     PUBLISHED,
+    VIDEO,
     layers,
     type Layer,
     type Still,
   } from "$lib/mouth-machine-story";
-  import { articleNode } from "$lib/seo";
+  import { articleNode, videoNode } from "$lib/seo";
 
   const DESCRIPTION =
     "a 34 second video that started as a voice memo of mouth drums, built up in seven layers: what Sam asked for, and what each ask put on.";
@@ -60,16 +62,27 @@
   description={DESCRIPTION}
   canonical="/thoughts/mouth-machine"
   ogType="article"
-  ogImage={POSTER}
+  ogImage={OG}
   ogImageAlt="a seafoam ring on a black ground"
   preloadImage={POSTER}
-  schema={articleNode({
-    path: "/thoughts/mouth-machine",
-    headline: "sea foam",
-    image: POSTER,
-    datePublished: PUBLISHED,
-    dateModified: "2026-10-11",
-  })}
+  schema={[
+    articleNode({
+      path: "/thoughts/mouth-machine",
+      headline: "sea foam",
+      image: OG,
+      datePublished: PUBLISHED,
+      dateModified: "2026-10-11",
+    }),
+    videoNode({
+      path: "/thoughts/mouth-machine",
+      name: "sea foam",
+      thumbnail: POSTER,
+      contentUrl: VIDEO,
+      uploadDate: PUBLISHED,
+      duration: "PT35S",
+      series: "mouth machine",
+    }),
+  ]}
   breadcrumbTrail={[
     { path: "/", name: "threesam" },
     { path: "/thoughts", name: "thoughts" },

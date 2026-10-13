@@ -6,8 +6,10 @@
   import SeoHead from "$lib/components/SeoHead.svelte";
   import {
     BARS,
+    OG,
     POSTER,
     PUBLISHED,
+    VIDEO,
     chorus,
     cover,
     coverStills,
@@ -18,7 +20,7 @@
     words,
     type Clip,
   } from "$lib/love-bombed-story";
-  import { articleNode } from "$lib/seo";
+  import { articleNode, videoNode } from "$lib/seo";
 
   const PATH = "/thoughts/love-bombed";
   const DESCRIPTION =
@@ -38,15 +40,27 @@
   description={DESCRIPTION}
   canonical={PATH}
   ogType="article"
-  ogImage={POSTER}
-  ogImageAlt="hands on a guitar in wine on pink, with the words 10 years of birthdays along the bottom"
+  ogImage={OG}
+  ogImageAlt="hands on a guitar in wine, over rows of small letters on pink"
   preloadImage={POSTER}
-  schema={articleNode({
-    path: PATH,
-    headline: "love bombed",
-    image: POSTER,
-    datePublished: PUBLISHED,
-  })}
+  schema={[
+    articleNode({
+      path: PATH,
+      headline: "love bombed",
+      image: OG,
+      datePublished: PUBLISHED,
+    }),
+    videoNode({
+      path: PATH,
+      name: "love bombed",
+      thumbnail: POSTER,
+      contentUrl: VIDEO,
+      uploadDate: PUBLISHED,
+      duration: "PT1M34S",
+      transcript: words.join("\n"),
+      series: "mouth machine",
+    }),
+  ]}
   breadcrumbTrail={[
     { path: "/", name: "threesam" },
     { path: "/thoughts", name: "thoughts" },

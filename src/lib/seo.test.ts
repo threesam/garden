@@ -7,6 +7,7 @@ import {
   jsonLdToScript,
   musicPlaylistNode,
   resolveTitle,
+  videoNode,
 } from "./seo";
 
 // Pure functions over JS objects — moved here from the Playwright suite so the
@@ -70,6 +71,35 @@ describe("seo node builders", () => {
     expect(nodes[0]!["@type"]).toBe("Person");
     expect(nodes[1]!["@type"]).toBe("WebSite");
     expect(nodes[2]).toBe(pageNode);
+  });
+});
+
+describe("videoNode", () => {
+  it("emits what a video result needs, and ties the piece to its series", () => {
+    const node = videoNode({
+      path: "/thoughts/love-bombed",
+      name: "love bombed",
+      thumbnail: "/assets/love-bombed/love-bombed-poster.jpg",
+      contentUrl: "/assets/love-bombed/love-bombed.mp4",
+      uploadDate: "2026-10-13",
+      duration: "PT1M34S",
+      transcript: "my love",
+      series: "mouth machine",
+    }) as Record<string, unknown>;
+    expect(node["@type"]).toBe("VideoObject");
+    expect(node["thumbnailUrl"]).toBe(
+      "https://threesam.com/assets/love-bombed/love-bombed-poster.jpg",
+    );
+    expect(node["contentUrl"]).toBe(
+      "https://threesam.com/assets/love-bombed/love-bombed.mp4",
+    );
+    expect(node["uploadDate"]).toBe("2026-10-13T00:00:00Z");
+    expect(node["transcript"]).toBe("my love");
+    expect(node["isPartOf"]).toMatchObject({
+      "@type": "CreativeWorkSeries",
+      "@id": "https://threesam.com/#mouth-machine",
+      name: "mouth machine",
+    });
   });
 });
 

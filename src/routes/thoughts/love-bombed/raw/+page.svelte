@@ -1,7 +1,7 @@
 <script lang="ts">
   import MakingLog from "$lib/components/MakingLog.svelte";
   import SeoHead from "$lib/components/SeoHead.svelte";
-  import { POSTER, PUBLISHED, TURNS } from "$lib/love-bombed-story";
+  import { OG, POSTER, PUBLISHED, TURNS } from "$lib/love-bombed-story";
   import { articleNode } from "$lib/seo";
   import type { PageData } from "./$types";
 
@@ -18,13 +18,13 @@
   description={DESCRIPTION}
   canonical={PATH}
   ogType="article"
-  ogImage={POSTER}
-  ogImageAlt="hands on a guitar in wine on pink, with the words 10 years of birthdays along the bottom"
+  ogImage={OG}
+  ogImageAlt="hands on a guitar in wine, over rows of small letters on pink"
   preloadImage={POSTER}
   schema={articleNode({
     path: PATH,
     headline: TITLE,
-    image: POSTER,
+    image: OG,
     datePublished: PUBLISHED,
   })}
   breadcrumbTrail={[

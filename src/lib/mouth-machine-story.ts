@@ -35,6 +35,9 @@ export interface Layer {
 
 export const PUBLISHED = "2026-10-09";
 export const POSTER = "/assets/mouth-machine/piece-19-poster.jpg";
+/** The picture a link to the page carries: 1200 x 630, where the poster is a tall frame. */
+export const OG = "/assets/mouth-machine/piece-19-og.jpg";
+export const VIDEO = "/assets/mouth-machine/piece-19.mp4";
 
 export const layers: readonly Layer[] = [
   {
