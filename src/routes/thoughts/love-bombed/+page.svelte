@@ -84,14 +84,28 @@
   <h2 id="song" class={H2}>how i structured the song</h2>
 
   <figure class="mt-9 md:mt-12">
-    <img
-      src={loop.src}
-      alt={loop.alt}
-      width={assetSize(loop.src)?.w}
-      height={assetSize(loop.src)?.h}
-      decoding="async"
-      class="block w-full rounded-lg"
-    />
+    <!-- Drawn from the numbers. Always the piece's pink on its wine, in both
+         modes: pink is love bombed. The ticks are the beats; the tall ones, bars. -->
+    <svg
+      viewBox="0 0 {loop.peaks.length} 100"
+      preserveAspectRatio="none"
+      role="img"
+      aria-label={loop.alt}
+      class="block h-32 w-full rounded-lg bg-[#240a14] p-3 text-[#ff8fb3] md:h-40"
+    >
+      {#each loop.peaks as p, i (i)}
+        <rect x={i + 0.15} y={46 - p * 0.44} width="0.7" height={p * 0.88 + 0.6} fill="currentColor" />
+      {/each}
+      {#each { length: loop.bars * loop.beats + 1 } as _, b (b)}
+        <rect
+          x={Math.min((b * loop.peaks.length) / (loop.bars * loop.beats), loop.peaks.length - 0.4)}
+          y={b % loop.beats === 0 ? 92 : 96}
+          width="0.4"
+          height={b % loop.beats === 0 ? 8 : 4}
+          fill="currentColor"
+        />
+      {/each}
+    </svg>
     <audio
       src={loop.sound}
       controls

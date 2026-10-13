@@ -54,11 +54,12 @@ describe("love bombed story stays true to the piece", () => {
       expect(inStatic(c.src), c.src).toBe(true);
       expect(inStatic(c.poster), c.poster).toBe(true);
     }
-    for (const s of [...coverStills, loop]) {
+    for (const s of coverStills) {
       expect(inStatic(s.src), s.src).toBe(true);
       expect(assetDimensions[s.src], s.src).toBeDefined();
     }
     expect(inStatic(loop.sound), loop.sound).toBe(true);
+    expect(loop.peaks).toHaveLength(240);
   });
 
   it("anchors every phase of the raw log and nothing else", () => {
