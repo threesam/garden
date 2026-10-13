@@ -42,10 +42,7 @@ export interface Span {
 
 /** Where it started: the loop everything else was played over. */
 export const loop = {
-  /** The loop's loudness, 240 slices across its four bars, 0 to 99. Drawn in pink. */
-  peaks: [8,4,7,11,55,80,79,72,68,43,79,89,57,18,29,21,7,1,1,4,21,20,15,13,10,7,5,7,4,2,3,0,0,0,1,0,0,0,0,0,3,2,1,4,10,10,21,7,10,6,5,4,1,1,0,0,0,0,0,0,4,2,57,99,90,55,68,60,65,57,52,22,29,35,22,22,7,6,8,4,6,4,5,5,2,2,3,2,1,1,0,0,1,0,0,0,1,1,0,2,8,4,5,3,2,1,1,2,2,1,0,0,0,0,0,0,0,0,0,0,2,1,6,23,64,49,36,14,11,20,20,21,20,42,25,15,5,1,1,1,1,3,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,2,1,0,0,0,0,0,1,1,1,1,0,1,1,1,0,0,0,0,3,3,9,10,17,29,49,48,46,24,46,31,37,42,68,26,17,3,1,6,6,5,4,5,6,8,13,9,6,15,20,13,17,9,3,1,1,1,1,0,5,4,16,13,10,7,7,6,9,12,26,13,18,16,14,13,28,13,13,15],
-  bars: 4,
-  beats: 3,
+  src: "/assets/love-bombed/loop-waveform.svg",
   alt: "the waveform of the loop: four bars of three, a big low sound on each one and smaller ones between",
   sound: "/assets/love-bombed/three-four-soft.m4a",
   caption:
