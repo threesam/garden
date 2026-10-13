@@ -105,7 +105,11 @@
     clips below
   </p>
 
-  <ol class="mt-9 grid grid-cols-2 gap-x-4 gap-y-9 md:mt-12 md:grid-cols-4">
+  <!-- role: the reset takes the numbers off, and Safari then stops calling it a list -->
+  <ol
+    role="list"
+    class="mt-9 grid grid-cols-2 gap-x-4 gap-y-9 md:mt-12 md:grid-cols-4"
+  >
     {#each song as part, i (part.src)}
       <li class="min-w-0">
         {@render clip(part, i + 1)}
@@ -123,7 +127,11 @@
   <h2 id="layers" class={H2}>
     how i structured the visual layers and the effects used
   </h2>
-  <ol class="mt-9 grid grid-cols-2 gap-x-4 gap-y-9 md:mt-12 md:grid-cols-4">
+  <!-- role: the reset takes the numbers off, and Safari then stops calling it a list -->
+  <ol
+    role="list"
+    class="mt-9 grid grid-cols-2 gap-x-4 gap-y-9 md:mt-12 md:grid-cols-4"
+  >
     {#each visual as layer, i (layer.src)}
       <li class={["min-w-0", layer.wide && "col-span-2"]}>
         {@render clip(layer, i + 1)}

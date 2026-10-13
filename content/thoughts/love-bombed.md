@@ -1,5 +1,3 @@
-# Love bombed
-
 Piece 2 of the mouth machine series. The first piece is "sea foam", and its log is `../LOG.md`. This one is its own: its own name, its own colours, its own folder. The rules in that log hold here too: every turn that changes what is heard is a log entry and a commit, Sam's words are quoted, nothing playing is swapped without saying so first, and a thing is "kept" only when Sam says so.
 
 Sam named it on October 12: "This one's not called Seafoam. So it should be different. [...] This should be called Love Bomb. Love Bombed." Written here as "love bombed", the way "sea foam" is written, and the name is read as the second of the two he said.
