@@ -37,6 +37,10 @@ export function GET() {
       url: `${SITE_URL}/thoughts/love-bombed`,
       lastmod: new Date('2026-10-13T00:00:00Z').toISOString(),
     },
+    {
+      url: `${SITE_URL}/thoughts/love-bombed/raw`,
+      lastmod: new Date('2026-10-13T00:00:00Z').toISOString(),
+    },
   ];
 
   const body = `<?xml version="1.0" encoding="UTF-8"?>

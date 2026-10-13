@@ -1,23 +1,39 @@
 <script lang="ts">
-  import MakingLog from "$lib/components/MakingLog.svelte";
+  import { MediaQuery } from "svelte/reactivity";
+  import { videoVisibility } from "$lib/actions/video-visibility";
+  import { assetSize } from "$lib/asset-dimensions";
+  import ReadMark from "$lib/components/ReadMark.svelte";
   import SeoHead from "$lib/components/SeoHead.svelte";
-  import Video from "$lib/components/Video.svelte";
+  import {
+    BARS,
+    POSTER,
+    PUBLISHED,
+    chorus,
+    cover,
+    coverStills,
+    song,
+    timeline,
+    visual,
+    words,
+    type Clip,
+  } from "$lib/love-bombed-story";
   import { articleNode } from "$lib/seo";
-  import type { PageData } from "./$types";
-
-  let { data }: { data: PageData } = $props();
-  let { html } = $derived(data);
 
   const PATH = "/thoughts/love-bombed";
-  const TITLE = "love bombed";
-  const PUBLISHED = "2026-10-13";
-  const POSTER = "/assets/love-bombed/love-bombed-poster.jpg";
   const DESCRIPTION =
-    "the second mouth machine piece: a 94 second video for a birthday, and the log of every turn it took to get there.";
+    "the second mouth machine piece, a 94 second video for a birthday, taken apart: the song, the visual layers, the words and chorus, the cover.";
+
+  // The clips play only while on screen, and not at all for a reader who has
+  // asked for less motion. They start muted and carry native controls.
+  const calm = new MediaQuery("(prefers-reduced-motion: reduce)");
+
+  const H2 =
+    "font-mono text-2xl font-bold uppercase tracking-[0.08em] text-balance md:text-4xl";
+  const NOTE = "mt-3 font-mono text-xs leading-relaxed text-(--soft)";
 </script>
 
 <SeoHead
-  title={TITLE}
+  title="love bombed"
   description={DESCRIPTION}
   canonical={PATH}
   ogType="article"
@@ -26,100 +42,178 @@
   preloadImage={POSTER}
   schema={articleNode({
     path: PATH,
-    headline: TITLE,
+    headline: "love bombed",
     image: POSTER,
     datePublished: PUBLISHED,
   })}
   breadcrumbTrail={[
     { path: "/", name: "threesam" },
     { path: "/thoughts", name: "thoughts" },
-    { path: PATH, name: TITLE },
+    { path: PATH, name: "love bombed" },
   ]}
 />
 
-<!-- The piece sits above the log and again below it: the thing first, how
-     it got made, then the thing again. Only the first one fetches metadata
-     up front; the second waits for a tap. -->
-{#snippet piece(preload: "metadata" | "none")}
-  <Video
-    controls
-    playsinline
-    {preload}
-    src="/assets/love-bombed/love-bombed.mp4"
-    poster={POSTER}
-    aria-label="love bombed, piece 2 of mouth machine: wine shapes on pink, guitar over a loop of mouth drums, a spoken piece with its words along the bottom"
-    class="mx-auto my-9 block aspect-9/16 w-full max-w-sm rounded-lg bg-black md:my-12"
-    tracks={[
-      {
-        src: "/assets/love-bombed/love-bombed.vtt",
-        srclang: "en",
-        label: "English",
-        kind: "captions",
-      },
-    ]}
-  />
+{#snippet clip(c: Clip, n?: number)}
+  <figure class="min-w-0">
+    <video
+      src={c.src}
+      poster={c.poster}
+      aria-label={c.alt}
+      muted
+      loop
+      playsinline
+      controls
+      preload="none"
+      class={[
+        "block w-full rounded-lg bg-black",
+        c.wide ? "aspect-video" : "aspect-9/16",
+      ]}
+      use:videoVisibility={{ autoplay: !calm.current }}
+    ></video>
+    <figcaption class="mt-3 font-mono text-xs leading-relaxed md:text-sm">
+      {#if n}<span class="text-(--soft)">{n}</span>{/if}
+      {c.caption}
+      {#if c.sound}<span class="text-(--soft)">· has sound</span>{/if}
+      {#if c.how}<span class="mt-2 block text-(--soft)">{c.how}</span>{/if}
+    </figcaption>
+  </figure>
 {/snippet}
 
-<main class="min-h-dvh bg-(--ground) text-(--ink)">
-  <article class="mx-auto max-w-3xl px-6 py-18 md:px-9 md:py-24">
-    <header class="mb-9 md:mb-12">
-      <p
-        class="mb-4 font-mono text-xs uppercase tracking-section text-coin md:text-sm"
-      >
-        mouth machine
+<section aria-labelledby="song">
+  <h2 id="song" class={H2}>how i structured the song</h2>
+
+  <!-- The whole piece as one strip, a column a bar. The list under it says the
+       same thing in words, so the strip is a picture to a screen reader. -->
+  <div
+    class="bars mt-9 md:mt-12"
+    role="img"
+    aria-label="the piece as a strip of {BARS} bars. guitar: the center take's first half four times, the center take whole, the bottom-left take, the top-right take, then a quarter of the bottom-left take backwards four times. the spoken words run from bar 13 to bar 74. the sung my love comes at bars 74, 78, 82 and 86. the mouth drums come to the front from bar 73."
+  >
+    {#each timeline as row (row.label)}
+      <p class="mb-1 mt-4 font-mono text-xs uppercase tracking-section text-(--soft)">
+        {row.label}
       </p>
-      <h1 class="font-display text-4xl uppercase tracking-base md:text-6xl">
-        love bombed
-      </h1>
-      <p class="mt-6 font-sans text-base leading-relaxed text-(--soft) md:text-lg">
-        kept by claude, one entry per turn, while Sam made the video below.
-        where it says "this side", that is claude's side.
-      </p>
-    </header>
+      <div class="row" style:--bars={BARS}>
+        {#each row.spans as s (s.from)}
+          <span style:grid-column="{s.from + 1} / span {s.len}">{s.n ?? ""}</span>
+        {/each}
+      </div>
+    {/each}
+  </div>
+  <p class={NOTE}>
+    {BARS} bars of three, a little over a second each. the numbers are the
+    clips below
+  </p>
 
-    {@render piece("metadata")}
+  <!-- role: the reset takes the numbers off, and Safari then stops calling it a list -->
+  <ol
+    role="list"
+    class="mt-9 grid grid-cols-2 gap-x-4 gap-y-9 md:mt-12 md:grid-cols-4"
+  >
+    {#each song as part, i (part.src)}
+      <li class="min-w-0">
+        {@render clip(part, i + 1)}
+        <p class={NOTE}>{part.bars}</p>
+      </li>
+    {/each}
+  </ol>
+  <p class={[NOTE, "mt-9"]}>
+    the mouth drums were playing in the room for every take, so they are under
+    all of it. they come to the front, clean, where the guitar turns backwards
+  </p>
+</section>
 
-    <MakingLog {html} />
+<section class="mt-24 md:mt-36" aria-labelledby="layers">
+  <h2 id="layers" class={H2}>
+    how i structured the visual layers and the effects used
+  </h2>
+  <!-- role: the reset takes the numbers off, and Safari then stops calling it a list -->
+  <ol
+    role="list"
+    class="mt-9 grid grid-cols-2 gap-x-4 gap-y-9 md:mt-12 md:grid-cols-4"
+  >
+    {#each visual as layer, i (layer.src)}
+      <li class={["min-w-0", layer.wide && "col-span-2"]}>
+        {@render clip(layer, i + 1)}
+      </li>
+    {/each}
+  </ol>
+  <p class={[NOTE, "mt-9"]}>
+    in the last sixteen bars the guitar fades away and the letters fade into
+    the videos they were drawn from
+  </p>
+  <p class="mt-6 flex flex-wrap gap-x-6 gap-y-2 font-mono text-xs md:text-sm">
+    <span class="flex items-center gap-2">
+      <span class="chip bg-[#ff8fb3]"></span>#ff8fb3
+    </span>
+    <span class="flex items-center gap-2">
+      <span class="chip bg-[#240a14]"></span>#240a14
+    </span>
+    <span class="text-(--soft)">two colours, nothing else</span>
+  </p>
+</section>
 
-    {@render piece("none")}
+<section class="mt-24 md:mt-36" aria-labelledby="words">
+  <h2 id="words" class={H2}>
+    how i structured the words and chorus, and how i got the heads
+  </h2>
+  <div class="mt-9 grid gap-9 md:mt-12 md:grid-cols-2">
+    <p class="font-sans text-lg leading-relaxed md:text-xl">
+      {#each words as line, i (i)}
+        <span class="block">{line}</span>
+      {/each}
+    </p>
+    <div class="max-w-sm">{@render clip(chorus)}</div>
+  </div>
+</section>
 
-    <footer
-      class="mt-18 flex flex-wrap justify-between gap-x-9 gap-y-4 border-t border-(--rule) pt-9 font-mono text-xs uppercase tracking-section md:mt-24 md:text-sm"
-    >
-      <a href="/thoughts" class="text-(--soft) transition-colors hover:text-coin">
-        ← all thoughts
-      </a>
-      <a
-        href="/thoughts/mouth-machine"
-        class="text-(--soft) transition-colors hover:text-coin"
-      >
-        sea foam, the first piece →
-      </a>
-    </footer>
-  </article>
-</main>
+<section class="mt-24 md:mt-36" aria-labelledby="cover">
+  <h2 id="cover" class={H2}>how i did the cover</h2>
+  <div class="mt-9 grid gap-9 md:mt-12 md:grid-cols-2">
+    <div class="max-w-sm">{@render clip(cover)}</div>
+    <div class="grid content-start gap-9">
+      {#each coverStills as s (s.src)}
+        <figure class="min-w-0">
+          <img
+            src={s.src}
+            alt={s.alt}
+            width={assetSize(s.src)?.w}
+            height={assetSize(s.src)?.h}
+            loading="lazy"
+            decoding="async"
+            class="block w-full rounded-lg"
+          />
+          <figcaption class={NOTE}>{s.caption}</figcaption>
+        </figure>
+      {/each}
+    </div>
+  </div>
+</section>
+<ReadMark />
 
 <style>
-  /* Two colours, the piece's own: the pink and the wine of the video. A dark
-     device gets pink on wine, a light one wine on pink, and the two shades
-     between swap with them. --soft is small text (4.5:1 or better on its
-     ground), --rule is lines and fills. The accent here is the ink, so --coin
-     follows it for the shared pieces: links, quote bars, code. */
-  main {
-    --ground: #240a14;
-    --ink: #ff8fb3;
-    --soft: #d47a97;
-    --rule: #5c2238;
-    --coin: var(--ink);
-    color-scheme: dark;
+  /* One row of the strip: a column for every bar, a block for every stretch. */
+  .row {
+    display: grid;
+    grid-template-columns: repeat(var(--bars), minmax(0, 1fr));
+    column-gap: 1px;
+    background: var(--rule);
+    border-radius: 0.25rem;
+    overflow: hidden;
   }
-  @media (prefers-color-scheme: light) {
-    main {
-      --ground: #ff8fb3;
-      --ink: #240a14;
-      --soft: #4d1a2d;
-      --rule: #e87aa0;
-      color-scheme: light;
-    }
+  .row span {
+    min-height: 1.5rem;
+    background: var(--ink);
+    color: var(--ground);
+    font-size: 0.6875rem;
+    line-height: 1.5rem;
+    text-align: center;
+    font-variation-settings: "MONO" 1, "CASL" 0, "slnt" 0;
+  }
+  .chip {
+    width: 1rem;
+    height: 1rem;
+    border: 1px solid var(--ink);
+    border-radius: 9999px;
   }
 </style>
