@@ -26,7 +26,7 @@
     {preload}
     src={VIDEO}
     poster={POSTER}
-    aria-label="sea foam, piece 19 of mouth machine: seafoam shapes on black, guitar over a loop of mouth drums"
+    aria-label="sea foam, the first mouth machine piece: seafoam shapes on black, guitar over a loop of mouth drums"
     class="mx-auto my-9 block aspect-9/16 w-full max-w-sm rounded-lg bg-black md:my-12"
     tracks={[
       {
