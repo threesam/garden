@@ -13,6 +13,7 @@ const ESSAYS = [
   '/thoughts/certainly-uncertain',
   '/thoughts/mouth-machine',
   '/thoughts/mouth-machine/raw',
+  '/thoughts/love-bombed',
   '/self',
   '/dad',
   '/benny',

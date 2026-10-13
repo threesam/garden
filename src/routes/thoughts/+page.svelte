@@ -92,6 +92,12 @@
       description: "a voice memo becomes a video, turn by turn.",
       img: "/assets/thoughts-pixel/mouth-machine.webp",
     },
+    {
+      href: "/thoughts/love-bombed",
+      title: "love bombed",
+      description: "a birthday video made of loops, turn by turn.",
+      img: "/assets/thoughts-pixel/love-bombed.webp",
+    },
   ];
 </script>
 

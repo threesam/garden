@@ -28,6 +28,7 @@ const TARGETS = [
   { src: "benny-photos/033.jpg", out: "benny.webp" },
   { src: "dad-1.webp", out: "dad.webp" },
   { src: "mouth-machine/piece-19-poster.jpg", out: "mouth-machine.webp" },
+  { src: "love-bombed/love-bombed-poster.jpg", out: "love-bombed.webp" },
 ];
 
 // Cards display ~375 CSS px wide at typical desktop (max-w-7xl, gap-9, 3-up),

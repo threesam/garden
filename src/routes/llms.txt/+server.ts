@@ -44,6 +44,7 @@ Short personal thoughts, each with its own page under /thoughts:
 - [certainly uncertain](${SITE_URL}/thoughts/certainly-uncertain): the same day the pantry got emptied, told through what was underneath it — agency, the certainty that you can't know, and the cost of never feeling done.
 - [sea foam](${SITE_URL}/thoughts/mouth-machine): the first mouth machine piece. a 34 second video that started as a voice memo of mouth drums, shown first, then how it was built up in seven layers: each of Sam's asks quoted, what it put on, and a picture or a loop of the change.
 - [sea foam, the raw log](${SITE_URL}/thoughts/mouth-machine/raw): the full log behind it, kept by claude one entry per turn: 45 turns, each ask quoted, what came back, what was kept and what went wrong.
+- [love bombed](${SITE_URL}/thoughts/love-bombed): the second mouth machine piece. a 94 second video for a birthday, made from phone videos of a guitar over a loop of mouth drums and a spoken piece, shown first, then the full log kept by claude one entry per turn: 60 turns, each ask quoted, what came back, what was kept and what went wrong.
 
 ## About
 
