@@ -9,7 +9,7 @@ import { test, expect } from '@playwright/test';
 // is stamped as it is read.
 const fingerprint = (bytes: Buffer): string => createHash('sha256').update(bytes).digest('hex').slice(0, 8);
 
-for (const path of ['/thoughts', '/benny', '/deana', '/thoughts/mouth-machine', '/thoughts/mouth-machine/raw', '/thoughts/love-bombed']) {
+for (const path of ['/thoughts', '/benny', '/deana', '/thoughts/mouth-machine', '/thoughts/mouth-machine/raw', '/thoughts/love-bombed', '/thoughts/love-bombed/raw']) {
   test(`every picture on ${path} carries its fingerprint`, async ({ page, request }) => {
     await page.goto(path);
     const srcs = await page.locator('img').evaluateAll((imgs) =>

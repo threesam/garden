@@ -25,7 +25,8 @@ interface Clip {
 export interface Layer {
   title: string;
   ask: string;
-  told: string;
+  /** What the ask put on, in a line or two. Left out where the creative says it. */
+  told?: string;
   /** Where it sits in the raw log. The first is the one the layer links to. */
   phases: readonly [number, ...number[]];
   media: readonly (Still | Clip)[];
