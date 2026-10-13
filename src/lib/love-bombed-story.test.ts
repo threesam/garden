@@ -8,6 +8,7 @@ import {
   chorus,
   cover,
   coverStills,
+  loop,
   song,
   timeline,
   visual,
@@ -53,10 +54,11 @@ describe("love bombed story stays true to the piece", () => {
       expect(inStatic(c.src), c.src).toBe(true);
       expect(inStatic(c.poster), c.poster).toBe(true);
     }
-    for (const s of coverStills) {
+    for (const s of [...coverStills, loop]) {
       expect(inStatic(s.src), s.src).toBe(true);
       expect(assetDimensions[s.src], s.src).toBeDefined();
     }
+    expect(inStatic(loop.sound), loop.sound).toBe(true);
   });
 
   it("anchors every phase of the raw log and nothing else", () => {

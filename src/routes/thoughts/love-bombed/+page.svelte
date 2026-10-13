@@ -11,6 +11,7 @@
     chorus,
     cover,
     coverStills,
+    loop,
     song,
     timeline,
     visual,
@@ -82,12 +83,32 @@
 <section aria-labelledby="song">
   <h2 id="song" class={H2}>how i structured the song</h2>
 
+  <figure class="mt-9 md:mt-12">
+    <img
+      src={loop.src}
+      alt={loop.alt}
+      width={assetSize(loop.src)?.w}
+      height={assetSize(loop.src)?.h}
+      decoding="async"
+      class="block w-full rounded-lg"
+    />
+    <audio
+      src={loop.sound}
+      controls
+      loop
+      preload="none"
+      aria-label="the loop: four bars of mouth drums"
+      class="mt-3 block w-full"
+    ></audio>
+    <figcaption class={NOTE}>{loop.caption}</figcaption>
+  </figure>
+
   <!-- The whole piece as one strip, a column a bar. The list under it says the
        same thing in words, so the strip is a picture to a screen reader. -->
   <div
     class="bars mt-9 md:mt-12"
     role="img"
-    aria-label="the piece as a strip of {BARS} bars. guitar: the center take's first half four times, the center take whole, the bottom-left take, the top-right take, then a quarter of the bottom-left take backwards four times. the spoken words run from bar 13 to bar 74. the sung my love comes at bars 74, 78, 82 and 86. the mouth drums come to the front from bar 73."
+    aria-label="the piece as a strip of {BARS} bars. mouth drums run under all of it. guitar: the center take's first half four times, the center take whole, the bottom-left take, the top-right take, then a quarter of the bottom-left take backwards four times. the spoken words run from bar 13 to bar 74. the sung my love comes at bars 74, 78, 82 and 86. the mouth drums come to the front from bar 73."
   >
     {#each timeline as row (row.label)}
       <p class="mb-1 mt-4 font-mono text-xs uppercase tracking-section text-(--soft)">
@@ -95,7 +116,10 @@
       </p>
       <div class="row" style:--bars={BARS}>
         {#each row.spans as s (s.from)}
-          <span style:grid-column="{s.from + 1} / span {s.len}">{s.n ?? ""}</span>
+          <span
+            class:faint={s.faint}
+            style:grid-column="{s.from + 1} / span {s.len}">{s.n ?? ""}</span
+          >
         {/each}
       </div>
     {/each}
@@ -118,8 +142,8 @@
     {/each}
   </ol>
   <p class={[NOTE, "mt-9"]}>
-    the mouth drums were playing in the room for every take, so they are under
-    all of it. they come to the front, clean, where the guitar turns backwards
+    the loop was playing in the room for every take, so it is under all of it.
+    it comes to the front, clean, where the guitar turns backwards
   </p>
 </section>
 
@@ -209,6 +233,9 @@
     line-height: 1.5rem;
     text-align: center;
     font-variation-settings: "MONO" 1, "CASL" 0, "slnt" 0;
+  }
+  .row span.faint {
+    opacity: 0.45;
   }
   .chip {
     width: 1rem;

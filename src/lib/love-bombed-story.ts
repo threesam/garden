@@ -33,7 +33,18 @@ export interface Span {
   len: number;
   /** Which guitar clip it is, by its number in `song`. */
   n?: number;
+  /** There, but under something else. */
+  faint?: true;
 }
+
+/** Where it started: the loop everything else was played over. */
+export const loop = {
+  src: "/assets/love-bombed/three-four-snapped.webp",
+  alt: "two waveforms of a voice memo of mouth drums: as played, and snapped to its own beat",
+  sound: "/assets/love-bombed/three-four-soft.m4a",
+  caption:
+    "the loop came first: a voice memo of mouth drums, snapped to four bars of three. every take was played over it",
+} as const;
 
 /** The guitar, in the order it plays. */
 export const song: readonly (Clip & { bars: string })[] = [
@@ -75,6 +86,13 @@ export const song: readonly (Clip & { bars: string })[] = [
 /** The rows of the timeline. */
 export const timeline: readonly { label: string; spans: readonly Span[] }[] = [
   {
+    label: "mouth drums",
+    spans: [
+      { from: 0, len: 72, faint: true },
+      { from: 72, len: 15 },
+    ],
+  },
+  {
     label: "guitar",
     spans: [
       { from: 0, len: 8, n: 1 },
@@ -100,7 +118,6 @@ export const timeline: readonly { label: string; spans: readonly Span[] }[] = [
       { from: 85, len: 2 },
     ],
   },
-  { label: "mouth drums, up front", spans: [{ from: 72, len: 15 }] },
 ];
 
 /** The picture, from the back to the front. */
