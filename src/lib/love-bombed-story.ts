@@ -1,129 +1,189 @@
-// The annotated telling of /thoughts/love-bombed: the steps that moved the
-// piece forward, in the order they went on. The raw log it distils is
-// content/thoughts/love-bombed.md, served at /thoughts/love-bombed/raw.
+// What /thoughts/love-bombed shows: the finished piece taken apart, in the
+// four parts Sam asked for (the song, the visual layers, the words and chorus,
+// the cover). It reads backwards from the final cut, not through the turns it
+// took: those are the raw log, content/thoughts/love-bombed.md, at /raw.
 //
-// `ask` is Sam, verbatim from the log (love-bombed-story.test.ts checks it
-// letter for letter). The titles and captions are claude's. No `told` here:
-// the creative says what the ask put on. Addresses are written out whole, so
-// the build can fingerprint them.
-
-import type { Layer } from "./mouth-machine-story";
+// The numbers come from the scripts that make the final cut
+// (love-bombed-sound.py, love-bombed-render.sh, heads-spec.json in the portal
+// repo). Addresses are written out whole so the build can fingerprint them.
 
 export const PUBLISHED = "2026-10-13";
 export const POSTER = "/assets/love-bombed/love-bombed-poster.jpg";
 /** How many phases the raw log has. */
 export const TURNS = 60;
+/** The piece is 89 bars of three: 1.0545 s a bar. */
+export const BARS = 89;
 
-export const layers: readonly Layer[] = [
+export interface Clip {
+  src: string;
+  poster: string;
+  alt: string;
+  caption: string;
+  /** How it was done, in a line. */
+  how?: string;
+  /** The clip carries its own sound (it still starts muted). */
+  sound?: true;
+  /** A strip across the page, not a whole frame. */
+  wide?: true;
+}
+
+/** A stretch of the timeline, in bars from the start. */
+export interface Span {
+  from: number;
+  len: number;
+  /** Which guitar clip it is, by its number in `song`. */
+  n?: number;
+}
+
+/** The guitar, in the order it plays. */
+export const song: readonly (Clip & { bars: string })[] = [
   {
-    title: "a beat in three",
-    ask: "It should be 3-4 timing.",
-    phases: [1, 2],
-    media: [
-      {
-        kind: "img",
-        src: "/assets/love-bombed/three-four-snapped.webp",
-        alt: "two waveforms of a voice memo of mouth sounds: as played, and snapped to its own beat",
-        caption: "the loop. press the picture to hear it",
-        sound: "/assets/love-bombed/three-four-soft.m4a",
-      },
-    ],
+    src: "/assets/love-bombed/song-center.mp4",
+    poster: "/assets/love-bombed/song-center-poster.jpg",
+    alt: "hands on a guitar in flat wine on flat pink, the player sitting in the middle of the frame",
+    caption: "the center take. its first half four times, then all of it",
+    bars: "bars 1 to 48",
+    sound: true,
   },
   {
-    title: "its own colours",
-    ask: "This one's not called Seafoam. So it should be different.",
-    phases: [5, 6],
-    media: [
-      {
-        kind: "clip",
-        src: "/assets/love-bombed/story-first-look.mp4",
-        poster: "/assets/love-bombed/story-first-look-poster.jpg",
-        alt: "four bars, no sound: hands on a guitar in flat wine on flat pink",
-        caption: "a guitar over the loop, in pink and wine",
-      },
-    ],
+    src: "/assets/love-bombed/song-bottom-left.mp4",
+    poster: "/assets/love-bombed/song-bottom-left-poster.jpg",
+    alt: "the same guitar and hands in wine on pink, the player lower and to the left",
+    caption: "the bottom-left take, whole",
+    bars: "bars 49 to 64",
+    sound: true,
   },
   {
-    title: "three guitars",
-    ask: "cut the one video with threshold effect and beat underneath and the sequencing of clips.",
-    phases: [9, 10],
-    media: [
-      {
-        kind: "clip",
-        src: "/assets/love-bombed/story-three-guitars.mp4",
-        poster: "/assets/love-bombed/story-three-guitars-poster.jpg",
-        alt: "four bars, no sound: one guitar take cuts to another, both in wine on pink",
-        caption: "one take into the next, on the beat",
-      },
-    ],
+    src: "/assets/love-bombed/song-top-right.mp4",
+    poster: "/assets/love-bombed/song-top-right-poster.jpg",
+    alt: "the guitar neck coming down from the top right corner in wine on pink",
+    caption: "the top-right take",
+    bars: "bars 65 to 72",
+    sound: true,
   },
   {
-    title: "old videos, in letters",
-    ask: "I don't need transparent letters. I need black letters, right?",
-    phases: [13, 14],
-    media: [
-      {
-        kind: "clip",
-        src: "/assets/love-bombed/story-letters.mp4",
-        poster: "/assets/love-bombed/story-letters-poster.jpg",
-        alt: "four bars, no sound: behind the guitar, an older video drawn in rows of small letters",
-        caption: "behind the guitar, years of phone videos",
-      },
-    ],
-  },
-  {
-    title: "twelve heads",
-    ask: "4 corners x 3 measures = the twelve takes",
-    phases: [17, 20, 41],
-    media: [
-      {
-        kind: "clip",
-        src: "/assets/love-bombed/story-heads.mp4",
-        poster: "/assets/love-bombed/story-heads-poster.jpg",
-        alt: "four bars, no sound: four small pink heads along the bottom sing, with the words my love between them",
-        caption: "four at a time, singing my love",
-      },
-    ],
-  },
-  {
-    title: "the end, backwards",
-    ask: "nah go straight to the reverses but reverse the whole clip first, then do the quarter reverses until it ends",
-    phases: [27],
-    media: [
-      {
-        kind: "clip",
-        src: "/assets/love-bombed/story-backwards.mp4",
-        poster: "/assets/love-bombed/story-backwards-poster.jpg",
-        alt: "four bars, no sound: the guitar take running backwards over a video in letters",
-        caption: "the first take, run backwards",
-      },
-    ],
-  },
-  {
-    title: "the words",
-    ask: "the last word I say is my love, and my love should line up with the my loves in the outro",
-    phases: [27, 58, 60],
-    media: [
-      {
-        kind: "img",
-        src: "/assets/love-bombed/captions-band.webp",
-        alt: "four lines of the spoken piece in thin pink letters on wine: that start with your blue eyes, with how the world sees you, left to live, to realize how lucky i am",
-        caption: "spoken over it, and written along the bottom",
-      },
-    ],
-  },
-  {
-    title: "around the sun",
-    ask: "and replace one around the sun with happy birthday",
-    phases: [44, 47],
-    media: [
-      {
-        kind: "clip",
-        src: "/assets/love-bombed/story-title.mp4",
-        poster: "/assets/love-bombed/story-title-poster.jpg",
-        alt: "eight seconds, no sound: rows of the words around the sun come up out of black, growing as they go down",
-        caption: "the first eight seconds",
-      },
-    ],
+    src: "/assets/love-bombed/song-backwards.mp4",
+    poster: "/assets/love-bombed/song-backwards-poster.jpg",
+    alt: "the bottom-left take running backwards in wine on pink",
+    caption:
+      "the first quarter of the bottom-left take, backwards, four times, fading",
+    bars: "bars 73 to 88",
+    sound: true,
   },
 ];
+
+/** The rows of the timeline. */
+export const timeline: readonly { label: string; spans: readonly Span[] }[] = [
+  {
+    label: "guitar",
+    spans: [
+      { from: 0, len: 8, n: 1 },
+      { from: 8, len: 8, n: 1 },
+      { from: 16, len: 8, n: 1 },
+      { from: 24, len: 8, n: 1 },
+      { from: 32, len: 16, n: 1 },
+      { from: 48, len: 16, n: 2 },
+      { from: 64, len: 8, n: 3 },
+      { from: 72, len: 4, n: 4 },
+      { from: 76, len: 4, n: 4 },
+      { from: 80, len: 4, n: 4 },
+      { from: 84, len: 4, n: 4 },
+    ],
+  },
+  { label: "spoken", spans: [{ from: 12, len: 62 }] },
+  {
+    label: "sung",
+    spans: [
+      { from: 73, len: 2 },
+      { from: 77, len: 2 },
+      { from: 81, len: 2 },
+      { from: 85, len: 2 },
+    ],
+  },
+  { label: "mouth drums, up front", spans: [{ from: 72, len: 15 }] },
+];
+
+/** The picture, from the back to the front. */
+export const visual: readonly Clip[] = [
+  {
+    src: "/assets/love-bombed/layer-letters.mp4",
+    poster: "/assets/love-bombed/layer-letters-poster.jpg",
+    alt: "four bars, no sound: an older phone video drawn in rows of small letters, wine on pink",
+    caption: "at the back, older phone videos",
+    how: "letters: each small cell of the picture becomes one letter. the darker the picture, the denser the letter",
+  },
+  {
+    src: "/assets/love-bombed/layer-guitar.mp4",
+    poster: "/assets/love-bombed/layer-guitar-poster.jpg",
+    alt: "four bars, no sound: the guitar in flat wine over the letters",
+    caption: "over them, the guitar",
+    how: "two colours: darker than 60 percent goes flat wine. the rest goes clear, so the letters show through",
+  },
+  {
+    src: "/assets/love-bombed/layer-pink.mp4",
+    poster: "/assets/love-bombed/layer-pink-poster.jpg",
+    alt: "four bars, no sound: the bottom of the frame on its own, four small pink heads and the words my love on plain wine",
+    caption: "on top, along the bottom, the words and the heads",
+    how: "one grey video the size of the page: wherever it is dark, the page is painted pink",
+    wide: true,
+  },
+];
+
+/** The spoken piece, a line per caption, as it is written along the bottom. */
+export const words: readonly string[] = [
+  "10 years of birthdays",
+  "of libra season",
+  "i still don't know what that means",
+  "but it doesn't matter",
+  "what matters to me",
+  "is ten years of mornings",
+  "that start with your blue eyes",
+  "adjusting to the light",
+  "of the sunrise",
+  "golden hair that catches it",
+  "10 years of adventure",
+  "not one resembling the next",
+  "you become more different",
+  "every day",
+  "more generous",
+  "more comfortable in your own skin",
+  "in who you are",
+  "and less concerned",
+  "with how the world sees you",
+  "which is good",
+  "because we have plenty of world",
+  "left to see",
+  "and plenty of life",
+  "left to live",
+  "i've had ten years",
+  "to realize how lucky i am",
+  "to push for the next hundred",
+  "with you",
+  "my love",
+];
+
+export const chorus: Clip = {
+  src: "/assets/love-bombed/chorus.mp4",
+  poster: "/assets/love-bombed/chorus-poster.jpg",
+  alt: "the last eighteen seconds: the guitar runs backwards and fades, four pink heads along the bottom sing my love, four times",
+  caption:
+    "the last spoken words are my love. the sung my love answers, four times, four bars apart, four heads each time",
+  how: "the heads: nine phone videos of a face singing in front of a dark backdrop. the bright face is kept and painted pink, the backdrop goes clear",
+  sound: true,
+};
+
+export const cover: Clip = {
+  src: "/assets/love-bombed/story-title.mp4",
+  poster: "/assets/love-bombed/story-title-poster.jpg",
+  alt: "the first eight bars, no sound: rows of the words around the sun come up out of black and go back to it",
+  caption: "the first eight bars",
+  how: "around the sun, over and over, in Poiret One. the letters grow down the page, and each next phrase along a row gets three more dots before it. up from black corner to corner, then gone",
+};
+
+export const coverStills = [
+  {
+    src: "/assets/love-bombed/title-happy-birthday.webp",
+    alt: "a strip of the title: one of the phrases says happy birthday",
+    caption: "one of them says happy birthday",
+  },
+] as const;
