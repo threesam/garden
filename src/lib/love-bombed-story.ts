@@ -39,8 +39,8 @@ export interface Span {
 
 /** Where it started: the loop everything else was played over. */
 export const loop = {
-  src: "/assets/love-bombed/three-four-snapped.webp",
-  alt: "two waveforms of a voice memo of mouth drums: as played, and snapped to its own beat",
+  src: "/assets/love-bombed/loop-waveform.svg",
+  alt: "the waveform of the loop: four bars of three, a big low sound on each one and smaller ones between",
   sound: "/assets/love-bombed/three-four-soft.m4a",
   caption:
     "the loop came first: a voice memo of mouth drums, snapped to four bars of three. every take was played over it",

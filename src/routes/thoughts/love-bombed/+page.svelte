@@ -84,13 +84,16 @@
   <h2 id="song" class={H2}>how i structured the song</h2>
 
   <figure class="mt-9 md:mt-12">
+    <!-- Always the piece's pink on its wine, in both modes: pink is love
+         bombed. The ticks are the beats; the tall ones, bars. The picture is
+         made to stretch, so it fills whatever box it is given. -->
     <img
       src={loop.src}
       alt={loop.alt}
-      width={assetSize(loop.src)?.w}
-      height={assetSize(loop.src)?.h}
+      width="240"
+      height="100"
       decoding="async"
-      class="block w-full rounded-lg"
+      class="block h-32 w-full rounded-lg md:h-40"
     />
     <audio
       src={loop.sound}
