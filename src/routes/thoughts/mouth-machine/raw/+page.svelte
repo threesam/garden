@@ -1,7 +1,7 @@
 <script lang="ts">
   import MakingLog from "$lib/components/MakingLog.svelte";
   import SeoHead from "$lib/components/SeoHead.svelte";
-  import { POSTER, PUBLISHED } from "$lib/mouth-machine-story";
+  import { OG, POSTER, PUBLISHED } from "$lib/mouth-machine-story";
   import { articleNode } from "$lib/seo";
   import type { PageData } from "./$types";
 
@@ -19,13 +19,13 @@
   description={DESCRIPTION}
   canonical={PATH}
   ogType="article"
-  ogImage={POSTER}
+  ogImage={OG}
   ogImageAlt="a seafoam ring on a black ground"
   preloadImage={POSTER}
   schema={articleNode({
     path: PATH,
     headline: TITLE,
-    image: POSTER,
+    image: OG,
     datePublished: PUBLISHED,
   })}
   breadcrumbTrail={[

@@ -172,6 +172,48 @@ export function articleNode(opts: {
   return node;
 }
 
+/**
+ * The video a page is about (the mouth machine pieces). Search engines need
+ * name, description (SeoHead folds it in), thumbnailUrl and uploadDate to treat
+ * it as a video; contentUrl lets them fetch the file, and the transcript gives
+ * answer engines the words without making anyone read them on the page.
+ */
+export function videoNode(opts: {
+  path: string;
+  name: string;
+  thumbnail: string;
+  contentUrl: string;
+  /** YYYY-MM-DD */
+  uploadDate: string;
+  /** ISO 8601, e.g. PT1M34S */
+  duration: string;
+  transcript?: string;
+  /** The series it belongs to, by name. */
+  series?: string;
+}): object {
+  const node: Record<string, unknown> = {
+    "@type": "VideoObject",
+    "@id": `${absUrl(opts.path)}#video`,
+    name: opts.name,
+    url: absUrl(opts.path),
+    thumbnailUrl: absUrl(opts.thumbnail),
+    contentUrl: absUrl(opts.contentUrl),
+    uploadDate: `${opts.uploadDate}T00:00:00Z`,
+    duration: opts.duration,
+    inLanguage: "en",
+    creator: { "@id": PERSON_ID },
+  };
+  if (opts.transcript) node['transcript'] = opts.transcript;
+  if (opts.series)
+    node['isPartOf'] = {
+      "@type": "CreativeWorkSeries",
+      "@id": `${SITE_URL}/#${opts.series.replaceAll(" ", "-")}`,
+      name: opts.series,
+      creator: { "@id": PERSON_ID },
+    };
+  return node;
+}
+
 /** An index page grouping many works (e.g. /shelf, /anything-but-analog). */
 export function collectionPageNode(opts: { path: string; name: string }): object {
   return {

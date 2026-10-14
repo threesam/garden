@@ -9,6 +9,9 @@
 
 export const PUBLISHED = "2026-10-13";
 export const POSTER = "/assets/love-bombed/love-bombed-poster.jpg";
+/** The picture a link to the page carries: 1200 x 630, where the poster is a tall frame. */
+export const OG = "/assets/love-bombed/love-bombed-og.jpg";
+export const VIDEO = "/assets/love-bombed/love-bombed.mp4";
 /** How many phases the raw log has. */
 export const TURNS = 60;
 /** The piece is 89 bars of three: 1.0545 s a bar. */
