@@ -1,9 +1,9 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import SeoHead from "$lib/components/SeoHead.svelte";
-  import SketchHost from "$lib/components/art/SketchHost.svelte";
-  import { sketchMode } from "$lib/art/sketch-mode";
-  import { blogNode } from "$lib/seo";
+  import SeoHead from "#lib/components/SeoHead.svelte";
+  import SketchHost from "#lib/components/art/SketchHost.svelte";
+  import { sketchMode } from "#lib/art/sketch-mode.js";
+  import { blogNode } from "#lib/seo.js";
 
   // /thoughts opts the bg sketch into its tinted mode for the duration
   // of this route. The homepage gallery leaves `active` off so its

@@ -1,6 +1,6 @@
-import { getContent } from "$lib/content";
-import { markdownRenderer } from "$lib/markdown";
-import { withPhaseIds } from "$lib/mouth-machine-story";
+import { getContent } from "#lib/content.js";
+import { markdownRenderer } from "#lib/markdown.js";
+import { withPhaseIds } from "#lib/mouth-machine-story.js";
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async () => {

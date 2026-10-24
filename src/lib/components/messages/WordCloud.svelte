@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { SvelteMap } from 'svelte/reactivity';
 	import cloud from 'd3-cloud';
-	import { mulberry32 } from '$lib/art/rng';
+	import { mulberry32 } from '#lib/art/rng.js';
 	import wordsData from '../../../../data/messages/dianchik/words-data.json';
 
 	interface WordEntry {

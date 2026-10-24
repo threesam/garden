@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { gameMode } from '$lib/game-mode.svelte';
+	import { gameMode } from '#lib/game-mode.svelte.js';
 
 	// Space Invaders, swarm edition — the tagline alien multiplied into a
 	// flocking horde (boids: separation + alignment + cohesion) that pours down

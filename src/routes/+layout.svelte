@@ -13,12 +13,12 @@
   // Epilogue (used inside .tier-essay on /self and /dad) is imported by
   // those routes directly so the other 7 pages don't ship 3 unused
   // weight files. See src/lib/fonts/epilogue.ts.
-  import Guide from '$lib/components/frame/Guide.svelte';
-  import Anchor from '$lib/components/frame/Anchor.svelte';
-  import { diveMode } from '$lib/dive-mode.svelte';
+  import Guide from '#lib/components/frame/Guide.svelte';
+  import Anchor from '#lib/components/frame/Anchor.svelte';
+  import { diveMode } from '#lib/dive-mode.svelte.js';
   // Scroll depth, time in view, media and off-site clicks, on every page. It
   // starts itself; off threesam.com there is no tracker to hear it.
-  import '$lib/engagement';
+  import '#lib/engagement.js';
 
   let { children }: { children: import('svelte').Snippet } = $props();
 

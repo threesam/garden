@@ -1,14 +1,14 @@
 <script lang="ts">
   import { mount, onMount, unmount } from 'svelte';
-  import '$lib/fonts/epilogue'; // .tier-essay body copy
-  import SeoHead from '$lib/components/SeoHead.svelte';
-  import ReadMark from '$lib/components/ReadMark.svelte';
-  import { profilePageNode } from '$lib/seo';
-  import Prose from '$lib/components/Prose.svelte';
-  import VoronoiCanvas from '$lib/components/canvas/VoronoiCanvas.svelte';
-  import VoronoiImage from '$lib/components/canvas/VoronoiImage.svelte';
-  import AnythingButAnalogBanner from '$lib/components/banners/AnythingButAnalogBanner.svelte';
-  import { assetAspect } from '$lib/asset-dimensions';
+  import '#lib/fonts/epilogue.js'; // .tier-essay body copy
+  import SeoHead from '#lib/components/SeoHead.svelte';
+  import ReadMark from '#lib/components/ReadMark.svelte';
+  import { profilePageNode } from '#lib/seo.js';
+  import Prose from '#lib/components/Prose.svelte';
+  import VoronoiCanvas from '#lib/components/canvas/VoronoiCanvas.svelte';
+  import VoronoiImage from '#lib/components/canvas/VoronoiImage.svelte';
+  import AnythingButAnalogBanner from '#lib/components/banners/AnythingButAnalogBanner.svelte';
+  import { assetAspect } from '#lib/asset-dimensions.js';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();

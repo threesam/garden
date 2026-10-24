@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { SvelteSet } from 'svelte/reactivity';
-	import { asciiSrcset, type AsciiSrc } from '$lib/deana/images.js';
-	import { scheduleIdle, cancelIdle } from '$lib/perf/idle';
+	import { asciiSrcset, type AsciiSrc } from '#lib/deana/images.js';
+	import { scheduleIdle, cancelIdle } from '#lib/perf/idle.js';
 
 	interface Props {
 		srcs: AsciiSrc[];

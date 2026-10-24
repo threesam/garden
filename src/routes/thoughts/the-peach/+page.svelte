@@ -1,7 +1,7 @@
 <script lang="ts">
-  import SeoHead from "$lib/components/SeoHead.svelte";
-  import ReadMark from "$lib/components/ReadMark.svelte";
-  import { articleNode } from "$lib/seo";
+  import SeoHead from "#lib/components/SeoHead.svelte";
+  import ReadMark from "#lib/components/ReadMark.svelte";
+  import { articleNode } from "#lib/seo.js";
   import type { PageData } from "./$types";
 
   let { data }: { data: PageData } = $props();

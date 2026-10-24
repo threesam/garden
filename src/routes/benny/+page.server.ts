@@ -1,8 +1,8 @@
-import { getContent } from "$lib/content";
+import { getContent } from "#lib/content.js";
 import type { PageServerLoad } from "./$types";
-import { splitMarkdownContent } from "$lib/markdown";
+import { splitMarkdownContent } from "#lib/markdown.js";
 
-export type { ContentPart } from "$lib/markdown";
+export type { ContentPart } from "#lib/markdown.js";
 
 export const prerender = true;
 

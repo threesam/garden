@@ -6,8 +6,8 @@
 	// Lead with deana-hero-5 (sunset path with the kid) — index 4 in
 	// DEANA_ASCII. This rotation is homepage-card only; /deana hero order
 	// lives in that route.
-	import AsciiGallery from '$lib/components/ascii/AsciiGallery.svelte';
-	import { DEANA_ASCII } from '$lib/deana/images.js';
+	import AsciiGallery from '#lib/components/ascii/AsciiGallery.svelte';
+	import { DEANA_ASCII } from '#lib/deana/images.js';
 
 	const HP_ASCII = [
 		DEANA_ASCII[4]!,

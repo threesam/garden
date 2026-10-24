@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { Component } from 'svelte';
-	import DanaLabel from '$lib/components/messages/DanaLabel.svelte';
+	import DanaLabel from '#lib/components/messages/DanaLabel.svelte';
 
 	type ItemHandle =
 		| 'self'
@@ -69,17 +69,17 @@
 		if (moduleCache.has(handle)) return moduleCache.get(handle)!;
 		let p: Promise<AnyComponent>;
 		if (handle === 'self') {
-			p = import('$lib/components/canvas/VoronoiCanvas.svelte').then((m) => m.default);
+			p = import('#lib/components/canvas/VoronoiCanvas.svelte').then((m) => m.default);
 		} else if (handle === 'deana') {
-			p = import('$lib/components/messages/EmojiCardBg.svelte').then((m) => m.default);
+			p = import('#lib/components/messages/EmojiCardBg.svelte').then((m) => m.default);
 		} else if (handle === 'shelf') {
-			p = import('$lib/components/canvas/MetaballCanvas.svelte').then((m) => m.default);
+			p = import('#lib/components/canvas/MetaballCanvas.svelte').then((m) => m.default);
 		} else if (handle === 'anything-but-analog') {
-			p = import('$lib/components/canvas/ParticleTextCanvas.svelte').then((m) => m.default);
+			p = import('#lib/components/canvas/ParticleTextCanvas.svelte').then((m) => m.default);
 		} else if (handle === 'thoughts') {
-			p = import('$lib/components/art/SketchHost.svelte').then((m) => m.default);
+			p = import('#lib/components/art/SketchHost.svelte').then((m) => m.default);
 		} else if (handle === 'sounds') {
-			p = import('$lib/sounds/EyeOcean.svelte').then((m) => m.default);
+			p = import('#lib/sounds/EyeOcean.svelte').then((m) => m.default);
 		} else {
 			p = Promise.resolve(undefined as unknown as AnyComponent);
 		}
@@ -304,7 +304,7 @@
 				aria-hidden={copy || undefined}
 				tabindex={copy ? -1 : undefined}
 				draggable="false"
-				data-sveltekit-preload-data="off"
+				data-sveltekit-preload-data="false"
 				onclick={(e) => { handleClick(e, item); }}
 				class="gallery-card group relative flex h-full shrink-0 flex-col overflow-hidden rounded-2xl shadow-sm transition-[transform,box-shadow] duration-700 hover:shadow-none hover:[transform:rotate(-1.3deg)]"
 				style="aspect-ratio: 20 / 29;"

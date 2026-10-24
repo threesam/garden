@@ -1,4 +1,4 @@
-import { SITE_URL, SITE_DESCRIPTION, PERSON_NAME, PERSON_ALT, SITE_PAGES } from '$lib/seo';
+import { SITE_URL, SITE_DESCRIPTION, PERSON_NAME, PERSON_ALT, SITE_PAGES } from '#lib/seo.js';
 
 export const prerender = true;
 

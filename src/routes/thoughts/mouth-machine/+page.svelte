@@ -1,9 +1,9 @@
 <script lang="ts">
   import { MediaQuery } from "svelte/reactivity";
-  import { videoVisibility } from "$lib/actions/video-visibility";
-  import { assetSize } from "$lib/asset-dimensions";
-  import ReadMark from "$lib/components/ReadMark.svelte";
-  import SeoHead from "$lib/components/SeoHead.svelte";
+  import { videoVisibility } from "#lib/actions/video-visibility.js";
+  import { assetSize } from "#lib/asset-dimensions.js";
+  import ReadMark from "#lib/components/ReadMark.svelte";
+  import SeoHead from "#lib/components/SeoHead.svelte";
   import {
     OG,
     POSTER,
@@ -12,8 +12,8 @@
     layers,
     type Layer,
     type Still,
-  } from "$lib/mouth-machine-story";
-  import { articleNode, videoNode } from "$lib/seo";
+  } from "#lib/mouth-machine-story.js";
+  import { articleNode, videoNode } from "#lib/seo.js";
 
   const DESCRIPTION =
     "a 34 second video that started as a voice memo of mouth drums, built up in seven layers: what Sam asked for, and what each ask put on.";

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { videoVisibility } from '$lib/actions/video-visibility';
+  import { videoVisibility } from '#lib/actions/video-visibility.js';
 
   interface Source {
     src: string;

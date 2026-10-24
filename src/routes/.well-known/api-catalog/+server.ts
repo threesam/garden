@@ -1,4 +1,4 @@
-import { SITE_URL } from '$lib/seo';
+import { SITE_URL } from '#lib/seo.js';
 
 // NOT prerendered: prerender serialises this route to a file with no
 // extension, then serves it as text/html — losing the

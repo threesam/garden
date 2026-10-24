@@ -12,11 +12,11 @@
   // toggles gameMode and triggers the letter-collapse → "snake" sequence.
   import { onMount } from 'svelte';
   import { page } from '$app/state';
-  import { building } from '$app/environment';
-  import { gameMode } from '$lib/game-mode.svelte';
-  import { diveMode, diveUrl } from '$lib/dive-mode.svelte';
+  import { building } from '$app/env';
+  import { gameMode } from '#lib/game-mode.svelte.js';
+  import { diveMode, diveUrl } from '#lib/dive-mode.svelte.js';
   import WordmarkGlyph from './WordmarkGlyph.svelte';
-  import { LETTERS, letterAdvanceEm } from '$lib/wordmark';
+  import { LETTERS, letterAdvanceEm } from '#lib/wordmark.js';
 
   let {
     heading = false,

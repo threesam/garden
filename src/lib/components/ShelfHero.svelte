@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import MetaballCanvas from '$lib/components/canvas/MetaballCanvas.svelte';
-	import { extractDominantColor } from '$lib/dominant-color';
-	import { proxyImg } from '$lib/img';
-	import type { Book } from '$lib/goodreads';
+	import MetaballCanvas from '#lib/components/canvas/MetaballCanvas.svelte';
+	import { extractDominantColor } from '#lib/dominant-color.js';
+	import { proxyImg } from '#lib/img.js';
+	import type { Book } from '#lib/goodreads.js';
 
 	// --black #1a1a14 as normalized RGB
 	const BG_COLOR: [number, number, number] = [26 / 255, 26 / 255, 20 / 255];

@@ -1,5 +1,5 @@
 import type { Action } from 'svelte/action';
-import { compileShader } from '$lib/canvas/gl-utils';
+import { compileShader } from '#lib/canvas/gl-utils.js';
 
 const NUM_BALLS = 12;
 const PIXEL_SIZE = 6.0;

@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit';
-import { getSketch, sketches } from '$lib/art/registry';
+import { getSketch, sketches } from '#lib/art/registry.js';
 
 // Prerender a page for every sketch (including hidden ones — they're
 // accessible via direct URL even if not in the gallery scroll).

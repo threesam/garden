@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { page } from '$app/stores';
-  import LazyMount from '$lib/components/LazyMount.svelte';
-  import CloudCanvas from '$lib/components/canvas/CloudCanvas.svelte';
-  import BrandSignoff from '$lib/components/frame/BrandSignoff.svelte';
+  import { page } from '$app/state';
+  import LazyMount from '#lib/components/LazyMount.svelte';
+  import CloudCanvas from '#lib/components/canvas/CloudCanvas.svelte';
+  import BrandSignoff from '#lib/components/frame/BrandSignoff.svelte';
 
   // Pages where the ambient cloud footer competes with the page's own
   // full-bleed animations / immersive scroll. /thoughts and /sounds are
@@ -10,7 +10,7 @@
   const HIDE_PREFIXES = ['/anything-but-analog'];
   const EXACT_HIDE = new Set(['/', '/thoughts', '/sounds', '/benny', '/dad']);
 
-  const pathname = $derived($page.url.pathname);
+  const pathname = $derived(page.url.pathname);
 
   const hidden = $derived(
     EXACT_HIDE.has(pathname) ||

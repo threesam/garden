@@ -1,7 +1,7 @@
 <script lang="ts">
 	import DanaLabel from './DanaLabel.svelte';
-	import Img from '$lib/components/Img.svelte';
-	import { asciiSrcset, type AsciiSrc } from '$lib/deana/images';
+	import Img from '#lib/components/Img.svelte';
+	import { asciiSrcset, type AsciiSrc } from '#lib/deana/images.js';
 
 	interface Props {
 		/** Pre-baked ASCII print {sm, lg} (per scripts/generate-deana-ascii.mjs). */

@@ -1,5 +1,5 @@
 import type { Action } from 'svelte/action';
-import { sampleImage, getGrid } from '$lib/ascii/ascii-utils.js';
+import { sampleImage, getGrid } from '#lib/ascii/ascii-utils.js';
 
 const FADE_MS = 800;
 const CYCLE_MS = 3000;

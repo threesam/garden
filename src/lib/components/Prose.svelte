@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { markdownRenderer } from "$lib/markdown";
+  import { markdownRenderer } from "#lib/markdown.js";
 
   interface ProseSlot {
     /** Optional classes for the placeholder the component mounts into. */

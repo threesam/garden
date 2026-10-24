@@ -4,11 +4,11 @@
   // the actual performance claim lives. Wasm on the main thread would still
   // block; OffscreenCanvas plus a worker is what takes the cost to zero.
   import { onMount } from 'svelte';
-  import SeoHead from '$lib/components/SeoHead.svelte';
-  import { collectionPageNode } from '$lib/seo';
-  import PhysarumWorker from '$lib/art/physarum-worker?worker';
-  import type { InboundMessage, SimName } from '$lib/art/physarum-worker';
-  import Segmented from '$lib/components/Segmented.svelte';
+  import SeoHead from '#lib/components/SeoHead.svelte';
+  import { collectionPageNode } from '#lib/seo.js';
+  import PhysarumWorker from '#lib/art/physarum-worker.js?worker';
+  import type { InboundMessage, SimName } from '#lib/art/physarum-worker.js';
+  import Segmented from '#lib/components/Segmented.svelte';
 
   /** Counts measured per sim against a 16.7ms budget on a 512 grid. */
   const SIMS = {

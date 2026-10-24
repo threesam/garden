@@ -1,9 +1,9 @@
 <script lang="ts">
-  import SeoHead from "$lib/components/SeoHead.svelte";
-  import { collectionPageNode } from "$lib/seo";
-  import ShelfHero from "$lib/components/ShelfHero.svelte";
-  import { proxyImg } from "$lib/img";
-  import Img from "$lib/components/Img.svelte";
+  import SeoHead from "#lib/components/SeoHead.svelte";
+  import { collectionPageNode } from "#lib/seo.js";
+  import ShelfHero from "#lib/components/ShelfHero.svelte";
+  import { proxyImg } from "#lib/img.js";
+  import Img from "#lib/components/Img.svelte";
   import type { PageData } from "./$types";
 
   let { data }: { data: PageData } = $props();

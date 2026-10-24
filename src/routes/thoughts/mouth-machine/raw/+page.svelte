@@ -1,8 +1,8 @@
 <script lang="ts">
-  import MakingLog from "$lib/components/MakingLog.svelte";
-  import SeoHead from "$lib/components/SeoHead.svelte";
-  import { OG, POSTER, PUBLISHED } from "$lib/mouth-machine-story";
-  import { articleNode } from "$lib/seo";
+  import MakingLog from "#lib/components/MakingLog.svelte";
+  import SeoHead from "#lib/components/SeoHead.svelte";
+  import { OG, POSTER, PUBLISHED } from "#lib/mouth-machine-story.js";
+  import { articleNode } from "#lib/seo.js";
   import type { PageData } from "./$types";
 
   let { data }: { data: PageData } = $props();

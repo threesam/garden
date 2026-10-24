@@ -5,7 +5,7 @@ import {
   PERSON_ALT,
   KNOWS_ABOUT,
   SITE_PAGES,
-} from '$lib/seo';
+} from '#lib/seo.js';
 
 export const prerender = true;
 

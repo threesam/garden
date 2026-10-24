@@ -1,8 +1,8 @@
 import { Marked } from "marked";
 import { markedEmoji } from "marked-emoji";
 import * as emoji from "node-emoji";
-import { linkClasses } from "$lib/components/link";
-import { assetSize } from "$lib/asset-dimensions";
+import { linkClasses } from "#lib/components/link.js";
+import { assetSize } from "#lib/asset-dimensions.js";
 
 const emojiMap = new Proxy({}, {
   get(_, name: string) {

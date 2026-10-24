@@ -7,7 +7,7 @@
   // resolution it was sized at.
   //
   // Decorative: BrandSignoff carries the accessible name for the whole mark.
-  import { INK_ROWS, INK_TOP, INK_EM, PITCH_EM, FILL, letterCells, type WordmarkLetter } from '$lib/wordmark';
+  import { INK_ROWS, INK_TOP, INK_EM, PITCH_EM, FILL, letterCells, type WordmarkLetter } from '#lib/wordmark.js';
 
   let { letter }: { letter: WordmarkLetter } = $props();
 

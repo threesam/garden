@@ -1,5 +1,5 @@
-import { visibleSketches } from '$lib/art/registry';
-import { SITE_URL, SITE_PAGES } from '$lib/seo';
+import { visibleSketches } from '#lib/art/registry.js';
+import { SITE_URL, SITE_PAGES } from '#lib/seo.js';
 
 // Home + the shared content-page list (single source: SITE_PAGES in $lib/seo).
 const STATIC_ROUTES = ['/', ...SITE_PAGES.map((p) => p.path)];

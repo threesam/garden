@@ -1,7 +1,7 @@
 <script lang="ts">
   import { preloadCode } from '$app/navigation';
-  import { NAV_ROUTES } from '$lib/nav';
-  import { gameMode } from '$lib/game-mode.svelte';
+  import { NAV_ROUTES } from '#lib/nav.js';
+  import { gameMode } from '#lib/game-mode.svelte.js';
 
   let open = $state(false);
   let hovered = $state(false);

@@ -2,7 +2,9 @@
 import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
+import adapter from '@sveltejs/adapter-vercel';
 import { sveltekit } from '@sveltejs/kit/vite';
+import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, type Plugin } from 'vite';
 import { STAMPED_DIRS, stampAssets, type AssetVersions } from './src/lib/asset-version';
@@ -48,7 +50,21 @@ export default defineConfig(({ command }) => {
   // Only a build is cached for a year. Dev and unit tests see plain addresses.
   const versions = command === 'build' ? assetVersions() : {};
   return {
-    plugins: [fingerprintAssets(versions), tailwindcss(), sveltekit()],
+    plugins: [
+      fingerprintAssets(versions),
+      tailwindcss(),
+      sveltekit({
+        preprocess: vitePreprocess(),
+        adapter: adapter({ runtime: 'nodejs22.x' }),
+        inlineStyleThreshold: 8192,
+        prerender: {
+          // OG images and other linked assets may not exist as static files
+          // (they are served dynamically or externally in production). Warn
+          // instead of failing the build.
+          handleHttpError: 'warn',
+        },
+      }),
+    ],
     define: {
       __ASSET_VERSIONS__: JSON.stringify(versions),
     },

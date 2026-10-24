@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import VoronoiCanvas from '$lib/components/canvas/VoronoiCanvas.svelte';
+	import VoronoiCanvas from '#lib/components/canvas/VoronoiCanvas.svelte';
 
 	interface Props {
 		href?: string;

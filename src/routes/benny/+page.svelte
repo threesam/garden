@@ -1,13 +1,13 @@
 <script lang="ts">
-  import SeoHead from "$lib/components/SeoHead.svelte";
-  import ReadMark from "$lib/components/ReadMark.svelte";
-  import { articleNode } from "$lib/seo";
-  import { BENNY_PLAYLISTS } from "$lib/benny/playlists";
-  import Video from "$lib/components/Video.svelte";
-  import SixToMidnightBanner from "$lib/components/benny/SixToMidnightBanner.svelte";
-  import SoundcloudSlider from "$lib/components/benny/SoundcloudSlider.svelte";
-  import BennyPhotoMosaic from "$lib/components/benny/BennyPhotoMosaic.svelte";
-  import PlaylistSlider from "$lib/components/benny/PlaylistSlider.svelte";
+  import SeoHead from "#lib/components/SeoHead.svelte";
+  import ReadMark from "#lib/components/ReadMark.svelte";
+  import { articleNode } from "#lib/seo.js";
+  import { BENNY_PLAYLISTS } from "#lib/benny/playlists.js";
+  import Video from "#lib/components/Video.svelte";
+  import SixToMidnightBanner from "#lib/components/benny/SixToMidnightBanner.svelte";
+  import SoundcloudSlider from "#lib/components/benny/SoundcloudSlider.svelte";
+  import BennyPhotoMosaic from "#lib/components/benny/BennyPhotoMosaic.svelte";
+  import PlaylistSlider from "#lib/components/benny/PlaylistSlider.svelte";
   import type { PageData } from "./$types";
 
   let { data }: { data: PageData } = $props();

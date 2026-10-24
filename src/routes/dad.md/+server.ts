@@ -1,4 +1,4 @@
-import { getContent } from '$lib/content';
+import { getContent } from '#lib/content.js';
 import { error } from '@sveltejs/kit';
 
 // Raw markdown surface for /dad — same content as the HTML route, no
