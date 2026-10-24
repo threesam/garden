@@ -42,7 +42,7 @@ for (const path of covers) {
   const outRel = path.replace(/\.[a-z]+$/i, ".webp");
   const outAbs = join(STATIC_ROOT, outRel);
   mkdirSync(dirname(outAbs), { recursive: true });
-  if (existsSync(outAbs)) {
+  if (existsSync(outAbs) && existsSync(outAbs.replace(/\.webp$/, "-400.webp"))) {
     skipped++;
     continue;
   }
@@ -59,6 +59,11 @@ for (const path of covers) {
     .webp({ quality: 75 })
     .toBuffer();
   writeFileSync(outAbs, optimized);
+  // the 400px twin the page's srcset offers phones (coverSrcset in +page.svelte)
+  writeFileSync(
+    outAbs.replace(/\.webp$/, "-400.webp"),
+    await sharp(optimized).resize({ width: 400, height: 400, fit: "inside", withoutEnlargement: true }).webp({ quality: 75 }).toBuffer(),
+  );
   bytesOut += optimized.byteLength;
   const pct = Math.round((1 - optimized.byteLength / buf.byteLength) * 100);
   console.log(

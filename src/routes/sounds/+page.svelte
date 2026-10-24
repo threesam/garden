@@ -56,6 +56,12 @@
   // raw R2 jpegs). Serve those from /static with Vercel's immutable cache
   // instead of hitting R2 for ~10 MB of unoptimized originals.
   const coverUrl = (p: string) => p.replace(/\.[a-z]+$/i, ".webp");
+  // and a 400px twin beside each one: a phone's 2-across card is ~170px wide,
+  // so the 800 is only worth fetching on a dense screen or a wide one
+  const coverSrcset = (p: string) =>
+    `${p.replace(/\.[a-z]+$/i, "-400.webp")} 400w, ${coverUrl(p)} 800w`;
+  // cards: 2 across under 641px, 3 or 4 across a 12-col grid above it
+  const COVER_SIZES = "(max-width: 640px) 50vw, 33vw";
   // the ingest leaves a trailing "–null" end on the last HMBM cue's timecode
   const cueTime = (tc: string) => tc.replace(/[-–]null$/, "");
 
@@ -126,7 +132,7 @@
   // fetchpriority=high on the <img>; we add a preload from the head so
   // the fetch starts before the body parses). Falls through to undefined
   // when the manifest has no tiles or no cover on the first one.
-  const lcpCoverPreload = $derived(tiles[0]?.cover ? coverUrl(tiles[0].cover) : undefined);
+  const lcpCover = $derived(tiles[0]?.cover);
 
   // Pause/resume the current track (logs the umami event). A fresh play of a
   // different track goes through play/playCue below.
@@ -243,7 +249,9 @@
   title="sounds"
   description="music — demos and scores."
   canonical="/sounds"
-  preloadImage={lcpCoverPreload}
+  preloadImage={lcpCover ? coverUrl(lcpCover) : undefined}
+  preloadSrcset={lcpCover ? coverSrcset(lcpCover) : undefined}
+  preloadSizes={COVER_SIZES}
   schema={collectionPageNode({ path: "/sounds", name: "sounds — threesam" })}
 />
 
@@ -268,6 +276,8 @@
           {#if t.cover && !coverErrors[song.slug]}
             <Img
               src={coverUrl(t.cover)}
+              srcset={coverSrcset(t.cover)}
+              sizes={COVER_SIZES}
               alt=""
               draggable={false}
               eager={featured && i === 0}
