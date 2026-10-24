@@ -16,6 +16,9 @@
     canonical?: string | undefined;
     /** URL of the hero LCP image to preload. Adds a high-priority preload hint. */
     preloadImage?: string | undefined;
+    /** Responsive candidates for the preloaded image (must match the <img>'s). */
+    preloadSrcset?: string | undefined;
+    preloadSizes?: string | undefined;
     /** og:type — 'website' (default), 'article', or 'profile'. */
     ogType?: string | undefined;
     /** Alt text for the social image. Falls back to the resolved page title. */
@@ -34,6 +37,8 @@
     ogImage,
     canonical,
     preloadImage,
+    preloadSrcset,
+    preloadSizes,
     ogType = 'website',
     ogImageAlt,
     schema,
@@ -78,7 +83,14 @@
 
 <svelte:head>
   {#if preloadImage}
-    <link rel="preload" as="image" href={preloadImage} fetchpriority="high" />
+    <link
+      rel="preload"
+      as="image"
+      href={preloadImage}
+      imagesrcset={preloadSrcset}
+      imagesizes={preloadSizes}
+      fetchpriority="high"
+    />
   {/if}
   <title>{resolvedTitle}</title>
   <meta name="description" content={resolvedDescription} />
