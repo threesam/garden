@@ -14,7 +14,7 @@
   // churning in place. Continuous + delta-timed at the native rAF rate; paused
   // when hidden. Perf: 1× DPR (soft backdrop), light per-eye arcs, no blur.
   import { onMount } from "svelte";
-  import { makeNoise } from "$lib/art/noise";
+  import { makeNoise } from "#lib/art/noise.js";
 
   interface Props {
     /** true = fullscreen fixed backdrop; false = absolute, sized to the parent element. */

@@ -1,5 +1,8 @@
+import type { RouteId } from '$app/types';
+
 export interface NavRoute {
-  href: string;
+  // static routes only, so each href is also its route id (preloadCode takes ids)
+  href: RouteId;
   label: string;
 }
 

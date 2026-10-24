@@ -1,12 +1,12 @@
-import manifest from "$lib/sounds/manifest.json";
-import type { SoundsManifest } from "$lib/sounds/types";
-import { env } from "$env/dynamic/public";
+import { PUBLIC_SOUNDS_BASE } from "$app/env/public";
+import manifest from "#lib/sounds/manifest.json";
+import type { SoundsManifest } from "#lib/sounds/types.js";
 import type { PageServerLoad } from "./$types";
 
 export const prerender = true;
 
 // PUBLIC_SOUNDS_BASE points at the R2 public origin so audio/covers serve from
-// object storage (free egress). Read via $env (not raw process.env) so it also
+// object storage (free egress). Read via $app/env (not raw process.env) so it also
 // resolves from .env / .env.local in local dev, not just the Vercel build env.
 // Unset → relative paths served from static/. Baked into the prerender at build.
 export const load: PageServerLoad = () => {
@@ -16,6 +16,6 @@ export const load: PageServerLoad = () => {
     // unnecessary, but svelte-check (and the Song consumers) require it.
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     manifest: manifest as SoundsManifest,
-    base: env["PUBLIC_SOUNDS_BASE"] ?? "",
+    base: PUBLIC_SOUNDS_BASE,
   };
 };

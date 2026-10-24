@@ -1,5 +1,5 @@
 <script lang="ts">
-  import ReadMark from "$lib/components/ReadMark.svelte";
+  import ReadMark from "#lib/components/ReadMark.svelte";
 
   let { html }: { html: string } = $props();
 </script>

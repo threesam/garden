@@ -5,7 +5,7 @@
 //
 // LEAVE_MS matches the 1s word-fade already shipped in #263. Same
 // class-singleton shape as gameMode.
-import { browser } from '$app/environment';
+import { browser } from '$app/env';
 
 const DIVE_URL = 'https://pyredivers.com/?dive';
 const LEAVE_MS = 1000;

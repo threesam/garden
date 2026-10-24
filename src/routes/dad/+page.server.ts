@@ -1,4 +1,4 @@
-import { getContent } from "$lib/content";
+import { getContent } from "#lib/content.js";
 import type { PageServerLoad } from "./$types";
 
 export const prerender = true;

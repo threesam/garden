@@ -1,5 +1,5 @@
 <script lang="ts">
-	import LazyMount from '$lib/components/LazyMount.svelte';
+	import LazyMount from '#lib/components/LazyMount.svelte';
 
 	const TRACKS = [
 		{

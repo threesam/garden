@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import VoronoiCanvas from './VoronoiCanvas.svelte';
-  import LazyMount from '$lib/components/LazyMount.svelte';
+  import LazyMount from '#lib/components/LazyMount.svelte';
 
   interface Props {
     src: string;

@@ -1,5 +1,5 @@
 import sharp from "sharp";
-import { getBooks, type Book } from "$lib/goodreads";
+import { getBooks, type Book } from "#lib/goodreads.js";
 import type { PageServerLoad } from "./$types";
 
 export const prerender = true;

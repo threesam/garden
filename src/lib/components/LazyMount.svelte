@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { scheduleIdle, cancelIdle } from '$lib/perf/idle';
+  import { scheduleIdle, cancelIdle } from '#lib/perf/idle.js';
 
   interface Props {
     /**

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import SeoHead from '$lib/components/SeoHead.svelte';
-  import { creativeWorkNode } from '$lib/seo';
+  import SeoHead from '#lib/components/SeoHead.svelte';
+  import { creativeWorkNode } from '#lib/seo.js';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();

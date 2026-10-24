@@ -1,29 +1,29 @@
 <script lang="ts">
-  import SeoHead from "$lib/components/SeoHead.svelte";
-  import { articleNode } from "$lib/seo";
-  import LazyMount from "$lib/components/LazyMount.svelte";
+  import SeoHead from "#lib/components/SeoHead.svelte";
+  import { articleNode } from "#lib/seo.js";
+  import LazyMount from "#lib/components/LazyMount.svelte";
   // AsciiImageSection is above-the-fold — keep eager.
-  import AsciiImageSection from "$lib/components/messages/AsciiImageSection.svelte";
-  import { DEANA_ASCII } from "$lib/deana/images.js";
+  import AsciiImageSection from "#lib/components/messages/AsciiImageSection.svelte";
+  import { DEANA_ASCII } from "#lib/deana/images.js";
 
   // All below-the-fold components are dynamically imported so their
   // modules are excluded from the initial page bundle.
   const loadMessageTimeline = () =>
-    import("$lib/components/messages/MessageTimeline.svelte");
+    import("#lib/components/messages/MessageTimeline.svelte");
   const loadClockHeatmap = () =>
-    import("$lib/components/messages/ClockHeatmap.svelte");
+    import("#lib/components/messages/ClockHeatmap.svelte");
   const loadLazyWordCloud = () =>
-    import("$lib/components/messages/LazyWordCloud.svelte");
+    import("#lib/components/messages/LazyWordCloud.svelte");
   const loadTotalWords = () =>
-    import("$lib/components/messages/TotalWords.svelte");
+    import("#lib/components/messages/TotalWords.svelte");
   const loadBusiestDay = () =>
-    import("$lib/components/messages/BusiestDay.svelte");
+    import("#lib/components/messages/BusiestDay.svelte");
   const loadMostWords = () =>
-    import("$lib/components/messages/MostWords.svelte");
+    import("#lib/components/messages/MostWords.svelte");
   const loadEmojiMeter = () =>
-    import("$lib/components/messages/EmojiMeter.svelte");
+    import("#lib/components/messages/EmojiMeter.svelte");
   const loadPetNames = () =>
-    import("$lib/components/messages/PetNames.svelte");
+    import("#lib/components/messages/PetNames.svelte");
 
   const g = "gap-3 md:gap-6";
 </script>

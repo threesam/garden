@@ -1,12 +1,12 @@
 <script lang="ts">
-  import SeoHead from "$lib/components/SeoHead.svelte";
-  import { collectionPageNode } from "$lib/seo";
-  import EyeOcean from "$lib/sounds/EyeOcean.svelte";
-  import PlayGlyph from "$lib/sounds/PlayGlyph.svelte";
-  import { player, attach, playTrack, toggle, seek, setScrubbing } from "$lib/sounds/player.svelte";
+  import SeoHead from "#lib/components/SeoHead.svelte";
+  import { collectionPageNode } from "#lib/seo.js";
+  import EyeOcean from "#lib/sounds/EyeOcean.svelte";
+  import PlayGlyph from "#lib/sounds/PlayGlyph.svelte";
+  import { player, attach, playTrack, toggle, seek, setScrubbing } from "#lib/sounds/player.svelte.js";
   import type { PageData } from "./$types";
-  import type { Cue, Song } from "$lib/sounds/types";
-  import Img from "$lib/components/Img.svelte";
+  import type { Cue, Song } from "#lib/sounds/types.js";
+  import Img from "#lib/components/Img.svelte";
 
   let { data }: { data: PageData } = $props();
   let { manifest, base } = $derived(data);

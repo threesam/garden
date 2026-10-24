@@ -1,9 +1,9 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
   import { page } from "$app/state";
-  import Segmented from "$lib/components/Segmented.svelte";
-  import Video from "$lib/components/Video.svelte";
-  import { POSTER, VIDEO } from "$lib/mouth-machine-story";
+  import Segmented from "#lib/components/Segmented.svelte";
+  import Video from "#lib/components/Video.svelte";
+  import { POSTER, VIDEO } from "#lib/mouth-machine-story.js";
 
   let { children }: { children: Snippet } = $props();
 

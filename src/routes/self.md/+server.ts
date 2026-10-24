@@ -1,4 +1,4 @@
-import { getContent } from '$lib/content';
+import { getContent } from '#lib/content.js';
 import { error } from '@sveltejs/kit';
 
 export const prerender = true;

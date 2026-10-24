@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { gameMode } from '$lib/game-mode.svelte';
+	import { gameMode } from '#lib/game-mode.svelte.js';
 
 	// Snake game. Coin (yellow) page bg shines through; the snake + food
 	// render in --black on a fully-transparent canvas. Keyboard arrows or

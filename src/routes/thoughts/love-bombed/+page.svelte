@@ -1,9 +1,9 @@
 <script lang="ts">
   import { MediaQuery } from "svelte/reactivity";
-  import { videoVisibility } from "$lib/actions/video-visibility";
-  import { assetSize } from "$lib/asset-dimensions";
-  import ReadMark from "$lib/components/ReadMark.svelte";
-  import SeoHead from "$lib/components/SeoHead.svelte";
+  import { videoVisibility } from "#lib/actions/video-visibility.js";
+  import { assetSize } from "#lib/asset-dimensions.js";
+  import ReadMark from "#lib/components/ReadMark.svelte";
+  import SeoHead from "#lib/components/SeoHead.svelte";
   import {
     BARS,
     OG,
@@ -19,8 +19,8 @@
     visual,
     words,
     type Clip,
-  } from "$lib/love-bombed-story";
-  import { articleNode, videoNode } from "$lib/seo";
+  } from "#lib/love-bombed-story.js";
+  import { articleNode, videoNode } from "#lib/seo.js";
 
   const PATH = "/thoughts/love-bombed";
   const DESCRIPTION =

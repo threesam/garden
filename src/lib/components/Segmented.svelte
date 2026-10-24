@@ -34,7 +34,7 @@
         class:on={active === i}
         href={item.href}
         aria-current={active === i ? 'page' : undefined}
-        data-sveltekit-noscroll
+        data-sveltekit-reset="false"
       >
         {item.label}
       </a>

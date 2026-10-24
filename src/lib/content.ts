@@ -1,7 +1,7 @@
 import { readFile } from "fs/promises";
 import { join } from "path";
-import { dev } from "$app/environment";
-import { stampAssets } from "$lib/asset-version";
+import { dev } from "$app/env";
+import { stampAssets } from "#lib/asset-version.js";
 
 const CONTENT_DIR = join(process.cwd(), "content");
 

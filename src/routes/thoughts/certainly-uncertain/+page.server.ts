@@ -1,5 +1,5 @@
-import { getContent } from "$lib/content";
-import { markdownRenderer } from "$lib/markdown";
+import { getContent } from "#lib/content.js";
+import { markdownRenderer } from "#lib/markdown.js";
 import type { PageServerLoad } from "./$types";
 
 export const prerender = true;

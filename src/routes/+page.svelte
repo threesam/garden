@@ -1,13 +1,13 @@
 <script lang="ts">
-  import SeoHead from '$lib/components/SeoHead.svelte';
-  import Gallery from '$lib/components/gallery/Gallery.svelte';
-  import BrandSignoff from '$lib/components/frame/BrandSignoff.svelte';
-  import SnakeGame from '$lib/components/snake/SnakeGame.svelte';
-  import InvadersGame from '$lib/components/invaders/InvadersGame.svelte';
+  import SeoHead from '#lib/components/SeoHead.svelte';
+  import Gallery from '#lib/components/gallery/Gallery.svelte';
+  import BrandSignoff from '#lib/components/frame/BrandSignoff.svelte';
+  import SnakeGame from '#lib/components/snake/SnakeGame.svelte';
+  import InvadersGame from '#lib/components/invaders/InvadersGame.svelte';
   import { fade } from 'svelte/transition';
-  import { gameMode } from '$lib/game-mode.svelte';
-  import { diveMode } from '$lib/dive-mode.svelte';
-  import { SITE_PAGES, SITE_URL, homePageNode, itemListNode } from '$lib/seo';
+  import { gameMode } from '#lib/game-mode.svelte.js';
+  import { diveMode } from '#lib/dive-mode.svelte.js';
+  import { SITE_PAGES, SITE_URL, homePageNode, itemListNode } from '#lib/seo.js';
 
   // Structured site index for search + answer engines. Mirrors the
   // natural-language /llms.txt and the sitemap so the same SITE_PAGES

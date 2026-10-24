@@ -1,7 +1,7 @@
 import type { RequestHandler } from './$types';
 import { error } from '@sveltejs/kit';
 import sharp from 'sharp';
-import { createTtlCache } from '$lib/server/ttl-cache';
+import { createTtlCache } from '#lib/server/ttl-cache.js';
 
 // Allowed origin hosts — prevents open redirect abuse.
 const ALLOWED_HOSTS = new Set(['images.gr-assets.com', 'i.gr-assets.com', 's.gr-assets.com']);

@@ -7,7 +7,7 @@
     jsonLdToScript,
     buildGraph,
     breadcrumbNode,
-  } from '$lib/seo';
+  } from '#lib/seo.js';
 
   interface Props {
     title?: string | undefined;

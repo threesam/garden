@@ -1,8 +1,8 @@
 import type { Action } from 'svelte/action';
-import type { Sketch } from '$lib/art/types';
-import { loadSketch } from '$lib/art/load-sketch';
-import { mulberry32 } from '$lib/art/rng';
-import { makeNoise } from '$lib/art/noise';
+import type { Sketch } from '#lib/art/types.js';
+import { loadSketch } from '#lib/art/load-sketch.js';
+import { mulberry32 } from '#lib/art/rng.js';
+import { makeNoise } from '#lib/art/noise.js';
 
 export interface SketchHostParams {
 	slug: string;
@@ -44,9 +44,9 @@ export const sketchHost: Action<HTMLCanvasElement, SketchHostParams> = (
 	let rafId = 0;
 	let resizeTimeout: ReturnType<typeof setTimeout>;
 	let cleanup: (() => void) | null = null;
-	let tick: ((api: import('$lib/art/types').SketchAPI, frame: number) => void) | null = null;
+	let tick: ((api: import('#lib/art/types.js').SketchAPI, frame: number) => void) | null = null;
 	let frame = 0;
-	let api: import('$lib/art/types').SketchAPI | null = null;
+	let api: import('#lib/art/types.js').SketchAPI | null = null;
 	let hasSetup = false;
 	// Tracked separately so teardown/setup after an active change can read
 	// the most recent value without closing over the initial props object.

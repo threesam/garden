@@ -1,6 +1,6 @@
 import type { Action } from 'svelte/action';
-import { compileShader } from '$lib/canvas/gl-utils';
-import { parseHex } from '$lib/canvas/color';
+import { compileShader } from '#lib/canvas/gl-utils.js';
+import { parseHex } from '#lib/canvas/color.js';
 
 // ─── GLSL ────────────────────────────────────────────────────────────────────
 

@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { BennyPlaylist } from '$lib/benny/playlists';
-  import LazyMount from '$lib/components/LazyMount.svelte';
+  import type { BennyPlaylist } from '#lib/benny/playlists.js';
+  import LazyMount from '#lib/components/LazyMount.svelte';
 
   interface Props {
     playlists: BennyPlaylist[];
