@@ -8,6 +8,7 @@ const ROUTE_MARKERS: Record<string, string> = {
   '/':                              'css:.letter',
   '/shelf':                         'shelf',
   '/sounds':                        'sounds',
+  '/wetyu':                         'three loops, always running',
   '/thoughts':                      'thoughts',
   '/dad':                           'dad',
   '/deana':                         'deana',

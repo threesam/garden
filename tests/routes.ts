@@ -2,6 +2,7 @@ export const KEPT_ROUTES = [
   { path: '/',                              label: 'home' },
   { path: '/shelf',                         label: 'shelf' },
   { path: '/sounds',                        label: 'sounds' },
+  { path: '/wetyu',                         label: 'wetyu' },
   { path: '/thoughts',                      label: 'thoughts' },
   { path: '/dad',                           label: 'dad' },
   { path: '/deana',                         label: 'deana' },
