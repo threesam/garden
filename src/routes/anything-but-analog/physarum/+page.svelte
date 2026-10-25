@@ -205,7 +205,8 @@
 <SeoHead
   title="slime moulds — anything but analog"
   description="Two slime moulds simulated in Rust and rendered off the main thread: a physarum transport network and dictyostelium cAMP waves."
-  ogImage="/og/anything-but-analog.png"
+  ogImage="/og/physarum.png"
+  ogImageAlt="A physarum colony rendered as glowing amber tubes on a black plate, wiring together six food sources into a transport network."
   canonical="/anything-but-analog/physarum"
   schema={collectionPageNode({
     path: '/anything-but-analog/physarum',
