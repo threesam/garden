@@ -6,7 +6,7 @@
 <div class="border-y border-(--white)">
 	<img
 		src="/assets/sixtomidnight-banner.jpg"
-		srcset="/assets/sixtomidnight-banner-800.webp 800w, /assets/sixtomidnight-banner-1600.webp 1600w, /assets/sixtomidnight-banner.jpg 2480w"
+		srcset="/assets/sixtomidnight-banner-806.webp 806w, /assets/sixtomidnight-banner-1612.webp 1612w, /assets/sixtomidnight-banner.jpg 2480w"
 		sizes="100vw"
 		alt="Six to Midnight banner"
 		width="2480"

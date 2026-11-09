@@ -10,8 +10,9 @@ import sharp from "sharp";
 const TWINS = [
   // the peach essay hero (1080 wide), ~364 CSS px on a phone
   { src: "static/assets/the-peach-src.jpg", out: "static/assets/the-peach", widths: [720] },
-  // the /benny banner (2480 wide), full-bleed
-  { src: "static/assets/sixtomidnight-banner.jpg", out: "static/assets/sixtomidnight-banner", widths: [800, 1600] },
+  // the /benny banner (2480x520 = 62:13), full-bleed; widths stay multiples of
+  // 62 so a twin keeps the exact aspect and the page below never moves a pixel
+  { src: "static/assets/sixtomidnight-banner.jpg", out: "static/assets/sixtomidnight-banner", widths: [806, 1612] },
 ];
 
 for (const { src, out, widths } of TWINS) {
