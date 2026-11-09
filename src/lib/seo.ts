@@ -30,11 +30,19 @@ const WEBSITE_ID = `${SITE_URL}/#website`;
  * formats. (The homepage gallery curates its own visual subset separately, as
  * its cards carry per-handle canvas wiring beyond a plain path/label.)
  */
-export const SITE_PAGES: { path: string; label: string; blurb: string }[] = [
+export const SITE_PAGES: {
+  path: string;
+  label: string;
+  blurb: string;
+  /** YYYY-MM-DD of the last edit to the words, for the sitemap. Only on pages
+   * whose words live in one file; bump it with the edit. */
+  lastmod?: string;
+}[] = [
   {
     path: "/self",
     label: "self",
     blurb: "Sam's story — growing up in Trenton, making art, and finding a way through.",
+    lastmod: "2026-05-18",
   },
   {
     path: "/anything-but-analog",
@@ -46,8 +54,13 @@ export const SITE_PAGES: { path: string; label: string; blurb: string }[] = [
     label: "deana",
     blurb: "A data-art project on 102,549 messages across 10 years — one conversation.",
   },
-  { path: "/benny", label: "benny", blurb: "Remembering 102 Jackson Street." },
-  { path: "/dad", label: "dad", blurb: "Stories about Sam's dad." },
+  {
+    path: "/benny",
+    label: "benny",
+    blurb: "Remembering 102 Jackson Street.",
+    lastmod: "2026-05-14",
+  },
+  { path: "/dad", label: "dad", blurb: "Stories about Sam's dad.", lastmod: "2026-06-02" },
   {
     path: "/shelf",
     label: "shelf",
@@ -93,6 +106,11 @@ const PERSON_NODE = {
   jobTitle: "Artist-Engineer",
   description: SITE_DESCRIPTION,
   knowsAbout: KNOWS_ABOUT,
+  worksFor: {
+    "@type": "Organization",
+    name: "Made In",
+    url: "https://madeincookware.com",
+  },
   sameAs: [
     "https://www.linkedin.com/in/threesam/",
     "https://github.com/threesam",
@@ -145,7 +163,11 @@ export function profilePageNode(opts: { path: string; name: string }): object {
   };
 }
 
-/** A single narrative piece authored by Sam (e.g. /dad, /benny, /deana). */
+/**
+ * A single narrative piece authored by Sam. An essay under /thoughts/ is a
+ * BlogPosting in the /thoughts blog; anything else (/dad, /benny, /deana) is
+ * an Article on the site.
+ */
 export function articleNode(opts: {
   path: string;
   headline: string;
@@ -153,13 +175,14 @@ export function articleNode(opts: {
   datePublished?: string;
   dateModified?: string;
 }): object {
+  const essay = opts.path.startsWith("/thoughts/");
   const node: Record<string, unknown> = {
-    "@type": "Article",
+    "@type": essay ? "BlogPosting" : "Article",
     "@id": `${absUrl(opts.path)}#article`,
     headline: opts.headline,
     url: absUrl(opts.path),
     mainEntityOfPage: absUrl(opts.path),
-    isPartOf: { "@id": WEBSITE_ID },
+    isPartOf: { "@id": essay ? `${SITE_URL}/thoughts#blog` : WEBSITE_ID },
     author: { "@id": PERSON_ID },
     publisher: { "@id": PERSON_ID },
   };

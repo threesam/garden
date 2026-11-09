@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   SITE_URL,
+  articleNode,
   breadcrumbNode,
   buildGraph,
   itemListNode,
@@ -71,6 +72,32 @@ describe("seo node builders", () => {
     expect(nodes[0]!["@type"]).toBe("Person");
     expect(nodes[1]!["@type"]).toBe("WebSite");
     expect(nodes[2]).toBe(pageNode);
+  });
+});
+
+describe("articleNode", () => {
+  it("makes an essay under /thoughts a BlogPosting in the blog", () => {
+    const node = articleNode({
+      path: "/thoughts/the-peach",
+      headline: "the peach",
+      datePublished: "2026-06-09",
+    }) as Record<string, unknown>;
+    expect(node["@type"]).toBe("BlogPosting");
+    expect(node["isPartOf"]).toEqual({ "@id": `${SITE_URL}/thoughts#blog` });
+    expect(node["dateModified"]).toBe("2026-06-09");
+  });
+
+  it("keeps a page outside /thoughts an Article on the site", () => {
+    const node = articleNode({ path: "/dad", headline: "dad" }) as Record<string, unknown>;
+    expect(node["@type"]).toBe("Article");
+    expect(node["isPartOf"]).toEqual({ "@id": `${SITE_URL}/#website` });
+  });
+});
+
+describe("Person", () => {
+  it("says where Sam works", () => {
+    const person = (buildGraph() as { "@graph": Record<string, unknown>[] })["@graph"][0]!;
+    expect(person["worksFor"]).toMatchObject({ "@type": "Organization", name: "Made In" });
   });
 });
 

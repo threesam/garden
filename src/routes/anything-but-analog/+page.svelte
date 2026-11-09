@@ -15,7 +15,7 @@
 
 <SeoHead
   title="anything but analog"
-  description="generative sketches."
+  description="generative sketches, one a day in code, from january into february 2022."
   ogImage="/og/anything-but-analog.png"
   canonical="/anything-but-analog"
   schema={collectionPageNode({
@@ -32,6 +32,7 @@
   tabindex="0"
   class="h-dvh snap-y snap-mandatory overflow-y-scroll bg-black"
 >
+  <h1 class="sr-only">anything but analog</h1>
   <ArtScrollSync />
   <section
     id="hero"

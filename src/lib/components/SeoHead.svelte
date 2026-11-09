@@ -8,6 +8,7 @@
     buildGraph,
     breadcrumbNode,
   } from '#lib/seo.js';
+  import { assetSize } from '#lib/asset-dimensions.js';
 
   interface Props {
     title?: string | undefined;
@@ -52,6 +53,9 @@
     if (path.startsWith('http')) return path;
     return `${SITE_URL}${path}`;
   });
+  // The og cards are all 1200×630; a share picture taken from the assets
+  // folder says its own size.
+  const ogSize = $derived(assetSize(ogImage ?? '') ?? { w: 1200, h: 630 });
   const resolvedCanonical = $derived(canonical ?? '/');
   const resolvedImageAlt = $derived(ogImageAlt ?? resolvedTitle);
   // Auto-derive Home → Page from SITE_PAGES when no explicit trail is
@@ -101,8 +105,8 @@
   <meta property="og:title" content={resolvedTitle} />
   <meta property="og:description" content={resolvedDescription} />
   <meta property="og:image" content={resolvedOg} />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
+  <meta property="og:image:width" content={String(ogSize.w)} />
+  <meta property="og:image:height" content={String(ogSize.h)} />
   <meta property="og:image:alt" content={resolvedImageAlt} />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={resolvedTitle} />
