@@ -175,7 +175,7 @@
               class="block aspect-9/16 w-full rounded-lg bg-black"
               use:videoVisibility={{ autoplay: !calm.current }}
             ></video>
-          {:else if m.kind === "img" && m.sound}
+          {:else if m.sound}
             {@const sound = m.sound}
             <button
               type="button"

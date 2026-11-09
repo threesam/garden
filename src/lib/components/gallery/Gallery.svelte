@@ -355,7 +355,8 @@
 									/>
 								{:else if item.handle === 'thoughts'}
 									<CanvasComp slug="30" active={inView(i)} interactive={false} />
-								{:else if item.handle === 'sounds'}
+								{:else}
+									<!-- sounds: the last handle left -->
 									<CanvasComp fixed={false} />
 								{/if}
 							{/await}

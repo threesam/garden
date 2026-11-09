@@ -21,7 +21,6 @@
 		}
 
 		let currentSlug = initialHash || sections[0]!.dataset['artSlug']!;
-		// eslint-disable-next-line svelte/prefer-svelte-reactivity -- onMount-scoped scratch state; never read by the template
 		const visibility = new Map<string, number>();
 
 		const io = new IntersectionObserver(
