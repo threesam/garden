@@ -22,7 +22,7 @@
   ];
 </script>
 
-<SeoHead canonical="/" ogImage="/og/home.png" schema={homeSchema} />
+<SeoHead title="Sam D'Angelo" canonical="/" ogImage="/og/home.png" schema={homeSchema} />
 
 <!--
   Single-viewport homepage on a flat --coin field: a 50dvh gallery strip

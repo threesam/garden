@@ -103,7 +103,7 @@
 
 <SeoHead
   title="thoughts"
-  description="stories and thoughts."
+  description="stories and thoughts: a peach at 15, the certainty that you can't know, and two mouth machine videos, taken apart the way they were made."
   canonical="/thoughts"
   schema={blogNode({
     path: "/thoughts",
