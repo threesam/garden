@@ -10,6 +10,12 @@
   // Published to this (owned) site first; LinkedIn syndicates after, so
   // threesam is the canonical source. Mirror this in the Article graph.
   const PUBLISHED = "2026-06-09";
+
+  // The hero is the LCP. A phone shows it ~364 CSS px wide, so it takes the
+  // 720 twin (scripts/image-twins.mjs); dense and wide screens still get the
+  // 1080 original. Sizes follow the article: max-w-3xl less px-6 / md:px-9.
+  const HERO_SRCSET = "/assets/the-peach-720.webp 720w, /assets/the-peach.webp 1080w";
+  const HERO_SIZES = "(min-width: 768px) 696px, calc(100vw - 3rem)";
 </script>
 
 <SeoHead
@@ -20,6 +26,8 @@
   ogImage="/assets/the-peach.webp"
   ogImageAlt="a bag of fresh peaches at a market"
   preloadImage="/assets/the-peach.webp"
+  preloadSrcset={HERO_SRCSET}
+  preloadSizes={HERO_SIZES}
   schema={articleNode({
     path: "/thoughts/the-peach",
     headline: "the peach",
@@ -50,6 +58,8 @@
 
     <img
       src="/assets/the-peach.webp"
+      srcset={HERO_SRCSET}
+      sizes={HERO_SIZES}
       alt="a bag of fresh peaches at a market"
       width="1080"
       height="1350"
