@@ -15,7 +15,7 @@
 
 <SeoHead
   title="anything but analog"
-  description="generative sketches, one a day in code, from january into february 2022."
+  description="generative sketches made in code, from a sketch-a-day run in january 2022."
   ogImage="/og/anything-but-analog.png"
   canonical="/anything-but-analog"
   schema={collectionPageNode({
