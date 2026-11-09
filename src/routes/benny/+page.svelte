@@ -16,7 +16,7 @@
 
 <SeoHead
   title="benny"
-  description="remembering 102 jackson street."
+  description="remembering 102 jackson street: sixtomidnight production studios in Trenton's Mill Hill Park, where we recorded, filmed and hung out."
   ogImage="/og/benny.png"
   canonical="/benny"
   preloadImage="/assets/sixtomidnight-tribute-poster.jpg"

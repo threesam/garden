@@ -253,7 +253,7 @@
 
 <SeoHead
   title="sounds"
-  description="music — demos and scores."
+  description="music by Sam D'Angelo — demos and scores, each one playable right here."
   canonical="/sounds"
   preloadImage={lcpCover ? coverUrl(lcpCover) : undefined}
   preloadSrcset={lcpCover ? coverSrcset(lcpCover) : undefined}

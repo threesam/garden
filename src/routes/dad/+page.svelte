@@ -14,7 +14,7 @@
 
 <SeoHead
   title="dad"
-  description="stories about my dad."
+  description="stories about my dad: Battlefield Earth when i was 10, the snow that stopped his pain, and the last four months."
   ogImage="/og/dad.png"
   canonical="/dad"
   ogType="article"

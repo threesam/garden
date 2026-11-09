@@ -42,6 +42,7 @@
 />
 
 <main class="bg-white">
+  <h1 class="sr-only">deana</h1>
   <AsciiImageSection ascii={DEANA_ASCII[0]!} eager />
 
   <section class="w-full bg-white px-3 py-12 md:px-6 md:py-24">

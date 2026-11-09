@@ -18,6 +18,7 @@ export interface Dimensions {
 
 export const assetDimensions: Record<string, Dimensions> = {
   "/assets/piece-of-paper.webp": { w: 1449, h: 2576 },
+  "/assets/the-peach.webp": { w: 1080, h: 1350 },
   "/assets/velvet-door.webp": { w: 1137, h: 704 },
   "/assets/blondie.webp": { w: 795, h: 573 },
   "/assets/fault-lines.webp": { w: 2000, h: 999 },
